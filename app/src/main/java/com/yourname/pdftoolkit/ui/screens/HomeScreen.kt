@@ -171,9 +171,14 @@ val pdfFeatures = listOf(
         icon = Icons.Default.Compress
     ),
     PdfFeature(
-        title = "Convert Images",
+        title = "Images to PDF",
         description = "Convert images to PDF",
         icon = Icons.Default.Image
+    ),
+    PdfFeature(
+        title = "PDF to Images",
+        description = "Convert PDF pages to images",
+        icon = Icons.Default.PhotoLibrary
     ),
     PdfFeature(
         title = "Extract Pages",
@@ -196,3 +201,4 @@ val pdfFeatures = listOf(
         icon = Icons.Default.Info
     )
 )
+
