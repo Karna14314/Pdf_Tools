@@ -38,17 +38,12 @@ captures/
 
 # IntelliJ
 *.iml
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/gradle.xml
-.idea/assetWizardSettings.xml
-.idea/dictionaries
-.idea/libraries
-# Android Studio 3 in .gitignore file.
-.idea/caches
-.idea/modules.xml
-# Comment next line if keeping position of elements in Navigation Editor is relevant for you
-.idea/navEditor.xml
+.idea/
+*.ipr
+*.iws
+
+# Visual Studio Code
+.vscode/
 
 # Keystore files
 # Sensitive signing credentials - DO NOT COMMIT
@@ -107,4 +102,4 @@ lint/tmp/
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db
+Thumbs.db.vscode/
