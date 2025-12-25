@@ -1,0 +1,378 @@
+-- Merging decision tree log ---
+provider#androidx.core.content.FileProvider
+INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:60:9-68:20
+	android:grantUriPermissions
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:64:13-47
+	android:authorities
+		INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:62:13-60
+	android:exported
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:63:13-37
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:61:13-62
+manifest
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:2:1-72:12
+INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:2:1-72:12
+INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:2:1-72:12
+INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:2:1-72:12
+MERGED from [androidx.navigation:navigation-common:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/9a35a517b678328d8018c0b74aad4127/transformed/navigation-common-2.7.5/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-runtime:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/2a903f31ea565e5f711b94ab6cdc28c5/transformed/navigation-runtime-2.7.5/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/5787102779aa92a0f013868e6d758717/transformed/navigation-common-ktx-2.7.5/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/1a7cbbd110fc542dfead0b1b2c012650/transformed/navigation-runtime-ktx-2.7.5/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.navigation:navigation-compose:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/61ef3fd50436a863009f96ea954b9870/transformed/navigation-compose-2.7.5/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material3:material3:1.1.2] /home/chaitanya/.gradle/caches/transforms-3/aad8b13e796588a69dc7a905f115d70a/transformed/material3-1.1.2/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.animation:animation-core-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/8a36b24cebab2c0973affbdef666d56b/transformed/animation-core-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-core-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/1e66413b3faf97fd9d7f8cc83d32a20f/transformed/material-icons-core-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-icons-extended-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/9e3f97a3046f4a5aa4114313a8111e3c/transformed/material-icons-extended-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.material:material-ripple-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/c667d3ff38568eb14f16af70a953eb33/transformed/material-ripple-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.animation:animation-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/aff0718508507c5d3f902bc53419293c/transformed/animation-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/14d62806c43bac5996f65c5cfdd7ae3b/transformed/foundation-layout-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.foundation:foundation-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/416c111b135b9f3f3ff097824ac9c8e9/transformed/foundation-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-unit-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/a1ecb04ff31596bc5ebe76a9c4db0bbf/transformed/ui-unit-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-geometry-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/96cca6721843c046b33066bbcc3e7a43/transformed/ui-geometry-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-util-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/5710bcdbf6b4cb6db5d9fe0224c9175c/transformed/ui-util-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-text-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/6390ebda21dd65a48f7aae8b6d3d52fc/transformed/ui-text-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/2444e969acb623bde2957f2592d5a4fd/transformed/ui-tooling-preview-release/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.ui:ui-graphics-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/c36d81884c0853db4772eafac689502b/transformed/ui-graphics-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.activity:activity:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/57507bf2be5a715848c0ba912924c807/transformed/activity-1.7.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.activity:activity-ktx:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/67d153c2a85d4de6aed174bf6c6d3180/transformed/activity-ktx-1.7.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.activity:activity-compose:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/5184041c9ee953009d85a957a6764e59/transformed/activity-compose-1.7.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.ui:ui-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/f9593ed64f456e3d6cfd5c4c3f759f44/transformed/ui-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:17:1-35:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/5752edd6fb9a179acc22932ca3c2298b/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/chaitanya/.gradle/caches/transforms-3/38847693319129ed1df306f115cd9cae/transformed/savedstate-ktx-1.2.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.savedstate:savedstate:1.2.1] /home/chaitanya/.gradle/caches/transforms-3/68fb7a6a55ff1d3d40e2e5af1a06e4c1/transformed/savedstate-1.2.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/aa06935408fd6c915a683f911a85abf5/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/f0c879d851c39aaa866a83d2e6686175/transformed/lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/ab3e0dc3cd7ca47be012f99b0f276a43/transformed/lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/30b7604a5053d4efe3dbc9d3a0451ec0/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml:17:1-23:12
+MERGED from [androidx.core:core-ktx:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/a78dd7fb7e7b01ac9e22b04b127b9112/transformed/core-ktx-1.12.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.autofill:autofill:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/0666d9ddfa7f70176631234b6d90b855/transformed/autofill-1.0.0/AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:17:1-30:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/fb63b04b879a87e893e36d7d2da67248/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/d2e909d10daccc926773903f03e44734/transformed/lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/94ffe0824b5ee35903f362d803caa628/transformed/lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/8b0c2a1aba29f4e1727f8b82323ce470/transformed/runtime-saveable-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.compose.runtime:runtime-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/596dcf07676e281489a8bb5bdf33ac89/transformed/runtime-release/AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.documentfile:documentfile:1.0.1] /home/chaitanya/.gradle/caches/transforms-3/ddab9fa39ecacd124a2244b90e22accd/transformed/documentfile-1.0.1/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.annotation:annotation-experimental:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/555566ff30ce355a9ea16a25ff3d8b94/transformed/annotation-experimental-1.3.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/c2fca566acc1137ba306e058fe95c654/transformed/interpolator-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/198f004e6f9961030a0a278abc7ba5d9/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:17:1-27:12
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/chaitanya/.gradle/caches/transforms-3/b914053979378bcaf6e4cf729e699bac/transformed/core-runtime-2.2.0/AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:17:1-55:12
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/6cb7a057f3b49f27f2a4a8b83eee81cc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:17:1-33:12
+MERGED from [androidx.tracing:tracing:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/4dffb5e96a9845ec999e80bed1714519/transformed/tracing-1.0.0/AndroidManifest.xml:17:1-24:12
+	package
+		INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+	xmlns:tools
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:3:5-51
+	android:versionCode
+		INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:6:5-8:38
+	android:maxSdkVersion
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:8:9-35
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:7:9-64
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:10:5-13:40
+	android:maxSdkVersion
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:12:9-35
+	tools:ignore
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:13:9-37
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:11:9-65
+application
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:15:5-70:19
+INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:15:5-70:19
+MERGED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:23:5-33:19
+MERGED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:28:5-89
+MERGED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:28:5-89
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/198f004e6f9961030a0a278abc7ba5d9/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/198f004e6f9961030a0a278abc7ba5d9/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:24:5-25:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:23:5-53:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/6cb7a057f3b49f27f2a4a8b83eee81cc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/6cb7a057f3b49f27f2a4a8b83eee81cc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+	android:extractNativeLibs
+		INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+	android:requestLegacyExternalStorage
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:26:9-52
+	android:roundIcon
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:22:9-47
+	android:icon
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:20:9-42
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
+	android:supportsRtl
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:23:9-35
+	android:label
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:21:9-41
+	android:hardwareAccelerated
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:25:9-43
+	android:fullBackupContent
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:19:9-54
+	tools:targetApi
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:27:9-29
+	android:allowBackup
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:17:9-35
+	android:theme
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:24:9-48
+	android:dataExtractionRules
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:18:9-65
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:16:9-46
+activity#com.yourname.pdftoolkit.ui.MainActivity
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:29:9-57:20
+	android:launchMode
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:32:13-43
+	android:exported
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:31:13-36
+	android:theme
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:33:13-52
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:30:13-44
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:36:13-39:29
+action#android.intent.action.MAIN
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:37:17-69
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:37:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:38:17-77
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:38:27-74
+intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:mimeType:application/pdf+data:scheme:content+data:scheme:file
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:42:13-49:29
+action#android.intent.action.VIEW
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:43:17-69
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:43:25-66
+category#android.intent.category.DEFAULT
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:44:17-76
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:44:27-73
+category#android.intent.category.BROWSABLE
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:45:17-78
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:45:27-75
+data
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:46:17-60
+	android:scheme
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:47:23-47
+	android:mimeType
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:46:23-57
+intent-filter#action:name:android.intent.action.SEND+category:name:android.intent.category.DEFAULT+data:mimeType:application/pdf
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:52:13-56:29
+action#android.intent.action.SEND
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:53:17-69
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:53:25-66
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:65:13-67:54
+	android:resource
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:67:17-51
+	android:name
+		ADDED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml:66:17-67
+uses-sdk
+INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+MERGED from [androidx.navigation:navigation-common:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/9a35a517b678328d8018c0b74aad4127/transformed/navigation-common-2.7.5/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/9a35a517b678328d8018c0b74aad4127/transformed/navigation-common-2.7.5/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/2a903f31ea565e5f711b94ab6cdc28c5/transformed/navigation-runtime-2.7.5/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-runtime:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/2a903f31ea565e5f711b94ab6cdc28c5/transformed/navigation-runtime-2.7.5/AndroidManifest.xml:20:5-44
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/5787102779aa92a0f013868e6d758717/transformed/navigation-common-ktx-2.7.5/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-common-ktx:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/5787102779aa92a0f013868e6d758717/transformed/navigation-common-ktx-2.7.5/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/1a7cbbd110fc542dfead0b1b2c012650/transformed/navigation-runtime-ktx-2.7.5/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-runtime-ktx:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/1a7cbbd110fc542dfead0b1b2c012650/transformed/navigation-runtime-ktx-2.7.5/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/61ef3fd50436a863009f96ea954b9870/transformed/navigation-compose-2.7.5/AndroidManifest.xml:5:5-44
+MERGED from [androidx.navigation:navigation-compose:2.7.5] /home/chaitanya/.gradle/caches/transforms-3/61ef3fd50436a863009f96ea954b9870/transformed/navigation-compose-2.7.5/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material3:material3:1.1.2] /home/chaitanya/.gradle/caches/transforms-3/aad8b13e796588a69dc7a905f115d70a/transformed/material3-1.1.2/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.material3:material3:1.1.2] /home/chaitanya/.gradle/caches/transforms-3/aad8b13e796588a69dc7a905f115d70a/transformed/material3-1.1.2/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/8a36b24cebab2c0973affbdef666d56b/transformed/animation-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-core-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/8a36b24cebab2c0973affbdef666d56b/transformed/animation-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/1e66413b3faf97fd9d7f8cc83d32a20f/transformed/material-icons-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-core-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/1e66413b3faf97fd9d7f8cc83d32a20f/transformed/material-icons-core-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-extended-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/9e3f97a3046f4a5aa4114313a8111e3c/transformed/material-icons-extended-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-icons-extended-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/9e3f97a3046f4a5aa4114313a8111e3c/transformed/material-icons-extended-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/c667d3ff38568eb14f16af70a953eb33/transformed/material-ripple-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.material:material-ripple-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/c667d3ff38568eb14f16af70a953eb33/transformed/material-ripple-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/aff0718508507c5d3f902bc53419293c/transformed/animation-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.animation:animation-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/aff0718508507c5d3f902bc53419293c/transformed/animation-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/14d62806c43bac5996f65c5cfdd7ae3b/transformed/foundation-layout-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-layout-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/14d62806c43bac5996f65c5cfdd7ae3b/transformed/foundation-layout-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/416c111b135b9f3f3ff097824ac9c8e9/transformed/foundation-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.foundation:foundation-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/416c111b135b9f3f3ff097824ac9c8e9/transformed/foundation-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/a1ecb04ff31596bc5ebe76a9c4db0bbf/transformed/ui-unit-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-unit-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/a1ecb04ff31596bc5ebe76a9c4db0bbf/transformed/ui-unit-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/96cca6721843c046b33066bbcc3e7a43/transformed/ui-geometry-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-geometry-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/96cca6721843c046b33066bbcc3e7a43/transformed/ui-geometry-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/5710bcdbf6b4cb6db5d9fe0224c9175c/transformed/ui-util-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-util-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/5710bcdbf6b4cb6db5d9fe0224c9175c/transformed/ui-util-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/6390ebda21dd65a48f7aae8b6d3d52fc/transformed/ui-text-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-text-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/6390ebda21dd65a48f7aae8b6d3d52fc/transformed/ui-text-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/2444e969acb623bde2957f2592d5a4fd/transformed/ui-tooling-preview-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-tooling-preview-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/2444e969acb623bde2957f2592d5a4fd/transformed/ui-tooling-preview-release/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/c36d81884c0853db4772eafac689502b/transformed/ui-graphics-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-graphics-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/c36d81884c0853db4772eafac689502b/transformed/ui-graphics-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.activity:activity:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/57507bf2be5a715848c0ba912924c807/transformed/activity-1.7.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/57507bf2be5a715848c0ba912924c807/transformed/activity-1.7.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity-ktx:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/67d153c2a85d4de6aed174bf6c6d3180/transformed/activity-ktx-1.7.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity-ktx:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/67d153c2a85d4de6aed174bf6c6d3180/transformed/activity-ktx-1.7.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity-compose:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/5184041c9ee953009d85a957a6764e59/transformed/activity-compose-1.7.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.activity:activity-compose:1.7.1] /home/chaitanya/.gradle/caches/transforms-3/5184041c9ee953009d85a957a6764e59/transformed/activity-compose-1.7.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.ui:ui-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/f9593ed64f456e3d6cfd5c4c3f759f44/transformed/ui-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.ui:ui-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/f9593ed64f456e3d6cfd5c4c3f759f44/transformed/ui-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/5752edd6fb9a179acc22932ca3c2298b/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/5752edd6fb9a179acc22932ca3c2298b/transformed/lifecycle-livedata-core-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/chaitanya/.gradle/caches/transforms-3/38847693319129ed1df306f115cd9cae/transformed/savedstate-ktx-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate-ktx:1.2.1] /home/chaitanya/.gradle/caches/transforms-3/38847693319129ed1df306f115cd9cae/transformed/savedstate-ktx-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] /home/chaitanya/.gradle/caches/transforms-3/68fb7a6a55ff1d3d40e2e5af1a06e4c1/transformed/savedstate-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.savedstate:savedstate:1.2.1] /home/chaitanya/.gradle/caches/transforms-3/68fb7a6a55ff1d3d40e2e5af1a06e4c1/transformed/savedstate-1.2.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/aa06935408fd6c915a683f911a85abf5/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/aa06935408fd6c915a683f911a85abf5/transformed/lifecycle-viewmodel-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/f0c879d851c39aaa866a83d2e6686175/transformed/lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/f0c879d851c39aaa866a83d2e6686175/transformed/lifecycle-viewmodel-ktx-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/ab3e0dc3cd7ca47be012f99b0f276a43/transformed/lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/ab3e0dc3cd7ca47be012f99b0f276a43/transformed/lifecycle-viewmodel-savedstate-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/30b7604a5053d4efe3dbc9d3a0451ec0/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/30b7604a5053d4efe3dbc9d3a0451ec0/transformed/customview-poolingcontainer-1.0.0/AndroidManifest.xml:20:5-21:38
+MERGED from [androidx.core:core-ktx:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/a78dd7fb7e7b01ac9e22b04b127b9112/transformed/core-ktx-1.12.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.core:core-ktx:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/a78dd7fb7e7b01ac9e22b04b127b9112/transformed/core-ktx-1.12.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.autofill:autofill:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/0666d9ddfa7f70176631234b6d90b855/transformed/autofill-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.autofill:autofill:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/0666d9ddfa7f70176631234b6d90b855/transformed/autofill-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/fb63b04b879a87e893e36d7d2da67248/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/fb63b04b879a87e893e36d7d2da67248/transformed/lifecycle-runtime-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/d2e909d10daccc926773903f03e44734/transformed/lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/d2e909d10daccc926773903f03e44734/transformed/lifecycle-viewmodel-compose-2.7.0/AndroidManifest.xml:5:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/94ffe0824b5ee35903f362d803caa628/transformed/lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime-ktx:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/94ffe0824b5ee35903f362d803caa628/transformed/lifecycle-runtime-ktx-2.7.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/8b0c2a1aba29f4e1727f8b82323ce470/transformed/runtime-saveable-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-saveable-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/8b0c2a1aba29f4e1727f8b82323ce470/transformed/runtime-saveable-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/596dcf07676e281489a8bb5bdf33ac89/transformed/runtime-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.compose.runtime:runtime-android:1.5.4] /home/chaitanya/.gradle/caches/transforms-3/596dcf07676e281489a8bb5bdf33ac89/transformed/runtime-release/AndroidManifest.xml:5:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.1] /home/chaitanya/.gradle/caches/transforms-3/ddab9fa39ecacd124a2244b90e22accd/transformed/documentfile-1.0.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.1] /home/chaitanya/.gradle/caches/transforms-3/ddab9fa39ecacd124a2244b90e22accd/transformed/documentfile-1.0.1/AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/555566ff30ce355a9ea16a25ff3d8b94/transformed/annotation-experimental-1.3.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.annotation:annotation-experimental:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/555566ff30ce355a9ea16a25ff3d8b94/transformed/annotation-experimental-1.3.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/c2fca566acc1137ba306e058fe95c654/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/c2fca566acc1137ba306e058fe95c654/transformed/interpolator-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/198f004e6f9961030a0a278abc7ba5d9/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/198f004e6f9961030a0a278abc7ba5d9/transformed/versionedparcelable-1.1.1/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/chaitanya/.gradle/caches/transforms-3/b914053979378bcaf6e4cf729e699bac/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/chaitanya/.gradle/caches/transforms-3/b914053979378bcaf6e4cf729e699bac/transformed/core-runtime-2.2.0/AndroidManifest.xml:20:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:21:5-44
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/6cb7a057f3b49f27f2a4a8b83eee81cc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/6cb7a057f3b49f27f2a4a8b83eee81cc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:21:5-23:41
+MERGED from [androidx.tracing:tracing:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/4dffb5e96a9845ec999e80bed1714519/transformed/tracing-1.0.0/AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.tracing:tracing:1.0.0] /home/chaitanya/.gradle/caches/transforms-3/4dffb5e96a9845ec999e80bed1714519/transformed/tracing-1.0.0/AndroidManifest.xml:20:5-22:41
+	android:targetSdkVersion
+		INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/chaitanya/Downloads/Work/pdf_tools/app/src/main/AndroidManifest.xml
+provider#androidx.startup.InitializationProvider
+ADDED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:24:9-32:20
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/6cb7a057f3b49f27f2a4a8b83eee81cc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+MERGED from [androidx.startup:startup-runtime:1.1.1] /home/chaitanya/.gradle/caches/transforms-3/6cb7a057f3b49f27f2a4a8b83eee81cc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
+	tools:node
+		ADDED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:28:13-31
+	android:authorities
+		ADDED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:26:13-68
+	android:exported
+		ADDED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:25:13-67
+meta-data#androidx.emoji2.text.EmojiCompatInitializer
+ADDED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.emoji2:emoji2:1.4.0] /home/chaitanya/.gradle/caches/transforms-3/011b59b8a1fcf2055706c5c1a2f00e4e/transformed/emoji2-1.4.0/AndroidManifest.xml:30:17-75
+meta-data#androidx.lifecycle.ProcessLifecycleInitializer
+ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.lifecycle:lifecycle-process:2.7.0] /home/chaitanya/.gradle/caches/transforms-3/89aa631c1977e4f6a185df4af75de2d4/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+permission#com.yourname.pdftoolkit.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+	android:protectionLevel
+		ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+	android:name
+		ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+uses-permission#com.yourname.pdftoolkit.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+	android:name
+		ADDED from [androidx.core:core:1.12.0] /home/chaitanya/.gradle/caches/transforms-3/adeaf77a982ad20fb7617a3a4ed1742e/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+meta-data#androidx.profileinstaller.ProfileInstallerInitializer
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+	android:value
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+receiver#androidx.profileinstaller.ProfileInstallReceiver
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+	android:enabled
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+	android:exported
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+	android:permission
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+	android:directBootAware
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+intent-filter#action:name:androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+action#androidx.profileinstaller.action.INSTALL_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+intent-filter#action:name:androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+action#androidx.profileinstaller.action.SKIP_FILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+intent-filter#action:name:androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+action#androidx.profileinstaller.action.SAVE_PROFILE
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+intent-filter#action:name:androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+action#androidx.profileinstaller.action.BENCHMARK_OPERATION
+ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+	android:name
+		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/chaitanya/.gradle/caches/transforms-3/c43bf4cb0193a6693745961683de9e7d/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92

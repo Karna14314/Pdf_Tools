@@ -1,0 +1,6 @@
+-keep class androidx.core.app.CoreComponentFactory { <init>(); }
+-keep class androidx.core.content.FileProvider { <init>(); }
+-keep class androidx.profileinstaller.ProfileInstallReceiver { <init>(); }
+-keep class androidx.startup.InitializationProvider { <init>(); }
+-keep class com.yourname.pdftoolkit.PdfToolkitApplication { <init>(); }
+-keep class com.yourname.pdftoolkit.ui.MainActivity { <init>(); }

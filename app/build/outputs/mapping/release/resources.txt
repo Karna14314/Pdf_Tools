@@ -1,0 +1,738 @@
+Marking id:androidx_compose_ui_view_composition_context:2131034150 reachable: referenced from base/dex/classes.dex
+Marking id:inspection_slot_table_set:2131034164 reachable: referenced from base/dex/classes.dex
+Marking id:view_tree_saved_state_registry_owner:2131034197 reachable: referenced from base/dex/classes.dex
+Marking id:view_tree_view_model_store_owner:2131034198 reachable: referenced from base/dex/classes.dex
+Marking id:view_tree_lifecycle_owner:2131034195 reachable: referenced from base/dex/classes.dex
+Marking id:wrapped_composition_tag:2131034199 reachable: referenced from base/dex/classes.dex
+Marking id:tag_unhandled_key_event_manager:2131034188 reachable: referenced from base/dex/classes.dex
+Marking id:compose_view_saveable_id_tag:2131034154 reachable: referenced from base/dex/classes.dex
+Marking id:hide_in_inspector_tag:2131034160 reachable: referenced from base/dex/classes.dex
+Marking string:tab:2131296323 reachable: referenced from base/dex/classes.dex
+Marking string:switch_role:2131296322 reachable: referenced from base/dex/classes.dex
+Marking id:tag_unhandled_key_listeners:2131034189 reachable: referenced from base/dex/classes.dex
+Marking id:tag_screen_reader_focusable:2131034185 reachable: referenced from base/dex/classes.dex
+Marking id:tag_accessibility_heading:2131034180 reachable: referenced from base/dex/classes.dex
+Marking id:tag_accessibility_pane_title:2131034181 reachable: referenced from base/dex/classes.dex
+Marking id:tag_state_description:2131034186 reachable: referenced from base/dex/classes.dex
+Marking id:tag_accessibility_clickable_spans:2131034179 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_action_clickable_span:2131034112 reachable: referenced from base/dex/classes.dex
+Marking id:tag_accessibility_actions:2131034178 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_0:2131034113 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_1:2131034114 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_2:2131034125 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_3:2131034136 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_4:2131034139 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_5:2131034140 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_6:2131034141 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_7:2131034142 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_8:2131034143 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_9:2131034144 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_10:2131034115 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_11:2131034116 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_12:2131034117 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_13:2131034118 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_14:2131034119 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_15:2131034120 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_16:2131034121 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_17:2131034122 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_18:2131034123 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_19:2131034124 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_20:2131034126 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_21:2131034127 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_22:2131034128 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_23:2131034129 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_24:2131034130 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_25:2131034131 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_26:2131034132 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_27:2131034133 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_28:2131034134 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_29:2131034135 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_30:2131034137 reachable: referenced from base/dex/classes.dex
+Marking id:accessibility_custom_action_31:2131034138 reachable: referenced from base/dex/classes.dex
+Marking string:indeterminate:2131296309 reachable: referenced from base/dex/classes.dex
+Marking string:off:2131296313 reachable: referenced from base/dex/classes.dex
+Marking string:on:2131296314 reachable: referenced from base/dex/classes.dex
+Marking string:selected:2131296318 reachable: referenced from base/dex/classes.dex
+Marking string:not_selected:2131296312 reachable: referenced from base/dex/classes.dex
+Marking string:template_percent:2131296324 reachable: referenced from base/dex/classes.dex
+Marking string:in_progress:2131296308 reachable: referenced from base/dex/classes.dex
+Marking id:view_tree_on_back_pressed_dispatcher_owner:2131034196 reachable: referenced from base/dex/classes.dex
+Marking id:report_drawn:2131034175 reachable: referenced from base/dex/classes.dex
+Marking id:pooling_container_listener_holder_tag:2131034174 reachable: referenced from base/dex/classes.dex
+Marking id:is_pooling_container_tag:2131034165 reachable: referenced from base/dex/classes.dex
+Marking string:androidx_startup:2131296256 reachable: referenced from base/dex/classes.dex
+@com.yourname.pdftoolkit:attr/action : reachable=false
+@com.yourname.pdftoolkit:attr/alpha : reachable=false
+@com.yourname.pdftoolkit:attr/argType : reachable=false
+@com.yourname.pdftoolkit:attr/data : reachable=false
+@com.yourname.pdftoolkit:attr/dataPattern : reachable=false
+@com.yourname.pdftoolkit:attr/destination : reachable=false
+@com.yourname.pdftoolkit:attr/enterAnim : reachable=false
+@com.yourname.pdftoolkit:attr/exitAnim : reachable=false
+@com.yourname.pdftoolkit:attr/font : reachable=false
+@com.yourname.pdftoolkit:attr/fontProviderAuthority : reachable=false
+@com.yourname.pdftoolkit:attr/fontProviderCerts : reachable=false
+@com.yourname.pdftoolkit:attr/fontProviderFetchStrategy : reachable=false
+@com.yourname.pdftoolkit:attr/fontProviderFetchTimeout : reachable=false
+@com.yourname.pdftoolkit:attr/fontProviderPackage : reachable=false
+@com.yourname.pdftoolkit:attr/fontProviderQuery : reachable=false
+@com.yourname.pdftoolkit:attr/fontProviderSystemFontFamily : reachable=false
+@com.yourname.pdftoolkit:attr/fontStyle : reachable=false
+@com.yourname.pdftoolkit:attr/fontVariationSettings : reachable=false
+@com.yourname.pdftoolkit:attr/fontWeight : reachable=false
+@com.yourname.pdftoolkit:attr/graph : reachable=false
+@com.yourname.pdftoolkit:attr/lStar : reachable=false
+@com.yourname.pdftoolkit:attr/launchSingleTop : reachable=false
+@com.yourname.pdftoolkit:attr/mimeType : reachable=false
+@com.yourname.pdftoolkit:attr/navGraph : reachable=false
+@com.yourname.pdftoolkit:attr/nestedScrollViewStyle : reachable=false
+@com.yourname.pdftoolkit:attr/nullable : reachable=false
+@com.yourname.pdftoolkit:attr/popEnterAnim : reachable=false
+@com.yourname.pdftoolkit:attr/popExitAnim : reachable=false
+@com.yourname.pdftoolkit:attr/popUpTo : reachable=false
+@com.yourname.pdftoolkit:attr/popUpToInclusive : reachable=false
+@com.yourname.pdftoolkit:attr/popUpToSaveState : reachable=false
+@com.yourname.pdftoolkit:attr/queryPatterns : reachable=false
+@com.yourname.pdftoolkit:attr/restoreState : reachable=false
+@com.yourname.pdftoolkit:attr/route : reachable=false
+@com.yourname.pdftoolkit:attr/shortcutMatchRequired : reachable=false
+@com.yourname.pdftoolkit:attr/startDestination : reachable=false
+@com.yourname.pdftoolkit:attr/targetPackage : reachable=false
+@com.yourname.pdftoolkit:attr/ttcIndex : reachable=false
+@com.yourname.pdftoolkit:attr/uri : reachable=false
+@com.yourname.pdftoolkit:color/androidx_core_ripple_material_light : reachable=false
+@com.yourname.pdftoolkit:color/androidx_core_secondary_text_default_material_light : reachable=false
+@com.yourname.pdftoolkit:color/call_notification_answer_color : reachable=false
+@com.yourname.pdftoolkit:color/call_notification_decline_color : reachable=false
+@com.yourname.pdftoolkit:color/ic_launcher_background : reachable=false
+@com.yourname.pdftoolkit:color/notification_action_color_filter : reachable=false
+    @com.yourname.pdftoolkit:color/androidx_core_secondary_text_default_material_light
+@com.yourname.pdftoolkit:color/notification_icon_bg_color : reachable=false
+@com.yourname.pdftoolkit:color/vector_tint_color : reachable=false
+@com.yourname.pdftoolkit:color/vector_tint_theme_color : reachable=false
+@com.yourname.pdftoolkit:dimen/compat_button_inset_horizontal_material : reachable=false
+@com.yourname.pdftoolkit:dimen/compat_button_inset_vertical_material : reachable=false
+@com.yourname.pdftoolkit:dimen/compat_button_padding_horizontal_material : reachable=false
+@com.yourname.pdftoolkit:dimen/compat_button_padding_vertical_material : reachable=false
+@com.yourname.pdftoolkit:dimen/compat_control_corner_material : reachable=false
+@com.yourname.pdftoolkit:dimen/compat_notification_large_icon_max_height : reachable=false
+@com.yourname.pdftoolkit:dimen/compat_notification_large_icon_max_width : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_action_icon_size : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_action_text_size : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_big_circle_margin : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_content_margin_start : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_large_icon_height : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_large_icon_width : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_main_column_padding_top : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_media_narrow_margin : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_right_icon_size : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_right_side_padding_top : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_small_icon_background_padding : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_small_icon_size_as_large : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_subtext_size : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_top_pad : reachable=false
+@com.yourname.pdftoolkit:dimen/notification_top_pad_large_text : reachable=false
+@com.yourname.pdftoolkit:drawable/app_icon : reachable=true
+@com.yourname.pdftoolkit:drawable/ic_call_answer : reachable=false
+@com.yourname.pdftoolkit:drawable/ic_call_answer_low : reachable=false
+@com.yourname.pdftoolkit:drawable/ic_call_answer_video : reachable=false
+@com.yourname.pdftoolkit:drawable/ic_call_answer_video_low : reachable=false
+@com.yourname.pdftoolkit:drawable/ic_call_decline : reachable=false
+@com.yourname.pdftoolkit:drawable/ic_call_decline_low : reachable=false
+@com.yourname.pdftoolkit:drawable/ic_launcher_foreground : reachable=false
+@com.yourname.pdftoolkit:drawable/notification_action_background : reachable=false
+    @com.yourname.pdftoolkit:color/androidx_core_ripple_material_light
+    @com.yourname.pdftoolkit:dimen/compat_button_inset_horizontal_material
+    @com.yourname.pdftoolkit:dimen/compat_button_inset_vertical_material
+    @com.yourname.pdftoolkit:dimen/compat_control_corner_material
+    @com.yourname.pdftoolkit:dimen/compat_button_padding_vertical_material
+    @com.yourname.pdftoolkit:dimen/compat_button_padding_horizontal_material
+@com.yourname.pdftoolkit:drawable/notification_bg : reachable=false
+    @com.yourname.pdftoolkit:drawable/notification_bg_normal_pressed
+    @com.yourname.pdftoolkit:drawable/notification_bg_normal
+@com.yourname.pdftoolkit:drawable/notification_bg_low : reachable=false
+    @com.yourname.pdftoolkit:drawable/notification_bg_low_pressed
+    @com.yourname.pdftoolkit:drawable/notification_bg_low_normal
+@com.yourname.pdftoolkit:drawable/notification_bg_low_normal : reachable=false
+@com.yourname.pdftoolkit:drawable/notification_bg_low_pressed : reachable=false
+@com.yourname.pdftoolkit:drawable/notification_bg_normal : reachable=false
+@com.yourname.pdftoolkit:drawable/notification_bg_normal_pressed : reachable=false
+@com.yourname.pdftoolkit:drawable/notification_icon_background : reachable=false
+    @com.yourname.pdftoolkit:color/notification_icon_bg_color
+@com.yourname.pdftoolkit:drawable/notification_oversize_large_icon_bg : reachable=false
+@com.yourname.pdftoolkit:drawable/notification_template_icon_bg : reachable=false
+@com.yourname.pdftoolkit:drawable/notification_template_icon_low_bg : reachable=false
+@com.yourname.pdftoolkit:drawable/notification_tile_bg : reachable=false
+    @com.yourname.pdftoolkit:drawable/notify_panel_notification_icon_bg
+@com.yourname.pdftoolkit:drawable/notify_panel_notification_icon_bg : reachable=false
+@com.yourname.pdftoolkit:id/accessibility_action_clickable_span : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_0 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_1 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_10 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_11 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_12 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_13 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_14 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_15 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_16 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_17 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_18 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_19 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_2 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_20 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_21 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_22 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_23 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_24 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_25 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_26 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_27 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_28 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_29 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_3 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_30 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_31 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_4 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_5 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_6 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_7 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_8 : reachable=true
+@com.yourname.pdftoolkit:id/accessibility_custom_action_9 : reachable=true
+@com.yourname.pdftoolkit:id/action_container : reachable=false
+@com.yourname.pdftoolkit:id/action_divider : reachable=false
+@com.yourname.pdftoolkit:id/action_image : reachable=false
+@com.yourname.pdftoolkit:id/action_text : reachable=false
+@com.yourname.pdftoolkit:id/actions : reachable=false
+@com.yourname.pdftoolkit:id/androidx_compose_ui_view_composition_context : reachable=true
+@com.yourname.pdftoolkit:id/async : reachable=false
+@com.yourname.pdftoolkit:id/blocking : reachable=false
+@com.yourname.pdftoolkit:id/chronometer : reachable=false
+@com.yourname.pdftoolkit:id/compose_view_saveable_id_tag : reachable=true
+@com.yourname.pdftoolkit:id/consume_window_insets_tag : reachable=false
+@com.yourname.pdftoolkit:id/dialog_button : reachable=false
+@com.yourname.pdftoolkit:id/edit_text_id : reachable=false
+@com.yourname.pdftoolkit:id/forever : reachable=false
+@com.yourname.pdftoolkit:id/hide_ime_id : reachable=false
+@com.yourname.pdftoolkit:id/hide_in_inspector_tag : reachable=true
+@com.yourname.pdftoolkit:id/icon : reachable=false
+@com.yourname.pdftoolkit:id/icon_group : reachable=false
+@com.yourname.pdftoolkit:id/info : reachable=false
+@com.yourname.pdftoolkit:id/inspection_slot_table_set : reachable=true
+@com.yourname.pdftoolkit:id/is_pooling_container_tag : reachable=true
+@com.yourname.pdftoolkit:id/italic : reachable=false
+@com.yourname.pdftoolkit:id/line1 : reachable=false
+@com.yourname.pdftoolkit:id/line3 : reachable=false
+@com.yourname.pdftoolkit:id/nav_controller_view_tag : reachable=false
+@com.yourname.pdftoolkit:id/normal : reachable=false
+@com.yourname.pdftoolkit:id/notification_background : reachable=false
+@com.yourname.pdftoolkit:id/notification_main_column : reachable=false
+@com.yourname.pdftoolkit:id/notification_main_column_container : reachable=false
+@com.yourname.pdftoolkit:id/pooling_container_listener_holder_tag : reachable=true
+@com.yourname.pdftoolkit:id/report_drawn : reachable=true
+@com.yourname.pdftoolkit:id/right_icon : reachable=false
+@com.yourname.pdftoolkit:id/right_side : reachable=false
+@com.yourname.pdftoolkit:id/tag_accessibility_actions : reachable=true
+@com.yourname.pdftoolkit:id/tag_accessibility_clickable_spans : reachable=true
+@com.yourname.pdftoolkit:id/tag_accessibility_heading : reachable=true
+@com.yourname.pdftoolkit:id/tag_accessibility_pane_title : reachable=true
+@com.yourname.pdftoolkit:id/tag_on_apply_window_listener : reachable=false
+@com.yourname.pdftoolkit:id/tag_on_receive_content_listener : reachable=false
+@com.yourname.pdftoolkit:id/tag_on_receive_content_mime_types : reachable=false
+@com.yourname.pdftoolkit:id/tag_screen_reader_focusable : reachable=true
+@com.yourname.pdftoolkit:id/tag_state_description : reachable=true
+@com.yourname.pdftoolkit:id/tag_transition_group : reachable=false
+@com.yourname.pdftoolkit:id/tag_unhandled_key_event_manager : reachable=true
+@com.yourname.pdftoolkit:id/tag_unhandled_key_listeners : reachable=true
+@com.yourname.pdftoolkit:id/tag_window_insets_animation_callback : reachable=false
+@com.yourname.pdftoolkit:id/text : reachable=false
+@com.yourname.pdftoolkit:id/text2 : reachable=false
+@com.yourname.pdftoolkit:id/time : reachable=false
+@com.yourname.pdftoolkit:id/title : reachable=false
+@com.yourname.pdftoolkit:id/view_tree_lifecycle_owner : reachable=true
+@com.yourname.pdftoolkit:id/view_tree_on_back_pressed_dispatcher_owner : reachable=true
+@com.yourname.pdftoolkit:id/view_tree_saved_state_registry_owner : reachable=true
+@com.yourname.pdftoolkit:id/view_tree_view_model_store_owner : reachable=true
+@com.yourname.pdftoolkit:id/wrapped_composition_tag : reachable=true
+@com.yourname.pdftoolkit:integer/status_bar_notification_info_maxnum : reachable=false
+@com.yourname.pdftoolkit:layout/custom_dialog : reachable=false
+@com.yourname.pdftoolkit:layout/ime_base_split_test_activity : reachable=false
+@com.yourname.pdftoolkit:layout/ime_secondary_split_test_activity : reachable=false
+@com.yourname.pdftoolkit:layout/notification_action : reachable=false
+    @com.yourname.pdftoolkit:style/Widget_Compat_NotificationActionContainer
+    @com.yourname.pdftoolkit:dimen/notification_action_icon_size
+    @com.yourname.pdftoolkit:style/Widget_Compat_NotificationActionText
+@com.yourname.pdftoolkit:layout/notification_action_tombstone : reachable=false
+    @com.yourname.pdftoolkit:style/Widget_Compat_NotificationActionContainer
+    @com.yourname.pdftoolkit:dimen/notification_action_icon_size
+    @com.yourname.pdftoolkit:style/Widget_Compat_NotificationActionText
+@com.yourname.pdftoolkit:layout/notification_template_custom_big : reachable=false
+    @com.yourname.pdftoolkit:layout/notification_template_icon_group
+    @com.yourname.pdftoolkit:dimen/notification_large_icon_width
+    @com.yourname.pdftoolkit:dimen/notification_large_icon_height
+    @com.yourname.pdftoolkit:dimen/notification_right_side_padding_top
+    @com.yourname.pdftoolkit:layout/notification_template_part_time
+    @com.yourname.pdftoolkit:layout/notification_template_part_chronometer
+    @com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification_Info
+@com.yourname.pdftoolkit:layout/notification_template_icon_group : reachable=false
+    @com.yourname.pdftoolkit:dimen/notification_large_icon_width
+    @com.yourname.pdftoolkit:dimen/notification_large_icon_height
+    @com.yourname.pdftoolkit:dimen/notification_big_circle_margin
+    @com.yourname.pdftoolkit:dimen/notification_right_icon_size
+@com.yourname.pdftoolkit:layout/notification_template_part_chronometer : reachable=false
+    @com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification_Time
+@com.yourname.pdftoolkit:layout/notification_template_part_time : reachable=false
+    @com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification_Time
+@com.yourname.pdftoolkit:mipmap/ic_launcher : reachable=false
+    @com.yourname.pdftoolkit:color/ic_launcher_background
+    @com.yourname.pdftoolkit:drawable/ic_launcher_foreground
+@com.yourname.pdftoolkit:mipmap/ic_launcher_foreground : reachable=false
+@com.yourname.pdftoolkit:mipmap/ic_launcher_round : reachable=false
+    @com.yourname.pdftoolkit:color/ic_launcher_background
+    @com.yourname.pdftoolkit:drawable/ic_launcher_foreground
+@com.yourname.pdftoolkit:string/androidx_startup : reachable=true
+@com.yourname.pdftoolkit:string/app_name : reachable=true
+@com.yourname.pdftoolkit:string/bottom_sheet_collapse_description : reachable=false
+@com.yourname.pdftoolkit:string/bottom_sheet_dismiss_description : reachable=false
+@com.yourname.pdftoolkit:string/bottom_sheet_drag_handle_description : reachable=false
+@com.yourname.pdftoolkit:string/bottom_sheet_expand_description : reachable=false
+@com.yourname.pdftoolkit:string/call_notification_answer_action : reachable=false
+@com.yourname.pdftoolkit:string/call_notification_answer_video_action : reachable=false
+@com.yourname.pdftoolkit:string/call_notification_decline_action : reachable=false
+@com.yourname.pdftoolkit:string/call_notification_hang_up_action : reachable=false
+@com.yourname.pdftoolkit:string/call_notification_incoming_text : reachable=false
+@com.yourname.pdftoolkit:string/call_notification_ongoing_text : reachable=false
+@com.yourname.pdftoolkit:string/call_notification_screening_text : reachable=false
+@com.yourname.pdftoolkit:string/close_drawer : reachable=false
+@com.yourname.pdftoolkit:string/close_sheet : reachable=false
+@com.yourname.pdftoolkit:string/collapsed : reachable=false
+@com.yourname.pdftoolkit:string/date_input_headline : reachable=false
+@com.yourname.pdftoolkit:string/date_input_headline_description : reachable=false
+@com.yourname.pdftoolkit:string/date_input_invalid_for_pattern : reachable=false
+@com.yourname.pdftoolkit:string/date_input_invalid_not_allowed : reachable=false
+@com.yourname.pdftoolkit:string/date_input_invalid_year_range : reachable=false
+@com.yourname.pdftoolkit:string/date_input_label : reachable=false
+@com.yourname.pdftoolkit:string/date_input_no_input_description : reachable=false
+@com.yourname.pdftoolkit:string/date_input_title : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_headline : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_headline_description : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_navigate_to_year_description : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_no_selection_description : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_scroll_to_earlier_years : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_scroll_to_later_years : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_switch_to_calendar_mode : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_switch_to_day_selection : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_switch_to_input_mode : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_switch_to_next_month : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_switch_to_previous_month : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_switch_to_year_selection : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_title : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_today_description : reachable=false
+@com.yourname.pdftoolkit:string/date_picker_year_picker_pane_title : reachable=false
+@com.yourname.pdftoolkit:string/date_range_input_invalid_range_input : reachable=false
+@com.yourname.pdftoolkit:string/date_range_input_title : reachable=false
+@com.yourname.pdftoolkit:string/date_range_picker_day_in_range : reachable=false
+@com.yourname.pdftoolkit:string/date_range_picker_end_headline : reachable=false
+@com.yourname.pdftoolkit:string/date_range_picker_scroll_to_next_month : reachable=false
+@com.yourname.pdftoolkit:string/date_range_picker_scroll_to_previous_month : reachable=false
+@com.yourname.pdftoolkit:string/date_range_picker_start_headline : reachable=false
+@com.yourname.pdftoolkit:string/date_range_picker_title : reachable=false
+@com.yourname.pdftoolkit:string/default_error_message : reachable=false
+@com.yourname.pdftoolkit:string/default_popup_window_title : reachable=false
+@com.yourname.pdftoolkit:string/dialog : reachable=false
+@com.yourname.pdftoolkit:string/dropdown_menu : reachable=false
+@com.yourname.pdftoolkit:string/expanded : reachable=false
+@com.yourname.pdftoolkit:string/in_progress : reachable=true
+@com.yourname.pdftoolkit:string/indeterminate : reachable=true
+@com.yourname.pdftoolkit:string/m3c_bottom_sheet_pane_title : reachable=false
+@com.yourname.pdftoolkit:string/navigation_menu : reachable=false
+@com.yourname.pdftoolkit:string/not_selected : reachable=true
+@com.yourname.pdftoolkit:string/off : reachable=true
+@com.yourname.pdftoolkit:string/on : reachable=true
+@com.yourname.pdftoolkit:string/range_end : reachable=false
+@com.yourname.pdftoolkit:string/range_start : reachable=false
+@com.yourname.pdftoolkit:string/search_bar_search : reachable=false
+@com.yourname.pdftoolkit:string/selected : reachable=true
+@com.yourname.pdftoolkit:string/snackbar_dismiss : reachable=false
+@com.yourname.pdftoolkit:string/status_bar_notification_info_overflow : reachable=false
+@com.yourname.pdftoolkit:string/suggestions_available : reachable=false
+@com.yourname.pdftoolkit:string/switch_role : reachable=true
+@com.yourname.pdftoolkit:string/tab : reachable=true
+@com.yourname.pdftoolkit:string/template_percent : reachable=true
+@com.yourname.pdftoolkit:string/time_picker_am : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_hour : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_hour_24h_suffix : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_hour_selection : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_hour_suffix : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_hour_text_field : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_minute : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_minute_selection : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_minute_suffix : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_minute_text_field : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_period_toggle_description : reachable=false
+@com.yourname.pdftoolkit:string/time_picker_pm : reachable=false
+@com.yourname.pdftoolkit:string/tooltip_long_press_label : reachable=false
+@com.yourname.pdftoolkit:string/tooltip_pane_description : reachable=false
+@com.yourname.pdftoolkit:style/DialogWindowTheme : reachable=false
+@com.yourname.pdftoolkit:style/FloatingDialogTheme : reachable=false
+@com.yourname.pdftoolkit:style/FloatingDialogWindowTheme : reachable=false
+    @com.yourname.pdftoolkit:style/FloatingDialogTheme
+@com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification : reachable=false
+@com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification_Info : reachable=false
+@com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification_Line2 : reachable=false
+    @com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification_Info
+@com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification_Time : reachable=false
+@com.yourname.pdftoolkit:style/TextAppearance_Compat_Notification_Title : reachable=false
+@com.yourname.pdftoolkit:style/Theme_PDFToolkit : reachable=true
+@com.yourname.pdftoolkit:style/Widget_Compat_NotificationActionContainer : reachable=false
+    @com.yourname.pdftoolkit:drawable/notification_action_background
+@com.yourname.pdftoolkit:style/Widget_Compat_NotificationActionText : reachable=false
+    @com.yourname.pdftoolkit:color/androidx_core_secondary_text_default_material_light
+    @com.yourname.pdftoolkit:dimen/notification_action_text_size
+@com.yourname.pdftoolkit:xml/backup_rules : reachable=true
+@com.yourname.pdftoolkit:xml/data_extraction_rules : reachable=true
+@com.yourname.pdftoolkit:xml/file_paths : reachable=true
+
+The root reachable resources are:
+ drawable:app_icon:2130968576
+ id:accessibility_action_clickable_span:2131034112
+ id:accessibility_custom_action_0:2131034113
+ id:accessibility_custom_action_1:2131034114
+ id:accessibility_custom_action_10:2131034115
+ id:accessibility_custom_action_11:2131034116
+ id:accessibility_custom_action_12:2131034117
+ id:accessibility_custom_action_13:2131034118
+ id:accessibility_custom_action_14:2131034119
+ id:accessibility_custom_action_15:2131034120
+ id:accessibility_custom_action_16:2131034121
+ id:accessibility_custom_action_17:2131034122
+ id:accessibility_custom_action_18:2131034123
+ id:accessibility_custom_action_19:2131034124
+ id:accessibility_custom_action_2:2131034125
+ id:accessibility_custom_action_20:2131034126
+ id:accessibility_custom_action_21:2131034127
+ id:accessibility_custom_action_22:2131034128
+ id:accessibility_custom_action_23:2131034129
+ id:accessibility_custom_action_24:2131034130
+ id:accessibility_custom_action_25:2131034131
+ id:accessibility_custom_action_26:2131034132
+ id:accessibility_custom_action_27:2131034133
+ id:accessibility_custom_action_28:2131034134
+ id:accessibility_custom_action_29:2131034135
+ id:accessibility_custom_action_3:2131034136
+ id:accessibility_custom_action_30:2131034137
+ id:accessibility_custom_action_31:2131034138
+ id:accessibility_custom_action_4:2131034139
+ id:accessibility_custom_action_5:2131034140
+ id:accessibility_custom_action_6:2131034141
+ id:accessibility_custom_action_7:2131034142
+ id:accessibility_custom_action_8:2131034143
+ id:accessibility_custom_action_9:2131034144
+ id:androidx_compose_ui_view_composition_context:2131034150
+ id:compose_view_saveable_id_tag:2131034154
+ id:hide_in_inspector_tag:2131034160
+ id:inspection_slot_table_set:2131034164
+ id:is_pooling_container_tag:2131034165
+ id:pooling_container_listener_holder_tag:2131034174
+ id:report_drawn:2131034175
+ id:tag_accessibility_actions:2131034178
+ id:tag_accessibility_clickable_spans:2131034179
+ id:tag_accessibility_heading:2131034180
+ id:tag_accessibility_pane_title:2131034181
+ id:tag_screen_reader_focusable:2131034185
+ id:tag_state_description:2131034186
+ id:tag_unhandled_key_event_manager:2131034188
+ id:tag_unhandled_key_listeners:2131034189
+ id:view_tree_lifecycle_owner:2131034195
+ id:view_tree_on_back_pressed_dispatcher_owner:2131034196
+ id:view_tree_saved_state_registry_owner:2131034197
+ id:view_tree_view_model_store_owner:2131034198
+ id:wrapped_composition_tag:2131034199
+ string:androidx_startup:2131296256
+ string:app_name:2131296257
+ string:in_progress:2131296308
+ string:indeterminate:2131296309
+ string:not_selected:2131296312
+ string:off:2131296313
+ string:on:2131296314
+ string:selected:2131296318
+ string:switch_role:2131296322
+ string:tab:2131296323
+ string:template_percent:2131296324
+ style:Theme_PDFToolkit:2131361800
+ xml:backup_rules:2131492864
+ xml:data_extraction_rules:2131492865
+ xml:file_paths:2131492866
+Unused resources are: 
+ color:androidx_core_ripple_material_light:2130837504
+ color:androidx_core_secondary_text_default_material_light:2130837505
+ color:call_notification_answer_color:2130837506
+ color:call_notification_decline_color:2130837507
+ color:ic_launcher_background:2130837508
+ color:notification_action_color_filter:2130837509
+ color:notification_icon_bg_color:2130837510
+ color:vector_tint_color:2130837511
+ color:vector_tint_theme_color:2130837512
+ dimen:compat_button_inset_horizontal_material:2130903040
+ dimen:compat_button_inset_vertical_material:2130903041
+ dimen:compat_button_padding_horizontal_material:2130903042
+ dimen:compat_button_padding_vertical_material:2130903043
+ dimen:compat_control_corner_material:2130903044
+ dimen:compat_notification_large_icon_max_height:2130903045
+ dimen:compat_notification_large_icon_max_width:2130903046
+ dimen:notification_action_icon_size:2130903047
+ dimen:notification_action_text_size:2130903048
+ dimen:notification_big_circle_margin:2130903049
+ dimen:notification_content_margin_start:2130903050
+ dimen:notification_large_icon_height:2130903051
+ dimen:notification_large_icon_width:2130903052
+ dimen:notification_main_column_padding_top:2130903053
+ dimen:notification_media_narrow_margin:2130903054
+ dimen:notification_right_icon_size:2130903055
+ dimen:notification_right_side_padding_top:2130903056
+ dimen:notification_small_icon_background_padding:2130903057
+ dimen:notification_small_icon_size_as_large:2130903058
+ dimen:notification_subtext_size:2130903059
+ dimen:notification_top_pad:2130903060
+ dimen:notification_top_pad_large_text:2130903061
+ drawable:ic_call_answer:2130968577
+ drawable:ic_call_answer_low:2130968578
+ drawable:ic_call_answer_video:2130968579
+ drawable:ic_call_answer_video_low:2130968580
+ drawable:ic_call_decline:2130968581
+ drawable:ic_call_decline_low:2130968582
+ drawable:ic_launcher_foreground:2130968583
+ drawable:notification_action_background:2130968584
+ drawable:notification_bg:2130968585
+ drawable:notification_bg_low:2130968586
+ drawable:notification_bg_low_normal:2130968587
+ drawable:notification_bg_low_pressed:2130968588
+ drawable:notification_bg_normal:2130968589
+ drawable:notification_bg_normal_pressed:2130968590
+ drawable:notification_icon_background:2130968591
+ drawable:notification_oversize_large_icon_bg:2130968592
+ drawable:notification_template_icon_bg:2130968593
+ drawable:notification_template_icon_low_bg:2130968594
+ drawable:notification_tile_bg:2130968595
+ drawable:notify_panel_notification_icon_bg:2130968596
+ id:action_container:2131034145
+ id:action_divider:2131034146
+ id:action_image:2131034147
+ id:action_text:2131034148
+ id:actions:2131034149
+ id:async:2131034151
+ id:blocking:2131034152
+ id:chronometer:2131034153
+ id:consume_window_insets_tag:2131034155
+ id:dialog_button:2131034156
+ id:edit_text_id:2131034157
+ id:forever:2131034158
+ id:hide_ime_id:2131034159
+ id:icon:2131034161
+ id:icon_group:2131034162
+ id:info:2131034163
+ id:italic:2131034166
+ id:line1:2131034167
+ id:line3:2131034168
+ id:nav_controller_view_tag:2131034169
+ id:normal:2131034170
+ id:notification_background:2131034171
+ id:notification_main_column:2131034172
+ id:notification_main_column_container:2131034173
+ id:right_icon:2131034176
+ id:right_side:2131034177
+ id:tag_on_apply_window_listener:2131034182
+ id:tag_on_receive_content_listener:2131034183
+ id:tag_on_receive_content_mime_types:2131034184
+ id:tag_transition_group:2131034187
+ id:tag_window_insets_animation_callback:2131034190
+ id:text:2131034191
+ id:text2:2131034192
+ id:time:2131034193
+ id:title:2131034194
+ integer:status_bar_notification_info_maxnum:2131099648
+ layout:custom_dialog:2131165184
+ layout:ime_base_split_test_activity:2131165185
+ layout:ime_secondary_split_test_activity:2131165186
+ layout:notification_action:2131165187
+ layout:notification_action_tombstone:2131165188
+ layout:notification_template_custom_big:2131165189
+ layout:notification_template_icon_group:2131165190
+ layout:notification_template_part_chronometer:2131165191
+ layout:notification_template_part_time:2131165192
+ mipmap:ic_launcher:2131230720
+ mipmap:ic_launcher_foreground:2131230721
+ mipmap:ic_launcher_round:2131230722
+ string:bottom_sheet_collapse_description:2131296258
+ string:bottom_sheet_dismiss_description:2131296259
+ string:bottom_sheet_drag_handle_description:2131296260
+ string:bottom_sheet_expand_description:2131296261
+ string:call_notification_answer_action:2131296262
+ string:call_notification_answer_video_action:2131296263
+ string:call_notification_decline_action:2131296264
+ string:call_notification_hang_up_action:2131296265
+ string:call_notification_incoming_text:2131296266
+ string:call_notification_ongoing_text:2131296267
+ string:call_notification_screening_text:2131296268
+ string:close_drawer:2131296269
+ string:close_sheet:2131296270
+ string:collapsed:2131296271
+ string:date_input_headline:2131296272
+ string:date_input_headline_description:2131296273
+ string:date_input_invalid_for_pattern:2131296274
+ string:date_input_invalid_not_allowed:2131296275
+ string:date_input_invalid_year_range:2131296276
+ string:date_input_label:2131296277
+ string:date_input_no_input_description:2131296278
+ string:date_input_title:2131296279
+ string:date_picker_headline:2131296280
+ string:date_picker_headline_description:2131296281
+ string:date_picker_navigate_to_year_description:2131296282
+ string:date_picker_no_selection_description:2131296283
+ string:date_picker_scroll_to_earlier_years:2131296284
+ string:date_picker_scroll_to_later_years:2131296285
+ string:date_picker_switch_to_calendar_mode:2131296286
+ string:date_picker_switch_to_day_selection:2131296287
+ string:date_picker_switch_to_input_mode:2131296288
+ string:date_picker_switch_to_next_month:2131296289
+ string:date_picker_switch_to_previous_month:2131296290
+ string:date_picker_switch_to_year_selection:2131296291
+ string:date_picker_title:2131296292
+ string:date_picker_today_description:2131296293
+ string:date_picker_year_picker_pane_title:2131296294
+ string:date_range_input_invalid_range_input:2131296295
+ string:date_range_input_title:2131296296
+ string:date_range_picker_day_in_range:2131296297
+ string:date_range_picker_end_headline:2131296298
+ string:date_range_picker_scroll_to_next_month:2131296299
+ string:date_range_picker_scroll_to_previous_month:2131296300
+ string:date_range_picker_start_headline:2131296301
+ string:date_range_picker_title:2131296302
+ string:default_error_message:2131296303
+ string:default_popup_window_title:2131296304
+ string:dialog:2131296305
+ string:dropdown_menu:2131296306
+ string:expanded:2131296307
+ string:m3c_bottom_sheet_pane_title:2131296310
+ string:navigation_menu:2131296311
+ string:range_end:2131296315
+ string:range_start:2131296316
+ string:search_bar_search:2131296317
+ string:snackbar_dismiss:2131296319
+ string:status_bar_notification_info_overflow:2131296320
+ string:suggestions_available:2131296321
+ string:time_picker_am:2131296325
+ string:time_picker_hour:2131296326
+ string:time_picker_hour_24h_suffix:2131296327
+ string:time_picker_hour_selection:2131296328
+ string:time_picker_hour_suffix:2131296329
+ string:time_picker_hour_text_field:2131296330
+ string:time_picker_minute:2131296331
+ string:time_picker_minute_selection:2131296332
+ string:time_picker_minute_suffix:2131296333
+ string:time_picker_minute_text_field:2131296334
+ string:time_picker_period_toggle_description:2131296335
+ string:time_picker_pm:2131296336
+ string:tooltip_long_press_label:2131296337
+ string:tooltip_pane_description:2131296338
+ style:DialogWindowTheme:2131361792
+ style:FloatingDialogTheme:2131361793
+ style:FloatingDialogWindowTheme:2131361794
+ style:TextAppearance_Compat_Notification:2131361795
+ style:TextAppearance_Compat_Notification_Info:2131361796
+ style:TextAppearance_Compat_Notification_Line2:2131361797
+ style:TextAppearance_Compat_Notification_Time:2131361798
+ style:TextAppearance_Compat_Notification_Title:2131361799
+ style:Widget_Compat_NotificationActionContainer:2131361801
+ style:Widget_Compat_NotificationActionText:2131361802
+Skipped unused resource base/res/color/vector_tint_color.xml: 177 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/color/vector_tint_theme_color.xml: 221 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable/ic_launcher_foreground.xml: 1131 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable-v21/notification_action_background.xml: 2250 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable/notification_bg.xml: 751 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable/notification_bg_low.xml: 753 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable/notification_icon_background.xml: 314 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable/notification_tile_bg.xml: 319 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable-ldpi-v4/ic_call_answer.png: 270 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-ldpi-v4/ic_call_answer_low.png: 270 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-ldpi-v4/ic_call_answer_video.png: 199 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-ldpi-v4/ic_call_answer_video_low.png: 199 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-ldpi-v4/ic_call_decline.png: 201 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-ldpi-v4/ic_call_decline_low.png: 201 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/ic_call_answer.png: 317 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/ic_call_answer_low.png: 317 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/ic_call_answer_video.png: 206 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/ic_call_answer_video_low.png: 206 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/ic_call_decline.png: 264 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/ic_call_decline_low.png: 264 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/notification_bg_low_normal.9.png: 215 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/notification_bg_low_pressed.9.png: 223 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/notification_bg_normal.9.png: 215 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/notification_bg_normal_pressed.9.png: 223 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-mdpi-v4/notify_panel_notification_icon_bg.png: 98 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/ic_call_answer.png: 472 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/ic_call_answer_low.png: 472 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/ic_call_answer_video.png: 254 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/ic_call_answer_video_low.png: 254 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/ic_call_decline.png: 375 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/ic_call_decline_low.png: 375 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/notification_bg_low_normal.9.png: 212 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/notification_bg_low_pressed.9.png: 225 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/notification_bg_normal.9.png: 212 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/notification_bg_normal_pressed.9.png: 225 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/notification_oversize_large_icon_bg.png: 909 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-hdpi-v4/notify_panel_notification_icon_bg.png: 107 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/ic_call_answer.png: 623 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/ic_call_answer_low.png: 623 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/ic_call_answer_video.png: 290 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/ic_call_answer_video_low.png: 290 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/ic_call_decline.png: 452 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/ic_call_decline_low.png: 452 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/notification_bg_low_normal.9.png: 221 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/notification_bg_low_pressed.9.png: 252 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/notification_bg_normal.9.png: 221 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/notification_bg_normal_pressed.9.png: 247 bytes (replaced with small dummy file of size 77 bytes)
+Skipped unused resource base/res/drawable-xhdpi-v4/notify_panel_notification_icon_bg.png: 138 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxhdpi-v4/ic_call_answer.png: 884 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxhdpi-v4/ic_call_answer_low.png: 884 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxhdpi-v4/ic_call_answer_video.png: 384 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxhdpi-v4/ic_call_answer_video_low.png: 384 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxhdpi-v4/ic_call_decline.png: 628 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxhdpi-v4/ic_call_decline_low.png: 628 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxxhdpi-v4/ic_call_answer.png: 1171 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxxhdpi-v4/ic_call_answer_low.png: 1171 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxxhdpi-v4/ic_call_answer_video.png: 465 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxxhdpi-v4/ic_call_answer_video_low.png: 465 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxxhdpi-v4/ic_call_decline.png: 823 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-xxxhdpi-v4/ic_call_decline_low.png: 823 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/drawable-anydpi-v21/ic_call_answer.xml: 1515 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable-anydpi-v21/ic_call_answer_low.xml: 1373 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable-anydpi-v21/ic_call_answer_video.xml: 931 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable-anydpi-v21/ic_call_answer_video_low.xml: 789 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable-anydpi-v21/ic_call_decline.xml: 1689 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/drawable-anydpi-v21/ic_call_decline_low.xml: 1547 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout/custom_dialog.xml: 828 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout/ime_base_split_test_activity.xml: 365 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout/ime_secondary_split_test_activity.xml: 1465 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout-v21/notification_action.xml: 2216 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout-v21/notification_action_tombstone.xml: 2677 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout-v21/notification_template_custom_big.xml: 6318 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout-v21/notification_template_icon_group.xml: 2432 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout/notification_template_part_chronometer.xml: 643 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/layout/notification_template_part_time.xml: 630 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/mipmap-mdpi-v4/ic_launcher.png: 1239 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-mdpi-v4/ic_launcher_foreground.png: 117 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-mdpi-v4/ic_launcher_round.png: 1239 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-hdpi-v4/ic_launcher.png: 1750 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-hdpi-v4/ic_launcher_foreground.png: 100 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-hdpi-v4/ic_launcher_round.png: 1750 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xhdpi-v4/ic_launcher.png: 1507 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xhdpi-v4/ic_launcher_foreground.png: 104 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xhdpi-v4/ic_launcher_round.png: 1507 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xxhdpi-v4/ic_launcher.png: 2100 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xxhdpi-v4/ic_launcher_foreground.png: 114 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xxhdpi-v4/ic_launcher_round.png: 2100 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xxxhdpi-v4/ic_launcher.png: 1319 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xxxhdpi-v4/ic_launcher_foreground.png: 131 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-xxxhdpi-v4/ic_launcher_round.png: 1319 bytes (replaced with small dummy file of size 67 bytes)
+Skipped unused resource base/res/mipmap-anydpi-v26/ic_launcher.xml: 417 bytes (replaced with small dummy file of size 9 bytes)
+Skipped unused resource base/res/mipmap-anydpi-v26/ic_launcher_round.xml: 417 bytes (replaced with small dummy file of size 9 bytes)

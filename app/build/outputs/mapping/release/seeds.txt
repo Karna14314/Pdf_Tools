@@ -1,0 +1,672 @@
+androidx.versionedparcelable.CustomVersionedParcelable
+androidx.compose.foundation.HoverableElement
+kotlinx.coroutines.android.AndroidDispatcherFactory
+androidx.compose.foundation.layout.FillElement
+androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
+androidx.compose.ui.input.key.KeyInputElement
+androidx.compose.ui.focus.FocusPropertiesElement
+androidx.core.graphics.drawable.IconCompat
+androidx.startup.InitializationProvider
+androidx.core.graphics.drawable.IconCompatParcelizer
+androidx.compose.ui.input.nestedscroll.NestedScrollElement
+androidx.compose.foundation.relocation.BringIntoViewResponderElement
+com.yourname.pdftoolkit.PdfToolkitApplication
+androidx.compose.foundation.FocusableKt$FocusableInNonTouchModeElement$1
+kotlin.coroutines.jvm.internal.BaseContinuationImpl
+androidx.compose.ui.semantics.AppendedSemanticsElement
+androidx.annotation.Keep
+androidx.emoji2.text.EmojiCompatInitializer
+android.support.v4.app.RemoteActionCompatParcelizer
+androidx.core.app.CoreComponentFactory
+androidx.compose.foundation.layout.SizeElement
+androidx.compose.ui.draw.PainterElement
+android.support.v4.graphics.drawable.IconCompatParcelizer
+androidx.compose.ui.node.ForceUpdateElement
+androidx.lifecycle.ProcessLifecycleInitializer
+androidx.compose.foundation.layout.LayoutWeightElement
+androidx.compose.foundation.layout.WrapContentElement
+androidx.compose.ui.CompositionLocalMapInjectionElement
+androidx.compose.ui.focus.FocusTargetNode$FocusTargetElement
+kotlinx.coroutines.internal.StackTraceRecoveryKt
+androidx.documentfile.R
+androidx.compose.foundation.FocusedBoundsObserverElement
+androidx.compose.foundation.gestures.MouseWheelScrollElement
+androidx.compose.foundation.FocusableElement
+androidx.compose.foundation.BorderModifierNodeElement
+androidx.compose.ui.input.rotary.RotaryInputElement
+androidx.compose.foundation.text.modifiers.TextStringSimpleElement
+androidx.compose.ui.focus.FocusOwnerImpl$modifier$1
+androidx.documentfile.provider.DocumentFile
+androidx.core.app.RemoteActionCompat
+androidx.core.app.RemoteActionCompatParcelizer
+androidx.documentfile.provider.TreeDocumentFile
+androidx.compose.foundation.text.modifiers.SelectableTextAnnotatedStringElement
+androidx.compose.ui.platform.InspectableValueKt
+androidx.documentfile.provider.RawDocumentFile
+kotlinx.coroutines.internal.MainDispatcherFactory
+com.yourname.pdftoolkit.ui.MainActivity
+androidx.compose.foundation.ClickableElement
+androidx.compose.ui.layout.LayoutElement
+androidx.compose.ui.input.pointer.SuspendPointerInputElement
+androidx.profileinstaller.ProfileInstallerInitializer
+androidx.compose.ui.graphics.BlockGraphicsLayerElement
+androidx.compose.ui.semantics.EmptySemanticsElement
+kotlinx.coroutines.CoroutineExceptionHandler
+androidx.documentfile.provider.DocumentsContractApi19
+androidx.compose.foundation.layout.PaddingElement
+androidx.versionedparcelable.ParcelImpl
+androidx.compose.foundation.gestures.DraggableElement
+androidx.compose.ui.graphics.GraphicsLayerElement
+androidx.core.content.FileProvider
+androidx.profileinstaller.ProfileInstallReceiver
+androidx.compose.foundation.BackgroundElement
+androidx.documentfile.provider.SingleDocumentFile
+kotlinx.coroutines.channels.BufferedChannel: java.lang.Object closeHandler
+kotlinx.coroutines.sync.SemaphoreImpl: java.lang.Object head
+kotlinx.coroutines.JobSupport$Finishing: int _isCompleting
+kotlin.coroutines.SafeContinuation: java.lang.Object result
+kotlinx.coroutines.internal.LockFreeTaskQueueCore: java.lang.Object _next
+androidx.concurrent.futures.AbstractResolvableFuture$Waiter: java.lang.Thread thread
+kotlinx.coroutines.internal.ConcurrentLinkedListNode: java.lang.Object _prev
+kotlinx.coroutines.channels.BufferedChannel: java.lang.Object sendSegment
+kotlinx.coroutines.flow.StateFlowImpl: java.lang.Object _state
+kotlinx.coroutines.internal.LockFreeLinkedListNode: java.lang.Object _removedRef
+kotlinx.coroutines.DefaultExecutor: java.lang.Thread _thread
+androidx.documentfile.provider.TreeDocumentFile: android.net.Uri mUri
+kotlinx.coroutines.internal.LockFreeLinkedListNode: java.lang.Object _prev
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event ON_ANY
+androidx.documentfile.provider.DocumentsContractApi19: java.lang.String TAG
+androidx.lifecycle.ProcessLifecycleOwner$attach$1: androidx.lifecycle.ProcessLifecycleOwner this$0
+androidx.lifecycle.ProcessLifecycleOwner$attach$1$onActivityPreCreated$1: androidx.lifecycle.ProcessLifecycleOwner this$0
+kotlinx.coroutines.internal.AtomicOp: java.lang.Object _consensus
+kotlinx.coroutines.JobSupport: java.lang.Object _state
+androidx.documentfile.provider.SingleDocumentFile: android.content.Context mContext
+androidx.compose.runtime.ParcelableSnapshotMutableIntState: android.os.Parcelable$Creator CREATOR
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event$Companion Companion
+kotlinx.coroutines.channels.BufferedChannel: java.lang.Object receiveSegment
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile mParent
+kotlinx.coroutines.internal.ThreadSafeHeap: int _size
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event ON_PAUSE
+kotlinx.coroutines.CompletedExceptionally: int _handled
+kotlinx.coroutines.InvokeOnCancelling: int _invoked
+androidx.documentfile.provider.DocumentsContractApi19: int FLAG_VIRTUAL_DOCUMENT
+kotlinx.coroutines.scheduling.CoroutineScheduler: int _isTerminated
+kotlinx.coroutines.CancellableContinuationImpl: int _decisionAndIndex
+kotlinx.coroutines.internal.LockFreeLinkedListNode: java.lang.Object _next
+androidx.compose.runtime.ParcelableSnapshotMutableState: android.os.Parcelable$Creator CREATOR
+kotlinx.coroutines.scheduling.CoroutineScheduler: long parkedWorkersStack
+androidx.compose.runtime.ParcelableSnapshotMutableFloatState: android.os.Parcelable$Creator CREATOR
+androidx.activity.result.ActivityResult: android.os.Parcelable$Creator CREATOR
+kotlinx.coroutines.scheduling.CoroutineScheduler$Worker: int workerCtl
+androidx.compose.foundation.lazy.layout.DefaultLazyKey: android.os.Parcelable$Creator CREATOR
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event ON_START
+kotlinx.coroutines.internal.LockFreeTaskQueueCore: long _state
+kotlinx.coroutines.CancellableContinuationImpl: java.lang.Object _state
+kotlinx.coroutines.sync.SemaphoreImpl: int _availablePermits
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: androidx.lifecycle.ReportFragment$LifecycleCallbacks$Companion Companion
+androidx.versionedparcelable.ParcelImpl: android.os.Parcelable$Creator CREATOR
+kotlinx.coroutines.flow.StateFlowSlot: java.lang.Object _state
+androidx.documentfile.provider.DocumentFile: java.lang.String TAG
+kotlinx.coroutines.channels.BufferedChannel: long receivers
+kotlinx.coroutines.scheduling.WorkQueue: int blockingTasksInBuffer
+androidx.concurrent.futures.AbstractResolvableFuture: androidx.concurrent.futures.AbstractResolvableFuture$Waiter waiters
+kotlinx.coroutines.JobSupport$Finishing: java.lang.Object _exceptionsHolder
+kotlinx.coroutines.EventLoopImplBase: java.lang.Object _queue
+kotlinx.coroutines.CancellableContinuationImpl: java.lang.Object _parentHandle
+kotlin.SafePublicationLazyImpl: java.lang.Object _value
+androidx.concurrent.futures.AbstractResolvableFuture: androidx.concurrent.futures.AbstractResolvableFuture$Listener listeners
+kotlinx.coroutines.channels.BufferedChannel: java.lang.Object bufferEndSegment
+kotlinx.coroutines.scheduling.WorkQueue: java.lang.Object lastScheduledTask
+kotlinx.coroutines.scheduling.CoroutineScheduler$Worker: int indexInArray
+androidx.concurrent.futures.AbstractResolvableFuture: java.lang.Object value
+kotlinx.coroutines.scheduling.CoroutineScheduler: long controlState
+kotlinx.coroutines.internal.LimitedDispatcher: int runningWorkers
+kotlinx.coroutines.internal.DispatchedContinuation: java.lang.Object _reusableCancellableContinuation
+kotlinx.coroutines.EventLoopImplBase: java.lang.Object _delayed
+kotlinx.coroutines.channels.BufferedChannel: long completedExpandBuffersAndPauseFlag
+kotlinx.coroutines.internal.ResizableAtomicArray: java.util.concurrent.atomic.AtomicReferenceArray array
+kotlinx.coroutines.EventLoopImplBase: int _isCompleted
+kotlinx.coroutines.android.HandlerContext: kotlinx.coroutines.android.HandlerContext _immediate
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event ON_CREATE
+kotlinx.coroutines.channels.BufferedChannel: long bufferEnd
+androidx.documentfile.provider.SingleDocumentFile: android.net.Uri mUri
+androidx.concurrent.futures.AbstractResolvableFuture$Waiter: androidx.concurrent.futures.AbstractResolvableFuture$Waiter next
+kotlinx.coroutines.JobSupport: java.lang.Object _parentHandle
+kotlinx.coroutines.sync.SemaphoreImpl: java.lang.Object tail
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event[] $VALUES
+kotlinx.coroutines.sync.SemaphoreImpl: long enqIdx
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event ON_STOP
+kotlinx.coroutines.UndispatchedCoroutine: boolean threadLocalIsSet
+androidx.documentfile.provider.TreeDocumentFile: android.content.Context mContext
+kotlinx.coroutines.scheduling.WorkQueue: int consumerIndex
+kotlinx.coroutines.internal.ConcurrentLinkedListNode: java.lang.Object _next
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event ON_RESUME
+kotlinx.coroutines.scheduling.CoroutineScheduler$Worker: java.lang.Object nextParkedWorker
+kotlinx.coroutines.channels.BufferedChannel: java.lang.Object _closeCause
+kotlinx.coroutines.sync.SemaphoreImpl: long deqIdx
+kotlinx.coroutines.DispatchedCoroutine: int _decision
+kotlinx.coroutines.scheduling.WorkQueue: int producerIndex
+kotlinx.coroutines.sync.MutexImpl: java.lang.Object owner
+kotlinx.coroutines.JobSupport$Finishing: java.lang.Object _rootCause
+kotlinx.coroutines.CancelledContinuation: int _resumed
+kotlinx.coroutines.android.AndroidExceptionPreHandler: java.lang.Object _preHandler
+kotlinx.coroutines.internal.LockFreeTaskQueue: java.lang.Object _cur
+androidx.documentfile.provider.RawDocumentFile: java.io.File mFile
+kotlinx.coroutines.EventLoopImplBase$DelayedTask: java.lang.Object _heap
+kotlinx.coroutines.DefaultExecutor: int debugStatus
+kotlinx.coroutines.android.HandlerDispatcherKt: android.view.Choreographer choreographer
+kotlinx.coroutines.internal.Segment: int cleanedAndPointers
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event ON_DESTROY
+kotlinx.coroutines.channels.BufferedChannel: long sendersAndCloseStatus
+androidx.lifecycle.EmptyActivityLifecycleCallbacks: void onActivityResumed(android.app.Activity)
+androidx.compose.ui.autofill.AutofillApi26Helper: boolean isList(android.view.autofill.AutofillValue)
+androidx.core.graphics.drawable.IconCompat$Api23Impl: android.graphics.drawable.Drawable loadDrawable(android.graphics.drawable.Icon,android.content.Context)
+androidx.documentfile.provider.DocumentFile: java.lang.String getName()
+androidx.documentfile.provider.SingleDocumentFile: androidx.documentfile.provider.DocumentFile[] listFiles()
+androidx.compose.ui.autofill.AutofillApi23Helper: int addChildCount(android.view.ViewStructure,int)
+androidx.core.view.ViewCompat$Api16Impl: void postOnAnimation(android.view.View,java.lang.Runnable)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.text.input.TextInputService getTextInputService()
+androidx.documentfile.provider.RawDocumentFile: boolean deleteContents(java.io.File)
+androidx.compose.ui.autofill.AutofillApi26Helper: java.lang.CharSequence textValue(android.view.autofill.AutofillValue)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: java.lang.CharSequence getContainerTitle(android.view.accessibility.AccessibilityNodeInfo)
+androidx.compose.ui.autofill.AutofillApi26Helper: void setAutofillId(android.view.ViewStructure,android.view.autofill.AutofillId,int)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.text.input.PlatformTextInputPluginRegistryImpl getPlatformTextInputPluginRegistry()
+androidx.compose.ui.text.android.BoringLayoutFactoryDefault: android.text.BoringLayout create(java.lang.CharSequence,android.text.TextPaint,int,android.text.Layout$Alignment,float,float,android.text.BoringLayout$Metrics,boolean,android.text.TextUtils$TruncateAt,int)
+androidx.compose.ui.platform.AndroidComposeView: void set_viewTreeOwners(androidx.compose.ui.platform.AndroidComposeView$ViewTreeOwners)
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile fromSingleUri(android.content.Context,android.net.Uri)
+androidx.compose.ui.platform.AndroidComposeView: long getLastMatrixRecalculationAnimationTime$ui_release()
+kotlin.collections.AbstractList: AbstractList()
+androidx.compose.ui.graphics.BlendModeColorFilterHelper: android.graphics.BlendModeColorFilter BlendModeColorFilter-xETnrds(long,int)
+androidx.compose.ui.text.android.StaticLayoutFactory33: void setLineBreakConfig(android.text.StaticLayout$Builder,int,int)
+androidx.compose.animation.core.MutatePriority: androidx.compose.animation.core.MutatePriority valueOf(java.lang.String)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivitySaveInstanceState(android.app.Activity,android.os.Bundle)
+androidx.compose.material.ripple.RippleHostView: void setRippleState(boolean)
+androidx.compose.ui.node.LayoutNode$UsageByParent: androidx.compose.ui.node.LayoutNode$UsageByParent valueOf(java.lang.String)
+androidx.core.view.ViewCompat$Api28Impl: void removeOnUnhandledKeyEventListener(android.view.View,androidx.core.view.ViewCompat$OnUnhandledKeyEventListenerCompat)
+kotlinx.coroutines.android.AndroidDispatcherFactory: kotlinx.coroutines.MainCoroutineDispatcher createDispatcher(java.util.List)
+androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat$Api29Impl: android.view.ViewStructure newViewStructure(android.view.contentcapture.ContentCaptureSession,android.view.View)
+androidx.documentfile.provider.TreeDocumentFile: android.net.Uri getUri()
+androidx.compose.ui.platform.ViewLayerVerificationHelper28: void setOutlineAmbientShadowColor(android.view.View,int)
+androidx.documentfile.provider.SingleDocumentFile: boolean isVirtual()
+androidx.emoji2.text.EmojiExclusions$EmojiExclusions_Api34: java.util.Set getExclusions()
+androidx.core.view.ViewCompat$Api19Impl: void setAccessibilityLiveRegion(android.view.View,int)
+androidx.lifecycle.EmptyActivityLifecycleCallbacks: void onActivityCreated(android.app.Activity,android.os.Bundle)
+androidx.compose.ui.autofill.AutofillType: androidx.compose.ui.autofill.AutofillType[] values()
+androidx.documentfile.provider.DocumentFile: long length()
+kotlinx.coroutines.channels.BufferOverflow: kotlinx.coroutines.channels.BufferOverflow valueOf(java.lang.String)
+androidx.documentfile.provider.DocumentFile: boolean delete()
+androidx.compose.ui.text.android.BoringLayoutFactory33: android.text.BoringLayout$Metrics isBoring(java.lang.CharSequence,android.text.TextPaint,android.text.TextDirectionHeuristic)
+kotlinx.coroutines.android.AndroidExceptionPreHandler: AndroidExceptionPreHandler()
+kotlinx.coroutines.scheduling.CoroutineScheduler$WorkerState: kotlinx.coroutines.scheduling.CoroutineScheduler$WorkerState valueOf(java.lang.String)
+androidx.core.view.ViewCompat$Api29Impl: void setSystemGestureExclusionRects(android.view.View,java.util.List)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.node.LayoutNode getRoot()
+androidx.documentfile.provider.DocumentFile: java.lang.String getType()
+androidx.core.view.ViewCompat$Api19Impl: boolean isAttachedToWindow(android.view.View)
+androidx.core.app.RemoteActionCompatParcelizer: void write(androidx.core.app.RemoteActionCompat,androidx.versionedparcelable.VersionedParcel)
+androidx.profileinstaller.ProfileInstallerInitializer$Choreographer16Impl: void postFrameCallback(java.lang.Runnable)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.node.OwnerSnapshotObserver getSnapshotObserver()
+androidx.documentfile.provider.DocumentFile: boolean renameTo(java.lang.String)
+androidx.core.content.res.FontResourcesParserCompat$Api21Impl: int getType(android.content.res.TypedArray,int)
+androidx.core.view.ViewCompat$Api16Impl: void setBackground(android.view.View,android.graphics.drawable.Drawable)
+com.yourname.pdftoolkit.PdfToolkitApplication: PdfToolkitApplication()
+androidx.compose.ui.platform.RenderNodeVerificationHelper28: int getSpotShadowColor(android.view.RenderNode)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api30Impl: java.lang.CharSequence getStateDescription(android.view.accessibility.AccessibilityNodeInfo)
+androidx.compose.ui.platform.ViewLayer: androidx.compose.ui.graphics.Path getManualClipPath()
+androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat$Api29Impl: void notifyViewTextChanged(android.view.contentcapture.ContentCaptureSession,android.view.autofill.AutofillId,java.lang.CharSequence)
+androidx.core.content.ContextCompat$Api19Impl: java.io.File[] getExternalCacheDirs(android.content.Context)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.text.font.FontFamily$Resolver getFontFamilyResolver()
+androidx.compose.ui.platform.AndroidComposeView: kotlin.coroutines.CoroutineContext getCoroutineContext()
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile[] listFiles()
+androidx.documentfile.provider.TreeDocumentFile: long length()
+androidx.compose.ui.platform.AndroidComposeView: boolean getHasPendingMeasureOrLayout()
+androidx.compose.foundation.gestures.Orientation: androidx.compose.foundation.gestures.Orientation[] values()
+androidx.documentfile.provider.SingleDocumentFile: android.net.Uri getUri()
+androidx.compose.ui.platform.AndroidComposeView: boolean getShowLayoutBounds()
+androidx.core.graphics.drawable.IconCompat$Api23Impl: android.net.Uri getUri(java.lang.Object)
+androidx.compose.ui.platform.AbstractComposeView: void setTransitionGroup(boolean)
+androidx.core.view.ViewConfigurationCompat$Api26Impl: float getScaledVerticalScrollFactor(android.view.ViewConfiguration)
+androidx.lifecycle.ProcessLifecycleOwner$Api29Impl: void registerActivityLifecycleCallbacks(android.app.Activity,android.app.Application$ActivityLifecycleCallbacks)
+androidx.documentfile.provider.DocumentFile: long lastModified()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner()
+androidx.compose.ui.text.platform.Api28Impl: android.text.style.TypefaceSpan createTypefaceSpan(android.graphics.Typeface)
+androidx.core.view.ViewCompat$Api28Impl: void setAccessibilityPaneTitle(android.view.View,java.lang.CharSequence)
+androidx.compose.material.ripple.RippleHostView: void setRippleState$lambda$2(androidx.compose.material.ripple.RippleHostView)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api30Impl: java.lang.Object createRangeInfo(int,float,float,float)
+androidx.core.text.ICUCompat$Api24Impl: android.icu.util.ULocale addLikelySubtags(java.lang.Object)
+com.yourname.pdftoolkit.ui.MainActivity: MainActivity()
+androidx.compose.ui.autofill.AutofillApi23Helper: void setDimens(android.view.ViewStructure,int,int,int,int,int,int)
+androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat$Api29Impl: android.view.autofill.AutofillId newAutofillId(android.view.contentcapture.ContentCaptureSession,android.view.autofill.AutofillId,long)
+androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat$Api23Impl: android.os.Bundle getExtras(android.view.ViewStructure)
+androidx.compose.ui.text.android.StaticLayoutFactory33: boolean isFallbackLineSpacingEnabled(android.text.StaticLayout)
+androidx.profileinstaller.ProfileInstallReceiver: ProfileInstallReceiver()
+androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat$Api29Impl: android.view.ViewStructure newVirtualViewStructure(android.view.contentcapture.ContentCaptureSession,android.view.autofill.AutofillId,long)
+androidx.compose.ui.input.pointer.PointerEventPass: androidx.compose.ui.input.pointer.PointerEventPass valueOf(java.lang.String)
+androidx.core.graphics.drawable.IconCompatParcelizer: IconCompatParcelizer()
+androidx.compose.ui.graphics.WrapperVerificationHelperMethods: void setBlendMode-GB0RdKg(android.graphics.Paint,int)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityPostResumed(android.app.Activity)
+androidx.documentfile.provider.SingleDocumentFile: boolean canWrite()
+androidx.compose.ui.platform.AndroidViewsHandler: java.util.HashMap getHolderToLayoutNode()
+androidx.core.view.ViewCompat$Api28Impl: boolean isScreenReaderFocusable(android.view.View)
+androidx.core.view.ViewCompat$Api28Impl: void addOnUnhandledKeyEventListener(android.view.View,androidx.core.view.ViewCompat$OnUnhandledKeyEventListenerCompat)
+kotlin.collections.AbstractMutableList: AbstractMutableList()
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile createFile(java.lang.String,java.lang.String)
+androidx.documentfile.provider.DocumentsContractApi19: long queryForLong(android.content.Context,android.net.Uri,java.lang.String,long)
+androidx.documentfile.provider.RawDocumentFile: boolean renameTo(java.lang.String)
+androidx.documentfile.provider.RawDocumentFile: boolean isDirectory()
+androidx.compose.ui.text.android.BoringLayoutFactory33: android.text.BoringLayout create(java.lang.CharSequence,android.text.TextPaint,int,android.text.Layout$Alignment,float,float,android.text.BoringLayout$Metrics,boolean,boolean,android.text.TextUtils$TruncateAt,int)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityPaused(android.app.Activity)
+androidx.core.view.AccessibilityDelegateCompat$Api16Impl: boolean performAccessibilityAction(android.view.View$AccessibilityDelegate,android.view.View,int,android.os.Bundle)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.modifier.ModifierLocalManager getModifierLocalManager()
+androidx.compose.ui.text.android.StaticLayoutFactoryDefault: android.text.StaticLayout create(androidx.compose.ui.text.android.StaticLayoutParams)
+androidx.documentfile.provider.DocumentsContractApi19: long getFlags(android.content.Context,android.net.Uri)
+androidx.documentfile.provider.DocumentFile: boolean canWrite()
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event[] values()
+kotlinx.coroutines.android.AndroidDispatcherFactory: java.lang.String hintOnError()
+androidx.lifecycle.SavedStateHandlesVM: SavedStateHandlesVM()
+androidx.compose.ui.state.ToggleableState: androidx.compose.ui.state.ToggleableState valueOf(java.lang.String)
+androidx.documentfile.provider.SingleDocumentFile: java.lang.String getName()
+androidx.compose.ui.platform.AndroidComposeView: void setOnViewTreeOwnersAvailable(kotlin.jvm.functions.Function1)
+androidx.compose.ui.state.ToggleableState: androidx.compose.ui.state.ToggleableState[] values()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.AndroidComposeView$ViewTreeOwners getViewTreeOwners()
+androidx.compose.ui.text.style.ResolvedTextDirection: androidx.compose.ui.text.style.ResolvedTextDirection valueOf(java.lang.String)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api19Impl: java.lang.Object createRangeInfo(int,float,float,float)
+androidx.core.text.ICUCompat$Api24Impl: java.lang.String getScript(java.lang.Object)
+androidx.core.view.ViewCompat$Api29Impl: java.util.List getSystemGestureExclusionRects(android.view.View)
+androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat$Api29Impl: void notifyViewsDisappeared(android.view.contentcapture.ContentCaptureSession,android.view.autofill.AutofillId,long[])
+androidx.documentfile.provider.DocumentFile: boolean exists()
+androidx.compose.ui.autofill.AutofillApi26Helper: boolean isDate(android.view.autofill.AutofillValue)
+androidx.documentfile.provider.DocumentsContractApi19: boolean exists(android.content.Context,android.net.Uri)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: ReportFragment$LifecycleCallbacks()
+androidx.compose.ui.node.LayoutNode$LayoutState: androidx.compose.ui.node.LayoutNode$LayoutState[] values()
+androidx.compose.ui.platform.AndroidComposeView: void setFontFamilyResolver(androidx.compose.ui.text.font.FontFamily$Resolver)
+kotlinx.coroutines.channels.BufferOverflow: kotlinx.coroutines.channels.BufferOverflow[] values()
+androidx.lifecycle.ProcessLifecycleOwner$attach$1: void onActivityStopped(android.app.Activity)
+androidx.core.view.ViewCompat$Api19Impl: int getAccessibilityLiveRegion(android.view.View)
+androidx.core.graphics.drawable.IconCompat$Api28Impl: int getType(java.lang.Object)
+androidx.documentfile.provider.TreeDocumentFile: java.lang.String getName()
+androidx.lifecycle.ProcessLifecycleOwner$attach$1: void onActivityPaused(android.app.Activity)
+androidx.compose.ui.platform.AccessibilityNodeInfoVerificationHelperMethods: void setAvailableExtraData(android.view.accessibility.AccessibilityNodeInfo,java.util.List)
+androidx.core.view.ViewCompat$Api16Impl: void postInvalidateOnAnimation(android.view.View)
+androidx.core.view.ViewCompat$Api29Impl: android.view.contentcapture.ContentCaptureSession getContentCaptureSession(android.view.View)
+androidx.documentfile.provider.RawDocumentFile: long length()
+androidx.compose.ui.autofill.AutofillApi26Helper: boolean isToggle(android.view.autofill.AutofillValue)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityDestroyed(android.app.Activity)
+androidx.compose.ui.platform.DrawChildContainer: int getChildCount()
+androidx.core.view.ViewCompat$Api30Impl: java.lang.CharSequence getStateDescription(android.view.View)
+androidx.lifecycle.EmptyActivityLifecycleCallbacks: void onActivityStopped(android.app.Activity)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityCreated(android.app.Activity,android.os.Bundle)
+androidx.compose.ui.input.pointer.util.VelocityTracker1D$Strategy: androidx.compose.ui.input.pointer.util.VelocityTracker1D$Strategy valueOf(java.lang.String)
+androidx.compose.ui.platform.ViewLayer: long getOwnerViewId()
+androidx.compose.ui.platform.AndroidComposeViewVerificationHelperMethodsN: void setPointerIcon(android.view.View,androidx.compose.ui.input.pointer.PointerIcon)
+androidx.compose.ui.platform.RenderNodeVerificationHelper24: void discardDisplayList(android.view.RenderNode)
+androidx.documentfile.provider.DocumentsContractApi19: boolean isFile(android.content.Context,android.net.Uri)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.hapticfeedback.HapticFeedback getHapticFeedBack()
+androidx.core.view.ViewCompat$Api16Impl: android.view.ViewParent getParentForAccessibility(android.view.View)
+androidx.compose.ui.platform.AndroidComposeView: android.view.View getView()
+androidx.core.view.ViewCompat$Api28Impl: void setAutofillId(android.view.View,android.view.autofill.AutofillId)
+androidx.core.view.ViewCompat$Api30Impl: void setImportantForContentCapture(android.view.View,int)
+androidx.documentfile.provider.DocumentFile: boolean isFile()
+androidx.compose.ui.autofill.AutofillCallback: void register(androidx.compose.ui.autofill.AndroidAutofill)
+androidx.documentfile.provider.DocumentsContractApi19: long length(android.content.Context,android.net.Uri)
+androidx.compose.ui.focus.CustomDestinationResult: androidx.compose.ui.focus.CustomDestinationResult[] values()
+androidx.lifecycle.EmptyActivityLifecycleCallbacks: void onActivitySaveInstanceState(android.app.Activity,android.os.Bundle)
+androidx.compose.ui.platform.AndroidComposeView: void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection)
+androidx.lifecycle.EmptyActivityLifecycleCallbacks: void onActivityStarted(android.app.Activity)
+androidx.compose.ui.platform.AbstractComposeView: boolean getHasComposition()
+androidx.compose.ui.platform.AndroidViewsHandler: java.util.HashMap getLayoutNodeToHolder()
+androidx.compose.ui.platform.ViewLayer: void setCameraDistancePx(float)
+androidx.compose.ui.text.font.TypefaceHelperMethodsApi28: android.graphics.Typeface create(android.graphics.Typeface,int,boolean)
+androidx.compose.material3.tokens.ShapeKeyTokens: androidx.compose.material3.tokens.ShapeKeyTokens valueOf(java.lang.String)
+androidx.documentfile.provider.TreeDocumentFile: boolean renameTo(java.lang.String)
+androidx.documentfile.provider.DocumentFile: boolean isDocumentUri(android.content.Context,android.net.Uri)
+androidx.core.graphics.drawable.IconCompat$Api30Impl: android.graphics.drawable.Icon createWithAdaptiveBitmapContentUri(android.net.Uri)
+androidx.lifecycle.Lifecycle$State: androidx.lifecycle.Lifecycle$State valueOf(java.lang.String)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.TextToolbar getTextToolbar()
+androidx.compose.foundation.layout.SizeMode: androidx.compose.foundation.layout.SizeMode[] values()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.AndroidClipboardManager getClipboardManager()
+androidx.documentfile.provider.RawDocumentFile: boolean delete()
+androidx.versionedparcelable.CustomVersionedParcelable: CustomVersionedParcelable()
+androidx.lifecycle.ProcessLifecycleOwner$attach$1: ProcessLifecycleOwner$attach$1(androidx.lifecycle.ProcessLifecycleOwner)
+androidx.core.app.CoreComponentFactory: CoreComponentFactory()
+androidx.lifecycle.LifecycleDispatcher$DispatcherActivityCallback: LifecycleDispatcher$DispatcherActivityCallback()
+androidx.compose.animation.core.MutatePriority: androidx.compose.animation.core.MutatePriority[] values()
+androidx.core.text.TextUtilsCompat$Api17Impl: int getLayoutDirectionFromLocale(java.util.Locale)
+androidx.core.view.ViewCompat$Api19Impl: void notifySubtreeAccessibilityStateChanged(android.view.ViewParent,android.view.View,android.view.View,int)
+kotlin.coroutines.intrinsics.CoroutineSingletons: kotlin.coroutines.intrinsics.CoroutineSingletons[] values()
+androidx.compose.ui.text.platform.extensions.LocaleListHelperMethods: java.lang.Object localeSpan(androidx.compose.ui.text.intl.LocaleList)
+androidx.compose.ui.platform.ComposeView: void getShouldCreateCompositionOnAttachedToWindow$annotations()
+androidx.documentfile.provider.TreeDocumentFile: android.net.Uri createFile(android.content.Context,android.net.Uri,java.lang.String,java.lang.String)
+androidx.documentfile.provider.RawDocumentFile: boolean isVirtual()
+androidx.documentfile.provider.DocumentsContractApi19: boolean canWrite(android.content.Context,android.net.Uri)
+androidx.compose.ui.semantics.EmptySemanticsElement: EmptySemanticsElement()
+androidx.compose.foundation.Api31Impl: android.widget.EdgeEffect create(android.content.Context,android.util.AttributeSet)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.ClipboardManager getClipboardManager()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.input.pointer.PointerIconService getPointerIconService()
+androidx.documentfile.provider.RawDocumentFile: java.lang.String getType()
+androidx.core.graphics.drawable.IconCompatParcelizer: void write(androidx.core.graphics.drawable.IconCompat,androidx.versionedparcelable.VersionedParcel)
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile getParentFile()
+androidx.core.provider.FontProvider$Api16Impl: android.database.Cursor query(android.content.ContentResolver,android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String,java.lang.Object)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: boolean hasRequestInitialAccessibilityFocus(android.view.accessibility.AccessibilityNodeInfo)
+androidx.documentfile.provider.TreeDocumentFile: androidx.documentfile.provider.DocumentFile createDirectory(java.lang.String)
+androidx.documentfile.provider.DocumentsContractApi19: java.lang.String queryForString(android.content.Context,android.net.Uri,java.lang.String,java.lang.String)
+androidx.core.view.ViewCompat$Api16Impl: int getWindowSystemUiVisibility(android.view.View)
+androidx.documentfile.provider.SingleDocumentFile: boolean isFile()
+androidx.lifecycle.EmptyActivityLifecycleCallbacks: void onActivityDestroyed(android.app.Activity)
+androidx.compose.ui.autofill.AutofillApi23Helper: android.view.ViewStructure newChild(android.view.ViewStructure,int)
+androidx.lifecycle.ProcessLifecycleInitializer: ProcessLifecycleInitializer()
+androidx.compose.ui.platform.AbstractComposeView: void setShowLayoutBounds(boolean)
+androidx.core.util.ObjectsCompat$Api19Impl: boolean equals(java.lang.Object,java.lang.Object)
+androidx.core.view.ViewCompat$Api16Impl: boolean getFitsSystemWindows(android.view.View)
+kotlin.LazyThreadSafetyMode: kotlin.LazyThreadSafetyMode[] values()
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityPrePaused(android.app.Activity)
+androidx.core.content.ContextCompat$Api19Impl: java.io.File[] getExternalFilesDirs(android.content.Context,java.lang.String)
+androidx.compose.ui.platform.RenderNodeVerificationHelper28: void setSpotShadowColor(android.view.RenderNode,int)
+androidx.core.util.ObjectsCompat$Api19Impl: int hash(java.lang.Object[])
+androidx.compose.ui.platform.AbstractComposeView: boolean getShouldCreateCompositionOnAttachedToWindow()
+androidx.compose.material3.tokens.ColorSchemeKeyTokens: androidx.compose.material3.tokens.ColorSchemeKeyTokens valueOf(java.lang.String)
+kotlin.coroutines.intrinsics.CoroutineSingletons: kotlin.coroutines.intrinsics.CoroutineSingletons valueOf(java.lang.String)
+androidx.activity.OnBackPressedDispatcher$Api33Impl: android.window.OnBackInvokedCallback createOnBackInvokedCallback(kotlin.jvm.functions.Function0)
+androidx.compose.ui.platform.ViewLayer: androidx.compose.ui.platform.DrawChildContainer getContainer()
+kotlinx.coroutines.android.AndroidDispatcherFactory: int getLoadPriority()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.node.RootForTest getRootForTest()
+androidx.compose.ui.platform.RenderNodeVerificationHelper28: void setAmbientShadowColor(android.view.RenderNode,int)
+android.support.v4.app.RemoteActionCompatParcelizer: androidx.core.app.RemoteActionCompat read(androidx.versionedparcelable.VersionedParcel)
+androidx.core.graphics.drawable.IconCompat$Api28Impl: java.lang.String getResPackage(java.lang.Object)
+androidx.compose.ui.text.android.BoringLayoutFactoryDefault: android.text.BoringLayout$Metrics isBoring(java.lang.CharSequence,android.text.TextPaint,android.text.TextDirectionHeuristic)
+kotlinx.coroutines.CoroutineStart: kotlinx.coroutines.CoroutineStart[] values()
+androidx.compose.ui.graphics.Api26Bitmap: android.graphics.Bitmap createBitmap-x__-hDU$ui_graphics_release(int,int,int,boolean,androidx.compose.ui.graphics.colorspace.ColorSpace)
+androidx.core.view.ViewCompat$Api16Impl: boolean hasTransientState(android.view.View)
+androidx.core.view.ViewCompat$Api16Impl: boolean hasOverlappingRendering(android.view.View)
+androidx.core.view.ViewCompat$Api28Impl: boolean isAccessibilityHeading(android.view.View)
+androidx.documentfile.provider.SingleDocumentFile: boolean canRead()
+androidx.documentfile.provider.DocumentFile: boolean canRead()
+androidx.lifecycle.ProcessLifecycleOwner$attach$1: void onActivityCreated(android.app.Activity,android.os.Bundle)
+android.support.v4.app.RemoteActionCompatParcelizer: RemoteActionCompatParcelizer()
+androidx.compose.ui.input.pointer.util.VelocityTracker1D$Strategy: androidx.compose.ui.input.pointer.util.VelocityTracker1D$Strategy[] values()
+androidx.core.graphics.drawable.IconCompat$Api26Impl: android.graphics.drawable.Icon createWithAdaptiveBitmap(android.graphics.Bitmap)
+kotlinx.coroutines.scheduling.CoroutineScheduler$WorkerState: kotlinx.coroutines.scheduling.CoroutineScheduler$WorkerState[] values()
+androidx.compose.material3.tokens.ColorSchemeKeyTokens: androidx.compose.material3.tokens.ColorSchemeKeyTokens[] values()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.input.InputModeManager getInputModeManager()
+androidx.documentfile.provider.DocumentsContractApi19: java.lang.String getRawType(android.content.Context,android.net.Uri)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: long getMinDurationBetweenContentChangeMillis(android.view.accessibility.AccessibilityNodeInfo)
+androidx.core.view.ViewCompat$Api30Impl: void setStateDescription(android.view.View,java.lang.CharSequence)
+androidx.compose.ui.platform.CalculateMatrixToWindowApi29: void calculateMatrixToWindow-EL8BTi8(android.view.View,float[])
+androidx.core.view.ViewConfigurationCompat$Api26Impl: float getScaledHorizontalScrollFactor(android.view.ViewConfiguration)
+androidx.documentfile.provider.DocumentFile: boolean isVirtual()
+androidx.compose.ui.text.font.ResourceFontHelper: android.graphics.Typeface load(android.content.Context,androidx.compose.ui.text.font.ResourceFont)
+androidx.core.view.ViewCompat$Api29Impl: android.view.View$AccessibilityDelegate getAccessibilityDelegate(android.view.View)
+androidx.compose.ui.platform.AbstractComposeView: void getShowLayoutBounds$annotations()
+androidx.compose.ui.platform.AndroidComposeView: android.view.View findViewByAccessibilityIdTraversal(int)
+androidx.compose.ui.platform.ComposeView: boolean getShouldCreateCompositionOnAttachedToWindow()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.AndroidComposeView$ViewTreeOwners get_viewTreeOwners()
+androidx.compose.ui.focus.FocusStateImpl: androidx.compose.ui.focus.FocusStateImpl valueOf(java.lang.String)
+androidx.compose.ui.platform.ViewLayer: void setInvalidated(boolean)
+androidx.compose.ui.text.input.TextInputServiceAndroid$TextInputCommand: androidx.compose.ui.text.input.TextInputServiceAndroid$TextInputCommand valueOf(java.lang.String)
+androidx.compose.ui.autofill.AutofillApi23Helper: void setId(android.view.ViewStructure,int,java.lang.String,java.lang.String,java.lang.String)
+androidx.compose.ui.autofill.AutofillType: androidx.compose.ui.autofill.AutofillType valueOf(java.lang.String)
+androidx.documentfile.provider.DocumentsContractApi19: java.lang.String getName(android.content.Context,android.net.Uri)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: java.lang.String getCollectionItemColumnTitle(java.lang.Object)
+androidx.lifecycle.ProcessLifecycleOwner$attach$1$onActivityPreCreated$1: void onActivityPostStarted(android.app.Activity)
+androidx.compose.ui.platform.AndroidComposeView: void setLastMatrixRecalculationAnimationTime$ui_release(long)
+androidx.compose.ui.text.android.StaticLayoutFactory28: void setUseLineSpacingFromFallbacks(android.text.StaticLayout$Builder,boolean)
+androidx.compose.ui.platform.ViewLayerVerificationHelper28: void setOutlineSpotShadowColor(android.view.View,int)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.ViewConfiguration getViewConfiguration()
+androidx.compose.ui.platform.AbstractComposeView: void setParentCompositionContext(androidx.compose.runtime.CompositionContext)
+androidx.documentfile.provider.SingleDocumentFile: boolean renameTo(java.lang.String)
+androidx.activity.ComponentActivity$Api33Impl: android.window.OnBackInvokedDispatcher getOnBackInvokedDispatcher(android.app.Activity)
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile fromFile(java.io.File)
+androidx.documentfile.provider.TreeDocumentFile: TreeDocumentFile(androidx.documentfile.provider.DocumentFile,android.content.Context,android.net.Uri)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: android.view.accessibility.AccessibilityNodeInfo$ExtraRenderingInfo getExtraRenderingInfo(android.view.accessibility.AccessibilityNodeInfo)
+androidx.core.view.ViewCompat$Api29Impl: void setContentCaptureSession(android.view.View,android.view.contentcapture.ContentCaptureSession)
+androidx.compose.ui.platform.AbstractComposeView: void getDisposeViewCompositionStrategy$annotations()
+androidx.documentfile.provider.DocumentsContractApi19: int queryForInt(android.content.Context,android.net.Uri,java.lang.String,int)
+androidx.core.graphics.drawable.IconCompat: IconCompat()
+kotlinx.coroutines.selects.TrySelectDetailedResult: kotlinx.coroutines.selects.TrySelectDetailedResult[] values()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.WindowInfo getWindowInfo()
+androidx.documentfile.provider.RawDocumentFile: androidx.documentfile.provider.DocumentFile createDirectory(java.lang.String)
+androidx.compose.ui.text.style.ResolvedTextDirection: androidx.compose.ui.text.style.ResolvedTextDirection[] values()
+androidx.compose.ui.platform.AndroidComposeViewVerificationHelperMethodsO: void focusable(android.view.View,int,boolean)
+androidx.documentfile.provider.RawDocumentFile: android.net.Uri getUri()
+androidx.compose.foundation.FocusableKt$FocusableInNonTouchModeElement$1: FocusableKt$FocusableInNonTouchModeElement$1()
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: void setBoundsInWindow(android.view.accessibility.AccessibilityNodeInfo,android.graphics.Rect)
+androidx.lifecycle.ProcessLifecycleOwner$attach$1: void onActivityPreCreated(android.app.Activity,android.os.Bundle)
+androidx.compose.ui.platform.AndroidComposeViewForceDarkModeQ: void disallowForceDark(android.view.View)
+androidx.startup.InitializationProvider: InitializationProvider()
+androidx.compose.ui.platform.AbstractComposeView: void setPreviousAttachedWindowToken(android.os.IBinder)
+androidx.lifecycle.Lifecycle$Event: androidx.lifecycle.Lifecycle$Event valueOf(java.lang.String)
+androidx.compose.ui.platform.AndroidComposeView: void setShowLayoutBounds(boolean)
+androidx.documentfile.provider.TreeDocumentFile: long lastModified()
+androidx.compose.ui.node.LayoutNode$LayoutState: androidx.compose.ui.node.LayoutNode$LayoutState valueOf(java.lang.String)
+androidx.core.view.ViewCompat$Api28Impl: java.lang.Object requireViewById(android.view.View,int)
+androidx.documentfile.provider.SingleDocumentFile: long lastModified()
+androidx.compose.ui.autofill.AutofillApi26Helper: void setAutofillHints(android.view.ViewStructure,java.lang.String[])
+androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat$Api29Impl: void notifyViewAppeared(android.view.contentcapture.ContentCaptureSession,android.view.ViewStructure)
+androidx.core.view.ViewCompat$Api16Impl: void postInvalidateOnAnimation(android.view.View,int,int,int,int)
+androidx.core.app.NotificationManagerCompat$Api24Impl: int getImportance(android.app.NotificationManager)
+androidx.core.view.AccessibilityDelegateCompat$Api16Impl: android.view.accessibility.AccessibilityNodeProvider getAccessibilityNodeProvider(android.view.View$AccessibilityDelegate,android.view.View)
+androidx.documentfile.provider.RawDocumentFile: long lastModified()
+androidx.documentfile.provider.TreeDocumentFile: boolean delete()
+androidx.compose.ui.platform.coreshims.ViewCompatShims$Api30Impl: void setImportantForContentCapture(android.view.View,int)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: void setQueryFromAppProcessEnabled(android.view.accessibility.AccessibilityNodeInfo,android.view.View,boolean)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.unit.LayoutDirection getLayoutDirection()
+androidx.compose.ui.platform.MotionEventVerifierApi29: boolean isValidMotionEvent(android.view.MotionEvent,int)
+androidx.documentfile.provider.TreeDocumentFile: boolean isDirectory()
+androidx.compose.ui.graphics.ColorSpaceVerificationHelper: androidx.compose.ui.graphics.colorspace.ColorSpace composeColorSpace(android.graphics.ColorSpace)
+androidx.compose.material.ripple.UnprojectedRipple$MRadiusHelper: void setRadius(android.graphics.drawable.RippleDrawable,int)
+androidx.compose.runtime.InvalidationResult: androidx.compose.runtime.InvalidationResult[] values()
+androidx.compose.runtime.InvalidationResult: androidx.compose.runtime.InvalidationResult valueOf(java.lang.String)
+androidx.documentfile.provider.DocumentFile: android.net.Uri getUri()
+androidx.core.view.ViewCompat$Api16Impl: void removeOnGlobalLayoutListener(android.view.ViewTreeObserver,android.view.ViewTreeObserver$OnGlobalLayoutListener)
+androidx.compose.ui.autofill.AutofillApi26Helper: android.view.autofill.AutofillId getAutofillId(android.view.ViewStructure)
+androidx.documentfile.provider.SingleDocumentFile: androidx.documentfile.provider.DocumentFile createFile(java.lang.String,java.lang.String)
+androidx.compose.ui.platform.AbstractComposeView: boolean getShowLayoutBounds()
+android.support.v4.graphics.drawable.IconCompatParcelizer: androidx.core.graphics.drawable.IconCompat read(androidx.versionedparcelable.VersionedParcel)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityPostStarted(android.app.Activity)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void registerIn(android.app.Activity)
+androidx.documentfile.provider.TreeDocumentFile: androidx.documentfile.provider.DocumentFile createFile(java.lang.String,java.lang.String)
+kotlinx.coroutines.CoroutineStart: kotlinx.coroutines.CoroutineStart valueOf(java.lang.String)
+androidx.lifecycle.ProcessLifecycleOwner$attach$1$onActivityPreCreated$1: void onActivityPostResumed(android.app.Activity)
+kotlinx.coroutines.selects.TrySelectDetailedResult: kotlinx.coroutines.selects.TrySelectDetailedResult valueOf(java.lang.String)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: boolean isAccessibilityDataSensitive(android.view.accessibility.AccessibilityNodeInfo)
+androidx.core.view.ViewCompat$Api30Impl: int getImportantForContentCapture(android.view.View)
+androidx.compose.material3.tokens.ShapeKeyTokens: androidx.compose.material3.tokens.ShapeKeyTokens[] values()
+androidx.compose.foundation.Api31Impl: float getDistance(android.widget.EdgeEffect)
+androidx.compose.ui.platform.ViewLayer: float getCameraDistancePx()
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: void setContainerTitle(android.view.accessibility.AccessibilityNodeInfo,java.lang.CharSequence)
+androidx.core.graphics.TypefaceCompatUtil$Api19Impl: android.os.ParcelFileDescriptor openFileDescriptor(android.content.ContentResolver,android.net.Uri,java.lang.String,android.os.CancellationSignal)
+androidx.core.view.ViewCompat$Api16Impl: void postOnAnimationDelayed(android.view.View,java.lang.Runnable,long)
+androidx.profileinstaller.FileSectionType: androidx.profileinstaller.FileSectionType[] values()
+androidx.documentfile.provider.DocumentFile: boolean isDirectory()
+androidx.core.graphics.drawable.IconCompat$Api26Impl: android.graphics.drawable.Drawable createAdaptiveIconDrawable(android.graphics.drawable.Drawable,android.graphics.drawable.Drawable)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: void setAccessibilityDataSensitive(android.view.accessibility.AccessibilityNodeInfo,boolean)
+androidx.documentfile.provider.SingleDocumentFile: SingleDocumentFile(androidx.documentfile.provider.DocumentFile,android.content.Context,android.net.Uri)
+androidx.compose.ui.input.pointer.PointerEventPass: androidx.compose.ui.input.pointer.PointerEventPass[] values()
+androidx.profileinstaller.ProfileInstallerInitializer: ProfileInstallerInitializer()
+androidx.lifecycle.LifecycleDispatcher$DispatcherActivityCallback: void onActivityCreated(android.app.Activity,android.os.Bundle)
+kotlin.random.Random: Random()
+androidx.documentfile.provider.SingleDocumentFile: java.lang.String getType()
+androidx.emoji2.text.EmojiCompatInitializer: EmojiCompatInitializer()
+androidx.compose.foundation.layout.Direction: androidx.compose.foundation.layout.Direction[] values()
+android.support.v4.graphics.drawable.IconCompatParcelizer: void write(androidx.core.graphics.drawable.IconCompat,androidx.versionedparcelable.VersionedParcel)
+androidx.activity.OnBackPressedDispatcher$Api33Impl: void unregisterOnBackInvokedCallback(java.lang.Object,java.lang.Object)
+androidx.documentfile.R: R()
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityPostCreated(android.app.Activity,android.os.Bundle)
+androidx.core.graphics.PaintCompat$Api23Impl: boolean hasGlyph(android.graphics.Paint,java.lang.String)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: void setRequestInitialAccessibilityFocus(android.view.accessibility.AccessibilityNodeInfo,boolean)
+kotlin.time.DurationUnit: kotlin.time.DurationUnit[] values()
+androidx.compose.ui.platform.TextToolbarStatus: androidx.compose.ui.platform.TextToolbarStatus valueOf(java.lang.String)
+androidx.documentfile.provider.DocumentsContractApi19: boolean canRead(android.content.Context,android.net.Uri)
+androidx.documentfile.provider.RawDocumentFile: RawDocumentFile(androidx.documentfile.provider.DocumentFile,java.io.File)
+androidx.documentfile.provider.RawDocumentFile: java.lang.String getName()
+android.support.v4.graphics.drawable.IconCompatParcelizer: IconCompatParcelizer()
+androidx.compose.ui.platform.AndroidComposeView: void setConfigurationChangeObserver(kotlin.jvm.functions.Function1)
+androidx.compose.ui.platform.ViewLayerContainer: void dispatchGetDisplayList()
+kotlin.LazyThreadSafetyMode: kotlin.LazyThreadSafetyMode valueOf(java.lang.String)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.node.LayoutNodeDrawScope getSharedDrawScope()
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api19Impl: android.os.Bundle getExtras(android.view.accessibility.AccessibilityNodeInfo)
+kotlinx.coroutines.flow.SharingCommand: kotlinx.coroutines.flow.SharingCommand[] values()
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: java.lang.String getCollectionItemRowTitle(java.lang.Object)
+androidx.compose.foundation.MutatePriority: androidx.compose.foundation.MutatePriority valueOf(java.lang.String)
+androidx.core.view.ViewCompat$Api28Impl: java.lang.CharSequence getAccessibilityPaneTitle(android.view.View)
+androidx.compose.ui.platform.coreshims.ViewStructureCompat$Api23Impl: void setText(android.view.ViewStructure,java.lang.CharSequence)
+androidx.compose.ui.platform.RenderNodeApi29VerificationHelper: void setRenderEffect(android.graphics.RenderNode,androidx.compose.ui.graphics.RenderEffect)
+androidx.compose.ui.focus.CustomDestinationResult: androidx.compose.ui.focus.CustomDestinationResult valueOf(java.lang.String)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: androidx.core.view.accessibility.AccessibilityNodeInfoCompat$CollectionItemInfoCompat buildCollectionItemInfoCompat(boolean,int,int,int,int,boolean,java.lang.String,java.lang.String)
+androidx.compose.foundation.layout.SizeMode: androidx.compose.foundation.layout.SizeMode valueOf(java.lang.String)
+androidx.documentfile.provider.RawDocumentFile: boolean canWrite()
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: androidx.core.view.accessibility.AccessibilityNodeInfoCompat getParent(android.view.accessibility.AccessibilityNodeInfo,int)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: boolean isTextSelectable(android.view.accessibility.AccessibilityNodeInfo)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityStopped(android.app.Activity)
+androidx.documentfile.provider.SingleDocumentFile: androidx.documentfile.provider.DocumentFile createDirectory(java.lang.String)
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile fromTreeUri(android.content.Context,android.net.Uri)
+kotlinx.coroutines.android.AndroidDispatcherFactory: AndroidDispatcherFactory()
+androidx.core.app.RemoteActionCompatParcelizer: androidx.core.app.RemoteActionCompat read(androidx.versionedparcelable.VersionedParcel)
+androidx.core.view.ViewCompat$Api16Impl: android.view.accessibility.AccessibilityNodeProvider getAccessibilityNodeProvider(android.view.View)
+android.support.v4.app.RemoteActionCompatParcelizer: void write(androidx.core.app.RemoteActionCompat,androidx.versionedparcelable.VersionedParcel)
+androidx.documentfile.provider.SingleDocumentFile: boolean isDirectory()
+androidx.documentfile.provider.SingleDocumentFile: boolean exists()
+androidx.documentfile.provider.DocumentsContractApi19: boolean isDirectory(android.content.Context,android.net.Uri)
+androidx.core.app.RemoteActionCompatParcelizer: RemoteActionCompatParcelizer()
+androidx.core.view.ViewCompat$Api16Impl: void setImportantForAccessibility(android.view.View,int)
+kotlinx.coroutines.android.AndroidExceptionPreHandler: void handleException(kotlin.coroutines.CoroutineContext,java.lang.Throwable)
+androidx.documentfile.provider.TreeDocumentFile: void closeQuietly(java.lang.AutoCloseable)
+androidx.core.view.ViewCompat$Api28Impl: void setScreenReaderFocusable(android.view.View,boolean)
+androidx.core.content.FileProvider: FileProvider()
+androidx.profileinstaller.FileSectionType: androidx.profileinstaller.FileSectionType valueOf(java.lang.String)
+androidx.compose.ui.focus.FocusStateImpl: androidx.compose.ui.focus.FocusStateImpl[] values()
+androidx.compose.ui.text.platform.extensions.LocaleListHelperMethods: void setTextLocales(androidx.compose.ui.text.platform.AndroidTextPaint,androidx.compose.ui.text.intl.LocaleList)
+androidx.compose.ui.graphics.CanvasZHelper: void enableZ(android.graphics.Canvas,boolean)
+androidx.compose.ui.unit.LayoutDirection: androidx.compose.ui.unit.LayoutDirection valueOf(java.lang.String)
+androidx.compose.ui.autofill.AutofillCallback: void unregister(androidx.compose.ui.autofill.AndroidAutofill)
+androidx.compose.ui.autofill.AutofillApi26Helper: boolean isText(android.view.autofill.AutofillValue)
+androidx.profileinstaller.ProfileInstallerInitializer$Handler28Impl: android.os.Handler createAsync(android.os.Looper)
+androidx.core.content.ContextCompat$Api19Impl: java.io.File[] getObbDirs(android.content.Context)
+androidx.compose.foundation.layout.Direction: androidx.compose.foundation.layout.Direction valueOf(java.lang.String)
+androidx.documentfile.provider.DocumentFile: DocumentFile(androidx.documentfile.provider.DocumentFile)
+androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat$Api24Impl: void addSetProgressAction(androidx.core.view.accessibility.AccessibilityNodeInfoCompat,androidx.compose.ui.semantics.SemanticsNode)
+androidx.compose.ui.platform.AndroidComposeView: void getFontLoader$annotations()
+androidx.documentfile.provider.DocumentsContractApi19: void closeQuietly(java.lang.AutoCloseable)
+androidx.documentfile.provider.TreeDocumentFile: java.lang.String getType()
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api30Impl: void setStateDescription(android.view.accessibility.AccessibilityNodeInfo,java.lang.CharSequence)
+androidx.compose.ui.platform.coreshims.ViewCompatShims$Api26Impl: android.view.autofill.AutofillId getAutofillId(android.view.View)
+androidx.compose.ui.platform.coreshims.ViewStructureCompat$Api23Impl: void setClassName(android.view.ViewStructure,java.lang.String)
+androidx.documentfile.provider.RawDocumentFile: androidx.documentfile.provider.DocumentFile createFile(java.lang.String,java.lang.String)
+androidx.compose.ui.text.input.TextInputServiceAndroid$TextInputCommand: androidx.compose.ui.text.input.TextInputServiceAndroid$TextInputCommand[] values()
+androidx.compose.runtime.Recomposer$State: androidx.compose.runtime.Recomposer$State valueOf(java.lang.String)
+androidx.core.graphics.drawable.IconCompat$Api23Impl: android.graphics.drawable.Icon toIcon(androidx.core.graphics.drawable.IconCompat,android.content.Context)
+androidx.core.view.ViewCompat$Api16Impl: void requestFitSystemWindows(android.view.View)
+androidx.documentfile.provider.TreeDocumentFile: boolean isVirtual()
+androidx.core.app.NotificationManagerCompat$Api24Impl: boolean areNotificationsEnabled(android.app.NotificationManager)
+androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat$Api34Impl: void notifyViewsAppeared(android.view.contentcapture.ContentCaptureSession,java.util.List)
+androidx.compose.ui.platform.AndroidComposeView: long getMeasureIteration()
+androidx.compose.ui.platform.ViewLayerVerificationHelper31: void setRenderEffect(android.view.View,androidx.compose.ui.graphics.RenderEffect)
+androidx.core.view.ViewCompat$Api16Impl: int getMinimumHeight(android.view.View)
+androidx.core.view.ViewCompat$Api16Impl: int getImportantForAccessibility(android.view.View)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.autofill.Autofill getAutofill()
+androidx.documentfile.provider.TreeDocumentFile: boolean canWrite()
+androidx.emoji2.text.ConcurrencyHelpers$Handler28Impl: android.os.Handler createAsync(android.os.Looper)
+androidx.core.text.ICUCompat$Api21Impl: java.lang.String getScript(java.util.Locale)
+androidx.core.view.ViewCompat$Api16Impl: void setHasTransientState(android.view.View,boolean)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: java.lang.String getUniqueId(android.view.accessibility.AccessibilityNodeInfo)
+androidx.compose.ui.platform.RenderNodeVerificationHelper28: int getAmbientShadowColor(android.view.RenderNode)
+androidx.documentfile.provider.RawDocumentFile: boolean canRead()
+androidx.compose.ui.platform.AbstractComposeView: void setParentContext(androidx.compose.runtime.CompositionContext)
+androidx.documentfile.provider.DocumentsContractApi19: DocumentsContractApi19()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.AndroidViewsHandler getAndroidViewsHandler$ui_release()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.text.font.Font$ResourceLoader getFontLoader()
+androidx.compose.ui.platform.ViewLayer: long getLayerId()
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile findFile(java.lang.String)
+androidx.compose.ui.text.android.StaticLayoutFactory26: void setJustificationMode(android.text.StaticLayout$Builder,int)
+androidx.documentfile.provider.RawDocumentFile: boolean exists()
+androidx.documentfile.provider.RawDocumentFile: androidx.documentfile.provider.DocumentFile[] listFiles()
+androidx.core.view.ViewCompat$Api19Impl: boolean isLaidOut(android.view.View)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.unit.Density getDensity()
+androidx.compose.foundation.Api31Impl: float onPullDistance(android.widget.EdgeEffect,float,float)
+androidx.core.text.ICUCompat$Api24Impl: android.icu.util.ULocale forLocale(java.util.Locale)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityResumed(android.app.Activity)
+androidx.compose.ui.text.android.StaticLayoutFactoryImpl: android.text.StaticLayout create(androidx.compose.ui.text.android.StaticLayoutParams)
+androidx.documentfile.provider.SingleDocumentFile: long length()
+androidx.compose.ui.platform.ViewLayer$UniqueDrawingIdApi29: long getUniqueDrawingId(android.view.View)
+androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat$Api28Impl: void setScrollEventDelta(android.view.accessibility.AccessibilityEvent,int,int)
+androidx.compose.ui.platform.TextToolbarStatus: androidx.compose.ui.platform.TextToolbarStatus[] values()
+kotlinx.coroutines.flow.SharingCommand: kotlinx.coroutines.flow.SharingCommand valueOf(java.lang.String)
+androidx.activity.OnBackPressedDispatcher$Api33Impl: void registerOnBackInvokedCallback(java.lang.Object,int,java.lang.Object)
+androidx.documentfile.provider.SingleDocumentFile: boolean delete()
+androidx.compose.runtime.Recomposer$State: androidx.compose.runtime.Recomposer$State[] values()
+androidx.compose.ui.input.pointer.MotionEventHelper: long toRawOffset-dBAh8RU(android.view.MotionEvent,int)
+androidx.compose.foundation.MutatePriority: androidx.compose.foundation.MutatePriority[] values()
+androidx.core.graphics.drawable.IconCompatParcelizer: androidx.core.graphics.drawable.IconCompat read(androidx.versionedparcelable.VersionedParcel)
+androidx.compose.ui.text.android.StaticLayoutFactory23: android.text.StaticLayout create(androidx.compose.ui.text.android.StaticLayoutParams)
+androidx.compose.ui.graphics.Api26Bitmap: androidx.compose.ui.graphics.colorspace.ColorSpace composeColorSpace$ui_graphics_release(android.graphics.Bitmap)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: void setUniqueId(android.view.accessibility.AccessibilityNodeInfo,java.lang.String)
+androidx.core.app.RemoteActionCompat: RemoteActionCompat()
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.focus.FocusOwner getFocusOwner()
+androidx.core.os.TraceCompat$Api18Impl: void endSection()
+androidx.lifecycle.ProcessLifecycleOwner$attach$1$onActivityPreCreated$1: ProcessLifecycleOwner$attach$1$onActivityPreCreated$1(androidx.lifecycle.ProcessLifecycleOwner)
+kotlin.time.DurationUnit: kotlin.time.DurationUnit valueOf(java.lang.String)
+androidx.compose.ui.text.AnnotationType: androidx.compose.ui.text.AnnotationType[] values()
+androidx.compose.foundation.gestures.Orientation: androidx.compose.foundation.gestures.Orientation valueOf(java.lang.String)
+androidx.compose.ui.platform.ComposeView: void setContent(kotlin.jvm.functions.Function2)
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityStarted(android.app.Activity)
+androidx.compose.foundation.layout.LayoutOrientation: androidx.compose.foundation.layout.LayoutOrientation valueOf(java.lang.String)
+androidx.compose.ui.graphics.ColorSpaceVerificationHelper: android.graphics.ColorSpace androidColorSpace(androidx.compose.ui.graphics.colorspace.ColorSpace)
+androidx.compose.ui.focus.FocusTargetNode$FocusTargetElement: FocusTargetNode$FocusTargetElement()
+androidx.compose.ui.platform.coreshims.ViewCompatShims$Api29Impl: android.view.contentcapture.ContentCaptureSession getContentCaptureSession(android.view.View)
+androidx.documentfile.provider.TreeDocumentFile: boolean isFile()
+androidx.documentfile.provider.TreeDocumentFile: boolean exists()
+androidx.compose.animation.core.AnimationEndReason: androidx.compose.animation.core.AnimationEndReason[] values()
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityPreStopped(android.app.Activity)
+androidx.core.view.ViewCompat$Api16Impl: boolean performAccessibilityAction(android.view.View,int,android.os.Bundle)
+androidx.core.view.ViewCompat$Api30Impl: boolean isImportantForContentCapture(android.view.View)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.AndroidAccessibilityManager getAccessibilityManager()
+androidx.compose.ui.unit.LayoutDirection: androidx.compose.ui.unit.LayoutDirection[] values()
+androidx.compose.ui.platform.ViewLayer: androidx.compose.ui.platform.AndroidComposeView getOwnerView()
+androidx.compose.ui.autofill.AutofillApi26Helper: void setAutofillType(android.view.ViewStructure,int)
+androidx.core.view.ViewCompat$Api16Impl: int getMinimumWidth(android.view.View)
+androidx.core.view.ViewCompat$Api19Impl: boolean isLayoutDirectionResolved(android.view.View)
+androidx.documentfile.provider.TreeDocumentFile: androidx.documentfile.provider.DocumentFile[] listFiles()
+androidx.compose.material3.ColorResourceHelper: long getColor-WaAFU9c(android.content.Context,int)
+androidx.compose.ui.text.android.Paint29: void getTextBounds(android.graphics.Paint,java.lang.CharSequence,int,int,android.graphics.Rect)
+androidx.compose.ui.text.AnnotationType: androidx.compose.ui.text.AnnotationType valueOf(java.lang.String)
+androidx.compose.ui.platform.coreshims.ViewStructureCompat$Api23Impl: void setContentDescription(android.view.ViewStructure,java.lang.CharSequence)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.autofill.AutofillTree getAutofillTree()
+androidx.activity.ComponentActivity: void setContentView(android.view.View)
+androidx.core.graphics.drawable.IconCompat$Api28Impl: int getResId(java.lang.Object)
+androidx.documentfile.provider.DocumentFile: androidx.documentfile.provider.DocumentFile createDirectory(java.lang.String)
+androidx.documentfile.provider.DocumentsContractApi19: java.lang.String getType(android.content.Context,android.net.Uri)
+androidx.documentfile.provider.DocumentsContractApi19: boolean isVirtual(android.content.Context,android.net.Uri)
+androidx.compose.animation.core.AnimationEndReason: androidx.compose.animation.core.AnimationEndReason valueOf(java.lang.String)
+androidx.core.os.BuildCompat$Api30Impl: int getExtensionVersion(int)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api19Impl: androidx.core.view.accessibility.AccessibilityNodeInfoCompat$CollectionItemInfoCompat createCollectionItemInfo(int,int,int,int,boolean)
+androidx.documentfile.provider.DocumentsContractApi19: long lastModified(android.content.Context,android.net.Uri)
+androidx.compose.ui.platform.coreshims.ViewStructureCompat$Api23Impl: void setDimens(android.view.ViewStructure,int,int,int,int,int,int)
+androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat$Api29Impl: void addPageActions(androidx.core.view.accessibility.AccessibilityNodeInfoCompat,androidx.compose.ui.semantics.SemanticsNode)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.text.input.PlatformTextInputPluginRegistry getPlatformTextInputPluginRegistry()
+androidx.documentfile.provider.RawDocumentFile: java.lang.String getTypeForName(java.lang.String)
+androidx.profileinstaller.ProfileVerifier$Api33Impl: android.content.pm.PackageInfo getPackageInfo(android.content.pm.PackageManager,android.content.Context)
+androidx.documentfile.provider.TreeDocumentFile: boolean canRead()
+androidx.lifecycle.EmptyActivityLifecycleCallbacks: void onActivityPaused(android.app.Activity)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: androidx.core.view.accessibility.AccessibilityNodeInfoCompat getChild(android.view.accessibility.AccessibilityNodeInfo,int,int)
+androidx.compose.ui.platform.AndroidComposeView: kotlin.jvm.functions.Function1 getConfigurationChangeObserver()
+androidx.compose.ui.platform.WrapperVerificationHelperMethods: java.util.Map attributeSourceResourceMap(android.view.View)
+androidx.core.graphics.drawable.IconCompat$Api28Impl: android.net.Uri getUri(java.lang.Object)
+androidx.lifecycle.Lifecycle$State: androidx.lifecycle.Lifecycle$State[] values()
+androidx.compose.foundation.layout.LayoutOrientation: androidx.compose.foundation.layout.LayoutOrientation[] values()
+androidx.compose.ui.platform.AbstractComposeView: void setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy)
+androidx.compose.ui.platform.AndroidComposeView: androidx.compose.ui.platform.AccessibilityManager getAccessibilityManager()
+androidx.compose.ui.node.LayoutNode$UsageByParent: androidx.compose.ui.node.LayoutNode$UsageByParent[] values()
+androidx.documentfile.provider.RawDocumentFile: boolean isFile()
+androidx.core.view.ViewCompat$Api28Impl: void setAccessibilityHeading(android.view.View,boolean)
+androidx.core.content.FileProvider$Api21Impl: java.io.File[] getExternalMediaDirs(android.content.Context)
+androidx.compose.ui.platform.RenderNodeVerificationHelper23: void destroyDisplayListData(android.view.RenderNode)
+androidx.compose.ui.platform.WrapperRenderNodeLayerHelperMethods: void onDescendantInvalidated(androidx.compose.ui.platform.AndroidComposeView)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: void setMinDurationBetweenContentChangeMillis(android.view.accessibility.AccessibilityNodeInfo,long)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api34Impl: void getBoundsInWindow(android.view.accessibility.AccessibilityNodeInfo,android.graphics.Rect)
+androidx.compose.ui.platform.ComposeView: java.lang.CharSequence getAccessibilityClassName()
+androidx.lifecycle.ReportFragment$LifecycleCallbacks: void onActivityPreDestroyed(android.app.Activity)
+androidx.core.view.accessibility.AccessibilityNodeInfoCompat$Api33Impl: void setTextSelectable(android.view.accessibility.AccessibilityNodeInfo,boolean)
+androidx.compose.ui.platform.AndroidComposeView: void getShowLayoutBounds$annotations()
+androidx.core.os.TraceCompat$Api18Impl: void beginSection(java.lang.String)
+androidx.core.view.ViewCompat$Api29Impl: void saveAttributeDataForStyleable(android.view.View,android.content.Context,int[],android.util.AttributeSet,android.content.res.TypedArray,int,int)
+androidx.compose.ui.platform.AndroidComposeView: void getLastMatrixRecalculationAnimationTime$ui_release$annotations()
+androidx.core.view.ViewCompat$Api19Impl: void setContentChangeTypes(android.view.accessibility.AccessibilityEvent,int)
