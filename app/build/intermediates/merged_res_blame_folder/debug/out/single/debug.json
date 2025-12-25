@@ -1,0 +1,90 @@
+[
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/drawable_app_icon.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/drawable/app_icon.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/xml_file_paths.xml.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-hdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/xml_backup_rules.xml.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/xml_data_extraction_rules.xml.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xxxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-mdpi_ic_launcher_foreground.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-mdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.yourname.pdftoolkit.app-merged_res-51:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.yourname.pdftoolkit.app-main-53:/mipmap-xxxhdpi/ic_launcher_round.png"
+    }
+]

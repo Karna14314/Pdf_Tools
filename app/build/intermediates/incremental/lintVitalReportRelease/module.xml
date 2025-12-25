@@ -1,0 +1,18 @@
+<lint-module
+    format="1"
+    dir="/home/chaitanya/Downloads/Work/pdf_tools/app"
+    name=":app"
+    type="APP"
+    maven="PDF Toolkit:app:"
+    agpVersion="8.1.4"
+    buildFolder="build"
+    bootClassPath="/home/chaitanya/Android/Sdk/platforms/android-34/android.jar:/home/chaitanya/Android/Sdk/build-tools/33.0.1/core-lambda-stubs.jar"
+    javaSourceLevel="1.8"
+    compileTarget="android-34">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>

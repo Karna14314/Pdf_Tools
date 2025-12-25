@@ -1,0 +1,19 @@
+#Thu Dec 25 10:39:43 IST 2025
+base.0=/home/chaitanya/Downloads/Work/pdf_tools/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
+base.1=/home/chaitanya/Downloads/Work/pdf_tools/app/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
+base.2=/home/chaitanya/Downloads/Work/pdf_tools/app/build/intermediates/dex/debug/mergeProjectDexDebug/10/classes.dex
+base.3=/home/chaitanya/Downloads/Work/pdf_tools/app/build/intermediates/dex/debug/mergeProjectDexDebug/12/classes.dex
+base.4=/home/chaitanya/Downloads/Work/pdf_tools/app/build/intermediates/dex/debug/mergeProjectDexDebug/3/classes.dex
+base.5=/home/chaitanya/Downloads/Work/pdf_tools/app/build/intermediates/dex/debug/mergeExtDexDebug/classes2.dex
+path.0=classes.dex
+path.1=0/classes.dex
+path.2=10/classes.dex
+path.3=12/classes.dex
+path.4=3/classes.dex
+path.5=classes2.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex
+renamed.2=classes3.dex
+renamed.3=classes4.dex
+renamed.4=classes5.dex
+renamed.5=classes6.dex
