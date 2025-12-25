@@ -1,4 +1,0 @@
-#Thu Dec 25 10:45:13 IST 2025
-base.0=/home/chaitanya/Downloads/Work/pdf_tools/app/build/intermediates/dex/release/minifyReleaseWithR8/classes.dex
-path.0=classes.dex
-renamed.0=classes.dex
