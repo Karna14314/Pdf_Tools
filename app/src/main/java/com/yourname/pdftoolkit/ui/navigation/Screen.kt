@@ -10,6 +10,7 @@ sealed class Screen(val route: String) {
     object Split : Screen("split")
     object Compress : Screen("compress")
     object Convert : Screen("convert")
+    object PdfToImage : Screen("pdf_to_image")
     object Extract : Screen("extract")
     object Rotate : Screen("rotate")
     object Security : Screen("security")
@@ -25,7 +26,8 @@ sealed class Screen(val route: String) {
                 "Merge PDFs" -> Merge
                 "Split PDF" -> Split
                 "Compress PDF" -> Compress
-                "Convert Images" -> Convert
+                "Images to PDF" -> Convert
+                "PDF to Images" -> PdfToImage
                 "Extract Pages" -> Extract
                 "Rotate Pages" -> Rotate
                 "Add Security" -> Security

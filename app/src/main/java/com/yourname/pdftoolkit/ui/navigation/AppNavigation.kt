@@ -10,6 +10,7 @@ import com.yourname.pdftoolkit.ui.screens.MergeScreen
 import com.yourname.pdftoolkit.ui.screens.SplitScreen
 import com.yourname.pdftoolkit.ui.screens.CompressScreen
 import com.yourname.pdftoolkit.ui.screens.ConvertScreen
+import com.yourname.pdftoolkit.ui.screens.PdfToImageScreen
 import com.yourname.pdftoolkit.ui.screens.ExtractScreen
 import com.yourname.pdftoolkit.ui.screens.RotateScreen
 import com.yourname.pdftoolkit.ui.screens.SecurityScreen
@@ -61,6 +62,12 @@ fun AppNavigation(
             )
         }
         
+        composable(Screen.PdfToImage.route) {
+            PdfToImageScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        
         composable(Screen.Extract.route) {
             ExtractScreen(
                 onNavigateBack = { navController.popBackStack() }
@@ -86,3 +93,4 @@ fun AppNavigation(
         }
     }
 }
+

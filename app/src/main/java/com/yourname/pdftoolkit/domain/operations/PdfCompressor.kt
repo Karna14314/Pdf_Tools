@@ -1,8 +1,14 @@
 package com.yourname.pdftoolkit.domain.operations
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.pdmodel.PDPage
+import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
+import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
+import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
+import com.tom_roush.pdfbox.rendering.PDFRenderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
@@ -10,11 +16,11 @@ import java.io.OutputStream
 /**
  * Defines compression levels for PDF compression.
  */
-enum class CompressionLevel(val quality: Int) {
-    LOW(80),      // Slight compression, high quality
-    MEDIUM(60),   // Balanced
-    HIGH(40),     // Maximum compression, lower quality
-    MAXIMUM(20)   // Aggressive compression
+enum class CompressionLevel(val quality: Float, val dpi: Float) {
+    LOW(0.85f, 150f),      // Slight compression, high quality
+    MEDIUM(0.70f, 120f),   // Balanced
+    HIGH(0.50f, 100f),     // Maximum compression, lower quality
+    MAXIMUM(0.30f, 72f)    // Aggressive compression
 }
 
 /**
@@ -32,21 +38,18 @@ data class CompressionResult(
 
 /**
  * Handles PDF compression operations.
- * Reduces PDF file size by optimizing internal resources.
+ * Reduces PDF file size by re-rendering pages as compressed JPEG images.
  */
 class PdfCompressor {
     
     /**
-     * Compress a PDF file.
-     * 
-     * Note: PDFBox-Android has limited compression capabilities compared to full PDFBox.
-     * This implementation removes unused objects and optimizes the structure.
-     * For image-heavy PDFs, consider extracting and recompressing images separately.
+     * Compress a PDF file by re-rendering pages as compressed images.
+     * This approach works well for scanned documents and image-heavy PDFs.
      * 
      * @param context Android context
      * @param inputUri URI of the PDF to compress
      * @param outputStream Output stream for the compressed PDF
-     * @param level Compression level (affects quality)
+     * @param level Compression level (affects quality and DPI)
      * @param onProgress Progress callback (0.0 to 1.0)
      * @return CompressionResult with size statistics
      */
@@ -58,41 +61,75 @@ class PdfCompressor {
         onProgress: (Float) -> Unit = {}
     ): Result<CompressionResult> = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
-        var document: PDDocument? = null
+        var inputDocument: PDDocument? = null
+        var outputDocument: PDDocument? = null
         
         try {
             // Get original file size
             val originalSize = getFileSize(context, inputUri)
             
-            onProgress(0.1f)
+            onProgress(0.05f)
             
             val inputStream = context.contentResolver.openInputStream(inputUri)
                 ?: return@withContext Result.failure(
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            inputDocument = PDDocument.load(inputStream)
+            val totalPages = inputDocument.numberOfPages
             
-            onProgress(0.3f)
+            if (totalPages == 0) {
+                return@withContext Result.failure(
+                    IllegalStateException("PDF has no pages")
+                )
+            }
             
-            // Apply compression optimizations
-            optimizeDocument(document, level)
+            onProgress(0.1f)
             
-            onProgress(0.7f)
+            // Create new document with compressed pages
+            outputDocument = PDDocument()
+            val renderer = PDFRenderer(inputDocument)
             
-            // Save the optimized document
-            document.save(outputStream)
+            for (pageIndex in 0 until totalPages) {
+                // Render page to bitmap at reduced DPI
+                val bitmap = renderer.renderImageWithDPI(pageIndex, level.dpi)
+                
+                try {
+                    // Create new page with same dimensions as original
+                    val originalPage = inputDocument.getPage(pageIndex)
+                    val pageRect = originalPage.mediaBox ?: PDRectangle.A4
+                    val newPage = PDPage(pageRect)
+                    outputDocument.addPage(newPage)
+                    
+                    // Create compressed JPEG image from bitmap
+                    val pdImage = JPEGFactory.createFromImage(outputDocument, bitmap, level.quality)
+                    
+                    // Draw the image to fill the entire page
+                    PDPageContentStream(outputDocument, newPage).use { contentStream ->
+                        contentStream.drawImage(pdImage, 0f, 0f, pageRect.width, pageRect.height)
+                    }
+                } finally {
+                    bitmap.recycle()
+                }
+                
+                // Update progress (10% to 90% for page processing)
+                val pageProgress = 0.1f + (0.8f * (pageIndex + 1).toFloat() / totalPages)
+                onProgress(pageProgress)
+            }
+            
+            onProgress(0.95f)
+            
+            // Save the compressed document
+            outputDocument.save(outputStream)
             
             onProgress(1.0f)
             
             val timeTaken = System.currentTimeMillis() - startTime
             
-            // Note: We can't get the exact compressed size without reading the output
-            // The caller should measure the output size if needed
             Result.success(
                 CompressionResult(
                     originalSize = originalSize,
-                    compressedSize = originalSize, // Placeholder - actual size from output
+                    compressedSize = originalSize, // Will be measured by caller
                     compressionRatio = 1.0f,
                     timeTakenMs = timeTaken
                 )
@@ -101,47 +138,8 @@ class PdfCompressor {
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
-            document?.close()
-        }
-    }
-    
-    /**
-     * Apply optimizations to the document based on compression level.
-     */
-    private fun optimizeDocument(document: PDDocument, level: CompressionLevel) {
-        // Remove unused objects
-        // Note: PDFBox-Android has limited optimization APIs compared to full PDFBox
-        
-        // Basic optimizations that are available:
-        // 1. The document is loaded and saved, which removes unused references
-        // 2. The structure is rewritten efficiently
-        
-        // For more aggressive compression, we would need to:
-        // - Resample images (requires image processing)
-        // - Remove metadata
-        // - Flatten annotations
-        // - Remove embedded fonts (risky for display)
-        
-        when (level) {
-            CompressionLevel.LOW -> {
-                // Minimal optimization - just restructure
-            }
-            CompressionLevel.MEDIUM -> {
-                // Remove document metadata for smaller size
-                val info = document.documentInformation
-                info.producer = null
-                info.creator = null
-            }
-            CompressionLevel.HIGH, CompressionLevel.MAXIMUM -> {
-                // Aggressive optimization
-                val info = document.documentInformation
-                info.producer = null
-                info.creator = null
-                info.author = null
-                info.keywords = null
-                info.subject = null
-                // Keep title for identification
-            }
+            inputDocument?.close()
+            outputDocument?.close()
         }
     }
     
@@ -164,10 +162,10 @@ class PdfCompressor {
      */
     fun estimateCompressedSize(originalSize: Long, level: CompressionLevel): Long {
         val reductionFactor = when (level) {
-            CompressionLevel.LOW -> 0.95f
-            CompressionLevel.MEDIUM -> 0.80f
-            CompressionLevel.HIGH -> 0.60f
-            CompressionLevel.MAXIMUM -> 0.40f
+            CompressionLevel.LOW -> 0.75f
+            CompressionLevel.MEDIUM -> 0.50f
+            CompressionLevel.HIGH -> 0.35f
+            CompressionLevel.MAXIMUM -> 0.20f
         }
         return (originalSize * reductionFactor).toLong()
     }
