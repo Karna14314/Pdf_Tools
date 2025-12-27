@@ -4,16 +4,33 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    
+    <!-- PDF Document Shape - White background with fold -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M32,32h44v44h-44z"/>
+        android:pathData="M30,24 L66,24 L78,36 L78,84 L30,84 Z"/>
+    
+    <!-- Document fold corner -->
     <path
-        android:fillColor="#6650A4"
-        android:pathData="M40,40h28v4h-28z"/>
+        android:fillColor="#E0E0E0"
+        android:pathData="M66,24 L66,36 L78,36 Z"/>
+    
+    <!-- PDF Text -->
     <path
-        android:fillColor="#6650A4"
-        android:pathData="M40,48h28v4h-28z"/>
+        android:fillColor="#D32F2F"
+        android:pathData="M38,50 L42,50 Q46,50 46,54 Q46,58 42,58 L40,58 L40,64 L38,64 Z M40,52 L40,56 L42,56 Q44,56 44,54 Q44,52 42,52 Z"/>
+    
     <path
-        android:fillColor="#6650A4"
-        android:pathData="M40,56h20v4h-20z"/>
+        android:fillColor="#D32F2F"
+        android:pathData="M48,50 L52,50 Q56,50 56,54 L56,60 Q56,64 52,64 L48,64 Z M50,52 L50,62 L52,62 Q54,62 54,60 L54,54 Q54,52 52,52 Z"/>
+    
+    <path
+        android:fillColor="#D32F2F"
+        android:pathData="M58,50 L66,50 L66,52 L60,52 L60,56 L64,56 L64,58 L60,58 L60,64 L58,64 Z"/>
+    
+    <!-- Bottom accent line -->
+    <path
+        android:fillColor="#D32F2F"
+        android:pathData="M30,70 L78,70 L78,74 L30,74 Z"/>
+    
 </vector>

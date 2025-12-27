@@ -22,6 +22,7 @@ import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.CompressionLevel
 import com.yourname.pdftoolkit.domain.operations.PdfCompressor
 import com.yourname.pdftoolkit.ui.components.*
+import com.yourname.pdftoolkit.util.FileOpener
 import kotlinx.coroutines.launch
 
 /**
@@ -44,6 +45,7 @@ fun CompressScreen(
     var showResult by remember { mutableStateOf(false) }
     var resultSuccess by remember { mutableStateOf(false) }
     var resultMessage by remember { mutableStateOf("") }
+    var resultUri by remember { mutableStateOf<Uri?>(null) }
     
     // File picker launcher
     val pickPdfLauncher = rememberLauncherForActivityResult(
@@ -81,10 +83,33 @@ fun CompressScreen(
                         
                         result.fold(
                             onSuccess = { compressionResult ->
-                                resultSuccess = true
-                                val originalSize = file.formattedSize
-                                val newSize = compressedInfo?.formattedSize ?: "Unknown"
-                                resultMessage = "Compressed from $originalSize to $newSize"
+                                val actualCompressedSize = compressedInfo?.size ?: compressionResult.compressedSize
+                                val originalBytes = file.size
+                                val savedBytes = originalBytes - actualCompressedSize
+                                val savedPercent = if (originalBytes > 0) {
+                                    (savedBytes.toFloat() / originalBytes * 100).toInt()
+                                } else 0
+                                
+                                if (savedBytes > 0) {
+                                    resultSuccess = true
+                                    resultUri = outputUri
+                                    resultMessage = buildString {
+                                        append("Compression successful!\n\n")
+                                        append("Before: ${file.formattedSize}\n")
+                                        append("After: ${compressedInfo?.formattedSize ?: "Unknown"}\n")
+                                        append("Saved: ${FileManager.formatFileSize(savedBytes)} ($savedPercent%)")
+                                    }
+                                } else {
+                                    resultSuccess = true
+                                    resultUri = outputUri
+                                    resultMessage = buildString {
+                                        append("Compressed PDF saved.\n\n")
+                                        append("Before: ${file.formattedSize}\n")
+                                        append("After: ${compressedInfo?.formattedSize ?: "Unknown"}\n\n")
+                                        append("Note: This PDF may already be optimized or contain mostly text.")
+                                    }
+                                }
+                                selectedFile = null
                             },
                             onFailure = { error ->
                                 resultSuccess = false
@@ -198,19 +223,19 @@ fun CompressScreen(
                                 CompressionLevelOption(
                                     level = CompressionLevel.LOW,
                                     title = "Low",
-                                    description = "Minimal compression, best quality",
+                                    description = "Best quality, minor size reduction",
                                     icon = Icons.Default.HighQuality,
-                                    estimatedReduction = "~5%",
+                                    estimatedReduction = "~20%",
                                     isSelected = compressionLevel == CompressionLevel.LOW,
                                     onClick = { compressionLevel = CompressionLevel.LOW }
                                 )
                                 
                                 CompressionLevelOption(
                                     level = CompressionLevel.MEDIUM,
-                                    title = "Medium",
-                                    description = "Balanced compression and quality",
+                                    title = "Medium (Recommended)",
+                                    description = "Good balance of quality and size",
                                     icon = Icons.Default.Balance,
-                                    estimatedReduction = "~20%",
+                                    estimatedReduction = "~45%",
                                     isSelected = compressionLevel == CompressionLevel.MEDIUM,
                                     onClick = { compressionLevel = CompressionLevel.MEDIUM }
                                 )
@@ -218,9 +243,9 @@ fun CompressScreen(
                                 CompressionLevelOption(
                                     level = CompressionLevel.HIGH,
                                     title = "High",
-                                    description = "Strong compression, good quality",
+                                    description = "Smaller file, reduced quality",
                                     icon = Icons.Default.Compress,
-                                    estimatedReduction = "~40%",
+                                    estimatedReduction = "~65%",
                                     isSelected = compressionLevel == CompressionLevel.HIGH,
                                     onClick = { compressionLevel = CompressionLevel.HIGH }
                                 )
@@ -228,9 +253,9 @@ fun CompressScreen(
                                 CompressionLevelOption(
                                     level = CompressionLevel.MAXIMUM,
                                     title = "Maximum",
-                                    description = "Maximum compression, reduced quality",
+                                    description = "Smallest file, lowest quality",
                                     icon = Icons.Default.DataSaverOn,
-                                    estimatedReduction = "~60%",
+                                    estimatedReduction = "~75%",
                                     isSelected = compressionLevel == CompressionLevel.MAXIMUM,
                                     onClick = { compressionLevel = CompressionLevel.MAXIMUM }
                                 )
@@ -349,7 +374,14 @@ fun CompressScreen(
             isSuccess = resultSuccess,
             title = if (resultSuccess) "Compression Complete" else "Compression Failed",
             message = resultMessage,
-            onDismiss = { showResult = false }
+            onDismiss = { 
+                showResult = false
+                resultUri = null
+            },
+            onAction = resultUri?.let { uri ->
+                { FileOpener.openPdf(context, uri) }
+            },
+            actionText = "Open PDF"
         )
     }
 }

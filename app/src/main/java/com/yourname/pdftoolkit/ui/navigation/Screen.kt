@@ -15,6 +15,21 @@ sealed class Screen(val route: String) {
     object Rotate : Screen("rotate")
     object Security : Screen("security")
     object Metadata : Screen("metadata")
+    object PageNumber : Screen("page_number")
+    object Organize : Screen("organize")
+    object Unlock : Screen("unlock")
+    object Repair : Screen("repair")
+    object HtmlToPdf : Screen("html_to_pdf")
+    object ExtractText : Screen("extract_text")
+    
+    // New Feature Screens
+    object Watermark : Screen("watermark")
+    object Flatten : Screen("flatten")
+    object SignPdf : Screen("sign_pdf")
+    object FillForms : Screen("fill_forms")
+    object Annotate : Screen("annotate")
+    object ScanToPdf : Screen("scan_to_pdf")
+    object Ocr : Screen("ocr")
     
     companion object {
         /**
@@ -32,6 +47,20 @@ sealed class Screen(val route: String) {
                 "Rotate Pages" -> Rotate
                 "Add Security" -> Security
                 "View Metadata" -> Metadata
+                "Page Numbers" -> PageNumber
+                "Organize Pages" -> Organize
+                "Unlock PDF" -> Unlock
+                "Repair PDF" -> Repair
+                "HTML to PDF" -> HtmlToPdf
+                "Extract Text" -> ExtractText
+                // New Features
+                "Add Watermark" -> Watermark
+                "Flatten PDF" -> Flatten
+                "Sign PDF" -> SignPdf
+                "Fill Forms" -> FillForms
+                "Annotate PDF" -> Annotate
+                "Scan to PDF" -> ScanToPdf
+                "OCR" -> Ocr
                 else -> Home
             }
         }

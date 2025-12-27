@@ -4,7 +4,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -19,14 +18,28 @@ import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.ui.navigation.Screen
 
 /**
- * Home screen displaying all available PDF tools as cards.
- * Each card navigates to its respective tool screen.
+ * Category tabs for organizing PDF tools.
+ */
+enum class ToolCategory(val title: String, val icon: ImageVector) {
+    ORGANIZE("Organize", Icons.Default.Folder),
+    CONVERT("Convert", Icons.Default.Transform),
+    MARKUP("Markup", Icons.Default.Draw),
+    SECURITY("Security", Icons.Default.Lock),
+    OPTIMIZE("Optimize", Icons.Default.Speed)
+}
+
+
+/**
+ * Home screen displaying all available PDF tools organized by category.
+ * Uses tabs for category navigation.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToFeature: (Screen) -> Unit
 ) {
+    var selectedCategory by remember { mutableStateOf(ToolCategory.ORGANIZE) }
+    
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -42,39 +55,71 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
         ) {
-            itemsIndexed(
-                items = pdfFeatures,
-                key = { _, feature -> feature.title }
-            ) { index, feature ->
-                var isVisible by remember { mutableStateOf(false) }
-                
-                LaunchedEffect(Unit) {
-                    kotlinx.coroutines.delay(index * 50L)
-                    isVisible = true
+            // Category tabs
+            ScrollableTabRow(
+                selectedTabIndex = ToolCategory.entries.indexOf(selectedCategory),
+                edgePadding = 16.dp,
+                containerColor = MaterialTheme.colorScheme.surface,
+                divider = {}
+            ) {
+                ToolCategory.entries.forEach { category ->
+                    Tab(
+                        selected = selectedCategory == category,
+                        onClick = { selectedCategory = category },
+                        text = { Text(category.title) },
+                        icon = {
+                            Icon(
+                                imageVector = category.icon,
+                                contentDescription = category.title,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    )
                 }
-                
-                val scale by animateFloatAsState(
-                    targetValue = if (isVisible) 1f else 0.8f,
-                    animationSpec = tween(durationMillis = 300),
-                    label = "card_scale"
-                )
-                
-                FeatureCard(
-                    feature = feature,
-                    onClick = {
-                        val screen = Screen.fromFeatureTitle(feature.title)
-                        onNavigateToFeature(screen)
-                    },
-                    modifier = Modifier.scale(scale)
-                )
+            }
+            
+            // Content
+            val features = getFeaturesByCategory(selectedCategory)
+            
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(vertical = 16.dp)
+            ) {
+                itemsIndexed(
+                    items = features,
+                    key = { _, feature -> feature.title }
+                ) { index, feature ->
+                    var isVisible by remember { mutableStateOf(false) }
+                    
+                    LaunchedEffect(selectedCategory) {
+                        isVisible = false
+                        kotlinx.coroutines.delay(index * 50L)
+                        isVisible = true
+                    }
+                    
+                    val scale by animateFloatAsState(
+                        targetValue = if (isVisible) 1f else 0.8f,
+                        animationSpec = tween(durationMillis = 300),
+                        label = "card_scale"
+                    )
+                    
+                    FeatureCard(
+                        feature = feature,
+                        onClick = {
+                            val screen = Screen.fromFeatureTitle(feature.title)
+                            onNavigateToFeature(screen)
+                        },
+                        modifier = Modifier.scale(scale)
+                    )
+                }
             }
         }
     }
@@ -148,57 +193,160 @@ private fun FeatureCard(
 data class PdfFeature(
     val title: String,
     val description: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val category: ToolCategory
 )
 
 /**
- * List of all available PDF tools.
+ * Get features filtered by category.
+ */
+private fun getFeaturesByCategory(category: ToolCategory): List<PdfFeature> {
+    return pdfFeatures.filter { it.category == category }
+}
+
+/**
+ * List of all available PDF tools organized by category.
  */
 val pdfFeatures = listOf(
+    // ORGANIZE category
     PdfFeature(
         title = "Merge PDFs",
         description = "Combine multiple PDF files into one",
-        icon = Icons.Default.MergeType
+        icon = Icons.Default.MergeType,
+        category = ToolCategory.ORGANIZE
     ),
     PdfFeature(
         title = "Split PDF",
         description = "Split a PDF into multiple files",
-        icon = Icons.Default.CallSplit
+        icon = Icons.Default.CallSplit,
+        category = ToolCategory.ORGANIZE
     ),
     PdfFeature(
-        title = "Compress PDF",
-        description = "Reduce PDF file size",
-        icon = Icons.Default.Compress
-    ),
-    PdfFeature(
-        title = "Images to PDF",
-        description = "Convert images to PDF",
-        icon = Icons.Default.Image
-    ),
-    PdfFeature(
-        title = "PDF to Images",
-        description = "Convert PDF pages to images",
-        icon = Icons.Default.PhotoLibrary
-    ),
-    PdfFeature(
-        title = "Extract Pages",
-        description = "Extract specific pages from PDF",
-        icon = Icons.Default.ContentCopy
+        title = "Organize Pages",
+        description = "Remove or reorder PDF pages",
+        icon = Icons.Default.SwapVert,
+        category = ToolCategory.ORGANIZE
     ),
     PdfFeature(
         title = "Rotate Pages",
         description = "Rotate PDF pages",
-        icon = Icons.Default.RotateRight
+        icon = Icons.Default.RotateRight,
+        category = ToolCategory.ORGANIZE
     ),
+    PdfFeature(
+        title = "Extract Pages",
+        description = "Extract specific pages from PDF",
+        icon = Icons.Default.ContentCopy,
+        category = ToolCategory.ORGANIZE
+    ),
+    
+    // CONVERT category
+    PdfFeature(
+        title = "Images to PDF",
+        description = "Convert images to PDF",
+        icon = Icons.Default.Image,
+        category = ToolCategory.CONVERT
+    ),
+    PdfFeature(
+        title = "PDF to Images",
+        description = "Convert PDF pages to images",
+        icon = Icons.Default.PhotoLibrary,
+        category = ToolCategory.CONVERT
+    ),
+    PdfFeature(
+        title = "HTML to PDF",
+        description = "Convert webpage or HTML to PDF",
+        icon = Icons.Default.Language,
+        category = ToolCategory.CONVERT
+    ),
+    PdfFeature(
+        title = "Extract Text",
+        description = "Extract text content to TXT file",
+        icon = Icons.Default.TextFields,
+        category = ToolCategory.CONVERT
+    ),
+    PdfFeature(
+        title = "Scan to PDF",
+        description = "Scan documents with camera",
+        icon = Icons.Default.CameraAlt,
+        category = ToolCategory.CONVERT
+    ),
+    PdfFeature(
+        title = "OCR",
+        description = "Make scanned PDFs searchable",
+        icon = Icons.Default.DocumentScanner,
+        category = ToolCategory.CONVERT
+    ),
+    
+    // MARKUP category (Sign, Annotate, Fill Forms)
+    PdfFeature(
+        title = "Sign PDF",
+        description = "Add your signature to PDF",
+        icon = Icons.Default.Draw,
+        category = ToolCategory.MARKUP
+    ),
+    PdfFeature(
+        title = "Fill Forms",
+        description = "Fill PDF form fields",
+        icon = Icons.Default.EditNote,
+        category = ToolCategory.MARKUP
+    ),
+    PdfFeature(
+        title = "Annotate PDF",
+        description = "Add highlights, notes, stamps",
+        icon = Icons.Default.Edit,
+        category = ToolCategory.MARKUP
+    ),
+    
+    // SECURITY category (focused on Lock/Unlock)
     PdfFeature(
         title = "Add Security",
         description = "Password protect your PDFs",
-        icon = Icons.Default.Security
+        icon = Icons.Default.Lock,
+        category = ToolCategory.SECURITY
+    ),
+    PdfFeature(
+        title = "Unlock PDF",
+        description = "Remove password from PDFs",
+        icon = Icons.Default.LockOpen,
+        category = ToolCategory.SECURITY
+    ),
+    
+    // OPTIMIZE category (includes compression, repair, metadata, watermark, flatten)
+    PdfFeature(
+        title = "Compress PDF",
+        description = "Reduce PDF file size",
+        icon = Icons.Default.Compress,
+        category = ToolCategory.OPTIMIZE
+    ),
+    PdfFeature(
+        title = "Repair PDF",
+        description = "Fix corrupted PDF files",
+        icon = Icons.Default.Build,
+        category = ToolCategory.OPTIMIZE
+    ),
+    PdfFeature(
+        title = "Page Numbers",
+        description = "Add page numbers to your PDF",
+        icon = Icons.Default.FormatListNumbered,
+        category = ToolCategory.OPTIMIZE
     ),
     PdfFeature(
         title = "View Metadata",
         description = "View and edit PDF properties",
-        icon = Icons.Default.Info
+        icon = Icons.Default.Info,
+        category = ToolCategory.OPTIMIZE
+    ),
+    PdfFeature(
+        title = "Add Watermark",
+        description = "Add text or image watermark",
+        icon = Icons.Default.WaterDrop,
+        category = ToolCategory.OPTIMIZE
+    ),
+    PdfFeature(
+        title = "Flatten PDF",
+        description = "Merge annotations to content",
+        icon = Icons.Default.Layers,
+        category = ToolCategory.OPTIMIZE
     )
 )
-

@@ -1,6 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -8,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -17,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -42,7 +39,6 @@ fun SecurityScreen(
     
     // State
     var selectedFile by remember { mutableStateOf<PdfFileInfo?>(null) }
-    var isEncrypted by remember { mutableStateOf(false) }
     var ownerPassword by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
     var showOwnerPassword by remember { mutableStateOf(false) }
@@ -61,12 +57,7 @@ fun SecurityScreen(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
-            val fileInfo = FileManager.getFileInfo(context, uri)
-            selectedFile = fileInfo
-            
-            scope.launch {
-                isEncrypted = securityManager.isEncrypted(context, uri)
-            }
+            selectedFile = FileManager.getFileInfo(context, uri)
         }
     }
     
@@ -103,8 +94,8 @@ fun SecurityScreen(
                         result.fold(
                             onSuccess = {
                                 resultSuccess = true
-                                resultMessage = "PDF has been password protected successfully"
-                                // Reset form
+                                resultMessage = "PDF protected successfully!"
+                                selectedFile = null
                                 ownerPassword = ""
                                 userPassword = ""
                             },
@@ -148,7 +139,7 @@ fun SecurityScreen(
                     EmptyState(
                         icon = Icons.Default.Security,
                         title = "No PDF Selected",
-                        subtitle = "Select a PDF file to protect with a password",
+                        subtitle = "Select a PDF to protect with a password",
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -161,83 +152,17 @@ fun SecurityScreen(
                     ) {
                         // Selected file info
                         item {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = if (isEncrypted) Icons.Default.Lock else Icons.Default.LockOpen,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = selectedFile!!.name,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Medium,
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
-                                        Text(
-                                            text = if (isEncrypted) "Already encrypted" else "Not encrypted",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                                        )
-                                    }
-                                    IconButton(onClick = { selectedFile = null }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = "Remove",
-                                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Warning if already encrypted
-                        if (isEncrypted) {
-                            item {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.errorContainer
-                                    )
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Warning,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onErrorContainer
-                                        )
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        Text(
-                                            text = "This PDF is already encrypted. Adding new security will replace existing protection.",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onErrorContainer
-                                        )
-                                    }
-                                }
-                            }
+                            FileItemCard(
+                                fileName = selectedFile!!.name,
+                                fileSize = selectedFile!!.formattedSize,
+                                onRemove = { selectedFile = null }
+                            )
                         }
                         
                         // Password section
                         item {
                             Text(
-                                text = "Password Protection",
+                                text = "Password",
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -261,9 +186,8 @@ fun SecurityScreen(
                                     OutlinedTextField(
                                         value = ownerPassword,
                                         onValueChange = { ownerPassword = it },
-                                        label = { Text("Owner Password (required)") },
-                                        placeholder = { Text("Enter owner password") },
-                                        supportingText = { Text("Used to change permissions and security") },
+                                        label = { Text("Owner Password") },
+                                        placeholder = { Text("Required") },
                                         visualTransformation = if (showOwnerPassword) {
                                             VisualTransformation.None
                                         } else {
@@ -289,9 +213,8 @@ fun SecurityScreen(
                                     OutlinedTextField(
                                         value = userPassword,
                                         onValueChange = { userPassword = it },
-                                        label = { Text("User Password (optional)") },
-                                        placeholder = { Text("Enter user password") },
-                                        supportingText = { Text("Required to open the PDF") },
+                                        label = { Text("User Password") },
+                                        placeholder = { Text("Optional - to open PDF") },
                                         visualTransformation = if (showUserPassword) {
                                             VisualTransformation.None
                                         } else {
@@ -338,7 +261,6 @@ fun SecurityScreen(
                                 ) {
                                     PermissionItem(
                                         title = "Allow Printing",
-                                        subtitle = "Users can print the document",
                                         icon = Icons.Default.Print,
                                         checked = allowPrinting,
                                         onCheckedChange = { allowPrinting = it }
@@ -348,7 +270,6 @@ fun SecurityScreen(
                                     
                                     PermissionItem(
                                         title = "Allow Copying",
-                                        subtitle = "Users can copy text and images",
                                         icon = Icons.Default.ContentCopy,
                                         checked = allowCopying,
                                         onCheckedChange = { allowCopying = it }
@@ -357,8 +278,7 @@ fun SecurityScreen(
                                     Divider(modifier = Modifier.padding(horizontal = 16.dp))
                                     
                                     PermissionItem(
-                                        title = "Allow Modifying",
-                                        subtitle = "Users can edit the document",
+                                        title = "Allow Editing",
                                         icon = Icons.Default.Edit,
                                         checked = allowModifying,
                                         onCheckedChange = { allowModifying = it }
@@ -371,28 +291,22 @@ fun SecurityScreen(
                 
                 // Progress overlay
                 if (isProcessing) {
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn(),
-                        exit = fadeOut(),
-                        modifier = Modifier.align(Alignment.Center)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp)
+                            .align(Alignment.Center)
                     ) {
-                        Card(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(32.dp)
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(24.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                OperationProgress(
-                                    progress = progress,
-                                    message = "Encrypting PDF..."
-                                )
-                            }
+                            OperationProgress(
+                                progress = progress,
+                                message = "Encrypting PDF..."
+                            )
                         }
                     }
                 }
@@ -420,8 +334,8 @@ fun SecurityScreen(
                         ActionButton(
                             text = "Protect PDF",
                             onClick = {
-                                val fileName = FileManager.generateOutputFileName("protected")
-                                savePdfLauncher.launch(fileName)
+                                val baseName = selectedFile!!.name.removeSuffix(".pdf")
+                                savePdfLauncher.launch("${baseName}_protected.pdf")
                             },
                             enabled = ownerPassword.isNotBlank(),
                             isLoading = isProcessing,
@@ -437,7 +351,7 @@ fun SecurityScreen(
     if (showResult) {
         ResultDialog(
             isSuccess = resultSuccess,
-            title = if (resultSuccess) "Protection Added" else "Protection Failed",
+            title = if (resultSuccess) "Protection Added" else "Failed",
             message = resultMessage,
             onDismiss = { showResult = false }
         )
@@ -447,7 +361,6 @@ fun SecurityScreen(
 @Composable
 private fun PermissionItem(
     title: String,
-    subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
@@ -466,18 +379,12 @@ private fun PermissionItem(
         
         Spacer(modifier = Modifier.width(16.dp))
         
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
+        )
         
         Switch(
             checked = checked,
