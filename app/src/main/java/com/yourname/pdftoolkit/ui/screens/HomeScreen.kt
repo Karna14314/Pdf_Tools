@@ -13,9 +13,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.ui.navigation.Screen
+import com.yourname.pdftoolkit.util.CacheManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Category tabs for organizing PDF tools.
@@ -38,7 +43,21 @@ enum class ToolCategory(val title: String, val icon: ImageVector) {
 fun HomeScreen(
     onNavigateToFeature: (Screen) -> Unit
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var selectedCategory by remember { mutableStateOf(ToolCategory.ORGANIZE) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
+    var cacheSize by remember { mutableStateOf("Calculating...") }
+    var isClearing by remember { mutableStateOf(false) }
+    
+    // Calculate cache size when settings dialog opens
+    LaunchedEffect(showSettingsDialog) {
+        if (showSettingsDialog) {
+            withContext(Dispatchers.IO) {
+                cacheSize = CacheManager.getFormattedCacheSize(context)
+            }
+        }
+    }
     
     Scaffold(
         topBar = {
@@ -48,6 +67,14 @@ fun HomeScreen(
                         text = "PDF Toolkit",
                         fontWeight = FontWeight.Bold
                     )
+                },
+                actions = {
+                    IconButton(onClick = { showSettingsDialog = true }) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.largeTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
@@ -122,6 +149,76 @@ fun HomeScreen(
                 }
             }
         }
+    }
+    
+    // Settings Dialog
+    if (showSettingsDialog) {
+        AlertDialog(
+            onDismissRequest = { showSettingsDialog = false },
+            icon = {
+                Icon(Icons.Default.Settings, contentDescription = null)
+            },
+            title = { Text("Settings") },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Cache info
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                "Cache Size",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                cacheSize,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                isClearing = true
+                                scope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        CacheManager.clearAllCache(context)
+                                    }
+                                    cacheSize = CacheManager.getFormattedCacheSize(context)
+                                    isClearing = false
+                                }
+                            },
+                            enabled = !isClearing
+                        ) {
+                            if (isClearing) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text("Clear")
+                            }
+                        }
+                    }
+                    
+                    Divider()
+                    
+                    Text(
+                        "PDF Toolkit v1.2.0",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showSettingsDialog = false }) {
+                    Text("Close")
+                }
+            }
+        )
     }
 }
 
@@ -265,18 +362,8 @@ val pdfFeatures = listOf(
         icon = Icons.Default.TextFields,
         category = ToolCategory.CONVERT
     ),
-    PdfFeature(
-        title = "Scan to PDF",
-        description = "Scan documents with camera",
-        icon = Icons.Default.CameraAlt,
-        category = ToolCategory.CONVERT
-    ),
-    PdfFeature(
-        title = "OCR",
-        description = "Make scanned PDFs searchable",
-        icon = Icons.Default.DocumentScanner,
-        category = ToolCategory.CONVERT
-    ),
+    // Note: Scan to PDF and OCR removed - require optional CameraX/ML Kit dependencies
+    // Re-add these features by uncommenting dependencies in build.gradle.kts
     
     // MARKUP category (Sign, Annotate, Fill Forms)
     PdfFeature(
