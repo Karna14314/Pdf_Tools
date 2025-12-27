@@ -118,6 +118,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    // Using extended icons - consider switching to subset for smaller APK
     implementation("androidx.compose.material:material-icons-extended")
     
     // Compose Navigation & ViewModel
@@ -130,17 +131,19 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     
-    // CameraX for Scan to PDF (Apache 2.0)
-    val cameraxVersion = "1.3.1"
-    implementation("androidx.camera:camera-core:$cameraxVersion")
-    implementation("androidx.camera:camera-camera2:$cameraxVersion")
-    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
-    implementation("androidx.camera:camera-view:$cameraxVersion")
+    // CameraX for Scan to PDF - OPTIONAL (adds ~15MB)
+    // Uncomment to enable camera-based scanning
+    // val cameraxVersion = "1.3.1"
+    // implementation("androidx.camera:camera-core:$cameraxVersion")
+    // implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    // implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    // implementation("androidx.camera:camera-view:$cameraxVersion")
     
-    // ML Kit Text Recognition for OCR (Apache 2.0 compatible)
-    implementation("com.google.mlkit:text-recognition:16.0.0")
+    // ML Kit Text Recognition for OCR - OPTIONAL (adds ~30-40MB + downloads models)
+    // Uncomment to enable OCR functionality
+    // implementation("com.google.mlkit:text-recognition:16.0.0")
     
-    // Coil for image loading (Apache 2.0)
+    // Coil for image loading (Apache 2.0) - lightweight (~2MB)
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     // Testing
