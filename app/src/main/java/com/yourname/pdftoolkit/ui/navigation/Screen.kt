@@ -33,13 +33,6 @@ sealed class Screen(val route: String) {
         }
     }
     
-    // Document Viewer for Office files
-    object DocumentViewer : Screen("document_viewer?uri={uri}&name={name}") {
-        fun createRoute(uri: String, name: String): String {
-            return "document_viewer?uri=$uri&name=$name"
-        }
-    }
-    
     // PDF Tools
     object Merge : Screen("merge")
     object Split : Screen("split")

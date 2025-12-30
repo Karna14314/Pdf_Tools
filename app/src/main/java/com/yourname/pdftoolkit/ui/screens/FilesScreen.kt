@@ -33,9 +33,7 @@ import java.util.*
  */
 enum class FileFilter(val title: String, val icon: ImageVector) {
     ALL("All", Icons.Default.Folder),
-    PDF("PDF", Icons.Default.PictureAsPdf),
-    IMAGE("Image", Icons.Default.Photo),
-    DOCUMENT("Office", Icons.Default.Description)
+    PDF("PDF", Icons.Default.PictureAsPdf)
 }
 
 /**
@@ -43,10 +41,10 @@ enum class FileFilter(val title: String, val icon: ImageVector) {
  * Purpose: File access, NOT tools.
  * 
  * Features:
- * - Recent files list (PDF, DOCX, XLSX, PPTX, Images)
+ * - Recent files list (PDF, Images)
  * - Open Document button using SAF (ACTION_OPEN_DOCUMENT)
  * - System file picker with persistent URI permissions
- * - Simple filters (PDF / Image / Other)
+ * - Simple filters (PDF / Image)
  * 
  * IMPORTANT: This screen uses SafUriManager for proper SAF compliance.
  * All files are stored as URI strings, NOT file paths.
@@ -55,8 +53,7 @@ enum class FileFilter(val title: String, val icon: ImageVector) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilesScreen(
-    onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> },
-    onOpenDocumentViewer: (Uri, String) -> Unit = { _, _ -> }
+    onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -65,19 +62,8 @@ fun FilesScreen(
     var recentFiles by remember { mutableStateOf<List<PersistedFile>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     
-    // Supported MIME types for document picker
-    val allMimeTypes = arrayOf(
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "application/vnd.ms-excel",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "application/vnd.ms-powerpoint",
-        "image/jpeg",
-        "image/png",
-        "image/webp"
-    )
+    // Supported MIME types for document picker (PDF only)
+    val pdfMimeTypes = arrayOf("application/pdf")
     
     /**
      * Document picker using SAF (ACTION_OPEN_DOCUMENT).
@@ -98,24 +84,17 @@ fun FilesScreen(
                     // Update local list immediately
                     recentFiles = SafUriManager.loadRecentFiles(context)
                     
-                    // Open the file based on MIME type
-                    when {
-                        persistedFile.mimeType == "application/pdf" -> 
-                            onOpenPdfViewer(selectedUri, persistedFile.name.substringBeforeLast('.'))
-                        persistedFile.mimeType.startsWith("image/") ->
-                            onOpenDocumentViewer(selectedUri, persistedFile.name.substringBeforeLast('.'))
-                        else -> 
-                            onOpenDocumentViewer(selectedUri, persistedFile.name.substringBeforeLast('.'))
+                    // Open PDF files
+                    if (persistedFile.mimeType == "application/pdf") {
+                        onOpenPdfViewer(selectedUri, persistedFile.name.substringBeforeLast('.'))
                     }
                 } else {
                     // Fallback: try to open anyway, may fail if no permission
                     val mimeType = context.contentResolver.getType(selectedUri)
                     val name = getFileName(context, selectedUri)
                     
-                    when {
-                        mimeType == "application/pdf" -> onOpenPdfViewer(selectedUri, name)
-                        mimeType?.startsWith("image/") == true -> onOpenDocumentViewer(selectedUri, name)
-                        else -> onOpenDocumentViewer(selectedUri, name)
+                    if (mimeType == "application/pdf") {
+                        onOpenPdfViewer(selectedUri, name)
                     }
                 }
             }
@@ -134,13 +113,6 @@ fun FilesScreen(
         when (selectedFilter) {
             FileFilter.ALL -> recentFiles
             FileFilter.PDF -> recentFiles.filter { it.mimeType == "application/pdf" }
-            FileFilter.IMAGE -> recentFiles.filter { it.mimeType.startsWith("image/") }
-            FileFilter.DOCUMENT -> recentFiles.filter { 
-                it.mimeType.contains("officedocument") || 
-                it.mimeType.contains("msword") ||
-                it.mimeType.contains("ms-excel") ||
-                it.mimeType.contains("ms-powerpoint")
-            }
         }
     }
     
@@ -164,7 +136,7 @@ fun FilesScreen(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ),
             onClick = {
-                documentPickerLauncher.launch(allMimeTypes)
+                documentPickerLauncher.launch(pdfMimeTypes)
             }
         ) {
             Row(
@@ -182,13 +154,13 @@ fun FilesScreen(
                 Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Open Document",
+                        text = "Open PDF Document",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     Text(
-                        text = "PDF, Word, Excel, PowerPoint, Images",
+                        text = "Browse and open PDF files",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )
@@ -293,15 +265,10 @@ fun FilesScreen(
                                     // Update last accessed time
                                     SafUriManager.updateLastAccessed(context, file.uriString)
                                     
-                                    // Open the file based on MIME type
+                                    // Open PDF files only
                                     val displayName = file.name.substringBeforeLast('.')
-                                    when {
-                                        file.mimeType == "application/pdf" -> 
-                                            onOpenPdfViewer(uri, displayName)
-                                        file.mimeType.startsWith("image/") ->
-                                            onOpenDocumentViewer(uri, displayName)
-                                        else ->
-                                            onOpenDocumentViewer(uri, displayName)
+                                    if (file.mimeType == "application/pdf") {
+                                        onOpenPdfViewer(uri, displayName)
                                     }
                                 }
                             }

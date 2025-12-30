@@ -41,13 +41,10 @@ fun AppNavigation(
     modifier: Modifier = Modifier,
     startDestination: String = Screen.Tools.route,
     initialPdfUri: Uri? = null,
-    initialPdfName: String? = null,
-    initialDocumentUri: Uri? = null,
-    initialDocumentName: String? = null
+    initialPdfName: String? = null
 ) {
     val actualStartDestination = when {
         initialPdfUri != null -> "pdf_viewer_direct"
-        initialDocumentUri != null -> "document_viewer_direct"
         else -> startDestination
     }
     
@@ -59,17 +56,6 @@ fun AppNavigation(
             val encodedName = Uri.encode(initialPdfName ?: "PDF Document")
             navController.navigate("pdf_viewer/$encodedUri/$encodedName") {
                 // Pop up to Tools to avoid building up a large back stack
-                popUpTo(Screen.Tools.route) { inclusive = false }
-            }
-        }
-    }
-    
-    LaunchedEffect(initialDocumentUri) {
-        if (initialDocumentUri != null) {
-            // Navigate to Document viewer when URI changes
-            val encodedUri = Uri.encode(initialDocumentUri.toString())
-            val encodedName = Uri.encode(initialDocumentName ?: "Document")
-            navController.navigate("document_viewer/$encodedUri/$encodedName") {
                 popUpTo(Screen.Tools.route) { inclusive = false }
             }
         }
@@ -173,11 +159,6 @@ fun AppNavigation(
                         val encodedUri = Uri.encode(uri.toString())
                         val encodedName = Uri.encode(name)
                         navController.navigate(Screen.PdfViewer.createRoute(encodedUri, encodedName))
-                    },
-                    onOpenDocumentViewer = { uri, name ->
-                        val encodedUri = Uri.encode(uri.toString())
-                        val encodedName = Uri.encode(name)
-                        navController.navigate(Screen.DocumentViewer.createRoute(encodedUri, encodedName))
                     }
                 )
             }
@@ -188,11 +169,6 @@ fun AppNavigation(
                         val encodedUri = Uri.encode(uri.toString())
                         val encodedName = Uri.encode(name)
                         navController.navigate(Screen.PdfViewer.createRoute(encodedUri, encodedName))
-                    },
-                    onOpenDocumentViewer = { uri, name ->
-                        val encodedUri = Uri.encode(uri.toString())
-                        val encodedName = Uri.encode(name)
-                        navController.navigate(Screen.DocumentViewer.createRoute(encodedUri, encodedName))
                     }
                 )
             }
@@ -252,45 +228,6 @@ fun AppNavigation(
                             "compress" -> navController.navigate(Screen.Compress.route)
                             "watermark" -> navController.navigate(Screen.Watermark.route)
                             else -> {}
-                        }
-                    }
-                )
-            }
-            
-            // Document Viewer for Office files
-            composable(
-                route = Screen.DocumentViewer.route,
-                arguments = listOf(
-                    navArgument("uri") {
-                        type = NavType.StringType
-                        defaultValue = ""
-                    },
-                    navArgument("name") {
-                        type = NavType.StringType
-                        defaultValue = "Document"
-                    }
-                )
-            ) { backStackEntry ->
-                val uriString = backStackEntry.arguments?.getString("uri") ?: ""
-                val name = backStackEntry.arguments?.getString("name") ?: "Document"
-                // Don't double-decode: Navigation already decodes the parameter
-                val uri = if (uriString.isNotEmpty()) Uri.parse(uriString) else null
-                
-                DocumentViewerScreen(
-                    documentUri = uri,
-                    documentName = Uri.decode(name),
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-            
-            // Direct document viewer for intent handling
-            composable("document_viewer_direct") {
-                DocumentViewerScreen(
-                    documentUri = initialDocumentUri,
-                    documentName = initialDocumentName ?: "Document",
-                    onNavigateBack = {
-                        navController.navigate(Screen.Tools.route) {
-                            popUpTo("document_viewer_direct") { inclusive = true }
                         }
                     }
                 )
