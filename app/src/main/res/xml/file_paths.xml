@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <cache-path name="shared_cache" path="." />
-    <files-path name="shared_files" path="." />
+    <!-- Cache directory root - matches all files in cacheDir and subdirectories -->
+    <!-- MainActivity stores files in cacheDir/shared_files/ -->
+    <cache-path name="cache" path="." />
+    <!-- Internal files directory -->
+    <files-path name="files" path="." />
+    <!-- External storage (legacy support) -->
     <external-path name="external_files" path="." />
+    <!-- Output folder for saved PDFs -->
     <external-files-path name="output_folder" path="Documents/PDF Toolkit" />
 </paths>
 

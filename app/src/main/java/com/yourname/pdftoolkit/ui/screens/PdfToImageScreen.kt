@@ -48,7 +48,7 @@ fun PdfToImageScreen(
     
     // State
     var selectedFile by remember { mutableStateOf<PdfFileInfo?>(null) }
-    var imageFormat by remember { mutableStateOf(ImageFormat.PNG) }
+    var imageFormat by remember { mutableStateOf(ImageFormat.WEBP) }
     var dpi by remember { mutableStateOf(150f) }
     var isProcessing by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
@@ -447,6 +447,7 @@ fun PdfToImageScreen(
 /**
  * Save bitmap to device gallery using MediaStore.
  * Returns the URI of saved image or null on failure.
+ * Uses WebP with 75% quality for optimal compression, PNG/JPEG with 95%.
  */
 private suspend fun saveBitmapToGallery(
     context: android.content.Context,
@@ -457,7 +458,21 @@ private suspend fun saveBitmapToGallery(
     try {
         val mimeType = format.mimeType
         val extension = format.extension
-        val compressFormat = if (format == ImageFormat.PNG) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+        
+        // Determine compress format and quality
+        val (compressFormat, quality) = when (format) {
+            ImageFormat.WEBP -> {
+                val webpFormat = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    Bitmap.CompressFormat.WEBP_LOSSY
+                } else {
+                    @Suppress("DEPRECATION")
+                    Bitmap.CompressFormat.WEBP
+                }
+                Pair(webpFormat, 78) // WebP quality 75-80 for good balance
+            }
+            ImageFormat.PNG -> Pair(Bitmap.CompressFormat.PNG, 100) // PNG is lossless
+            ImageFormat.JPEG -> Pair(Bitmap.CompressFormat.JPEG, 92)
+        }
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Android 10+ - Use MediaStore
@@ -474,7 +489,7 @@ private suspend fun saveBitmapToGallery(
             ) ?: return@withContext null
             
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                bitmap.compress(compressFormat, 95, outputStream)
+                bitmap.compress(compressFormat, quality, outputStream)
                 outputStream.flush()
             }
             
@@ -492,7 +507,7 @@ private suspend fun saveBitmapToGallery(
             
             val file = File(appDir, "$fileName.$extension")
             FileOutputStream(file).use { outputStream ->
-                bitmap.compress(compressFormat, 95, outputStream)
+                bitmap.compress(compressFormat, quality, outputStream)
                 outputStream.flush()
             }
             

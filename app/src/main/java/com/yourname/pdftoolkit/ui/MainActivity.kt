@@ -14,8 +14,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.core.content.FileProvider
 import androidx.navigation.compose.rememberNavController
+import com.yourname.pdftoolkit.data.SafUriManager
 import com.yourname.pdftoolkit.ui.navigation.AppNavigation
 import com.yourname.pdftoolkit.ui.theme.PDFToolkitTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -23,12 +30,19 @@ import java.io.IOException
 /**
  * Main entry point for the PDF Toolkit app.
  * Handles intent-based PDF and document opening and sets up navigation.
+ * 
+ * IMPORTANT: This activity properly handles SAF URIs for Android 10+ compliance.
+ * Files opened from external apps are either:
+ * 1. Accessed directly if persistable permission can be taken
+ * 2. Copied to cache and accessed via FileProvider if direct access fails
  */
 class MainActivity : ComponentActivity() {
     
     companion object {
         private const val TAG = "MainActivity"
     }
+    
+    private val activityScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     
     private var pendingPdfUri: Uri? = null
     private var pendingPdfName: String? = null
@@ -45,7 +59,11 @@ class MainActivity : ComponentActivity() {
         "application/vnd.ms-powerpoint" // ppt
     )
     
-    private val officeExtensions = listOf("docx", "doc", "xlsx", "xls", "pptx", "ppt")
+    // Compose state holders for handling intents while app is running
+    private var pdfUriState: androidx.compose.runtime.MutableState<Uri?>? = null
+    private var pdfNameState: androidx.compose.runtime.MutableState<String?>? = null
+    private var documentUriState: androidx.compose.runtime.MutableState<Uri?>? = null
+    private var documentNameState: androidx.compose.runtime.MutableState<String?>? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,13 +79,25 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     
+                    // Use mutableStateOf for reactive updates from onNewIntent
+                    val pdfUri = remember { mutableStateOf(pendingPdfUri) }
+                    val pdfName = remember { mutableStateOf(pendingPdfName) }
+                    val documentUri = remember { mutableStateOf(pendingDocumentUri) }
+                    val documentName = remember { mutableStateOf(pendingDocumentName) }
+                    
+                    // Store references for onNewIntent updates
+                    pdfUriState = pdfUri
+                    pdfNameState = pdfName
+                    documentUriState = documentUri
+                    documentNameState = documentName
+                    
                     AppNavigation(
                         navController = navController,
                         modifier = Modifier.fillMaxSize(),
-                        initialPdfUri = pendingPdfUri,
-                        initialPdfName = pendingPdfName,
-                        initialDocumentUri = pendingDocumentUri,
-                        initialDocumentName = pendingDocumentName
+                        initialPdfUri = pdfUri.value,
+                        initialPdfName = pdfName.value,
+                        initialDocumentUri = documentUri.value,
+                        initialDocumentName = documentName.value
                     )
                 }
             }
@@ -77,12 +107,22 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        
+        // Reset pending values
+        pendingPdfUri = null
+        pendingPdfName = null
+        pendingDocumentUri = null
+        pendingDocumentName = null
+        
+        // Handle the new intent
         handleIntent(intent)
         
-        // If we received a new document while app is open, we need to recreate
-        if (pendingPdfUri != null || pendingDocumentUri != null) {
-            recreate()
-        }
+        // Update Compose state to trigger navigation
+        Log.d(TAG, "onNewIntent: Updating Compose state with PDF=$pendingPdfUri, Doc=$pendingDocumentUri")
+        pdfUriState?.value = pendingPdfUri
+        pdfNameState?.value = pendingPdfName
+        documentUriState?.value = pendingDocumentUri
+        documentNameState?.value = pendingDocumentName
     }
     
     /**
@@ -92,12 +132,12 @@ class MainActivity : ComponentActivity() {
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
         
-        // Add read permission flag to the intent to ensure we can access the content
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        Log.d(TAG, "Handling intent action: ${intent.action}, data: ${intent.data}")
         
         when (intent.action) {
             Intent.ACTION_VIEW -> {
                 intent.data?.let { uri ->
+                    Log.d(TAG, "ACTION_VIEW with URI: $uri")
                     processUri(uri, intent)
                 }
             }
@@ -105,6 +145,7 @@ class MainActivity : ComponentActivity() {
             Intent.ACTION_SEND -> {
                 val uri = getParcelableExtraCompat(intent)
                 uri?.let {
+                    Log.d(TAG, "ACTION_SEND with URI: $it")
                     processUri(it, intent)
                 }
             }
@@ -113,58 +154,86 @@ class MainActivity : ComponentActivity() {
     
     /**
      * Process a URI and determine file type.
-     * Attempts to obtain permission and copies file to cache if needed.
+     * For ACTION_VIEW and ACTION_SEND, immediately copies file to cache synchronously
+     * because these intents don't support persistable permissions.
      */
     private fun processUri(originalUri: Uri, intent: Intent) {
         val mimeType = contentResolver.getType(originalUri)
-        val fileName = getFileName(originalUri)
+        val fileName = getFileName(originalUri) ?: "document"
         
-        // Try to get read permission first
-        val accessibleUri = getAccessibleUri(originalUri, intent, fileName ?: "document")
+        Log.d(TAG, "Processing URI: $originalUri, mimeType: $mimeType, fileName: $fileName, action: ${intent.action}")
+        
+        // For ACTION_VIEW and ACTION_SEND, we MUST copy to cache synchronously
+        // because these intents don't support persistable permissions and the
+        // temporary permission expires as soon as onCreate finishes
+        val accessibleUri = when (intent.action) {
+            Intent.ACTION_VIEW, Intent.ACTION_SEND -> {
+                Log.d(TAG, "ACTION_VIEW/SEND detected - copying to cache synchronously")
+                // Copy synchronously using runBlocking to ensure it completes before onCreate finishes
+                runBlocking {
+                    copyToCacheSynchronous(originalUri, fileName)
+                }
+            }
+            else -> {
+                // For other intents (e.g., from internal navigation), try persistable permission first
+                getAccessibleUri(originalUri, intent, fileName)
+            }
+        }
         
         if (accessibleUri == null) {
-            Log.e(TAG, "Could not obtain access to URI: $originalUri")
+            Log.e(TAG, "Could not obtain access to URI: $originalUri - file will not be opened")
+            // Don't set pending URIs - app will show home screen
             return
         }
+        
+        Log.d(TAG, "Successfully got accessible URI: $accessibleUri (original was: $originalUri)")
         
         when {
             isPdfUri(originalUri, mimeType) -> {
                 pendingPdfUri = accessibleUri
-                pendingPdfName = fileName?.removeSuffix(".pdf")?.removeSuffix(".PDF") ?: "PDF Document"
+                pendingPdfName = fileName.removeSuffix(".pdf").removeSuffix(".PDF")
+                Log.d(TAG, "Set pending PDF: uri=$pendingPdfUri, name=$pendingPdfName")
             }
             isOfficeDocument(originalUri, mimeType) -> {
                 pendingDocumentUri = accessibleUri
-                pendingDocumentName = fileName?.substringBeforeLast('.') ?: "Document"
+                pendingDocumentName = fileName.substringBeforeLast('.')
+                Log.d(TAG, "Set pending document: uri=$pendingDocumentUri, name=$pendingDocumentName")
+            }
+            else -> {
+                Log.w(TAG, "Unknown file type: $mimeType")
             }
         }
     }
     
     /**
      * Attempts to get an accessible URI either by:
-     * 1. Using persistable URI permission
-     * 2. Copying file to cache and using FileProvider
+     * 1. Using persistable URI permission (for ACTION_OPEN_DOCUMENT results)
+     * 2. Copying file to cache and using FileProvider (fallback)
+     * 
+     * NOTE: ACTION_VIEW and ACTION_SEND intents are handled directly in processUri
+     * and always copied to cache immediately.
      */
-    private fun getAccessibleUri(uri: Uri, @Suppress("UNUSED_PARAMETER") intent: Intent, fileName: String): Uri? {
-        // First, try to take persistable permission
-        try {
-            contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-            // If successful, try to verify we can access it
-            if (canAccessUri(uri)) {
-                return uri
-            }
-        } catch (e: SecurityException) {
-            Log.d(TAG, "Cannot take persistable permission for: $uri")
-        }
+    private fun getAccessibleUri(uri: Uri, intent: Intent, fileName: String): Uri? {
+        // Try to take persistable permission (works for ACTION_OPEN_DOCUMENT)
+        val permissionTaken = SafUriManager.takePersistablePermission(
+            this, 
+            uri, 
+            intent.flags
+        )
         
-        // Check if we can access with intent flags
-        if (canAccessUri(uri)) {
+        if (permissionTaken && canAccessUri(uri)) {
+            Log.d(TAG, "Access via persistable permission successful")
+            
+            // Also add to recent files for later access
+            activityScope.launch(Dispatchers.IO) {
+                SafUriManager.addRecentFile(applicationContext, uri, intent.flags)
+            }
+            
             return uri
         }
         
-        // As a fallback, copy file to cache and return new URI
+        // If persistable permission failed, copy to cache as fallback
+        Log.d(TAG, "Persistable permission not available, copying to cache")
         return copyToCache(uri, fileName)
     }
     
@@ -175,6 +244,7 @@ class MainActivity : ComponentActivity() {
         return try {
             contentResolver.openInputStream(uri)?.use { 
                 // Successfully opened, we have access
+                Log.d(TAG, "URI is accessible: $uri")
                 true 
             } ?: false
         } catch (e: SecurityException) {
@@ -190,14 +260,18 @@ class MainActivity : ComponentActivity() {
     }
     
     /**
-     * Copy file from content URI to app's cache directory.
+     * Copy file from content URI to app's cache directory synchronously.
      * Returns a FileProvider URI that can be used within the app.
+     * 
+     * This MUST be called synchronously in onCreate for ACTION_VIEW/SEND intents
+     * because the temporary permission expires when onCreate finishes.
      */
-    private fun copyToCache(sourceUri: Uri, fileName: String): Uri? {
-        return try {
+    private suspend fun copyToCacheSynchronous(sourceUri: Uri, fileName: String): Uri? = withContext(Dispatchers.IO) {
+        return@withContext try {
             val cacheDir = File(cacheDir, "shared_files")
             if (!cacheDir.exists()) {
-                cacheDir.mkdirs()
+                val created = cacheDir.mkdirs()
+                Log.d(TAG, "Cache directory created: $created at ${cacheDir.absolutePath}")
             }
             
             // Clean old cached files (older than 1 hour)
@@ -207,30 +281,75 @@ class MainActivity : ComponentActivity() {
             val safeFileName = "shared_${System.currentTimeMillis()}.$extension"
             val targetFile = File(cacheDir, safeFileName)
             
-            contentResolver.openInputStream(sourceUri)?.use { input ->
-                FileOutputStream(targetFile).use { output ->
-                    input.copyTo(output)
-                }
+            Log.d(TAG, "Starting copy: $sourceUri -> ${targetFile.absolutePath}")
+            
+            // Open input stream - this MUST work while we still have permission
+            val inputStream = try {
+                contentResolver.openInputStream(sourceUri)
+            } catch (e: SecurityException) {
+                Log.e(TAG, "SecurityException opening input stream: ${e.message}")
+                Log.e(TAG, "URI: $sourceUri")
+                return@withContext null
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception opening input stream: ${e.message}", e)
+                return@withContext null
             }
             
-            if (targetFile.exists() && targetFile.length() > 0) {
-                FileProvider.getUriForFile(
-                    this,
-                    "$packageName.provider",
-                    targetFile
-                )
-            } else {
+            if (inputStream == null) {
+                Log.e(TAG, "Input stream is null for URI: $sourceUri")
+                return@withContext null
+            }
+            
+            // Copy the file
+            try {
+                var bytesCopied = 0L
+                inputStream.use { input ->
+                    FileOutputStream(targetFile).use { output ->
+                        bytesCopied = input.copyTo(output)
+                    }
+                }
+                
+                Log.d(TAG, "Copied $bytesCopied bytes to ${targetFile.absolutePath}")
+                
+                if (targetFile.exists() && targetFile.length() > 0) {
+                    // Use FileProvider to create a content URI
+                    val resultUri = FileProvider.getUriForFile(
+                        this@MainActivity,
+                        "$packageName.provider",
+                        targetFile
+                    )
+                    Log.d(TAG, "Successfully copied to cache! File size: ${targetFile.length()} bytes")
+                    Log.d(TAG, "FileProvider URI: $resultUri")
+                    resultUri
+                } else {
+                    Log.e(TAG, "Copy failed - target file missing or empty. Exists: ${targetFile.exists()}, Size: ${targetFile.length()}")
+                    null
+                }
+            } catch (e: IOException) {
+                Log.e(TAG, "IOException during copy: ${e.message}", e)
+                // Clean up partial file
+                targetFile.delete()
+                null
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception during copy: ${e.message}", e)
+                targetFile.delete()
                 null
             }
         } catch (e: SecurityException) {
-            Log.e(TAG, "SecurityException copying file: ${e.message}")
-            null
-        } catch (e: IOException) {
-            Log.e(TAG, "IOException copying file: ${e.message}")
+            Log.e(TAG, "SecurityException in copyToCacheSynchronous: ${e.message}", e)
             null
         } catch (e: Exception) {
-            Log.e(TAG, "Exception copying file: ${e.message}")
+            Log.e(TAG, "Unexpected exception in copyToCacheSynchronous: ${e.message}", e)
             null
+        }
+    }
+    
+    /**
+     * Legacy method - kept for compatibility but uses the synchronous version
+     */
+    private fun copyToCache(sourceUri: Uri, fileName: String): Uri? {
+        return runBlocking {
+            copyToCacheSynchronous(sourceUri, fileName)
         }
     }
     
@@ -288,6 +407,7 @@ class MainActivity : ComponentActivity() {
         }
         
         val path = uri.toString().lowercase()
+        val officeExtensions = listOf("docx", "doc", "xlsx", "xls", "pptx", "ppt")
         return officeExtensions.any { path.endsWith(".$it") }
     }
     

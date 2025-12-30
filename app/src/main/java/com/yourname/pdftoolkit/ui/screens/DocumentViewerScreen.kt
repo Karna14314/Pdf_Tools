@@ -3,6 +3,8 @@ package com.yourname.pdftoolkit.ui.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
+import android.util.Xml
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -35,10 +37,424 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.apache.poi.xwpf.usermodel.XWPFDocument
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import org.apache.poi.xslf.usermodel.XMLSlideShow
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
+import java.io.InputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+
+private const val TAG = "DocumentViewer"
+
+/**
+ * Android-compatible OOXML document parser.
+ * 
+ * IMPORTANT: Apache POI's SAX/StAX-based parsing is NOT compatible with Android
+ * due to missing "declaration-handler" property support in Android's XML parser.
+ * 
+ * This implementation uses Android's native XmlPullParser with direct ZIP extraction,
+ * which is fully compatible and doesn't require any external XML parser libraries.
+ */
+object AndroidDocumentParser {
+    
+    /**
+     * Parse a DOCX file using Android's XmlPullParser.
+     * DOCX files are ZIP archives containing XML files.
+     * Main content is in word/document.xml
+     */
+    fun parseDocx(inputStream: InputStream): List<WordParagraph> {
+        val paragraphs = mutableListOf<WordParagraph>()
+        
+        try {
+            ZipInputStream(inputStream).use { zipStream ->
+                var entry: ZipEntry? = zipStream.nextEntry
+                while (entry != null) {
+                    if (entry.name == "word/document.xml") {
+                        // Don't close the zipStream, just parse the entry
+                        parseDocxXml(zipStream, paragraphs)
+                        break
+                    }
+                    zipStream.closeEntry()
+                    entry = zipStream.nextEntry
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing DOCX: ${e.message}", e)
+            throw e
+        }
+        
+        return paragraphs
+    }
+    
+    private fun parseDocxXml(inputStream: InputStream, paragraphs: MutableList<WordParagraph>) {
+        try {
+            val parser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, "UTF-8")
+            
+            var currentText = StringBuilder()
+            var isBold = false
+            var isItalic = false
+            var isHeading = false
+            var inParagraph = false
+            var inRun = false
+            
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        when (parser.name) {
+                            "p" -> { // Paragraph
+                                inParagraph = true
+                                currentText = StringBuilder()
+                                isBold = false
+                                isItalic = false
+                                isHeading = false
+                            }
+                            "r" -> inRun = true // Run (text run)
+                            "b" -> if (inRun) isBold = true // Bold
+                            "i" -> if (inRun) isItalic = true // Italic
+                            "pStyle" -> { // Paragraph style
+                                val styleVal = parser.getAttributeValue(null, "val")
+                                if (styleVal?.contains("Heading", ignoreCase = true) == true) {
+                                    isHeading = true
+                                }
+                            }
+                        }
+                    }
+                    XmlPullParser.TEXT -> {
+                        if (inParagraph && inRun) {
+                            currentText.append(parser.text)
+                        }
+                    }
+                    XmlPullParser.END_TAG -> {
+                        when (parser.name) {
+                            "p" -> { // End paragraph
+                                val text = currentText.toString().trim()
+                                if (text.isNotEmpty()) {
+                                    paragraphs.add(WordParagraph(
+                                        text = text,
+                                        isHeading = isHeading,
+                                        isBold = isBold,
+                                        isItalic = isItalic
+                                    ))
+                                }
+                                inParagraph = false
+                            }
+                            "r" -> inRun = false
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+        } catch (e: XmlPullParserException) {
+            Log.e(TAG, "XML parsing error in DOCX: ${e.message}", e)
+            throw IOException("Failed to parse document content: ${e.message}")
+        }
+    }
+    
+    /**
+     * Parse an XLSX file using Android's XmlPullParser.
+     * XLSX files are ZIP archives containing XML files.
+     * Sheet data is in xl/worksheets/sheet1.xml, etc.
+     * Shared strings are in xl/sharedStrings.xml
+     */
+    fun parseXlsx(inputStream: InputStream): List<ExcelSheet> {
+        val sheets = mutableListOf<ExcelSheet>()
+        val sharedStrings = mutableListOf<String>()
+        val sheetDataMap = mutableMapOf<String, List<List<String>>>()
+        val sheetNames = mutableListOf<String>()
+        
+        try {
+            // First pass: read all entries into memory (since we need multiple files)
+            val entries = mutableMapOf<String, ByteArray>()
+            ZipInputStream(inputStream).use { zipStream ->
+                var entry: ZipEntry? = zipStream.nextEntry
+                while (entry != null) {
+                    if (!entry.isDirectory && (
+                        entry.name == "xl/sharedStrings.xml" ||
+                        entry.name.startsWith("xl/worksheets/sheet") ||
+                        entry.name == "xl/workbook.xml"
+                    )) {
+                        entries[entry.name] = zipStream.readBytes()
+                    }
+                    zipStream.closeEntry()
+                    entry = zipStream.nextEntry
+                }
+            }
+            
+            // Parse shared strings first
+            entries["xl/sharedStrings.xml"]?.let { data ->
+                parseSharedStrings(data.inputStream(), sharedStrings)
+            }
+            
+            // Parse workbook to get sheet names
+            entries["xl/workbook.xml"]?.let { data ->
+                parseWorkbook(data.inputStream(), sheetNames)
+            }
+            
+            // Parse each sheet
+            entries.filter { it.key.startsWith("xl/worksheets/sheet") }
+                .toSortedMap()
+                .forEach { (name, data) ->
+                    val sheetIndex = name.removePrefix("xl/worksheets/sheet").removeSuffix(".xml").toIntOrNull() ?: 1
+                    val rows = parseSheet(data.inputStream(), sharedStrings)
+                    val sheetName = sheetNames.getOrElse(sheetIndex - 1) { "Sheet $sheetIndex" }
+                    sheets.add(ExcelSheet(name = sheetName, rows = rows))
+                }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing XLSX: ${e.message}", e)
+            throw e
+        }
+        
+        return sheets
+    }
+    
+    private fun parseSharedStrings(inputStream: InputStream, strings: MutableList<String>) {
+        try {
+            val parser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, "UTF-8")
+            
+            var currentString = StringBuilder()
+            var inString = false
+            
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        if (parser.name == "si") {
+                            inString = true
+                            currentString = StringBuilder()
+                        }
+                    }
+                    XmlPullParser.TEXT -> {
+                        if (inString) {
+                            currentString.append(parser.text)
+                        }
+                    }
+                    XmlPullParser.END_TAG -> {
+                        if (parser.name == "si") {
+                            strings.add(currentString.toString())
+                            inString = false
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error parsing shared strings: ${e.message}")
+        }
+    }
+    
+    private fun parseWorkbook(inputStream: InputStream, sheetNames: MutableList<String>) {
+        try {
+            val parser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, "UTF-8")
+            
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG && parser.name == "sheet") {
+                    val name = parser.getAttributeValue(null, "name")
+                    if (name != null) {
+                        sheetNames.add(name)
+                    }
+                }
+                eventType = parser.next()
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Error parsing workbook: ${e.message}")
+        }
+    }
+    
+    private fun parseSheet(inputStream: InputStream, sharedStrings: List<String>): List<List<String>> {
+        val rows = mutableListOf<List<String>>()
+        
+        try {
+            val parser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, "UTF-8")
+            
+            var currentRow = mutableListOf<String>()
+            var currentValue = StringBuilder()
+            var isSharedString = false
+            var inValue = false
+            var inRow = false
+            var maxCols = 0
+            
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        when (parser.name) {
+                            "row" -> {
+                                inRow = true
+                                currentRow = mutableListOf()
+                            }
+                            "c" -> { // Cell
+                                val type = parser.getAttributeValue(null, "t")
+                                isSharedString = type == "s"
+                                currentValue = StringBuilder()
+                            }
+                            "v" -> inValue = true // Cell value
+                        }
+                    }
+                    XmlPullParser.TEXT -> {
+                        if (inValue) {
+                            currentValue.append(parser.text)
+                        }
+                    }
+                    XmlPullParser.END_TAG -> {
+                        when (parser.name) {
+                            "c" -> { // End cell
+                                val value = if (isSharedString) {
+                                    val index = currentValue.toString().trim().toIntOrNull()
+                                    if (index != null && index < sharedStrings.size) {
+                                        sharedStrings[index]
+                                    } else {
+                                        currentValue.toString()
+                                    }
+                                } else {
+                                    currentValue.toString()
+                                }
+                                currentRow.add(value)
+                            }
+                            "v" -> inValue = false
+                            "row" -> { // End row
+                                if (currentRow.isNotEmpty() && rows.size < 100) { // Limit rows
+                                    // Limit columns
+                                    val limitedRow = currentRow.take(20)
+                                    rows.add(limitedRow)
+                                    maxCols = maxOf(maxCols, limitedRow.size)
+                                }
+                                inRow = false
+                            }
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+            
+            // Normalize row lengths
+            return rows.map { row ->
+                if (row.size < maxCols) {
+                    row + List(maxCols - row.size) { "" }
+                } else {
+                    row
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing sheet: ${e.message}", e)
+        }
+        
+        return rows
+    }
+    
+    /**
+     * Parse a PPTX file using Android's XmlPullParser.
+     * PPTX files are ZIP archives containing XML files.
+     * Slides are in ppt/slides/slide1.xml, etc.
+     */
+    fun parsePptx(inputStream: InputStream): List<SlideContent> {
+        val slides = mutableListOf<SlideContent>()
+        
+        try {
+            // Read all slide entries
+            val slideEntries = mutableMapOf<Int, ByteArray>()
+            ZipInputStream(inputStream).use { zipStream ->
+                var entry: ZipEntry? = zipStream.nextEntry
+                while (entry != null) {
+                    if (entry.name.startsWith("ppt/slides/slide") && entry.name.endsWith(".xml")) {
+                        val slideNum = entry.name
+                            .removePrefix("ppt/slides/slide")
+                            .removeSuffix(".xml")
+                            .toIntOrNull()
+                        if (slideNum != null) {
+                            slideEntries[slideNum] = zipStream.readBytes()
+                        }
+                    }
+                    zipStream.closeEntry()
+                    entry = zipStream.nextEntry
+                }
+            }
+            
+            // Parse each slide in order
+            slideEntries.toSortedMap().forEach { (slideNum, data) ->
+                val slideContent = parseSlide(data.inputStream(), slideNum)
+                slides.add(slideContent)
+            }
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing PPTX: ${e.message}", e)
+            throw e
+        }
+        
+        return slides
+    }
+    
+    private fun parseSlide(inputStream: InputStream, slideNumber: Int): SlideContent {
+        val texts = mutableListOf<String>()
+        
+        try {
+            val parser = Xml.newPullParser()
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            parser.setInput(inputStream, "UTF-8")
+            
+            var currentText = StringBuilder()
+            var inTextBody = false
+            var inParagraph = false
+            
+            var eventType = parser.eventType
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        when (parser.name) {
+                            "txBody" -> inTextBody = true
+                            "p" -> if (inTextBody) {
+                                inParagraph = true
+                                currentText = StringBuilder()
+                            }
+                        }
+                    }
+                    XmlPullParser.TEXT -> {
+                        if (inParagraph) {
+                            currentText.append(parser.text)
+                        }
+                    }
+                    XmlPullParser.END_TAG -> {
+                        when (parser.name) {
+                            "p" -> {
+                                if (inParagraph) {
+                                    val text = currentText.toString().trim()
+                                    if (text.isNotEmpty()) {
+                                        texts.add(text)
+                                    }
+                                    inParagraph = false
+                                }
+                            }
+                            "txBody" -> inTextBody = false
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error parsing slide $slideNumber: ${e.message}", e)
+        }
+        
+        // First text is usually the title
+        val title = texts.firstOrNull() ?: ""
+        val content = if (texts.size > 1) texts.drop(1) else emptyList()
+        
+        return SlideContent(
+            slideNumber = slideNumber,
+            title = title,
+            content = content
+        )
+    }
+}
 
 /**
  * Types of Office documents supported.
@@ -708,8 +1124,55 @@ private suspend fun loadDocument(
     type: DocumentType
 ): DocumentContent = withContext(Dispatchers.IO) {
     try {
-        val inputStream = context.contentResolver.openInputStream(uri)
-            ?: throw IOException("Cannot open document")
+        // Try to open the input stream
+        var inputStream: java.io.InputStream? = null
+        
+        // Check if this is OUR app's FileProvider URI (not other providers!)
+        val isOurFileProvider = uri.scheme == "content" && 
+            (uri.authority == "${context.packageName}.provider" ||
+             uri.authority?.startsWith("com.yourname.pdftoolkit") == true && 
+             uri.authority?.endsWith(".provider") == true)
+        
+        if (isOurFileProvider) {
+            try {
+                inputStream = context.contentResolver.openInputStream(uri)
+            } catch (e: Exception) {
+                // If FileProvider fails, try to extract the file path from cache
+                try {
+                    val pathSegments = uri.pathSegments
+                    if (pathSegments.isNotEmpty()) {
+                        val cacheDir = java.io.File(context.cacheDir, "shared_files")
+                        val fileName = pathSegments.lastOrNull()
+                        if (fileName != null) {
+                            val file = java.io.File(cacheDir, fileName)
+                            if (file.exists()) {
+                                inputStream = file.inputStream()
+                            }
+                        }
+                    }
+                } catch (e2: Exception) {
+                    // Fall through
+                }
+            }
+        }
+        
+        // Try direct content resolver access (SAF URIs)
+        if (inputStream == null) {
+            inputStream = try {
+                context.contentResolver.openInputStream(uri)
+            } catch (e: SecurityException) {
+                throw IOException("Permission denied: Cannot open document. Please try opening from Files tab. ${e.message}")
+            } catch (e: Exception) {
+                throw IOException("Cannot open document: ${e.message}")
+            }
+        }
+        
+        if (inputStream == null) {
+            throw IOException("Cannot open document - no access to URI")
+        }
+        
+        // No SAX initialization needed - using Android's native XmlPullParser
+        Log.d(TAG, "Loading document with Android-native parser...")
         
         inputStream.use { stream ->
             when (type) {
@@ -719,133 +1182,93 @@ private suspend fun loadDocument(
                 DocumentType.UNKNOWN -> DocumentContent.Error("Unsupported document format")
             }
         }
-    } catch (e: Exception) {
+    } catch (e: SecurityException) {
+        DocumentContent.Error("Permission denied: Cannot access document. Please try opening the file from within the app.")
+    } catch (e: IOException) {
         DocumentContent.Error("Error reading document: ${e.localizedMessage}")
+    } catch (e: Exception) {
+        Log.e(TAG, "Exception loading document: ${e.message}", e)
+        DocumentContent.Error("Error loading document: ${e.localizedMessage}")
     }
 }
 
+/**
+ * Load Word document using Android-native OOXML parser.
+ * This avoids Apache POI's SAX parsing which is incompatible with Android.
+ */
 private fun loadWordDocument(inputStream: java.io.InputStream): DocumentContent {
     return try {
-        val document = XWPFDocument(inputStream)
-        val paragraphs = mutableListOf<WordParagraph>()
+        Log.d(TAG, "Starting Word document parsing with Android parser...")
+        val paragraphs = AndroidDocumentParser.parseDocx(inputStream)
+        Log.d(TAG, "Word document parsed successfully: ${paragraphs.size} paragraphs")
         
-        document.paragraphs.forEach { para ->
-            val text = para.text
-            val isHeading = para.style?.lowercase()?.contains("heading") == true
-            var isBold = false
-            var isItalic = false
-            
-            // Check run styles
-            para.runs.forEach { run ->
-                if (run.isBold) isBold = true
-                if (run.isItalic) isItalic = true
-            }
-            
-            paragraphs.add(WordParagraph(
-                text = text,
-                isHeading = isHeading,
-                isBold = isBold,
-                isItalic = isItalic
-            ))
+        if (paragraphs.isEmpty()) {
+            DocumentContent.WordContent(
+                paragraphs = listOf(WordParagraph(
+                    text = "(Document appears to be empty or contains only images/tables)",
+                    isHeading = false,
+                    isBold = false,
+                    isItalic = true
+                ))
+            )
+        } else {
+            DocumentContent.WordContent(paragraphs = paragraphs)
         }
-        
-        document.close()
-        DocumentContent.WordContent(paragraphs = paragraphs)
     } catch (e: Exception) {
+        Log.e(TAG, "Failed to parse Word document: ${e.message}", e)
         DocumentContent.Error("Failed to parse Word document: ${e.localizedMessage}")
     }
 }
 
+/**
+ * Load Excel document using Android-native OOXML parser.
+ * This avoids Apache POI's SAX parsing which is incompatible with Android.
+ */
 private fun loadExcelDocument(inputStream: java.io.InputStream): DocumentContent {
     return try {
-        val workbook = XSSFWorkbook(inputStream)
-        val sheets = mutableListOf<ExcelSheet>()
+        Log.d(TAG, "Starting Excel document parsing with Android parser...")
+        val sheets = AndroidDocumentParser.parseXlsx(inputStream)
+        Log.d(TAG, "Excel document parsed successfully: ${sheets.size} sheets")
         
-        for (i in 0 until workbook.numberOfSheets) {
-            val sheet = workbook.getSheetAt(i)
-            val rows = mutableListOf<List<String>>()
-            
-            // Limit rows to prevent memory issues
-            val maxRows = minOf(sheet.physicalNumberOfRows, 100)
-            
-            for (rowIndex in 0 until maxRows) {
-                val row = sheet.getRow(rowIndex) ?: continue
-                val cells = mutableListOf<String>()
-                
-                // Limit columns
-                val maxCols = minOf(row.lastCellNum.toInt(), 20)
-                
-                for (colIndex in 0 until maxCols) {
-                    val cell = row.getCell(colIndex)
-                    val value = try {
-                        cell?.toString() ?: ""
-                    } catch (e: Exception) {
-                        ""
-                    }
-                    cells.add(value)
-                }
-                
-                if (cells.isNotEmpty()) {
-                    rows.add(cells)
-                }
-            }
-            
-            sheets.add(ExcelSheet(
-                name = sheet.sheetName,
-                rows = rows
-            ))
+        if (sheets.isEmpty()) {
+            DocumentContent.ExcelContent(
+                sheets = listOf(ExcelSheet(
+                    name = "Sheet1",
+                    rows = listOf(listOf("(Spreadsheet appears to be empty)"))
+                ))
+            )
+        } else {
+            DocumentContent.ExcelContent(sheets = sheets)
         }
-        
-        workbook.close()
-        DocumentContent.ExcelContent(sheets = sheets)
     } catch (e: Exception) {
+        Log.e(TAG, "Failed to parse Excel document: ${e.message}", e)
         DocumentContent.Error("Failed to parse Excel document: ${e.localizedMessage}")
     }
 }
 
+/**
+ * Load PowerPoint document using Android-native OOXML parser.
+ * This avoids Apache POI's SAX parsing which is incompatible with Android.
+ */
 private fun loadPowerPointDocument(inputStream: java.io.InputStream): DocumentContent {
     return try {
-        val ppt = XMLSlideShow(inputStream)
-        val slides = mutableListOf<SlideContent>()
+        Log.d(TAG, "Starting PowerPoint document parsing with Android parser...")
+        val slides = AndroidDocumentParser.parsePptx(inputStream)
+        Log.d(TAG, "PowerPoint document parsed successfully: ${slides.size} slides")
         
-        ppt.slides.forEachIndexed { index, slide ->
-            var title = ""
-            val content = mutableListOf<String>()
-            
-            slide.shapes.forEach { shape ->
-                if (shape is org.apache.poi.xslf.usermodel.XSLFTextShape) {
-                    val text = shape.text?.trim() ?: ""
-                    if (text.isNotBlank()) {
-                        // First text shape is usually the title
-                        if (title.isBlank() && shape.shapeName?.contains("Title", ignoreCase = true) == true) {
-                            title = text
-                        } else {
-                            // Split by newlines for bullet points
-                            text.split("\n").forEach { line ->
-                                if (line.isNotBlank()) {
-                                    content.add(line.trim())
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // If no title found, use first content as title
-            if (title.isBlank() && content.isNotEmpty()) {
-                title = content.removeAt(0)
-            }
-            
-            slides.add(SlideContent(
-                slideNumber = index + 1,
-                title = title,
-                content = content
-            ))
+        if (slides.isEmpty()) {
+            DocumentContent.PowerPointContent(
+                slides = listOf(SlideContent(
+                    slideNumber = 1,
+                    title = "(Presentation appears to be empty)",
+                    content = emptyList()
+                ))
+            )
+        } else {
+            DocumentContent.PowerPointContent(slides = slides)
         }
-        
-        ppt.close()
-        DocumentContent.PowerPointContent(slides = slides)
     } catch (e: Exception) {
+        Log.e(TAG, "Failed to parse PowerPoint document: ${e.message}", e)
         DocumentContent.Error("Failed to parse PowerPoint document: ${e.localizedMessage}")
     }
 }

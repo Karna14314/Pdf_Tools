@@ -2,6 +2,7 @@ package com.yourname.pdftoolkit.ui.screens
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -29,7 +30,50 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
+ * Image format options for default setting.
+ */
+enum class DefaultImageFormat(val displayName: String, val extension: String) {
+    WEBP("WebP (Recommended)", "webp"),
+    JPEG("JPEG", "jpg")
+}
+
+/**
+ * Settings preferences manager.
+ */
+object SettingsPreferences {
+    private const val PREFS_NAME = "pdf_toolkit_settings"
+    private const val KEY_COMPRESSION_QUALITY = "compression_quality"
+    private const val KEY_IMAGE_FORMAT = "default_image_format"
+    
+    fun getPrefs(context: Context): SharedPreferences {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+    
+    fun getCompressionQuality(context: Context): Int {
+        return getPrefs(context).getInt(KEY_COMPRESSION_QUALITY, 75)
+    }
+    
+    fun setCompressionQuality(context: Context, quality: Int) {
+        getPrefs(context).edit().putInt(KEY_COMPRESSION_QUALITY, quality).apply()
+    }
+    
+    fun getDefaultImageFormat(context: Context): DefaultImageFormat {
+        val formatName = getPrefs(context).getString(KEY_IMAGE_FORMAT, DefaultImageFormat.WEBP.name)
+        return try {
+            DefaultImageFormat.valueOf(formatName ?: DefaultImageFormat.WEBP.name)
+        } catch (e: Exception) {
+            DefaultImageFormat.WEBP
+        }
+    }
+    
+    fun setDefaultImageFormat(context: Context, format: DefaultImageFormat) {
+        getPrefs(context).edit().putString(KEY_IMAGE_FORMAT, format.name).apply()
+    }
+}
+
+/**
  * Comprehensive Settings Screen with organized sections.
+ * Includes: Default compression quality, Default image format, Cache cleanup, About/Privacy/License
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +88,11 @@ fun SettingsScreen(
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showFeatureRequestDialog by remember { mutableStateOf(false) }
+    var showImageFormatDialog by remember { mutableStateOf(false) }
+    
+    // Settings state
+    var compressionQuality by remember { mutableStateOf(SettingsPreferences.getCompressionQuality(context)) }
+    var defaultImageFormat by remember { mutableStateOf(SettingsPreferences.getDefaultImageFormat(context)) }
     
     // Calculate cache size on screen load
     LaunchedEffect(Unit) {
@@ -54,7 +103,7 @@ fun SettingsScreen(
     
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = {
                     Text(
                         text = "Settings",
@@ -69,7 +118,7 @@ fun SettingsScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
             )
@@ -81,6 +130,96 @@ fun SettingsScreen(
                 .padding(paddingValues),
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
+            // Quality Settings Section
+            item {
+                SettingsSectionHeader(title = "Quality Settings")
+            }
+            
+            // Default Compression Quality
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.HighQuality,
+                                contentDescription = "Compression Quality",
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Default Compression Quality",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "${compressionQuality}% - ${getQualityDescription(compressionQuality)}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Slider(
+                        value = compressionQuality.toFloat(),
+                        onValueChange = { 
+                            compressionQuality = it.toInt()
+                        },
+                        onValueChangeFinished = {
+                            SettingsPreferences.setCompressionQuality(context, compressionQuality)
+                        },
+                        valueRange = 30f..100f,
+                        steps = 6,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Smaller file",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Better quality",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+            
+            // Default Image Format
+            item {
+                SettingsItem(
+                    title = "Default Image Format",
+                    subtitle = defaultImageFormat.displayName,
+                    icon = Icons.Default.Image,
+                    onClick = { showImageFormatDialog = true }
+                )
+            }
+            
             // Storage Section
             item {
                 SettingsSectionHeader(title = "Storage")
@@ -150,7 +289,7 @@ fun SettingsScreen(
             item {
                 SettingsItem(
                     title = "Version",
-                    subtitle = "1.2.2 (Build 7)",
+                    subtitle = "1.2.4 (Build 9)",
                     icon = Icons.Default.Info,
                     onClick = { showAboutDialog = true }
                 )
@@ -173,7 +312,6 @@ fun SettingsScreen(
                     subtitle = "View third-party licenses",
                     icon = Icons.Default.Description,
                     onClick = {
-                        // TODO: Open licenses activity
                         Toast.makeText(context, "Licenses: PdfBox-Android (Apache 2.0), ML Kit (Apache 2.0)", Toast.LENGTH_LONG).show()
                     }
                 )
@@ -221,7 +359,72 @@ fun SettingsScreen(
                     )
                 }
             }
+            
+            // Bottom spacing for navigation
+            item {
+                Spacer(modifier = Modifier.height(80.dp))
+            }
         }
+    }
+    
+    // Image Format Selection Dialog
+    if (showImageFormatDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageFormatDialog = false },
+            icon = { Icon(Icons.Default.Image, contentDescription = null) },
+            title = { Text("Default Image Format") },
+            text = {
+                Column {
+                    DefaultImageFormat.entries.forEach { format ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    defaultImageFormat = format
+                                    SettingsPreferences.setDefaultImageFormat(context, format)
+                                    showImageFormatDialog = false
+                                }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = defaultImageFormat == format,
+                                onClick = {
+                                    defaultImageFormat = format
+                                    SettingsPreferences.setDefaultImageFormat(context, format)
+                                    showImageFormatDialog = false
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = format.displayName,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                if (format == DefaultImageFormat.WEBP) {
+                                    Text(
+                                        text = "Best compression, smaller files",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                } else {
+                                    Text(
+                                        text = "Universal compatibility",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showImageFormatDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
     
     // Clear Cache Dialog
@@ -290,14 +493,14 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Version", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("1.2.2")
+                        Text("1.2.4")
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Build", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("7")
+                        Text("9")
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -325,6 +528,16 @@ fun SettingsScreen(
                 showFeatureRequestDialog = false
             }
         )
+    }
+}
+
+private fun getQualityDescription(quality: Int): String {
+    return when {
+        quality >= 90 -> "Maximum quality"
+        quality >= 75 -> "High quality"
+        quality >= 60 -> "Balanced"
+        quality >= 45 -> "Compressed"
+        else -> "Maximum compression"
     }
 }
 
@@ -488,26 +701,50 @@ private fun FeatureRequestDialog(
 }
 
 // Helper functions for intents
+
+/**
+ * Developer email for support requests.
+ */
+private const val DEVELOPER_EMAIL = "developerncn29@gmail.com"
+
 private fun sendFeatureRequest(context: Context, featureText: String) {
     val deviceInfo = """
         
         ---
         Device: ${Build.MANUFACTURER} ${Build.MODEL}
         Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
-        App Version: 1.2.2 (7)
+        App Version: 1.2.4 (9)
     """.trimIndent()
     
-    val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = Uri.parse("mailto:")
-        putExtra(Intent.EXTRA_EMAIL, arrayOf("feedback.pdftoolkit@gmail.com"))
-        putExtra(Intent.EXTRA_SUBJECT, "[Feature Request] PDF Toolkit")
-        putExtra(Intent.EXTRA_TEXT, "$featureText\n$deviceInfo")
-    }
+    val emailBody = "$featureText\n$deviceInfo"
     
-    if (intent.resolveActivity(context.packageManager) != null) {
+    try {
+        // Use ACTION_SEND which is more reliable across devices
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "message/rfc822"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(DEVELOPER_EMAIL))
+            putExtra(Intent.EXTRA_SUBJECT, "[Feature Request] PDF Toolkit")
+            putExtra(Intent.EXTRA_TEXT, emailBody)
+        }
+        
         context.startActivity(Intent.createChooser(intent, "Send Feature Request"))
-    } else {
-        Toast.makeText(context, "No email app found. Please install an email app.", Toast.LENGTH_LONG).show()
+    } catch (e: Exception) {
+        // Fallback: open email as mailto link
+        try {
+            val mailtoUri = Uri.parse(
+                "mailto:$DEVELOPER_EMAIL" +
+                "?subject=${Uri.encode("[Feature Request] PDF Toolkit")}" +
+                "&body=${Uri.encode(emailBody)}"
+            )
+            val mailIntent = Intent(Intent.ACTION_VIEW, mailtoUri)
+            context.startActivity(mailIntent)
+        } catch (ex: Exception) {
+            Toast.makeText(
+                context, 
+                "No email app found. Please send your feedback to $DEVELOPER_EMAIL", 
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 }
 
@@ -530,20 +767,36 @@ private fun sendBugReport(context: Context) {
         ---
         Device: ${Build.MANUFACTURER} ${Build.MODEL}
         Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
-        App Version: 1.2.2 (7)
+        App Version: 1.2.4 (9)
     """.trimIndent()
     
-    val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = Uri.parse("mailto:")
-        putExtra(Intent.EXTRA_EMAIL, arrayOf("feedback.pdftoolkit@gmail.com"))
-        putExtra(Intent.EXTRA_SUBJECT, "[Bug Report] PDF Toolkit")
-        putExtra(Intent.EXTRA_TEXT, deviceInfo)
-    }
-    
-    if (intent.resolveActivity(context.packageManager) != null) {
+    try {
+        // Use ACTION_SEND which is more reliable across devices
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "message/rfc822"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(DEVELOPER_EMAIL))
+            putExtra(Intent.EXTRA_SUBJECT, "[Bug Report] PDF Toolkit")
+            putExtra(Intent.EXTRA_TEXT, deviceInfo)
+        }
+        
         context.startActivity(Intent.createChooser(intent, "Send Bug Report"))
-    } else {
-        Toast.makeText(context, "No email app found", Toast.LENGTH_LONG).show()
+    } catch (e: Exception) {
+        // Fallback: open email as mailto link
+        try {
+            val mailtoUri = Uri.parse(
+                "mailto:$DEVELOPER_EMAIL" +
+                "?subject=${Uri.encode("[Bug Report] PDF Toolkit")}" +
+                "&body=${Uri.encode(deviceInfo)}"
+            )
+            val mailIntent = Intent(Intent.ACTION_VIEW, mailtoUri)
+            context.startActivity(mailIntent)
+        } catch (ex: Exception) {
+            Toast.makeText(
+                context, 
+                "No email app found. Please send your bug report to $DEVELOPER_EMAIL", 
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 }
 
