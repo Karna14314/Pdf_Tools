@@ -27,8 +27,10 @@ enum class PageSize(val rectangle: PDRectangle) {
 
 /**
  * Image formats for PDF to image conversion.
+ * WebP is recommended as default for best compression-quality balance.
  */
 enum class ImageFormat(val extension: String, val mimeType: String) {
+    WEBP("webp", "image/webp"),
     PNG("png", "image/png"),
     JPEG("jpg", "image/jpeg")
 }

@@ -379,6 +379,12 @@ val pdfFeatures = listOf(
         icon = Icons.Default.DocumentScanner,
         category = ToolCategory.CONVERT
     ),
+    PdfFeature(
+        title = "Image Tools",
+        description = "Resize, compress, convert images",
+        icon = Icons.Default.Photo,
+        category = ToolCategory.CONVERT
+    ),
     
     // MARKUP category (Sign, Annotate, Fill Forms)
     PdfFeature(

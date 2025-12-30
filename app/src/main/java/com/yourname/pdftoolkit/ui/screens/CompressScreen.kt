@@ -94,9 +94,13 @@ fun CompressScreen(
                                     (savedBytes.toFloat() / originalBytes * 100).toInt()
                                 } else 0
                                 
+                                // IMPORTANT: Copy the file to cache for "Open PDF" functionality
+                                // CreateDocument URIs lose read permission after the operation
+                                val cachedUri = copyToViewerCache(context, outputUri)
+                                
                                 if (savedBytes > 0) {
                                     resultSuccess = true
-                                    resultUri = outputUri
+                                    resultUri = cachedUri ?: outputUri
                                     resultMessage = buildString {
                                         append("Compression successful!\n\n")
                                         append("Before: ${file.formattedSize}\n")
@@ -105,7 +109,7 @@ fun CompressScreen(
                                     }
                                 } else {
                                     resultSuccess = true
-                                    resultUri = outputUri
+                                    resultUri = cachedUri ?: outputUri
                                     resultMessage = buildString {
                                         append("Compressed PDF saved.\n\n")
                                         append("Before: ${file.formattedSize}\n")
@@ -555,5 +559,48 @@ private fun CompressionLevelOption(
                 )
             }
         }
+    }
+}
+
+/**
+ * Copy a URI to the viewer cache directory and return a FileProvider URI.
+ * This is necessary for CreateDocument results where read permission is lost
+ * after the save operation completes.
+ */
+private fun copyToViewerCache(context: android.content.Context, uri: Uri): Uri? {
+    return try {
+        val cacheDir = java.io.File(context.cacheDir, "viewer_cache")
+        if (!cacheDir.exists()) {
+            cacheDir.mkdirs()
+        }
+        
+        // Clean old cached files (older than 24 hours)
+        val oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000)
+        cacheDir.listFiles()?.forEach { file ->
+            if (file.lastModified() < oneDayAgo) {
+                file.delete()
+            }
+        }
+        
+        val cachedFile = java.io.File(cacheDir, "view_${System.currentTimeMillis()}.pdf")
+        
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            cachedFile.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+        
+        if (cachedFile.exists() && cachedFile.length() > 0) {
+            androidx.core.content.FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                cachedFile
+            )
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        android.util.Log.e("CompressScreen", "Failed to copy to viewer cache", e)
+        null
     }
 }

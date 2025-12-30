@@ -84,6 +84,126 @@ object CacheManager {
     }
     
     /**
+     * Clear image processing cache (processed, cropped, converted images).
+     * Call this after completing image operations.
+     */
+    fun clearImageProcessingCache(context: Context): Long {
+        var clearedSize = 0L
+        
+        // Clear processed images
+        context.cacheDir.listFiles()?.filter { file ->
+            file.name.startsWith("processed_") && 
+            (file.name.endsWith(".jpg") || file.name.endsWith(".webp") || file.name.endsWith(".png"))
+        }?.forEach { file ->
+            clearedSize += file.length()
+            file.delete()
+        }
+        
+        // Clear cropped images
+        context.cacheDir.listFiles()?.filter { file ->
+            file.name.startsWith("cropped_") && file.name.endsWith(".jpg")
+        }?.forEach { file ->
+            clearedSize += file.length()
+            file.delete()
+        }
+        
+        // Clear converted images
+        context.cacheDir.listFiles()?.filter { file ->
+            file.name.startsWith("converted_") &&
+            (file.name.endsWith(".jpg") || file.name.endsWith(".webp") || file.name.endsWith(".png"))
+        }?.forEach { file ->
+            clearedSize += file.length()
+            file.delete()
+        }
+        
+        // Clear resized images
+        context.cacheDir.listFiles()?.filter { file ->
+            file.name.startsWith("resized_") &&
+            (file.name.endsWith(".jpg") || file.name.endsWith(".webp") || file.name.endsWith(".png"))
+        }?.forEach { file ->
+            clearedSize += file.length()
+            file.delete()
+        }
+        
+        // Clear rendered PDF pages
+        context.cacheDir.listFiles()?.filter { file ->
+            file.name.startsWith("page_") &&
+            (file.name.endsWith(".jpg") || file.name.endsWith(".webp") || file.name.endsWith(".png"))
+        }?.forEach { file ->
+            clearedSize += file.length()
+            file.delete()
+        }
+        
+        return clearedSize
+    }
+    
+    /**
+     * Clear all image-related cache including Glide disk cache.
+     * Must be called from a background thread for Glide cache.
+     */
+    suspend fun clearAllImageCache(context: Context): Long {
+        var clearedSize = clearImageProcessingCache(context)
+        
+        // Clear Glide disk cache (on IO thread)
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                com.bumptech.glide.Glide.get(context).clearDiskCache()
+            } catch (e: Exception) {
+                // Glide may not be initialized
+            }
+        }
+        
+        return clearedSize
+    }
+    
+    /**
+     * Clear Glide memory cache (call on main thread).
+     */
+    fun clearGlideMemoryCache(context: Context) {
+        try {
+            com.bumptech.glide.Glide.get(context).clearMemory()
+        } catch (e: Exception) {
+            // Glide may not be initialized
+        }
+    }
+    
+    /**
+     * Delete specific temporary file by URI.
+     */
+    fun deleteTemporaryFile(uri: android.net.Uri?): Boolean {
+        if (uri == null) return false
+        return uri.path?.let { path ->
+            val file = File(path)
+            if (file.exists() && file.absolutePath.contains("cache")) {
+                file.delete()
+            } else {
+                false
+            }
+        } ?: false
+    }
+    
+    /**
+     * Delete multiple temporary files.
+     */
+    fun deleteTemporaryFiles(uris: List<android.net.Uri>) {
+        uris.forEach { deleteTemporaryFile(it) }
+    }
+    
+    /**
+     * Comprehensive cleanup for all operations.
+     * Call this on app startup or periodically.
+     */
+    fun performFullCleanup(context: Context): Long {
+        var clearedSize = 0L
+        
+        clearedSize += clearOldCache(context)
+        clearedSize += clearPdfOperationsCache(context)
+        clearedSize += clearImageProcessingCache(context)
+        
+        return clearedSize
+    }
+    
+    /**
      * Get total cache size.
      */
     fun getCacheSize(context: Context): Long {

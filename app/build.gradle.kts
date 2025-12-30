@@ -14,8 +14,8 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.2.2"
+        versionCode = 9
+        versionName = "1.2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -114,6 +114,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.documentfile:documentfile:1.0.1")
+    
+    // ExifInterface for EXIF metadata reading (Apache 2.0)
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 
     // Compose BOM 2023.10.01 - Stable version
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
@@ -148,6 +151,12 @@ dependencies {
     // Coil for image loading (Apache 2.0) - lightweight (~2MB)
     implementation("io.coil-kt:coil-compose:2.5.0")
     
+    // Glide for advanced image loading with EXIF rotation support (BSD-like license)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    
+    // uCrop for lightweight image cropping (Apache 2.0)
+    implementation("com.github.yalantis:ucrop:2.2.8")
+    
     // Apache POI for Office documents (DOCX, XLSX, PPTX) - Apache 2.0
     // Using version 4.1.2 for minSdk 24 compatibility (5.x requires minSdk 26)
     implementation("org.apache.poi:poi-ooxml:4.1.2") {
@@ -165,6 +174,11 @@ dependencies {
     }
     // Commons Compress for ZIP handling
     implementation("org.apache.commons:commons-compress:1.21")
+    
+    // StAX API and implementation for Apache POI on Android
+    // Required because Android doesn't include javax.xml.stream classes
+    implementation("javax.xml.stream:stax-api:1.0-2")
+    implementation("com.fasterxml:aalto-xml:1.3.2")
 
     // Testing
     testImplementation("junit:junit:4.13.2")
