@@ -14,8 +14,8 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.2.4"
+        versionCode = 10
+        versionName = "1.2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -156,29 +156,6 @@ dependencies {
     
     // uCrop for lightweight image cropping (Apache 2.0)
     implementation("com.github.yalantis:ucrop:2.2.8")
-    
-    // Apache POI for Office documents (DOCX, XLSX, PPTX) - Apache 2.0
-    // Using version 4.1.2 for minSdk 24 compatibility (5.x requires minSdk 26)
-    implementation("org.apache.poi:poi-ooxml:4.1.2") {
-        exclude(group = "org.apache.logging.log4j")
-        exclude(group = "org.slf4j")
-        exclude(group = "stax", module = "stax-api")
-    }
-    implementation("org.apache.poi:poi:4.1.2") {
-        exclude(group = "org.apache.logging.log4j")
-        exclude(group = "org.slf4j")
-    }
-    // XMLBeans for OOXML parsing (compatible version)
-    implementation("org.apache.xmlbeans:xmlbeans:3.1.0") {
-        exclude(group = "org.apache.logging.log4j")
-    }
-    // Commons Compress for ZIP handling
-    implementation("org.apache.commons:commons-compress:1.21")
-    
-    // StAX API and implementation for Apache POI on Android
-    // Required because Android doesn't include javax.xml.stream classes
-    implementation("javax.xml.stream:stax-api:1.0-2")
-    implementation("com.fasterxml:aalto-xml:1.3.2")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

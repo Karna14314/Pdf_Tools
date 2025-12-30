@@ -29,7 +29,7 @@ import java.io.IOException
 
 /**
  * Main entry point for the PDF Toolkit app.
- * Handles intent-based PDF and document opening and sets up navigation.
+ * Handles intent-based PDF opening and sets up navigation.
  * 
  * IMPORTANT: This activity properly handles SAF URIs for Android 10+ compliance.
  * Files opened from external apps are either:
@@ -46,29 +46,15 @@ class MainActivity : ComponentActivity() {
     
     private var pendingPdfUri: Uri? = null
     private var pendingPdfName: String? = null
-    private var pendingDocumentUri: Uri? = null
-    private var pendingDocumentName: String? = null
-    
-    // Supported Office document MIME types
-    private val officeMimeTypes = listOf(
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
-        "application/msword", // doc
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // xlsx
-        "application/vnd.ms-excel", // xls
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation", // pptx
-        "application/vnd.ms-powerpoint" // ppt
-    )
     
     // Compose state holders for handling intents while app is running
     private var pdfUriState: androidx.compose.runtime.MutableState<Uri?>? = null
     private var pdfNameState: androidx.compose.runtime.MutableState<String?>? = null
-    private var documentUriState: androidx.compose.runtime.MutableState<Uri?>? = null
-    private var documentNameState: androidx.compose.runtime.MutableState<String?>? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Handle intent if app is opened with a document
+        // Handle intent if app is opened with a PDF
         handleIntent(intent)
         
         setContent {
@@ -82,22 +68,16 @@ class MainActivity : ComponentActivity() {
                     // Use mutableStateOf for reactive updates from onNewIntent
                     val pdfUri = remember { mutableStateOf(pendingPdfUri) }
                     val pdfName = remember { mutableStateOf(pendingPdfName) }
-                    val documentUri = remember { mutableStateOf(pendingDocumentUri) }
-                    val documentName = remember { mutableStateOf(pendingDocumentName) }
                     
                     // Store references for onNewIntent updates
                     pdfUriState = pdfUri
                     pdfNameState = pdfName
-                    documentUriState = documentUri
-                    documentNameState = documentName
                     
                     AppNavigation(
                         navController = navController,
                         modifier = Modifier.fillMaxSize(),
                         initialPdfUri = pdfUri.value,
-                        initialPdfName = pdfName.value,
-                        initialDocumentUri = documentUri.value,
-                        initialDocumentName = documentName.value
+                        initialPdfName = pdfName.value
                     )
                 }
             }
@@ -111,23 +91,19 @@ class MainActivity : ComponentActivity() {
         // Reset pending values
         pendingPdfUri = null
         pendingPdfName = null
-        pendingDocumentUri = null
-        pendingDocumentName = null
         
         // Handle the new intent
         handleIntent(intent)
         
         // Update Compose state to trigger navigation
-        Log.d(TAG, "onNewIntent: Updating Compose state with PDF=$pendingPdfUri, Doc=$pendingDocumentUri")
+        Log.d(TAG, "onNewIntent: Updating Compose state with PDF=$pendingPdfUri")
         pdfUriState?.value = pendingPdfUri
         pdfNameState?.value = pendingPdfName
-        documentUriState?.value = pendingDocumentUri
-        documentNameState?.value = pendingDocumentName
     }
     
     /**
      * Handle incoming intent to extract file URI.
-     * Supports VIEW and SEND actions for PDFs and Office documents.
+     * Supports VIEW and SEND actions for PDFs.
      */
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
@@ -159,9 +135,15 @@ class MainActivity : ComponentActivity() {
      */
     private fun processUri(originalUri: Uri, intent: Intent) {
         val mimeType = contentResolver.getType(originalUri)
-        val fileName = getFileName(originalUri) ?: "document"
+        val fileName = getFileName(originalUri) ?: "document.pdf"
         
         Log.d(TAG, "Processing URI: $originalUri, mimeType: $mimeType, fileName: $fileName, action: ${intent.action}")
+        
+        // Only handle PDF files
+        if (!isPdfUri(originalUri, mimeType)) {
+            Log.w(TAG, "Not a PDF file, ignoring: $mimeType")
+            return
+        }
         
         // For ACTION_VIEW and ACTION_SEND, we MUST copy to cache synchronously
         // because these intents don't support persistable permissions and the
@@ -182,27 +164,14 @@ class MainActivity : ComponentActivity() {
         
         if (accessibleUri == null) {
             Log.e(TAG, "Could not obtain access to URI: $originalUri - file will not be opened")
-            // Don't set pending URIs - app will show home screen
             return
         }
         
         Log.d(TAG, "Successfully got accessible URI: $accessibleUri (original was: $originalUri)")
         
-        when {
-            isPdfUri(originalUri, mimeType) -> {
-                pendingPdfUri = accessibleUri
-                pendingPdfName = fileName.removeSuffix(".pdf").removeSuffix(".PDF")
-                Log.d(TAG, "Set pending PDF: uri=$pendingPdfUri, name=$pendingPdfName")
-            }
-            isOfficeDocument(originalUri, mimeType) -> {
-                pendingDocumentUri = accessibleUri
-                pendingDocumentName = fileName.substringBeforeLast('.')
-                Log.d(TAG, "Set pending document: uri=$pendingDocumentUri, name=$pendingDocumentName")
-            }
-            else -> {
-                Log.w(TAG, "Unknown file type: $mimeType")
-            }
-        }
+        pendingPdfUri = accessibleUri
+        pendingPdfName = fileName.removeSuffix(".pdf").removeSuffix(".PDF")
+        Log.d(TAG, "Set pending PDF: uri=$pendingPdfUri, name=$pendingPdfName")
     }
     
     /**
@@ -396,19 +365,6 @@ class MainActivity : ComponentActivity() {
     private fun isPdfUri(uri: Uri, mimeType: String?): Boolean {
         return mimeType == "application/pdf" || 
                uri.toString().endsWith(".pdf", ignoreCase = true)
-    }
-    
-    /**
-     * Check if the URI points to an Office document.
-     */
-    private fun isOfficeDocument(uri: Uri, mimeType: String?): Boolean {
-        if (mimeType != null && officeMimeTypes.any { it.equals(mimeType, ignoreCase = true) }) {
-            return true
-        }
-        
-        val path = uri.toString().lowercase()
-        val officeExtensions = listOf("docx", "doc", "xlsx", "xls", "pptx", "ppt")
-        return officeExtensions.any { path.endsWith(".$it") }
     }
     
     /**

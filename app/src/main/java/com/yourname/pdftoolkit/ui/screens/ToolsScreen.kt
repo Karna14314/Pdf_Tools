@@ -58,18 +58,17 @@ data class ToolItem(
 @Composable
 fun ToolsScreen(
     onNavigateToScreen: (Screen) -> Unit,
-    onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> },
-    onOpenDocumentViewer: (Uri, String) -> Unit = { _, _ -> }
+    onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
     /**
-     * Document picker using SAF (ACTION_OPEN_DOCUMENT).
+     * PDF picker using SAF (ACTION_OPEN_DOCUMENT).
      * ActivityResultContracts.OpenDocument() automatically uses ACTION_OPEN_DOCUMENT
      * with CATEGORY_OPENABLE for proper Android 10+ scoped storage compliance.
      */
-    val documentPickerLauncher = rememberLauncherForActivityResult(
+    val pdfPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let { selectedUri ->
@@ -79,11 +78,8 @@ fun ToolsScreen(
                 val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 val persistedFile = SafUriManager.addRecentFile(context, selectedUri, flags)
                 
-                val mimeType = persistedFile?.mimeType 
-                    ?: context.contentResolver.getType(selectedUri)
-                
                 val name = persistedFile?.name?.substringBeforeLast('.') ?: run {
-                    var displayName = "Document"
+                    var displayName = "PDF Document"
                     context.contentResolver.query(selectedUri, null, null, null, null)?.use { c ->
                         if (c.moveToFirst()) {
                             val nameIndex = c.getColumnIndex(OpenableColumns.DISPLAY_NAME)
@@ -95,11 +91,7 @@ fun ToolsScreen(
                     displayName
                 }
                 
-                if (mimeType == "application/pdf") {
-                    onOpenPdfViewer(selectedUri, name)
-                } else {
-                    onOpenDocumentViewer(selectedUri, name)
-                }
+                onOpenPdfViewer(selectedUri, name)
             }
         }
     }
@@ -134,32 +126,9 @@ fun ToolsScreen(
                     ToolGrid(
                         tools = sectionTools,
                         onToolClick = { tool ->
-                            if (tool.screen == Screen.Home) {
-                                // Special handling for View tools
-                                when (tool.id) {
-                                    "view_pdf" -> {
-                                        documentPickerLauncher.launch(arrayOf("application/pdf"))
-                                    }
-                                    "view_docx" -> {
-                                        documentPickerLauncher.launch(arrayOf(
-                                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                            "application/msword"
-                                        ))
-                                    }
-                                    "view_xlsx" -> {
-                                        documentPickerLauncher.launch(arrayOf(
-                                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                            "application/vnd.ms-excel"
-                                        ))
-                                    }
-                                    "view_pptx" -> {
-                                        documentPickerLauncher.launch(arrayOf(
-                                            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                                            "application/vnd.ms-powerpoint"
-                                        ))
-                                    }
-                                    else -> onNavigateToScreen(tool.screen)
-                                }
+                            if (tool.screen == Screen.Home && tool.id == "view_pdf") {
+                                // Special handling for View PDF
+                                pdfPickerLauncher.launch(arrayOf("application/pdf"))
                             } else {
                                 onNavigateToScreen(tool.screen)
                             }
@@ -483,30 +452,6 @@ fun getAllTools(): List<ToolItem> = listOf(
         title = "View PDF",
         description = "Open and view PDF",
         icon = Icons.Default.PictureAsPdf,
-        section = ToolSection.VIEW_EXPORT,
-        screen = Screen.Home // Special handling
-    ),
-    ToolItem(
-        id = "view_docx",
-        title = "View DOCX",
-        description = "View Word documents",
-        icon = Icons.Default.Description,
-        section = ToolSection.VIEW_EXPORT,
-        screen = Screen.Home // Special handling
-    ),
-    ToolItem(
-        id = "view_xlsx",
-        title = "View XLSX",
-        description = "View Excel spreadsheets",
-        icon = Icons.Default.TableView,
-        section = ToolSection.VIEW_EXPORT,
-        screen = Screen.Home // Special handling
-    ),
-    ToolItem(
-        id = "view_pptx",
-        title = "View PPTX",
-        description = "View PowerPoint slides",
-        icon = Icons.Default.Slideshow,
         section = ToolSection.VIEW_EXPORT,
         screen = Screen.Home // Special handling
     ),

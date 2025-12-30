@@ -32,17 +32,8 @@ enum class ToolCategory(val title: String, val icon: ImageVector) {
     OPTIMIZE("Optimize", Icons.Default.Speed)
 }
 
-// Supported file types
+// Supported file types - PDF only
 private val pdfMimeTypes = arrayOf("application/pdf")
-private val officeMimeTypes = arrayOf(
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
-    "application/msword", // doc
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // xlsx
-    "application/vnd.ms-excel", // xls
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // pptx
-    "application/vnd.ms-powerpoint" // ppt
-)
 
 /**
  * Home screen displaying all available PDF tools organized by category.
@@ -53,8 +44,7 @@ private val officeMimeTypes = arrayOf(
 fun HomeScreen(
     onNavigateToFeature: (Screen) -> Unit,
     onNavigateToSettings: () -> Unit = {},
-    onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> },
-    onOpenDocumentViewer: (Uri, String) -> Unit = { _, _ -> }
+    onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     var selectedCategory by remember { mutableStateOf(ToolCategory.ORGANIZE) }
@@ -79,32 +69,7 @@ fun HomeScreen(
         }
     }
     
-    // Document file picker (All supported formats)
-    val documentPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        // uri is null when user cancels - just do nothing (handles cancel issue)
-        uri?.let {
-            val mimeType = context.contentResolver.getType(it)
-            val cursor = context.contentResolver.query(it, null, null, null, null)
-            var name = "Document"
-            cursor?.use { c ->
-                if (c.moveToFirst()) {
-                    val nameIndex = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
-                    if (nameIndex >= 0) {
-                        name = c.getString(nameIndex)?.substringBeforeLast('.') ?: name
-                    }
-                }
-            }
-            
-            // Route to appropriate viewer based on MIME type
-            if (mimeType == "application/pdf") {
-                onOpenPdfViewer(it, name)
-            } else {
-                onOpenDocumentViewer(it, name)
-            }
-        }
-    }
+
     
     Scaffold(
         topBar = {
@@ -116,15 +81,15 @@ fun HomeScreen(
                     )
                 },
                 actions = {
-                    // Open Document button (all formats)
+                    // Open PDF button
                     IconButton(
                         onClick = {
-                            documentPickerLauncher.launch(officeMimeTypes)
+                            pdfPickerLauncher.launch(pdfMimeTypes)
                         }
                     ) {
                         Icon(
                             Icons.Default.FolderOpen,
-                            contentDescription = "Open Document"
+                            contentDescription = "Open PDF"
                         )
                     }
                     // Settings button
@@ -143,10 +108,10 @@ fun HomeScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    documentPickerLauncher.launch(officeMimeTypes)
+                    pdfPickerLauncher.launch(pdfMimeTypes)
                 },
                 icon = { Icon(Icons.Default.FileOpen, contentDescription = null) },
-                text = { Text("Open Document") },
+                text = { Text("Open PDF") },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
