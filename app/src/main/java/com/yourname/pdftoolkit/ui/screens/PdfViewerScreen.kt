@@ -98,6 +98,8 @@ fun PdfViewerScreen(
     var currentPage by remember { mutableIntStateOf(1) }
     var pageImages by remember { mutableStateOf<List<Bitmap>>(emptyList()) }
     var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
     var showControls by remember { mutableStateOf(true) }
     var showPageSelector by remember { mutableStateOf(false) }
     
