@@ -317,7 +317,7 @@ fun getAllTools(): List<ToolItem> = listOf(
         description = "Reorder PDF pages",
         icon = Icons.Default.SwapVert,
         section = ToolSection.ORGANIZE,
-        screen = Screen.Organize
+        screen = Screen.Reorder
     ),
     ToolItem(
         id = "rotate",

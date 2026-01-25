@@ -21,6 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.data.FileManager
+import com.yourname.pdftoolkit.data.HistoryManager
+import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.PdfRotator
 import com.yourname.pdftoolkit.domain.operations.PdfSplitter
@@ -134,6 +136,7 @@ fun RotateScreen(
         scope.launch {
             isProcessing = true
             progress = 0f
+            val originalFile = selectedFile!!
             
             val result = withContext(Dispatchers.IO) {
                 try {
@@ -183,6 +186,26 @@ fun RotateScreen(
             resultSuccess = result.first
             resultMessage = result.second
             resultUri = result.third
+            
+            // Record in history
+            if (resultSuccess && result.third != null) {
+                HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = OperationType.ROTATE,
+                    inputFileName = originalFile.name,
+                    outputFileUri = result.third,
+                    outputFileName = "rotated_${originalFile.name}",
+                    details = "Rotated by ${rotationAngle.degrees}°"
+                )
+            } else if (!resultSuccess) {
+                HistoryManager.recordFailure(
+                    context = context,
+                    operationType = OperationType.ROTATE,
+                    inputFileName = originalFile.name,
+                    errorMessage = result.second
+                )
+            }
+            
             isProcessing = false
             showResult = true
         }

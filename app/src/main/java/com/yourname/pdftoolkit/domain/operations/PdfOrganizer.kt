@@ -348,4 +348,78 @@ class PdfOrganizer {
             0
         }
     }
+    
+    /**
+     * Generate thumbnails for all pages in a PDF.
+     * 
+     * @param context Android context
+     * @param uri URI of the PDF
+     * @param width Desired thumbnail width
+     * @param height Desired thumbnail height
+     * @param callback Callback for each page thumbnail (pageNumber: 1-indexed, bitmap)
+     */
+    suspend fun getPageThumbnails(
+        context: Context,
+        uri: Uri,
+        width: Int,
+        height: Int,
+        callback: (Int, android.graphics.Bitmap) -> Unit
+    ) = withContext(Dispatchers.IO) {
+        try {
+            // Copy to temp file for PdfRenderer
+            val tempFile = java.io.File(context.cacheDir, "temp_thumbnail_${System.currentTimeMillis()}.pdf")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            
+            val pfd = android.os.ParcelFileDescriptor.open(
+                tempFile,
+                android.os.ParcelFileDescriptor.MODE_READ_ONLY
+            )
+            
+            val renderer = android.graphics.pdf.PdfRenderer(pfd)
+            val pageCount = renderer.pageCount
+            
+            for (i in 0 until pageCount) {
+                val page = renderer.openPage(i)
+                
+                // Calculate scaled dimensions maintaining aspect ratio
+                val pageWidth = page.width
+                val pageHeight = page.height
+                val scale = minOf(width.toFloat() / pageWidth, height.toFloat() / pageHeight)
+                val scaledWidth = (pageWidth * scale).toInt()
+                val scaledHeight = (pageHeight * scale).toInt()
+                
+                val bitmap = android.graphics.Bitmap.createBitmap(
+                    scaledWidth,
+                    scaledHeight,
+                    android.graphics.Bitmap.Config.ARGB_8888
+                )
+                
+                // Fill with white background
+                bitmap.eraseColor(android.graphics.Color.WHITE)
+                
+                page.render(
+                    bitmap,
+                    null,
+                    null,
+                    android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                )
+                
+                page.close()
+                
+                // Send thumbnail via callback (1-indexed page number)
+                callback(i + 1, bitmap)
+            }
+            
+            renderer.close()
+            pfd.close()
+            tempFile.delete()
+            
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

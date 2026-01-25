@@ -19,6 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.data.FileManager
+import com.yourname.pdftoolkit.data.HistoryManager
+import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.PdfMerger
 import com.yourname.pdftoolkit.ui.components.*
@@ -27,6 +29,7 @@ import com.yourname.pdftoolkit.util.OutputFolderManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 /**
  * Screen for merging multiple PDF files into one.
@@ -91,6 +94,8 @@ fun MergeScreen(
         scope.launch {
             isProcessing = true
             progress = 0f
+            val fileCount = selectedFiles.size
+            val firstFileName = selectedFiles.firstOrNull()?.name
             
             val result = withContext(Dispatchers.IO) {
                 try {
@@ -109,7 +114,7 @@ fun MergeScreen(
                         
                         mergeResult.fold(
                             onSuccess = {
-                                Triple(true, "Successfully merged ${selectedFiles.size} PDFs\n\nSaved to: ${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}", outputResult.outputFile.contentUri)
+                                Triple(true, "Successfully merged $fileCount PDFs\n\nSaved to: ${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}", outputResult.outputFile.contentUri)
                             },
                             onFailure = { error ->
                                 outputResult.outputFile.file.delete()
@@ -127,6 +132,26 @@ fun MergeScreen(
             resultSuccess = result.first
             resultMessage = result.second
             resultUri = result.third
+            
+            // Record in history
+            if (resultSuccess && result.third != null) {
+                HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = OperationType.MERGE,
+                    inputFileName = firstFileName,
+                    outputFileUri = result.third,
+                    outputFileName = "merged_${fileCount}_files.pdf",
+                    details = "Merged $fileCount PDF files"
+                )
+            } else if (!resultSuccess) {
+                HistoryManager.recordFailure(
+                    context = context,
+                    operationType = OperationType.MERGE,
+                    inputFileName = firstFileName,
+                    errorMessage = result.second
+                )
+            }
+            
             if (resultSuccess) selectedFiles = emptyList()
             isProcessing = false
             showResult = true

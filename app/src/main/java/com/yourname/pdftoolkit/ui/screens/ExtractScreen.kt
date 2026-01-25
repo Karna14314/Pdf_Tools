@@ -23,6 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.data.FileManager
+import com.yourname.pdftoolkit.data.HistoryManager
+import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.PdfSplitter
 import com.yourname.pdftoolkit.ui.components.*
@@ -122,6 +124,8 @@ fun ExtractScreen(
         scope.launch {
             isProcessing = true
             progress = 0f
+            val originalFile = selectedFile!!
+            val pagesList = selectedPages.sorted()
             
             val result = withContext(Dispatchers.IO) {
                 try {
@@ -133,7 +137,7 @@ fun ExtractScreen(
                         val extractResult = pdfSplitter.extractPages(
                             context = context,
                             inputUri = file.uri,
-                            pageNumbers = selectedPages.sorted(),
+                            pageNumbers = pagesList,
                             outputStream = outputResult.outputStream,
                             onProgress = { progress = it }
                         )
@@ -160,6 +164,26 @@ fun ExtractScreen(
             resultSuccess = result.first
             resultMessage = result.second
             resultUri = result.third
+            
+            // Record in history
+            if (resultSuccess && result.third != null) {
+                HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = OperationType.EXTRACT,
+                    inputFileName = originalFile.name,
+                    outputFileUri = result.third,
+                    outputFileName = "extracted_${originalFile.name}",
+                    details = "Extracted ${pagesList.size} pages"
+                )
+            } else if (!resultSuccess) {
+                HistoryManager.recordFailure(
+                    context = context,
+                    operationType = OperationType.EXTRACT,
+                    inputFileName = originalFile.name,
+                    errorMessage = result.second
+                )
+            }
+            
             isProcessing = false
             showResult = true
         }

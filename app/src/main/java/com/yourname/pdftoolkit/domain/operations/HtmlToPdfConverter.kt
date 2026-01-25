@@ -62,6 +62,9 @@ class HtmlToPdfConverter {
                 settings.loadWithOverviewMode = true
                 settings.useWideViewPort = true
                 settings.builtInZoomControls = false
+                settings.domStorageEnabled = true
+                settings.blockNetworkImage = false
+                settings.loadsImagesAutomatically = true
             }
             
             onProgress(0.2f)
@@ -100,6 +103,11 @@ class HtmlToPdfConverter {
             if (!loadSuccess) {
                 return@withContext Result.failure(Exception("Failed to load URL"))
             }
+            
+            onProgress(0.4f)
+            
+            // Wait for JavaScript content to render (important for dynamic pages)
+            kotlinx.coroutines.delay(1500)
             
             onProgress(0.5f)
             
@@ -157,6 +165,7 @@ class HtmlToPdfConverter {
                 settings.javaScriptEnabled = true
                 settings.loadWithOverviewMode = true
                 settings.useWideViewPort = true
+                settings.domStorageEnabled = true
             }
             
             onProgress(0.2f)
@@ -189,6 +198,11 @@ class HtmlToPdfConverter {
                 return@withContext Result.failure(Exception("Failed to load HTML"))
             }
             
+            onProgress(0.4f)
+            
+            // Small delay for content to render
+            kotlinx.coroutines.delay(500)
+            
             onProgress(0.5f)
             
             val result = generatePdfFromWebView(
@@ -216,7 +230,8 @@ class HtmlToPdfConverter {
     }
     
     /**
-     * Generate PDF from a loaded WebView using its print adapter.
+     * Generate PDF from a loaded WebView.
+     * Properly measures and lays out the WebView before drawing to PDF.
      */
     private suspend fun generatePdfFromWebView(
         webView: WebView,
@@ -224,31 +239,71 @@ class HtmlToPdfConverter {
         pageWidth: Int,
         pageHeight: Int,
         onProgress: (Float) -> Unit
-    ): Result<Int> = withContext(Dispatchers.IO) {
-        try {
-            // Use Android's PdfDocument for simpler approach
-            val pdfDocument = PdfDocument()
-            
-            val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
-            val page = pdfDocument.startPage(pageInfo)
-            
-            // Draw the WebView content onto the page canvas
+    ): Result<Int> {
+        return try {
             withContext(Dispatchers.Main) {
-                webView.draw(page.canvas)
+                // Calculate dimensions - use higher resolution for better quality
+                val scale = 2.0f
+                val widthPx = (pageWidth * scale).toInt()
+                val heightPx = (pageHeight * scale).toInt()
+                
+                // CRITICAL: Measure and layout the WebView before drawing
+                // Without this, the WebView has 0x0 dimensions and draws nothing
+                val widthMeasureSpec = android.view.View.MeasureSpec.makeMeasureSpec(
+                    widthPx, android.view.View.MeasureSpec.EXACTLY
+                )
+                val heightMeasureSpec = android.view.View.MeasureSpec.makeMeasureSpec(
+                    0, android.view.View.MeasureSpec.UNSPECIFIED
+                )
+                
+                webView.measure(widthMeasureSpec, heightMeasureSpec)
+                val measuredHeight = webView.measuredHeight.coerceAtLeast(heightPx)
+                webView.layout(0, 0, widthPx, measuredHeight)
+                
+                // Force a draw pass to ensure content is rendered
+                webView.requestLayout()
+                
+                // Small delay to ensure layout is complete
+                kotlinx.coroutines.delay(200)
+                
+                onProgress(0.3f)
+                
+                // Calculate number of pages needed
+                val totalContentHeight = webView.measuredHeight
+                val numPages = ((totalContentHeight.toFloat() / heightPx) + 0.5f).toInt().coerceAtLeast(1)
+                
+                val pdfDocument = PdfDocument()
+                
+                for (pageNum in 0 until numPages) {
+                    val pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNum + 1).create()
+                    val page = pdfDocument.startPage(pageInfo)
+                    
+                    val canvas = page.canvas
+                    
+                    // Scale down to fit page dimensions
+                    canvas.scale(1f / scale, 1f / scale)
+                    
+                    // Translate to show the correct portion of the content
+                    canvas.translate(0f, -(pageNum * heightPx).toFloat())
+                    
+                    // Draw the WebView content
+                    webView.draw(canvas)
+                    
+                    pdfDocument.finishPage(page)
+                    
+                    onProgress(0.3f + (0.6f * (pageNum + 1) / numPages))
+                }
+                
+                // Write to output stream on IO thread
+                withContext(Dispatchers.IO) {
+                    pdfDocument.writeTo(outputStream)
+                    pdfDocument.close()
+                }
+                
+                onProgress(1.0f)
+                
+                Result.success(numPages)
             }
-            
-            pdfDocument.finishPage(page)
-            
-            onProgress(0.8f)
-            
-            // Write to output stream
-            pdfDocument.writeTo(outputStream)
-            pdfDocument.close()
-            
-            onProgress(1.0f)
-            
-            Result.success(1) // Simple single-page approach
-            
         } catch (e: Exception) {
             Result.failure(e)
         }

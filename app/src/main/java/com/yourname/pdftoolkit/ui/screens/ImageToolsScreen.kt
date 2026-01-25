@@ -287,12 +287,135 @@ fun ImageToolsScreen(
                     .fillMaxWidth()
             ) {
                 if (selectedImages.isEmpty()) {
-                    EmptyState(
-                        icon = Icons.Default.Photo,
-                        title = "No Images Selected",
-                        subtitle = "Select images to resize, compress, convert, or strip metadata",
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    // Show operation selection even before images are selected
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(vertical = 16.dp)
+                    ) {
+                        // Operation selection - show first before images
+                        item {
+                            Text(
+                                text = "1. Select Operation",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        
+                        item {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(ImageOperation.entries) { operation ->
+                                    FilterChip(
+                                        selected = selectedOperation == operation,
+                                        onClick = { selectedOperation = operation },
+                                        label = { Text(operation.title) },
+                                        leadingIcon = if (selectedOperation == operation) {
+                                            {
+                                                Icon(
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                            }
+                                        } else null
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // Operation description
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = when (selectedOperation) {
+                                            ImageOperation.RESIZE -> Icons.Default.AspectRatio
+                                            ImageOperation.COMPRESS -> Icons.Default.Compress
+                                            ImageOperation.CONVERT -> Icons.Default.Transform
+                                            ImageOperation.STRIP_METADATA -> Icons.Default.DeleteSweep
+                                        },
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = selectedOperation.title,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Text(
+                                            text = selectedOperation.description,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Step 2 header
+                        item {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "2. Select Images",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        
+                        // Empty state hint
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Photo,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Text(
+                                        text = "No Images Selected",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = "Tap the button below to select images",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 } else {
                     LazyColumn(
                         modifier = Modifier

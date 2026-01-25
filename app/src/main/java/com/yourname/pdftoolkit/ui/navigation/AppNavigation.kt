@@ -292,6 +292,10 @@ fun AppNavigation(
                 OrganizeScreen(onNavigateBack = { navController.popBackStack() })
             }
             
+            composable(Screen.Reorder.route) {
+                ReorderScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            
             composable(Screen.Unlock.route) {
                 UnlockScreen(onNavigateBack = { navController.popBackStack() })
             }
