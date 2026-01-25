@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.yourname.pdftoolkit.data.HistoryManager
+import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.domain.operations.*
 import com.yourname.pdftoolkit.util.FileOpener
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,6 +91,7 @@ class WatermarkViewModel : ViewModel() {
     ) {
         val currentState = _state.value
         val sourceUri = currentState.sourceUri ?: return
+        val sourceName = currentState.sourceName
         
         viewModelScope.launch {
             _state.value = _state.value.copy(isProcessing = true, progress = 0)
@@ -128,6 +131,25 @@ class WatermarkViewModel : ViewModel() {
                     _state.value = _state.value.copy(progress = progress)
                 }
             )
+            
+            // Record in history
+            if (result.success) {
+                HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = OperationType.WATERMARK,
+                    inputFileName = sourceName,
+                    outputFileUri = outputUri,
+                    outputFileName = "watermarked_$sourceName",
+                    details = if (currentState.isTextWatermark) "Text: ${currentState.watermarkText}" else "Image watermark"
+                )
+            } else {
+                HistoryManager.recordFailure(
+                    context = context,
+                    operationType = OperationType.WATERMARK,
+                    inputFileName = sourceName,
+                    errorMessage = result.errorMessage
+                )
+            }
             
             _state.value = _state.value.copy(
                 isProcessing = false,

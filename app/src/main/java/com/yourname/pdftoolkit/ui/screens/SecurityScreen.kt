@@ -44,10 +44,9 @@ fun SecurityScreen(
     
     // State
     var selectedFile by remember { mutableStateOf<PdfFileInfo?>(null) }
-    var ownerPassword by remember { mutableStateOf("") }
-    var userPassword by remember { mutableStateOf("") }
-    var showOwnerPassword by remember { mutableStateOf(false) }
-    var showUserPassword by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
     var allowPrinting by remember { mutableStateOf(true) }
     var allowCopying by remember { mutableStateOf(false) }
     var allowModifying by remember { mutableStateOf(false) }
@@ -81,8 +80,7 @@ fun SecurityScreen(
                 val outputStream = context.contentResolver.openOutputStream(outputUri)
                 if (outputStream != null) {
                     val options = PdfSecurityOptions(
-                        ownerPassword = ownerPassword,
-                        userPassword = userPassword,
+                        password = password,
                         allowPrinting = allowPrinting,
                         allowCopying = allowCopying,
                         allowModifying = allowModifying
@@ -104,8 +102,8 @@ fun SecurityScreen(
                             resultMessage = "PDF protected successfully!"
                             resultUri = outputUri
                             selectedFile = null
-                            ownerPassword = ""
-                            userPassword = ""
+                            password = ""
+                            confirmPassword = ""
                         },
                         onFailure = { error ->
                             resultSuccess = false
@@ -138,8 +136,7 @@ fun SecurityScreen(
                     
                     if (outputResult != null) {
                         val options = PdfSecurityOptions(
-                            ownerPassword = ownerPassword,
-                            userPassword = userPassword,
+                            password = password,
                             allowPrinting = allowPrinting,
                             allowCopying = allowCopying,
                             allowModifying = allowModifying
@@ -177,8 +174,8 @@ fun SecurityScreen(
             resultUri = result.third
             if (resultSuccess) {
                 selectedFile = null
-                ownerPassword = ""
-                userPassword = ""
+                password = ""
+                confirmPassword = ""
             }
             isProcessing = false
             showResult = true
@@ -251,21 +248,24 @@ fun SecurityScreen(
                                         .padding(16.dp),
                                     verticalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
-                                    // Owner password
+                                    // Password field
                                     OutlinedTextField(
-                                        value = ownerPassword,
-                                        onValueChange = { ownerPassword = it },
-                                        label = { Text("Owner Password") },
-                                        placeholder = { Text("Required") },
-                                        visualTransformation = if (showOwnerPassword) {
+                                        value = password,
+                                        onValueChange = { password = it },
+                                        label = { Text("Password") },
+                                        placeholder = { Text("Enter password to protect PDF") },
+                                        supportingText = { 
+                                            Text("This password will be required to open the PDF")
+                                        },
+                                        visualTransformation = if (showPassword) {
                                             VisualTransformation.None
                                         } else {
                                             PasswordVisualTransformation()
                                         },
                                         trailingIcon = {
-                                            IconButton(onClick = { showOwnerPassword = !showOwnerPassword }) {
+                                            IconButton(onClick = { showPassword = !showPassword }) {
                                                 Icon(
-                                                    imageVector = if (showOwnerPassword) {
+                                                    imageVector = if (showPassword) {
                                                         Icons.Default.VisibilityOff
                                                     } else {
                                                         Icons.Default.Visibility
@@ -275,34 +275,27 @@ fun SecurityScreen(
                                             }
                                         },
                                         modifier = Modifier.fillMaxWidth(),
-                                        singleLine = true
+                                        singleLine = true,
+                                        isError = password.isNotEmpty() && password.length < 4
                                     )
                                     
-                                    // User password
+                                    // Confirm password field
                                     OutlinedTextField(
-                                        value = userPassword,
-                                        onValueChange = { userPassword = it },
-                                        label = { Text("User Password") },
-                                        placeholder = { Text("Optional - to open PDF") },
-                                        visualTransformation = if (showUserPassword) {
+                                        value = confirmPassword,
+                                        onValueChange = { confirmPassword = it },
+                                        label = { Text("Confirm Password") },
+                                        placeholder = { Text("Re-enter password") },
+                                        visualTransformation = if (showPassword) {
                                             VisualTransformation.None
                                         } else {
                                             PasswordVisualTransformation()
                                         },
-                                        trailingIcon = {
-                                            IconButton(onClick = { showUserPassword = !showUserPassword }) {
-                                                Icon(
-                                                    imageVector = if (showUserPassword) {
-                                                        Icons.Default.VisibilityOff
-                                                    } else {
-                                                        Icons.Default.Visibility
-                                                    },
-                                                    contentDescription = "Toggle visibility"
-                                                )
-                                            }
-                                        },
                                         modifier = Modifier.fillMaxWidth(),
-                                        singleLine = true
+                                        singleLine = true,
+                                        isError = confirmPassword.isNotEmpty() && password != confirmPassword,
+                                        supportingText = if (confirmPassword.isNotEmpty() && password != confirmPassword) {
+                                            { Text("Passwords don't match", color = MaterialTheme.colorScheme.error) }
+                                        } else null
                                     )
                                 }
                             }
@@ -418,7 +411,7 @@ fun SecurityScreen(
                                     protectWithDefaultLocation()
                                 }
                             },
-                            enabled = ownerPassword.isNotBlank(),
+                            enabled = password.isNotBlank() && password.length >= 4 && password == confirmPassword,
                             isLoading = isProcessing,
                             icon = Icons.Default.Lock
                         )

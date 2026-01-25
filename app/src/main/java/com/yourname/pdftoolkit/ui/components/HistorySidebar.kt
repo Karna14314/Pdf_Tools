@@ -49,6 +49,7 @@ fun getOperationIcon(operationType: OperationType): ImageVector {
         OperationType.METADATA -> Icons.Default.Info
         OperationType.PAGE_NUMBER -> Icons.Default.FormatListNumbered
         OperationType.ORGANIZE -> Icons.Default.Reorder
+        OperationType.REORDER -> Icons.Default.SwapVert
         OperationType.UNLOCK -> Icons.Default.LockOpen
         OperationType.REPAIR -> Icons.Default.Build
         OperationType.HTML_TO_PDF -> Icons.Default.Code
@@ -330,6 +331,7 @@ private fun HistoryItem(
     onOpenFile: (Uri) -> Unit,
     onDelete: () -> Unit
 ) {
+    val context = LocalContext.current
     var showMenu by remember { mutableStateOf(false) }
     
     Card(
@@ -429,13 +431,24 @@ private fun HistoryItem(
                         onDismissRequest = { showMenu = false }
                     ) {
                         if (entry.outputFileUri != null && entry.status == OperationStatus.SUCCESS) {
+                            val isImage = entry.isImage
                             DropdownMenuItem(
-                                text = { Text("Open File") },
-                                leadingIcon = { Icon(Icons.Default.OpenInNew, null) },
+                                text = { Text(if (isImage) "Open in Gallery" else "Open PDF") },
+                                leadingIcon = { 
+                                    Icon(
+                                        if (isImage) Icons.Default.Photo else Icons.Default.OpenInNew, 
+                                        null
+                                    ) 
+                                },
                                 onClick = {
                                     showMenu = false
                                     try {
-                                        onOpenFile(Uri.parse(entry.outputFileUri))
+                                        val uri = Uri.parse(entry.outputFileUri)
+                                        if (isImage) {
+                                            FileOpener.openWithSystemPicker(context, uri)
+                                        } else {
+                                            onOpenFile(uri)
+                                        }
                                     } catch (e: Exception) {
                                         // Handle invalid URI
                                     }

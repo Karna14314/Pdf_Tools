@@ -24,6 +24,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.data.FileManager
+import com.yourname.pdftoolkit.data.HistoryManager
+import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.ImageConverter
 import com.yourname.pdftoolkit.domain.operations.ImageFormat
@@ -133,11 +135,30 @@ fun PdfToImageScreen(
                 onSuccess = { _ ->
                     resultSuccess = true
                     resultMessage = "Successfully saved $savedCount images to your gallery (Pictures/PDF Toolkit)"
+                    
+                    // Record in history with isImageOutput = true
+                    HistoryManager.recordSuccess(
+                        context = context,
+                        operationType = OperationType.PDF_TO_IMAGE,
+                        inputFileName = file.name,
+                        outputFileUri = uriList.firstOrNull(),
+                        outputFileName = "${file.name.removeSuffix(".pdf")}_images.${imageFormat.extension}",
+                        details = "Converted to $savedCount ${imageFormat.extension.uppercase()} images",
+                        isImageOutput = true
+                    )
                     selectedFile = null
                 },
                 onFailure = { error ->
                     resultSuccess = false
                     resultMessage = error.message ?: "Conversion failed"
+                    
+                    // Record failure
+                    HistoryManager.recordFailure(
+                        context = context,
+                        operationType = OperationType.PDF_TO_IMAGE,
+                        inputFileName = file.name,
+                        errorMessage = error.message
+                    )
                 }
             )
             

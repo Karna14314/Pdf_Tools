@@ -45,6 +45,7 @@ sealed class Screen(val route: String) {
     object Metadata : Screen("metadata")
     object PageNumber : Screen("page_number")
     object Organize : Screen("organize")
+    object Reorder : Screen("reorder")
     object Unlock : Screen("unlock")
     object Repair : Screen("repair")
     object HtmlToPdf : Screen("html_to_pdf")
@@ -73,7 +74,8 @@ sealed class Screen(val route: String) {
                 "compress" -> Compress
                 "image_to_pdf" -> Convert
                 "pdf_to_image" -> PdfToImage
-                "reorder", "delete_pages" -> Organize
+                "reorder" -> Reorder
+                "delete_pages" -> Organize
                 "rotate" -> Rotate
                 "extract" -> Extract
                 "html_to_pdf" -> HtmlToPdf

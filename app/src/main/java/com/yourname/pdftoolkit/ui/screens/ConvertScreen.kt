@@ -20,6 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.data.FileManager
+import com.yourname.pdftoolkit.data.HistoryManager
+import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.domain.operations.ImageConverter
 import com.yourname.pdftoolkit.domain.operations.PageSize
 import com.yourname.pdftoolkit.ui.components.*
@@ -152,6 +154,7 @@ fun ConvertScreen(
         scope.launch {
             isProcessing = true
             progress = 0f
+            val imageCount = selectedImages.size
             
             val result = withContext(Dispatchers.IO) {
                 try {
@@ -190,6 +193,26 @@ fun ConvertScreen(
             resultSuccess = result.first
             resultMessage = result.second
             resultUri = result.third
+            
+            // Record in history
+            if (resultSuccess && result.third != null) {
+                HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = OperationType.CONVERT,
+                    inputFileName = "$imageCount images",
+                    outputFileUri = result.third,
+                    outputFileName = "images_to_pdf.pdf",
+                    details = "Converted $imageCount images to PDF"
+                )
+            } else if (!resultSuccess) {
+                HistoryManager.recordFailure(
+                    context = context,
+                    operationType = OperationType.CONVERT,
+                    inputFileName = "$imageCount images",
+                    errorMessage = result.second
+                )
+            }
+            
             if (resultSuccess) {
                 selectedImages = emptyList()
             }

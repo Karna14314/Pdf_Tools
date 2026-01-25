@@ -24,7 +24,8 @@ data class HistoryEntry(
     val outputFileUri: String?,
     val outputFileName: String?,
     val status: OperationStatus = OperationStatus.SUCCESS,
-    val details: String? = null
+    val details: String? = null,
+    val isImageOutput: Boolean = false  // True if the output is an image (for PDF to Image, Image Tools)
 ) {
     val formattedTimestamp: String
         get() {
@@ -44,6 +45,20 @@ data class HistoryEntry(
                 else -> formattedTimestamp
             }
         }
+    
+    /**
+     * Check if output file is an image based on file extension or operation type.
+     */
+    val isImage: Boolean
+        get() = isImageOutput || 
+                operationType == OperationType.PDF_TO_IMAGE ||
+                operationType == OperationType.IMAGE_TOOLS ||
+                outputFileName?.let { 
+                    it.endsWith(".jpg", true) || 
+                    it.endsWith(".jpeg", true) || 
+                    it.endsWith(".png", true) ||
+                    it.endsWith(".webp", true)
+                } == true
 }
 
 /**
@@ -74,6 +89,7 @@ enum class OperationType(val displayName: String, val icon: String) {
     SCAN_TO_PDF("Scan to PDF", "document_scanner"),
     OCR("OCR PDF", "text_recognition"),
     IMAGE_TOOLS("Image Tools", "photo"),
+    REORDER("Reorder Pages", "swap_vert"),
     OPEN_PDF("Open PDF", "picture_as_pdf"),
     OTHER("Other", "more_horiz")
 }
@@ -124,7 +140,8 @@ object HistoryManager {
         inputFileName: String? = null,
         outputFileUri: Uri? = null,
         outputFileName: String? = null,
-        details: String? = null
+        details: String? = null,
+        isImageOutput: Boolean = false
     ) {
         addEntry(context, HistoryEntry(
             operationType = operationType,
@@ -133,7 +150,8 @@ object HistoryManager {
             outputFileUri = outputFileUri?.toString(),
             outputFileName = outputFileName,
             status = OperationStatus.SUCCESS,
-            details = details
+            details = details,
+            isImageOutput = isImageOutput
         ))
     }
     
@@ -225,6 +243,7 @@ object HistoryManager {
             put("outputFileName", entry.outputFileName ?: JSONObject.NULL)
             put("status", entry.status.name)
             put("details", entry.details ?: JSONObject.NULL)
+            put("isImageOutput", entry.isImageOutput)
         }
     }
     
@@ -246,7 +265,8 @@ object HistoryManager {
             } catch (e: Exception) {
                 OperationStatus.SUCCESS
             },
-            details = obj.optString("details").takeIf { it.isNotEmpty() && it != "null" }
+            details = obj.optString("details").takeIf { it.isNotEmpty() && it != "null" },
+            isImageOutput = obj.optBoolean("isImageOutput", false)
         )
     }
 }

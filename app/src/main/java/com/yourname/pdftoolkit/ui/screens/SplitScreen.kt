@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.data.FileManager
+import com.yourname.pdftoolkit.data.HistoryManager
+import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.PdfSplitter
 import com.yourname.pdftoolkit.ui.components.*
@@ -28,6 +30,7 @@ import com.yourname.pdftoolkit.util.OutputFolderManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 /**
  * Split modes available in the UI.
@@ -113,6 +116,7 @@ fun SplitScreen(
         scope.launch {
             isProcessing = true
             progress = 0f
+            val originalFile = selectedFile!!
             
             val result = withContext(Dispatchers.IO) {
                 try {
@@ -161,6 +165,26 @@ fun SplitScreen(
             resultSuccess = result.first
             resultMessage = result.second
             resultUri = result.third
+            
+            // Record in history
+            if (resultSuccess && result.third != null) {
+                HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = OperationType.SPLIT,
+                    inputFileName = originalFile.name,
+                    outputFileUri = result.third,
+                    outputFileName = "split_${originalFile.name}",
+                    details = "Extracted pages from PDF"
+                )
+            } else if (!resultSuccess) {
+                HistoryManager.recordFailure(
+                    context = context,
+                    operationType = OperationType.SPLIT,
+                    inputFileName = originalFile.name,
+                    errorMessage = result.second
+                )
+            }
+            
             isProcessing = false
             showResult = true
         }
