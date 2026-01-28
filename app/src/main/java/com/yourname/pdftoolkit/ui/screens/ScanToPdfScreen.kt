@@ -128,6 +128,10 @@ class ScanToPdfViewModel : ViewModel() {
                 }
             )
             
+            if (result.success) {
+                com.yourname.pdftoolkit.data.SafUriManager.addRecentFile(context, outputUri)
+            }
+
             _state.value = _state.value.copy(
                 isProcessing = false,
                 isComplete = result.success,
