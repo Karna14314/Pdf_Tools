@@ -153,6 +153,7 @@ fun PdfViewerScreen(
                         )
                         saveSuccess = success
                         if (success) {
+                            SafUriManager.addRecentFile(context, outputUri)
                             Toast.makeText(context, "Annotations saved successfully!", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, "Failed to save annotations", Toast.LENGTH_SHORT).show()
@@ -1005,30 +1006,34 @@ private fun PdfPagesContent(
     
     LazyColumn(
         state = listState,
+        userScrollEnabled = !isEditMode,
         modifier = Modifier
             .fillMaxSize()
             .onSizeChanged { containerSize = it }
             .then(
                 if (!isEditMode) {
-                    Modifier.pointerInput(scale) {
+                    Modifier.pointerInput(Unit) {
                         detectTransformGestures { centroid, pan, zoom, _ ->
-                            // Calculate new scale
+                            val oldScale = scale
                             val newScale = (scale * zoom).coerceIn(0.5f, 3f)
                             
-                            // Calculate new offset with pan
-                            // When zoomed in, allow panning; when at 1x, reset offset
                             if (newScale > 1f) {
-                                // Calculate max offset based on scale
+                                val zoomFactor = newScale / oldScale
+                                val centerX = containerSize.width / 2f
+                                val centerY = containerSize.height / 2f
+
+                                // Calculate new offset to zoom around centroid
+                                val newOffsetXCandidate = (centroid.x - centerX) * (1 - zoomFactor) + offsetX * zoomFactor + pan.x
+                                val newOffsetYCandidate = (centroid.y - centerY) * (1 - zoomFactor) + offsetY * zoomFactor + pan.y
+
                                 val maxOffsetX = (containerSize.width * (newScale - 1f)) / 2f
                                 val maxOffsetY = (containerSize.height * (newScale - 1f)) / 2f
                                 
-                                // Apply pan with boundary checks
-                                val newOffsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
-                                val newOffsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
-                                
-                                onOffsetChange(newOffsetX, newOffsetY)
+                                onOffsetChange(
+                                    newOffsetXCandidate.coerceIn(-maxOffsetX, maxOffsetX),
+                                    newOffsetYCandidate.coerceIn(-maxOffsetY, maxOffsetY)
+                                )
                             } else {
-                                // Reset offset when scale is 1 or less
                                 onOffsetChange(0f, 0f)
                             }
                             
@@ -1198,16 +1203,20 @@ private fun PdfPageWithAnnotations(
                                 Modifier.pointerInput(isEditMode, selectedTool) {
                                     if (!isEditMode || selectedTool == AnnotationTool.NONE) return@pointerInput
                                     
+                                    var localStroke = mutableListOf<Offset>()
+
                                     detectDragGestures(
                                         onDragStart = { offset ->
-                                            onCurrentStrokeChange(listOf(offset))
+                                            localStroke = mutableListOf(offset)
+                                            onCurrentStrokeChange(localStroke)
                                         },
                                         onDrag = { change, _ ->
-                                            val newPoint = change.position
-                                            onCurrentStrokeChange(currentStroke + newPoint)
+                                            change.consume()
+                                            localStroke.add(change.position)
+                                            onCurrentStrokeChange(localStroke.toList())
                                         },
                                         onDragEnd = {
-                                            if (currentStroke.isNotEmpty()) {
+                                            if (localStroke.isNotEmpty()) {
                                                 val strokeWidth = when (selectedTool) {
                                                     AnnotationTool.HIGHLIGHTER -> 20f
                                                     AnnotationTool.MARKER -> 8f
@@ -1219,10 +1228,11 @@ private fun PdfPageWithAnnotations(
                                                         pageIndex = pageIndex,
                                                         tool = selectedTool,
                                                         color = selectedColor,
-                                                        points = currentStroke,
+                                                        points = localStroke.toList(),
                                                         strokeWidth = strokeWidth
                                                     )
                                                 )
+                                                localStroke = mutableListOf()
                                             }
                                         }
                                     )
