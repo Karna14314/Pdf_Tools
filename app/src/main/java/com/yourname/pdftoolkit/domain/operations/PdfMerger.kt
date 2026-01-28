@@ -36,7 +36,7 @@ class PdfMerger {
         }
         
         val merger = PDFMergerUtility()
-        val documents = mutableListOf<PDDocument>()
+        val sourceStreams = mutableListOf<java.io.InputStream>()
         
         try {
             // Load all input documents
@@ -46,14 +46,8 @@ class PdfMerger {
                         IllegalStateException("Cannot open file: $uri")
                     )
                 
-                try {
-                    val document = PDDocument.load(inputStream)
-                    documents.add(document)
-                    merger.addSource(context.contentResolver.openInputStream(uri))
-                } catch (e: Exception) {
-                    inputStream.close()
-                    throw e
-                }
+                sourceStreams.add(inputStream)
+                merger.addSource(inputStream)
                 
                 onProgress((index + 1).toFloat() / (inputUris.size + 1))
             }
@@ -68,10 +62,10 @@ class PdfMerger {
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
-            // Clean up all loaded documents
-            documents.forEach { doc ->
+            // Clean up all opened streams
+            sourceStreams.forEach { stream ->
                 try {
-                    doc.close()
+                    stream.close()
                 } catch (e: Exception) {
                     // Ignore cleanup errors
                 }
