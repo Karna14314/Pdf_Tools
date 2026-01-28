@@ -196,6 +196,9 @@ fun ConvertScreen(
             
             // Record in history
             if (resultSuccess && result.third != null) {
+                // Add to recent files
+                SafUriManager.addRecentFile(context, result.third!!)
+
                 HistoryManager.recordSuccess(
                     context = context,
                     operationType = OperationType.CONVERT,
