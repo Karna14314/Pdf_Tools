@@ -41,7 +41,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -1376,6 +1378,121 @@ private suspend fun saveAnnotatedPdf(
     } catch (e: Exception) {
         Log.e("PdfViewerScreen", "Error saving annotated PDF: ${e.message}", e)
         false
+    }
+}
+
+@Composable
+private fun PageSelectorDialog(
+    currentPage: Int,
+    totalPages: Int,
+    onPageSelected: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var pageInput by remember { mutableStateOf(currentPage.toString()) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Go to Page") },
+        text = {
+            Column {
+                Text(
+                    text = "Enter page number (1-$totalPages)",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = pageInput,
+                    onValueChange = { pageInput = it },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val page = pageInput.toIntOrNull()
+                    if (page != null && page in 1..totalPages) {
+                        onPageSelected(page)
+                    }
+                }
+            ) {
+                Text("Go")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+private fun PasswordDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+    isError: Boolean = false
+) {
+    var password by remember { mutableStateOf("") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Password Required") },
+        text = {
+            Column {
+                if (isError) {
+                    Text(
+                        text = "Incorrect password. Please try again.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Text(
+                    text = "This PDF is password protected. Please enter the password to open it.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(password) },
+                enabled = password.isNotEmpty()
+            ) {
+                Text("Open")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+private fun sharePdf(context: Context, pdfUri: Uri) {
+    try {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, pdfUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(shareIntent, "Share PDF")
+        context.startActivity(chooser)
+    } catch (e: Exception) {
+        Toast.makeText(context, "Unable to share PDF", Toast.LENGTH_SHORT).show()
     }
 }
 
