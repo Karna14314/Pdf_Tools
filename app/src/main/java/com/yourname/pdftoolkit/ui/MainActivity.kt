@@ -201,18 +201,32 @@ class MainActivity : ComponentActivity() {
             }
             else -> {
                 // For other intents (e.g., from internal navigation), try persistable permission first
-                val accessibleUri = getAccessibleUri(originalUri, intent, fileName)
 
-                if (accessibleUri == null) {
-                    Log.e(TAG, "Could not obtain access to URI: $originalUri - file will not be opened")
-                    return
+                // Set loading state
+                pendingIsLoading = true
+                isLoadingState?.value = true
+
+                lifecycleScope.launch {
+                    val accessibleUri = getAccessibleUri(originalUri, intent, fileName)
+
+                    // Update state
+                    pendingIsLoading = false
+                    isLoadingState?.value = false
+
+                    if (accessibleUri == null) {
+                        Log.e(TAG, "Could not obtain access to URI: $originalUri - file will not be opened")
+                    } else {
+                        Log.d(TAG, "Successfully got accessible URI: $accessibleUri (original was: $originalUri)")
+
+                        pendingPdfUri = accessibleUri
+                        pendingPdfName = fileName.removeSuffix(".pdf").removeSuffix(".PDF")
+
+                        pdfUriState?.value = accessibleUri
+                        pdfNameState?.value = pendingPdfName
+
+                        Log.d(TAG, "Set pending PDF: uri=$pendingPdfUri, name=$pendingPdfName")
+                    }
                 }
-
-                Log.d(TAG, "Successfully got accessible URI: $accessibleUri (original was: $originalUri)")
-
-                pendingPdfUri = accessibleUri
-                pendingPdfName = fileName.removeSuffix(".pdf").removeSuffix(".PDF")
-                Log.d(TAG, "Set pending PDF: uri=$pendingPdfUri, name=$pendingPdfName")
             }
         }
     }
@@ -225,7 +239,7 @@ class MainActivity : ComponentActivity() {
      * NOTE: ACTION_VIEW and ACTION_SEND intents are handled directly in processUri
      * and always copied to cache immediately.
      */
-    private fun getAccessibleUri(uri: Uri, intent: Intent, fileName: String): Uri? {
+    private suspend fun getAccessibleUri(uri: Uri, intent: Intent, fileName: String): Uri? {
         // Try to take persistable permission (works for ACTION_OPEN_DOCUMENT)
         val permissionTaken = SafUriManager.takePersistablePermission(
             this, 
@@ -359,10 +373,8 @@ class MainActivity : ComponentActivity() {
     /**
      * Legacy method - kept for compatibility but uses the synchronous version
      */
-    private fun copyToCache(sourceUri: Uri, fileName: String): Uri? {
-        return runBlocking {
-            copyToCacheSynchronous(sourceUri, fileName)
-        }
+    private suspend fun copyToCache(sourceUri: Uri, fileName: String): Uri? {
+        return copyToCacheSynchronous(sourceUri, fileName)
     }
     
     /**
