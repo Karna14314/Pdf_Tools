@@ -7,6 +7,8 @@ import android.graphics.RectF
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -47,20 +49,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
-import com.tom_roush.pdfbox.pdmodel.PDDocument
-import com.tom_roush.pdfbox.pdmodel.PDPage
-import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
-import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory
-import com.tom_roush.pdfbox.text.PDFTextStripper
-import com.tom_roush.pdfbox.text.TextPosition
 import com.yourname.pdftoolkit.data.SafUriManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
 
 /**
  * PDF Viewer Screen with annotation support.
@@ -81,6 +71,8 @@ fun PdfViewerScreen(
     // ViewModel state
     val uiState by viewModel.uiState.collectAsState()
     val toolState by viewModel.toolState.collectAsState()
+    val searchState by viewModel.searchState.collectAsState()
+    val saveState by viewModel.saveState.collectAsState()
     val selectedAnnotationTool by viewModel.selectedAnnotationTool.collectAsState()
     val selectedColor by viewModel.selectedColor.collectAsState()
     val annotations by viewModel.annotations.collectAsState()
@@ -103,50 +95,13 @@ fun PdfViewerScreen(
     var currentDrawingPageIndex by remember { mutableIntStateOf(-1) }
     var showColorPicker by remember { mutableStateOf(false) }
     
-    // Search state
-    var isSearchMode by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-    var extractedText by remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
-    var searchResults by remember { mutableStateOf<List<Pair<Int, Int>>>(emptyList()) } // (pageIndex, position)
-    var currentSearchResultIndex by remember { mutableIntStateOf(0) }
-    
-    // Save state
-    var isSaving by remember { mutableStateOf(false) }
-    var saveSuccess by remember { mutableStateOf<Boolean?>(null) }
-    
     // Save document launcher
     val saveDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
         uri?.let { outputUri ->
-            if (pdfUri != null && annotations.isNotEmpty() && uiState is PdfViewerUiState.Loaded) {
-                val totalPages = (uiState as PdfViewerUiState.Loaded).totalPages
-                scope.launch {
-                    isSaving = true
-                    saveSuccess = null
-                    try {
-                        val success = saveAnnotatedPdf(
-                            context = context,
-                            outputUri = outputUri,
-                            viewModel = viewModel,
-                            totalPages = totalPages,
-                            annotations = annotations
-                        )
-                        saveSuccess = success
-                        if (success) {
-                            SafUriManager.addRecentFile(context, outputUri)
-                            Toast.makeText(context, "Annotations saved successfully!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "Failed to save annotations", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Log.e("PdfViewerScreen", "Error saving annotations: ${e.message}", e)
-                        saveSuccess = false
-                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                    } finally {
-                        isSaving = false
-                    }
-                }
+            if (annotations.isNotEmpty()) {
+                viewModel.saveAnnotations(context, outputUri)
             }
         }
     }
@@ -158,11 +113,28 @@ fun PdfViewerScreen(
         currentPage = listState.firstVisibleItemIndex + 1
     }
     
-    // Sync tool state with local search mode
-    // If toolState becomes Search, enable isSearchMode. If it becomes something else, disable it.
-    // However, isSearchMode is local. Let's sync one way: ViewModel -> Local
-    LaunchedEffect(toolState) {
-        isSearchMode = toolState is PdfTool.Search
+    // Handle Save State
+    LaunchedEffect(saveState) {
+        when (val state = saveState) {
+            is SaveState.Success -> {
+                SafUriManager.addRecentFile(context, state.uri)
+                Toast.makeText(context, "Annotations saved successfully!", Toast.LENGTH_SHORT).show()
+            }
+            is SaveState.Error -> {
+                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+            }
+            else -> {}
+        }
+    }
+
+    // Auto-scroll to search result
+    LaunchedEffect(searchState.currentMatchIndex, searchState.matches) {
+        if (searchState.matches.isNotEmpty()) {
+            val match = searchState.matches.getOrNull(searchState.currentMatchIndex)
+            if (match != null) {
+                listState.animateScrollToItem(match.pageIndex)
+            }
+        }
     }
 
     // Load PDF when screen opens or password/trigger changes
@@ -180,13 +152,6 @@ fun PdfViewerScreen(
                 }
             }
             
-            // Password handling is done via viewModel.loadPdf parameter.
-            // But we need to ask for password if load fails.
-            // Current ViewModel implementation sets Error state.
-            // We should modify ViewModel to have a specific PasswordRequired state or handle generic error.
-            // For now, if Error state contains "password", show dialog.
-
-            // Initial load (empty password)
              viewModel.loadPdf(context, pdfUri, "")
         }
     }
@@ -202,45 +167,8 @@ fun PdfViewerScreen(
                                      errorMessage.contains("encrypted", ignoreCase = true)
              if (isPasswordIssue) {
                  showPasswordDialog = true
-                 isPasswordError = true // Assume error if we are here (simplification)
+                 isPasswordError = true // Assume error if we are here
              }
-        }
-    }
-    
-    // Extract text from PDF for search (when PDF loads)
-    LaunchedEffect(pdfUri, totalPages) {
-        if (pdfUri != null && totalPages > 0 && extractedText.isEmpty()) {
-            scope.launch {
-                val textMap = extractPdfText(context, pdfUri, totalPages)
-                extractedText = textMap
-            }
-        }
-    }
-    
-    // Perform search when query changes
-    LaunchedEffect(searchQuery, extractedText) {
-        if (searchQuery.length >= 2) {
-            val results = mutableListOf<Pair<Int, Int>>()
-            val query = searchQuery.lowercase()
-            extractedText.forEach { (pageIndex, text) ->
-                var pos = 0
-                val lowerText = text.lowercase()
-                while (true) {
-                    val found = lowerText.indexOf(query, pos)
-                    if (found == -1) break
-                    results.add(pageIndex to found)
-                    pos = found + 1
-                }
-            }
-            searchResults = results
-            currentSearchResultIndex = 0
-            
-            // Navigate to first result
-            if (results.isNotEmpty()) {
-                listState.animateScrollToItem(results[0].first)
-            }
-        } else {
-            searchResults = emptyList()
         }
     }
     
@@ -256,8 +184,8 @@ fun PdfViewerScreen(
                     TopAppBar(
                         title = {
                             OutlinedTextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
+                                value = searchState.query,
+                                onValueChange = { viewModel.search(it) },
                                 placeholder = { Text("Search in PDF...") },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
@@ -266,54 +194,49 @@ fun PdfViewerScreen(
                                     unfocusedBorderColor = Color.Transparent
                                 ),
                                 trailingIcon = {
-                                    if (searchQuery.isNotEmpty()) {
-                                        Text(
-                                            text = if (searchResults.isNotEmpty()) 
-                                                "${currentSearchResultIndex + 1}/${searchResults.size}" 
-                                            else "No matches",
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = if (searchResults.isNotEmpty()) 
-                                                MaterialTheme.colorScheme.primary 
-                                            else MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (searchState.isLoading) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(16.dp),
+                                                strokeWidth = 2.dp
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                        }
+                                        if (searchState.query.isNotEmpty()) {
+                                            Text(
+                                                text = if (searchState.matches.isNotEmpty())
+                                                    "${searchState.currentMatchIndex + 1}/${searchState.matches.size}"
+                                                else if (!searchState.isLoading && searchState.query.length >= 2) "No matches" else "",
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = if (searchState.matches.isNotEmpty())
+                                                    MaterialTheme.colorScheme.primary
+                                                else MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
                                 }
                             )
                         },
                         navigationIcon = {
                             IconButton(onClick = { 
+                                viewModel.clearSearch()
                                 viewModel.setTool(PdfTool.None)
-                                searchQuery = ""
                             }) {
                                 Icon(Icons.Default.ArrowBack, contentDescription = "Close search")
                             }
                         },
                         actions = {
                             // Navigate search results
-                            if (searchResults.isNotEmpty()) {
-                                IconButton(onClick = {
-                                    if (currentSearchResultIndex > 0) {
-                                        currentSearchResultIndex--
-                                        scope.launch {
-                                            listState.animateScrollToItem(searchResults[currentSearchResultIndex].first)
-                                        }
-                                    }
-                                }) {
+                            if (searchState.matches.isNotEmpty()) {
+                                IconButton(onClick = { viewModel.prevMatch() }) {
                                     Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Previous")
                                 }
-                                IconButton(onClick = {
-                                    if (currentSearchResultIndex < searchResults.size - 1) {
-                                        currentSearchResultIndex++
-                                        scope.launch {
-                                            listState.animateScrollToItem(searchResults[currentSearchResultIndex].first)
-                                        }
-                                    }
-                                }) {
+                                IconButton(onClick = { viewModel.nextMatch() }) {
                                     Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Next")
                                 }
                             }
-                            if (searchQuery.isNotEmpty()) {
-                                IconButton(onClick = { searchQuery = "" }) {
+                            if (searchState.query.isNotEmpty()) {
+                                IconButton(onClick = { viewModel.search("") }) {
                                     Icon(Icons.Default.Clear, contentDescription = "Clear search")
                                 }
                             }
@@ -357,7 +280,7 @@ fun PdfViewerScreen(
 
                             // Save annotations button (only in edit mode with annotations)
                             if (isEditMode && annotations.isNotEmpty()) {
-                                if (isSaving) {
+                                if (saveState is SaveState.Saving) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(24.dp),
                                         strokeWidth = 2.dp
@@ -637,18 +560,44 @@ fun PdfViewerScreen(
                         },
                         currentDrawingPageIndex = currentDrawingPageIndex,
                         onDrawingPageIndexChange = { currentDrawingPageIndex = it },
-                        // Pass search params
-                        isSearchMode = isSearchMode,
-                        searchQuery = searchQuery,
-                        searchResults = searchResults,
-                        currentSearchResultIndex = currentSearchResultIndex,
-                        pdfUri = pdfUri
+                        // Pass search state
+                        searchState = searchState
                     )
                 }
 
                 PdfViewerUiState.Idle -> {
                     // Initial state
                 }
+            }
+
+            // Save Blocking Overlay
+            if (saveState is SaveState.Saving) {
+                 Box(
+                     modifier = Modifier
+                         .fillMaxSize()
+                         .background(Color.Black.copy(alpha = 0.5f))
+                         .clickable(enabled = false) {},
+                     contentAlignment = Alignment.Center
+                 ) {
+                     Card(
+                         modifier = Modifier.padding(32.dp),
+                         colors = CardDefaults.cardColors(
+                             containerColor = MaterialTheme.colorScheme.surface
+                         )
+                     ) {
+                         Column(
+                             modifier = Modifier.padding(24.dp),
+                             horizontalAlignment = Alignment.CenterHorizontally
+                         ) {
+                             CircularProgressIndicator()
+                             Spacer(modifier = Modifier.height(16.dp))
+                             Text(
+                                 text = "Saving Annotations...",
+                                 style = MaterialTheme.typography.titleMedium
+                             )
+                         }
+                     }
+                 }
             }
         }
     }
@@ -696,16 +645,6 @@ fun PdfViewerScreen(
     }
 }
 
-// ... AnnotationToolbar ... (kept same)
-// ... ToolButton ... (kept same)
-// ... ColorPickerDialog ... (kept same)
-// ... ColorOption ... (kept same)
-// ... LoadingState ... (kept same)
-// ... ErrorState ... (kept same)
-// ... PageSelectorDialog ... (kept same)
-// ... sharePdf ... (kept same)
-// ... openWithExternalApp ... (kept same)
-
 @Composable
 private fun AnnotationToolbar(
     selectedTool: AnnotationTool,
@@ -726,31 +665,24 @@ private fun AnnotationToolbar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Highlighter tool
             ToolButton(
                 icon = Icons.Default.Highlight,
                 label = "Highlight",
                 isSelected = selectedTool == AnnotationTool.HIGHLIGHTER,
                 onClick = { onToolSelected(AnnotationTool.HIGHLIGHTER) }
             )
-            
-            // Marker tool
             ToolButton(
                 icon = Icons.Default.Gesture,
                 label = "Marker",
                 isSelected = selectedTool == AnnotationTool.MARKER,
                 onClick = { onToolSelected(AnnotationTool.MARKER) }
             )
-            
-            // Underline tool
             ToolButton(
                 icon = Icons.Default.FormatUnderlined,
                 label = "Underline",
                 isSelected = selectedTool == AnnotationTool.UNDERLINE,
                 onClick = { onToolSelected(AnnotationTool.UNDERLINE) }
             )
-            
-            // Color picker
             IconButton(onClick = onColorPickerClick) {
                 Box(
                     modifier = Modifier
@@ -760,8 +692,6 @@ private fun AnnotationToolbar(
                         .padding(2.dp)
                 )
             }
-            
-            // Undo button
             IconButton(
                 onClick = onUndoClick,
                 enabled = canUndo
@@ -986,11 +916,7 @@ private fun PdfPagesContent(
     currentDrawingPageIndex: Int,
     onDrawingPageIndexChange: (Int) -> Unit,
     // Search params
-    isSearchMode: Boolean = false,
-    searchQuery: String = "",
-    searchResults: List<Pair<Int, Int>> = emptyList(),
-    currentSearchResultIndex: Int = 0,
-    pdfUri: Uri? = null
+    searchState: SearchState
 ) {
     // Track container size for pan boundary calculation
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -1013,7 +939,6 @@ private fun PdfPagesContent(
                                 val centerX = containerSize.width / 2f
                                 val centerY = containerSize.height / 2f
 
-                                // Calculate new offset to zoom around centroid
                                 val newOffsetXCandidate = (centroid.x - centerX) * (1 - zoomFactor) + offsetX * zoomFactor + pan.x
                                 val newOffsetYCandidate = (centroid.y - centerY) * (1 - zoomFactor) + offsetY * zoomFactor + pan.y
 
@@ -1037,11 +962,16 @@ private fun PdfPagesContent(
         contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         items(totalPages) { index ->
-            // Check if this page has the current result
-            val pageResults = searchResults.filter { it.first == index }
-            val currentGlobalResult = searchResults.getOrNull(currentSearchResultIndex)
-            val currentMatchIndexOnPage = if (isSearchMode && currentGlobalResult != null && currentGlobalResult.first == index) {
-                pageResults.indexOf(currentGlobalResult)
+            // Filter matches for this page
+            val pageMatches = searchState.matches.filter { it.pageIndex == index }
+
+            // Determine if current result is on this page
+            val currentGlobalResult = searchState.matches.getOrNull(searchState.currentMatchIndex)
+            val currentMatchIndexOnPage = if (currentGlobalResult != null && currentGlobalResult.pageIndex == index) {
+                // If there are multiple matches on this page, which one is it?
+                // My SearchMatch struct is per occurrence, so pageMatches contains distinct occurrences.
+                // We need to highlight the one corresponding to currentGlobalResult.
+                pageMatches.indexOf(currentGlobalResult)
             } else {
                 -1
             }
@@ -1063,10 +993,8 @@ private fun PdfPagesContent(
                 },
                 onAddAnnotation = onAddAnnotation,
                 // Search params
-                isSearchMode = isSearchMode,
-                searchQuery = searchQuery,
-                currentMatchIndexOnPage = currentMatchIndexOnPage,
-                pdfUri = pdfUri
+                pageMatches = pageMatches,
+                currentMatchIndexOnPage = currentMatchIndexOnPage
             )
             
             Text(
@@ -1094,33 +1022,16 @@ private fun PdfPageWithAnnotations(
     onCurrentStrokeChange: (List<Offset>) -> Unit,
     onAddAnnotation: (AnnotationStroke) -> Unit,
     // Search params
-    isSearchMode: Boolean = false,
-    searchQuery: String = "",
-    currentMatchIndexOnPage: Int = -1,
-    pdfUri: Uri? = null
+    pageMatches: List<SearchMatch>,
+    currentMatchIndexOnPage: Int
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
-    val context = LocalContext.current
     
     // Load bitmap lazily
     val bitmap by produceState<Bitmap?>(initialValue = null, key1 = pageIndex) {
         value = loadPage(pageIndex)
     }
 
-    // Asynchronously load search highlights
-    val searchHighlights by produceState<List<List<RectF>>>(
-        initialValue = emptyList(),
-        key1 = isSearchMode,
-        key2 = searchQuery,
-        key3 = pageIndex
-    ) {
-        if (isSearchMode && searchQuery.length >= 2 && pdfUri != null) {
-            value = getSearchHighlights(context, pdfUri, pageIndex, searchQuery)
-        } else {
-            value = emptyList()
-        }
-    }
-    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1138,7 +1049,7 @@ private fun PdfPageWithAnnotations(
             modifier = Modifier
                 .fillMaxWidth()
                 .onSizeChanged { size = it }
-                .heightIn(min = 200.dp) // Minimum height for placeholder
+                .heightIn(min = 200.dp)
         ) {
             if (bitmap != null) {
                 // PDF page image
@@ -1151,11 +1062,11 @@ private fun PdfPageWithAnnotations(
                     contentScale = ContentScale.FillWidth
                 )
             } else {
-                // Placeholder while loading
+                // Placeholder
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(1f / 1.414f) // Approx A4 aspect ratio
+                        .aspectRatio(1f / 1.414f)
                         .background(Color.LightGray.copy(alpha = 0.3f)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -1164,17 +1075,22 @@ private fun PdfPageWithAnnotations(
             }
             
             // Search Highlights Overlay
-            if (isSearchMode && searchHighlights.isNotEmpty() && bitmap != null) {
+            if (pageMatches.isNotEmpty() && bitmap != null) {
                 Canvas(modifier = Modifier.matchParentSize()) {
-                    searchHighlights.forEachIndexed { index, rects ->
+                    pageMatches.forEachIndexed { index, match ->
                         val color = if (index == currentMatchIndexOnPage) {
-                            Color(0xFFFF8C00).copy(alpha = 0.5f) // Dark Orange for current
+                            Color(0xFFFF8C00).copy(alpha = 0.5f)
                         } else {
-                            Color.Yellow.copy(alpha = 0.4f) // Yellow for others
+                            Color.Yellow.copy(alpha = 0.4f)
                         }
                         
-                        rects.forEach { rect ->
+                        match.rects.forEach { rect ->
                             // Scale rect to current canvas size
+                            // The rects are 1.5x (from ViewModel).
+                            // The bitmap is 1.5x.
+                            // The Image composable scales the bitmap to fill width.
+                            // So we need to match the Image scaling.
+
                             val scaleX = size.width.toFloat() / bitmap!!.width.toFloat()
                             val scaleY = size.height.toFloat() / bitmap!!.height.toFloat()
                             
@@ -1191,7 +1107,7 @@ private fun PdfPageWithAnnotations(
                 }
             }
             
-            // Annotation overlay
+            // Annotation overlay (kept same)
             if ((isEditMode || annotations.isNotEmpty()) && bitmap != null) {
                 Canvas(
                     modifier = Modifier
@@ -1238,7 +1154,6 @@ private fun PdfPageWithAnnotations(
                             } else Modifier
                         )
                 ) {
-                    // Draw saved annotations
                     annotations.forEach { stroke ->
                         if (stroke.points.isNotEmpty()) {
                             val path = androidx.compose.ui.graphics.Path().apply {
@@ -1258,8 +1173,6 @@ private fun PdfPageWithAnnotations(
                             )
                         }
                     }
-                    
-                    // Draw current stroke being drawn
                     if (currentStroke.isNotEmpty()) {
                         val path = androidx.compose.ui.graphics.Path().apply {
                             moveTo(currentStroke.first().x, currentStroke.first().y)
@@ -1285,99 +1198,6 @@ private fun PdfPageWithAnnotations(
                 }
             }
         }
-    }
-}
-
-private suspend fun saveAnnotatedPdf(
-    context: Context,
-    outputUri: Uri,
-    viewModel: PdfViewerViewModel,
-    totalPages: Int,
-    annotations: List<AnnotationStroke>
-): Boolean = withContext(Dispatchers.IO) {
-    try {
-        if (!PDFBoxResourceLoader.isReady()) {
-            PDFBoxResourceLoader.init(context.applicationContext)
-        }
-        
-        val outputStream = context.contentResolver.openOutputStream(outputUri)
-            ?: throw IOException("Could not open output stream")
-        
-        // Create new PDF document
-        val document = PDDocument()
-        
-        try {
-            for (pageIndex in 0 until totalPages) {
-                // Fetch page from ViewModel (forces render if not cached)
-                val originalBitmap = viewModel.loadPage(pageIndex) ?: continue
-
-                val pageAnnotations = annotations.filter { it.pageIndex == pageIndex }
-                
-                // Create a mutable copy of the bitmap to draw annotations on
-                val annotatedBitmap = originalBitmap.copy(Bitmap.Config.ARGB_8888, true)
-                val canvas = android.graphics.Canvas(annotatedBitmap)
-                
-                // Draw annotations on the bitmap
-                for (annotation in pageAnnotations) {
-                    if (annotation.points.size >= 2) {
-                        val paint = android.graphics.Paint().apply {
-                            color = android.graphics.Color.argb(
-                                (annotation.color.alpha * 255).toInt(),
-                                (annotation.color.red * 255).toInt(),
-                                (annotation.color.green * 255).toInt(),
-                                (annotation.color.blue * 255).toInt()
-                            )
-                            strokeWidth = annotation.strokeWidth
-                            style = android.graphics.Paint.Style.STROKE
-                            strokeCap = android.graphics.Paint.Cap.ROUND
-                            strokeJoin = android.graphics.Paint.Join.ROUND
-                            isAntiAlias = true
-                        }
-                        
-                        val path = android.graphics.Path()
-                        path.moveTo(annotation.points[0].x, annotation.points[0].y)
-                        for (i in 1 until annotation.points.size) {
-                            path.lineTo(annotation.points[i].x, annotation.points[i].y)
-                        }
-                        canvas.drawPath(path, paint)
-                    }
-                }
-                
-                // Create PDF page with the annotated bitmap
-                val width = annotatedBitmap.width.toFloat()
-                val height = annotatedBitmap.height.toFloat()
-                
-                // Scale to reasonable PDF page size (72 DPI equivalent)
-                val scaleFactor = 72f / 150f // Original render was at 150 DPI
-                val pageWidth = width * scaleFactor
-                val pageHeight = height * scaleFactor
-                
-                val page = PDPage(com.tom_roush.pdfbox.pdmodel.common.PDRectangle(pageWidth, pageHeight))
-                document.addPage(page)
-                
-                // Create image from bitmap
-                val pdImage = LosslessFactory.createFromImage(document, annotatedBitmap)
-                
-                // Draw image on page
-                PDPageContentStream(document, page).use { contentStream ->
-                    contentStream.drawImage(pdImage, 0f, 0f, pageWidth, pageHeight)
-                }
-                
-                // Recycle the annotated bitmap (not the original!)
-                annotatedBitmap.recycle()
-            }
-            
-            // Save the document
-            document.save(outputStream)
-            
-            true
-        } finally {
-            document.close()
-            outputStream.close()
-        }
-    } catch (e: Exception) {
-        Log.e("PdfViewerScreen", "Error saving annotated PDF: ${e.message}", e)
-        false
     }
 }
 
@@ -1507,254 +1327,4 @@ private fun openWithExternalApp(context: Context, pdfUri: Uri) {
     } catch (e: Exception) {
         Toast.makeText(context, "No app found to open PDF", Toast.LENGTH_SHORT).show()
     }
-}
-
-/**
- * Copy a URI to the app's cache directory.
- * Used as a fallback when direct access to the URI fails due to permission issues.
- * 
- * NOTE: This should only be called if the URI is NOT already our app's FileProvider URI.
- */
-private fun copyUriToCache(context: Context, uri: Uri): java.io.File? {
-    // Don't try to copy if it's already our app's FileProvider URI
-    val isOurFileProvider = uri.scheme == "content" && 
-        (uri.authority == "${context.packageName}.provider" ||
-         uri.authority?.startsWith("com.yourname.pdftoolkit") == true && 
-         uri.authority?.endsWith(".provider") == true)
-    
-    if (isOurFileProvider) {
-        Log.d("PdfViewerScreen", "Skipping copy for our FileProvider URI: $uri")
-        return null
-    }
-    
-    return try {
-        val cacheDir = java.io.File(context.cacheDir, "pdf_viewer_cache")
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs()
-        }
-        
-        // Clean old cached files (older than 1 hour)
-        val oneHourAgo = System.currentTimeMillis() - (60 * 60 * 1000)
-        cacheDir.listFiles()?.forEach { file ->
-            if (file.lastModified() < oneHourAgo) {
-                file.delete()
-            }
-        }
-        
-        val cachedFile = java.io.File(cacheDir, "viewer_${System.currentTimeMillis()}.pdf")
-        
-        Log.d("PdfViewerScreen", "Copying URI to cache: $uri -> ${cachedFile.absolutePath}")
-        context.contentResolver.openInputStream(uri)?.use { input ->
-            cachedFile.outputStream().use { output ->
-                input.copyTo(output)
-            }
-        }
-        
-        if (cachedFile.exists() && cachedFile.length() > 0) {
-            Log.d("PdfViewerScreen", "Successfully copied to cache, size: ${cachedFile.length()}")
-            cachedFile
-        } else {
-            Log.w("PdfViewerScreen", "Copy failed - file empty or doesn't exist")
-            null
-        }
-    } catch (e: SecurityException) {
-        // Permission denied - can't copy
-        Log.e("PdfViewerScreen", "SecurityException copying to cache: ${e.message}")
-        null
-    } catch (e: Exception) {
-        Log.e("PdfViewerScreen", "Exception copying to cache: ${e.message}")
-        null
-    }
-}
-
-/**
- * Extract text from PDF for search functionality.
- */
-private suspend fun extractPdfText(
-    context: Context,
-    pdfUri: Uri,
-    totalPages: Int
-): Map<Int, String> = withContext(Dispatchers.IO) {
-    val textMap = mutableMapOf<Int, String>()
-    
-    // Only extract first 20 pages to avoid performance issues
-    val maxPages = totalPages.coerceAtMost(20)
-    
-    var document: PDDocument? = null
-    try {
-        var inputStream: java.io.InputStream? = null
-             
-        val isOurFileProvider = pdfUri.scheme == "content" && 
-            (pdfUri.authority == "${context.packageName}.provider" ||
-             pdfUri.authority?.startsWith("com.yourname.pdftoolkit") == true && 
-             pdfUri.authority?.endsWith(".provider") == true)
-        
-        if (isOurFileProvider) {
-            val pathSegments = pdfUri.pathSegments
-            val fileName = pathSegments.lastOrNull()
-            if (fileName != null) {
-                val cacheDir = java.io.File(context.cacheDir, "shared_files")
-                val file = java.io.File(cacheDir, fileName)
-                if (file.exists() && file.canRead()) {
-                    inputStream = file.inputStream()
-                }
-            }
-            
-            if (inputStream == null) {
-                try {
-                    inputStream = context.contentResolver.openInputStream(pdfUri)
-                } catch (e: Exception) {
-                    // Ignore
-                }
-            }
-        } else {
-             inputStream = try {
-                context.contentResolver.openInputStream(pdfUri)
-            } catch (e: Exception) {
-                null
-            }
-            
-            if (inputStream == null) {
-                val cachedFile = copyUriToCache(context, pdfUri)
-                if (cachedFile != null) {
-                    inputStream = cachedFile.inputStream()
-                }
-            }
-        }
-        
-        if (inputStream != null) {
-            document = PDDocument.load(inputStream)
-            inputStream.close()
-            
-            val stripper = PDFTextStripper()
-            
-            for (i in 1..maxPages) {
-                stripper.startPage = i
-                stripper.endPage = i
-                val text = stripper.getText(document)
-                // Map is 0-indexed for list scrolling matches
-                textMap[i - 1] = text
-            }
-        }
-    } catch (e: Exception) {
-        Log.e("PdfViewerScreen", "Error extracting text: ${e.message}")
-    } finally {
-        document?.close()
-    }
-    
-    textMap
-}
-
-/**
- * Get the bounding boxes for search highlights on a specific page.
- * Returns a list of matches, where each match is a list of RectFs (handling line breaks).
- */
-private suspend fun getSearchHighlights(
-    context: Context,
-    pdfUri: Uri,
-    pageIndex: Int,
-    query: String
-): List<List<RectF>> = withContext(Dispatchers.IO) {
-    if (query.length < 2) return@withContext emptyList()
-    
-    val allMatches = mutableListOf<List<RectF>>()
-    var document: PDDocument? = null
-    
-    try {
-        var inputStream: java.io.InputStream? = null
-             
-        val isOurFileProvider = pdfUri.scheme == "content" && 
-            (pdfUri.authority == "${context.packageName}.provider" ||
-             pdfUri.authority?.startsWith("com.yourname.pdftoolkit") == true && 
-             pdfUri.authority?.endsWith(".provider") == true)
-        
-        if (isOurFileProvider) {
-            val pathSegments = pdfUri.pathSegments
-            val fileName = pathSegments.lastOrNull()
-            if (fileName != null) {
-                val cacheDir = java.io.File(context.cacheDir, "shared_files")
-                val file = java.io.File(cacheDir, fileName)
-                if (file.exists() && file.canRead()) {
-                    inputStream = file.inputStream()
-                }
-            }
-            if (inputStream == null) {
-                try {
-                    inputStream = context.contentResolver.openInputStream(pdfUri)
-                } catch (e: Exception) {}
-            }
-        } else {
-             inputStream = try {
-                context.contentResolver.openInputStream(pdfUri)
-            } catch (e: Exception) { null }
-            
-            if (inputStream == null) {
-                val cachedFile = copyUriToCache(context, pdfUri)
-                if (cachedFile != null) {
-                    inputStream = cachedFile.inputStream()
-                }
-            }
-        }
-        
-        if (inputStream != null) {
-            document = PDDocument.load(inputStream)
-            inputStream.close()
-            
-            val textPositions = mutableListOf<TextPosition>()
-            
-            val stripper = object : PDFTextStripper() {
-                override fun processTextPosition(text: TextPosition) {
-                    super.processTextPosition(text)
-                    textPositions.add(text)
-                }
-            }
-            
-            stripper.sortByPosition = true
-            stripper.startPage = pageIndex + 1
-            stripper.endPage = pageIndex + 1
-            
-            // This populates textPositions
-            val textContent = stripper.getText(document).lowercase()
-            val lowerQuery = query.lowercase()
-            
-            val sb = StringBuilder()
-            textPositions.forEach { sb.append(it.unicode) }
-            val rawText = sb.toString().lowercase()
-            
-            var pos = 0
-            while (true) {
-                val found = rawText.indexOf(lowerQuery, pos)
-                if (found == -1) break
-                
-                val matchRects = mutableListOf<RectF>()
-                
-                // Construct rect for this match
-                for (i in found until (found + lowerQuery.length)) {
-                    if (i < textPositions.size) {
-                        val tp = textPositions[i]
-                        val scale = 150f / 72f
-                        
-                        val x = tp.xDirAdj * scale
-                        val y = tp.yDirAdj * scale
-                        val w = tp.widthDirAdj * scale
-                        val h = tp.heightDir * scale
-                        
-                        matchRects.add(RectF(x, y, x + w, y + h))
-                    }
-                }
-                
-                if (matchRects.isNotEmpty()) {
-                    allMatches.add(matchRects)
-                }
-                
-                pos = found + 1
-            }
-        }
-    } catch (e: Exception) {
-        Log.e("PdfViewerScreen", "Error getting highlights: ${e.message}")
-    } finally {
-        document?.close()
-    }
-    
-    allMatches
 }
