@@ -6,6 +6,7 @@ import com.tom_roush.pdfbox.multipdf.PDFMergerUtility
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.InputStream
 import java.io.OutputStream
 
 /**
@@ -36,7 +37,7 @@ class PdfMerger {
         }
         
         val merger = PDFMergerUtility()
-        val documents = mutableListOf<PDDocument>()
+        val inputStreams = mutableListOf<InputStream>()
         
         try {
             // Load all input documents
@@ -46,14 +47,8 @@ class PdfMerger {
                         IllegalStateException("Cannot open file: $uri")
                     )
                 
-                try {
-                    val document = PDDocument.load(inputStream)
-                    documents.add(document)
-                    merger.addSource(context.contentResolver.openInputStream(uri))
-                } catch (e: Exception) {
-                    inputStream.close()
-                    throw e
-                }
+                inputStreams.add(inputStream)
+                merger.addSource(inputStream)
                 
                 onProgress((index + 1).toFloat() / (inputUris.size + 1))
             }
@@ -68,10 +63,10 @@ class PdfMerger {
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
-            // Clean up all loaded documents
-            documents.forEach { doc ->
+            // Clean up all loaded streams
+            inputStreams.forEach { stream ->
                 try {
-                    doc.close()
+                    stream.close()
                 } catch (e: Exception) {
                     // Ignore cleanup errors
                 }
