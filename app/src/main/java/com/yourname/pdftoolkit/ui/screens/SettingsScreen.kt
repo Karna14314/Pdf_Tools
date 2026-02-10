@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.yourname.pdftoolkit.BuildConfig
 import com.yourname.pdftoolkit.ui.components.LicensesDialog
 import com.yourname.pdftoolkit.util.CacheManager
 import kotlinx.coroutines.Dispatchers
@@ -291,7 +292,7 @@ fun SettingsScreen(
             item {
                 SettingsItem(
                     title = "Version",
-                    subtitle = "1.2.8 (Build 13)",
+                    subtitle = "${BuildConfig.VERSION_NAME} (Build ${BuildConfig.VERSION_CODE})",
                     icon = Icons.Default.Info,
                     onClick = { showAboutDialog = true }
                 )
@@ -502,14 +503,14 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Version", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("1.2.8")
+                        Text(BuildConfig.VERSION_NAME)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Build", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("13")
+                        Text(BuildConfig.VERSION_CODE.toString())
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -722,7 +723,7 @@ private fun sendFeatureRequest(context: Context, featureText: String) {
         ---
         Device: ${Build.MANUFACTURER} ${Build.MODEL}
         Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
-        App Version: 1.2.8 (13)
+        App Version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})
     """.trimIndent()
     
     val emailBody = "$featureText\n$deviceInfo"
@@ -767,7 +768,7 @@ private fun sendBugReport(context: Context) {
         ---
         Device: ${Build.MANUFACTURER} ${Build.MODEL}
         Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})
-        App Version: 1.2.6 (11)
+        App Version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})
     """.trimIndent()
     
     try {

@@ -1,0 +1,47 @@
+name: Build Release AAB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+    
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.PDFTOOLKIT_RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > pdftoolkit-release.keystore
+    
+    - name: Create keystore.properties
+      run: |
+        echo "storeFile=pdftoolkit-release.keystore" > keystore.properties
+        echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
+        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
+        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
+    
+    - name: Build Release AAB
+      run: ./gradlew bundleRelease
+    
+    - name: Rename AAB
+      run: |
+        VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | head -1 | grep -oP '"[^"]*"' | tr -d '"')
+        cp app/build/outputs/bundle/release/app-release.aab "PDFToolkit-v${VERSION_NAME}-release.aab"
+    
+    - name: Upload AAB Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-aab
+        path: PDFToolkit-v*-release.aab
+        retention-days: 30
