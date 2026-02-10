@@ -129,7 +129,7 @@ fun PdfViewerScreen(
 
     // Auto-scroll to search result
     LaunchedEffect(searchState.currentMatchIndex, searchState.matches) {
-        if (searchState.matches.isNotEmpty()) {
+        if (toolState is PdfTool.Search && searchState.matches.isNotEmpty()) {
             val match = searchState.matches.getOrNull(searchState.currentMatchIndex)
             if (match != null) {
                 listState.animateScrollToItem(match.pageIndex)

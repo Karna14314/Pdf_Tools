@@ -23,6 +23,8 @@ import com.tom_roush.pdfbox.text.PDFTextStripper
 import com.tom_roush.pdfbox.text.TextPosition
 import java.io.BufferedOutputStream
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -110,6 +112,7 @@ class PdfViewerViewModel : ViewModel() {
 
     // Search Cache
     private val extractedTextCache = mutableMapOf<Int, String>()
+    private var searchJob: Job? = null
 
     // Bitmap Cache
     // Calculate cache size: Use 1/8th of the available memory for this memory cache.
@@ -194,6 +197,10 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     fun setTool(tool: PdfTool) {
+        if (tool != PdfTool.Search) {
+            searchJob?.cancel()
+            _searchState.value = SearchState()
+        }
         _toolState.value = tool
         // Reset specific annotation tool if we leave Edit mode
         if (tool != PdfTool.Edit) {
@@ -236,12 +243,14 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     fun search(query: String) {
+        searchJob?.cancel()
+
         if (query.length < 2) {
             _searchState.value = SearchState(query = query)
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        searchJob = viewModelScope.launch(Dispatchers.IO) {
             _searchState.value = _searchState.value.copy(query = query, isLoading = true)
 
             val matches = mutableListOf<SearchMatch>()
@@ -251,6 +260,7 @@ class PdfViewerViewModel : ViewModel() {
                 val totalPages = doc.numberOfPages
 
                 for (pageIndex in 0 until totalPages) {
+                    ensureActive()
                     try {
                         val lowerQuery = query.lowercase()
 
@@ -375,6 +385,7 @@ class PdfViewerViewModel : ViewModel() {
                     val totalPages = sourceDoc.numberOfPages
 
                     for (pageIndex in 0 until totalPages) {
+                        ensureActive()
                         val pageAnnotations = currentAnnotations.filter { it.pageIndex == pageIndex }
 
                         if (pageAnnotations.isEmpty()) {
