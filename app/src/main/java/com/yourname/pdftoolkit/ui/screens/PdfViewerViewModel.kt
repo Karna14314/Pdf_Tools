@@ -25,6 +25,7 @@ import java.io.BufferedOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -199,6 +200,9 @@ class PdfViewerViewModel : ViewModel() {
         if (tool != PdfTool.Edit) {
             _selectedAnnotationTool.value = AnnotationTool.NONE
         } else {
+            // Clear search when entering Edit mode to prevent UI conflict
+            clearSearch()
+
             // Default to Highlighter when entering Edit mode
             if (_selectedAnnotationTool.value == AnnotationTool.NONE) {
                 _selectedAnnotationTool.value = AnnotationTool.HIGHLIGHTER
@@ -251,6 +255,9 @@ class PdfViewerViewModel : ViewModel() {
                 val totalPages = doc.numberOfPages
 
                 for (pageIndex in 0 until totalPages) {
+                    ensureActive() // Allow cancellation
+                    kotlinx.coroutines.yield()
+
                     try {
                         val lowerQuery = query.lowercase()
 
@@ -375,6 +382,9 @@ class PdfViewerViewModel : ViewModel() {
                     val totalPages = sourceDoc.numberOfPages
 
                     for (pageIndex in 0 until totalPages) {
+                        ensureActive() // Allow cancellation
+                        kotlinx.coroutines.yield()
+
                         val pageAnnotations = currentAnnotations.filter { it.pageIndex == pageIndex }
 
                         if (pageAnnotations.isEmpty()) {
@@ -383,54 +393,58 @@ class PdfViewerViewModel : ViewModel() {
                         } else {
                             // Render and flatten
                             val cachedBitmap = bitmapCache.get(pageIndex)
-                            val workingBitmap = if (cachedBitmap != null) {
+                            // Use cached bitmap copy if available, otherwise render fresh
+                            val workingBitmap = if (cachedBitmap != null && !cachedBitmap.isRecycled) {
                                 cachedBitmap.copy(Bitmap.Config.ARGB_8888, true)
                             } else {
                                 pdfRenderer?.renderImage(pageIndex, 1.5f)
                             }
 
                             if (workingBitmap != null) {
-                                val canvas = Canvas(workingBitmap)
-                                val paint = Paint().apply {
-                                    style = Paint.Style.STROKE
-                                    strokeCap = Paint.Cap.ROUND
-                                    strokeJoin = Paint.Join.ROUND
-                                    isAntiAlias = true
-                                }
-
-                                pageAnnotations.forEach { annotation ->
-                                    paint.color = android.graphics.Color.argb(
-                                        (annotation.color.alpha * 255).toInt(),
-                                        (annotation.color.red * 255).toInt(),
-                                        (annotation.color.green * 255).toInt(),
-                                        (annotation.color.blue * 255).toInt()
-                                    )
-                                    paint.strokeWidth = annotation.strokeWidth
-
-                                    if (annotation.points.isNotEmpty()) {
-                                        val path = android.graphics.Path()
-                                        path.moveTo(annotation.points.first().x, annotation.points.first().y)
-                                        for (i in 1 until annotation.points.size) {
-                                            path.lineTo(annotation.points[i].x, annotation.points[i].y)
-                                        }
-                                        canvas.drawPath(path, paint)
+                                try {
+                                    val canvas = Canvas(workingBitmap)
+                                    val paint = Paint().apply {
+                                        style = Paint.Style.STROKE
+                                        strokeCap = Paint.Cap.ROUND
+                                        strokeJoin = Paint.Join.ROUND
+                                        isAntiAlias = true
                                     }
+
+                                    pageAnnotations.forEach { annotation ->
+                                        paint.color = android.graphics.Color.argb(
+                                            (annotation.color.alpha * 255).toInt(),
+                                            (annotation.color.red * 255).toInt(),
+                                            (annotation.color.green * 255).toInt(),
+                                            (annotation.color.blue * 255).toInt()
+                                        )
+                                        paint.strokeWidth = annotation.strokeWidth
+
+                                        if (annotation.points.isNotEmpty()) {
+                                            val path = android.graphics.Path()
+                                            path.moveTo(annotation.points.first().x, annotation.points.first().y)
+                                            for (i in 1 until annotation.points.size) {
+                                                path.lineTo(annotation.points[i].x, annotation.points[i].y)
+                                            }
+                                            canvas.drawPath(path, paint)
+                                        }
+                                    }
+
+                                    // Scale back to PDF points (72 DPI)
+                                    val scaleFactor = 1.5f
+                                    val pageWidth = workingBitmap.width / scaleFactor
+                                    val pageHeight = workingBitmap.height / scaleFactor
+
+                                    val page = PDPage(PDRectangle(pageWidth, pageHeight))
+                                    destDoc.addPage(page)
+
+                                    val pdImage = LosslessFactory.createFromImage(destDoc, workingBitmap)
+                                    PDPageContentStream(destDoc, page).use { cs ->
+                                        cs.drawImage(pdImage, 0f, 0f, pageWidth, pageHeight)
+                                    }
+                                } finally {
+                                    // Ensure bitmap is recycled immediately to free native memory
+                                    workingBitmap.recycle()
                                 }
-
-                                // Scale back to PDF points (72 DPI)
-                                val scaleFactor = 1.5f
-                                val pageWidth = workingBitmap.width / scaleFactor
-                                val pageHeight = workingBitmap.height / scaleFactor
-
-                                val page = PDPage(PDRectangle(pageWidth, pageHeight))
-                                destDoc.addPage(page)
-
-                                val pdImage = LosslessFactory.createFromImage(destDoc, workingBitmap)
-                                PDPageContentStream(destDoc, page).use { cs ->
-                                    cs.drawImage(pdImage, 0f, 0f, pageWidth, pageHeight)
-                                }
-
-                                workingBitmap.recycle()
                             }
                         }
                     }

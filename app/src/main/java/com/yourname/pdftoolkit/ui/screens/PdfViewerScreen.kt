@@ -40,8 +40,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -157,7 +159,6 @@ fun PdfViewerScreen(
     }
     
     // Handle UI State
-    val isLoading = uiState is PdfViewerUiState.Loading
     val errorMessage = (uiState as? PdfViewerUiState.Error)?.message
     val totalPages = (uiState as? PdfViewerUiState.Loaded)?.totalPages ?: 0
 
@@ -654,6 +655,8 @@ private fun AnnotationToolbar(
     onUndoClick: () -> Unit,
     canUndo: Boolean
 ) {
+    val haptic = LocalHapticFeedback.current
+
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
         shadowElevation = 8.dp
@@ -669,19 +672,28 @@ private fun AnnotationToolbar(
                 icon = Icons.Default.Highlight,
                 label = "Highlight",
                 isSelected = selectedTool == AnnotationTool.HIGHLIGHTER,
-                onClick = { onToolSelected(AnnotationTool.HIGHLIGHTER) }
+                onClick = {
+                    onToolSelected(AnnotationTool.HIGHLIGHTER)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
             )
             ToolButton(
                 icon = Icons.Default.Gesture,
                 label = "Marker",
                 isSelected = selectedTool == AnnotationTool.MARKER,
-                onClick = { onToolSelected(AnnotationTool.MARKER) }
+                onClick = {
+                    onToolSelected(AnnotationTool.MARKER)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
             )
             ToolButton(
                 icon = Icons.Default.FormatUnderlined,
                 label = "Underline",
                 isSelected = selectedTool == AnnotationTool.UNDERLINE,
-                onClick = { onToolSelected(AnnotationTool.UNDERLINE) }
+                onClick = {
+                    onToolSelected(AnnotationTool.UNDERLINE)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
             )
             IconButton(onClick = onColorPickerClick) {
                 Box(
@@ -923,12 +935,12 @@ private fun PdfPagesContent(
     
     LazyColumn(
         state = listState,
-        userScrollEnabled = !isEditMode,
+        userScrollEnabled = !isEditMode || selectedTool == AnnotationTool.NONE,
         modifier = Modifier
             .fillMaxSize()
             .onSizeChanged { containerSize = it }
             .then(
-                if (!isEditMode) {
+                if (!isEditMode || selectedTool == AnnotationTool.NONE) {
                     Modifier.pointerInput(Unit) {
                         detectTransformGestures { centroid, pan, zoom, _ ->
                             val oldScale = scale
@@ -1026,6 +1038,7 @@ private fun PdfPageWithAnnotations(
     currentMatchIndexOnPage: Int
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
+    val haptic = LocalHapticFeedback.current
     
     // Load bitmap lazily
     val bitmap by produceState<Bitmap?>(initialValue = null, key1 = pageIndex) {
@@ -1147,6 +1160,7 @@ private fun PdfPageWithAnnotations(
                                                     )
                                                 )
                                                 localStroke = mutableListOf()
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             }
                                         }
                                     )
