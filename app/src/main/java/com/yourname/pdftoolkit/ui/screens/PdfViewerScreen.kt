@@ -669,6 +669,14 @@ private fun AnnotationToolbar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ToolButton(
+                icon = Icons.Default.PanTool,
+                label = "Pan",
+                isSelected = selectedTool == AnnotationTool.NONE,
+                onClick = {
+                    onToolSelected(AnnotationTool.NONE)
+                }
+            )
+            ToolButton(
                 icon = Icons.Default.Highlight,
                 label = "Highlight",
                 isSelected = selectedTool == AnnotationTool.HIGHLIGHTER,

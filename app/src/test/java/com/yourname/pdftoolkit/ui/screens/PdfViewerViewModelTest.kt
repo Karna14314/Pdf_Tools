@@ -45,14 +45,14 @@ class PdfViewerViewModelTest {
     }
 
     @Test
-    fun `setTool Edit sets default annotation tool`() {
+    fun `setTool Edit does not set default annotation tool`() {
         // Initial state
         assertEquals(AnnotationTool.NONE, viewModel.selectedAnnotationTool.value)
 
         viewModel.setTool(PdfTool.Edit)
 
-        // Should default to HIGHLIGHTER
-        assertEquals(AnnotationTool.HIGHLIGHTER, viewModel.selectedAnnotationTool.value)
+        // Should NOT default to HIGHLIGHTER anymore (stays NONE)
+        assertEquals(AnnotationTool.NONE, viewModel.selectedAnnotationTool.value)
         assertTrue(viewModel.toolState.value is PdfTool.Edit)
     }
 
