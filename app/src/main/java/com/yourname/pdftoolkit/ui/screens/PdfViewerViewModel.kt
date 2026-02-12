@@ -32,6 +32,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
+data class PageTextData(val text: String, val positions: List<TextPosition>)
+
 // Moved from PdfViewerScreen.kt
 enum class AnnotationTool(val displayName: String) {
     NONE("Select"),
@@ -110,7 +112,7 @@ class PdfViewerViewModel : ViewModel() {
     private val documentMutex = Mutex()
 
     // Search Cache
-    private val extractedTextCache = mutableMapOf<Int, String>()
+    private val extractedTextCache = mutableMapOf<Int, PageTextData>()
 
     // Bitmap Cache
     // Calculate cache size: Use 1/8th of the available memory for this memory cache.
@@ -203,10 +205,8 @@ class PdfViewerViewModel : ViewModel() {
             // Clear search when entering Edit mode to prevent UI conflict
             clearSearch()
 
-            // Default to Highlighter when entering Edit mode
-            if (_selectedAnnotationTool.value == AnnotationTool.NONE) {
-                _selectedAnnotationTool.value = AnnotationTool.HIGHLIGHTER
-            }
+            // Note: We no longer auto-select Highlighter here.
+            // This allows the user to start in "None" (Pan) mode.
         }
     }
 
@@ -261,31 +261,36 @@ class PdfViewerViewModel : ViewModel() {
                     try {
                         val lowerQuery = query.lowercase()
 
-                        // Check cache first to avoid re-parsing if query not found
-                        val cachedText = extractedTextCache[pageIndex]
-                        if (cachedText != null && !cachedText.contains(lowerQuery)) {
+                        // Check cache first
+                        var pageData = extractedTextCache[pageIndex]
+
+                        if (pageData == null) {
+                            // Extract if not cached
+                            val textPositions = mutableListOf<TextPosition>()
+                            val stripper = object : PDFTextStripper() {
+                                override fun processTextPosition(text: TextPosition) {
+                                    super.processTextPosition(text)
+                                    textPositions.add(text)
+                                }
+                            }
+                            stripper.sortByPosition = true
+                            stripper.startPage = pageIndex + 1
+                            stripper.endPage = pageIndex + 1
+
+                            // This populates textPositions and returns text
+                            val pageText = stripper.getText(doc).lowercase()
+                            pageData = PageTextData(pageText, textPositions)
+                            extractedTextCache[pageIndex] = pageData
+                        }
+
+                        if (!pageData.text.contains(lowerQuery)) {
                             continue
                         }
-
-                        val textPositions = mutableListOf<TextPosition>()
-                        val stripper = object : PDFTextStripper() {
-                            override fun processTextPosition(text: TextPosition) {
-                                super.processTextPosition(text)
-                                textPositions.add(text)
-                            }
-                        }
-                        stripper.sortByPosition = true
-                        stripper.startPage = pageIndex + 1
-                        stripper.endPage = pageIndex + 1
-
-                        // This populates textPositions and returns text
-                        val pageText = stripper.getText(doc).lowercase()
-                        extractedTextCache[pageIndex] = pageText
 
                         val sb = StringBuilder()
                         val positionMap = mutableListOf<Int>() // Map char index in sb to index in textPositions
 
-                        textPositions.forEachIndexed { index, tp ->
+                        pageData.positions.forEachIndexed { index, tp ->
                             sb.append(tp.unicode)
                             repeat(tp.unicode.length) {
                                 positionMap.add(index)
@@ -304,7 +309,7 @@ class PdfViewerViewModel : ViewModel() {
                             for (i in found until (found + lowerQuery.length)) {
                                 if (i < positionMap.size) {
                                     val tpIndex = positionMap[i]
-                                    val tp = textPositions[tpIndex]
+                                    val tp = pageData.positions[tpIndex]
 
                                     // Scale 1.5f (Matches render scale)
                                     val scale = 1.5f
@@ -389,7 +394,8 @@ class PdfViewerViewModel : ViewModel() {
 
                         if (pageAnnotations.isEmpty()) {
                             // OPTIMIZATION: Fast copy for pages without annotations
-                            destDoc.importPage(sourceDoc.getPage(pageIndex))
+                            val importedPage = destDoc.importPage(sourceDoc.getPage(pageIndex))
+                            destDoc.addPage(importedPage)
                         } else {
                             // Render and flatten
                             val cachedBitmap = bitmapCache.get(pageIndex)
@@ -473,6 +479,7 @@ class PdfViewerViewModel : ViewModel() {
                 document = null
                 pdfRenderer = null
                 bitmapCache.evictAll()
+                extractedTextCache.clear()
             }
         }
     }
