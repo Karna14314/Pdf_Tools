@@ -7,6 +7,7 @@ import android.graphics.RectF
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -86,7 +87,8 @@ fun PdfViewerScreen(
     var offsetY by remember { mutableFloatStateOf(0f) }
     var showControls by remember { mutableStateOf(true) }
     var showPageSelector by remember { mutableStateOf(false) }
-    
+    var showClearDialog by remember { mutableStateOf(false) }
+
     // Password state
     var showPasswordDialog by remember { mutableStateOf(false) }
     var isPasswordError by remember { mutableStateOf(false) }
@@ -103,7 +105,7 @@ fun PdfViewerScreen(
     ) { uri ->
         uri?.let { outputUri ->
             if (annotations.isNotEmpty()) {
-                viewModel.saveAnnotations(context, outputUri)
+                viewModel.saveAnnotations(context.applicationContext, outputUri)
             }
         }
     }
@@ -154,7 +156,7 @@ fun PdfViewerScreen(
                 }
             }
             
-             viewModel.loadPdf(context, pdfUri, "")
+             viewModel.loadPdf(context.applicationContext, pdfUri, "")
         }
     }
     
@@ -382,7 +384,7 @@ fun PdfViewerScreen(
                                     leadingIcon = { Icon(Icons.Default.ClearAll, null) },
                                     onClick = {
                                         showMenu = false
-                                        viewModel.clearAnnotations()
+                                        showClearDialog = true
                                     }
                                 )
                             }
@@ -573,6 +575,9 @@ fun PdfViewerScreen(
 
             // Save Blocking Overlay
             if (saveState is SaveState.Saving) {
+                 BackHandler(enabled = true) {
+                     // Prevent back navigation while saving
+                 }
                  Box(
                      modifier = Modifier
                          .fillMaxSize()
@@ -601,6 +606,30 @@ fun PdfViewerScreen(
                  }
             }
         }
+    }
+
+    // Clear Annotations Dialog
+    if (showClearDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearDialog = false },
+            title = { Text("Clear All Annotations?") },
+            text = { Text("This will remove all highlights and drawings. This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clearAnnotations()
+                        showClearDialog = false
+                    }
+                ) {
+                    Text("Clear All", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
     
     // Page selector dialog
@@ -634,7 +663,7 @@ fun PdfViewerScreen(
             onConfirm = { input ->
                 showPasswordDialog = false
                 if (pdfUri != null) {
-                    viewModel.loadPdf(context, pdfUri, input)
+                    viewModel.loadPdf(context.applicationContext, pdfUri, input)
                 }
             },
             onDismiss = { 
