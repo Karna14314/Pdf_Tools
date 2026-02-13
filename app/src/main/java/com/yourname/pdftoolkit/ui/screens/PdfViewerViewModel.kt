@@ -23,6 +23,7 @@ import com.tom_roush.pdfbox.text.PDFTextStripper
 import com.tom_roush.pdfbox.text.TextPosition
 import java.io.BufferedOutputStream
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.ensureActive
@@ -114,6 +115,9 @@ class PdfViewerViewModel : ViewModel() {
     // Search Cache
     private val extractedTextCache = mutableMapOf<Int, PageTextData>()
 
+    // Search Job Control
+    private var searchJob: Job? = null
+
     // Bitmap Cache
     // Calculate cache size: Use 1/8th of the available memory for this memory cache.
     private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
@@ -197,6 +201,12 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     fun setTool(tool: PdfTool) {
+        // Cancel active search if leaving Search mode
+        if (_toolState.value is PdfTool.Search && tool !is PdfTool.Search) {
+            searchJob?.cancel()
+            searchJob = null
+        }
+
         _toolState.value = tool
         // Reset specific annotation tool if we leave Edit mode
         if (tool != PdfTool.Edit) {
@@ -240,12 +250,15 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     fun search(query: String) {
+        // Cancel previous search
+        searchJob?.cancel()
+
         if (query.length < 2) {
             _searchState.value = SearchState(query = query)
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        searchJob = viewModelScope.launch(Dispatchers.IO) {
             _searchState.value = _searchState.value.copy(query = query, isLoading = true)
 
             val matches = mutableListOf<SearchMatch>()
@@ -358,6 +371,8 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     fun clearSearch() {
+        searchJob?.cancel()
+        searchJob = null
         _searchState.value = SearchState()
         // Optionally keep tool state or reset it.
         // If we clear search, we likely exit search mode.
