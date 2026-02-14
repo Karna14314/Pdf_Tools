@@ -69,6 +69,7 @@ fun PdfViewerScreen(
     viewModel: PdfViewerViewModel = viewModel()
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     
     // ViewModel state
@@ -275,7 +276,10 @@ fun PdfViewerScreen(
                         },
                         actions = {
                             // Search button
-                            IconButton(onClick = { viewModel.setTool(PdfTool.Search) }) {
+                            IconButton(onClick = {
+                                viewModel.setTool(PdfTool.Search)
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }) {
                                 Icon(Icons.Default.Search, contentDescription = "Search")
                             }
                             
@@ -293,6 +297,7 @@ fun PdfViewerScreen(
                                         onClick = {
                                             val fileName = "annotated_${pdfName}_${System.currentTimeMillis()}.pdf"
                                             saveDocumentLauncher.launch(fileName)
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         }
                                     ) {
                                         Icon(
@@ -312,6 +317,7 @@ fun PdfViewerScreen(
                                     } else {
                                         viewModel.setTool(PdfTool.Edit)
                                     }
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 }
                             ) {
                                 Icon(
@@ -703,6 +709,7 @@ private fun AnnotationToolbar(
                 isSelected = selectedTool == AnnotationTool.NONE,
                 onClick = {
                     onToolSelected(AnnotationTool.NONE)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             )
             ToolButton(
@@ -763,16 +770,21 @@ private fun ToolButton(
     onClick: () -> Unit
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.small)
+            .clickable(onClick = onClick)
+            .padding(4.dp)
     ) {
-        IconButton(
-            onClick = onClick,
+        Box(
             modifier = Modifier
+                .size(40.dp)
                 .clip(CircleShape)
                 .background(
                     if (isSelected) MaterialTheme.colorScheme.primaryContainer 
                     else Color.Transparent
-                )
+                ),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
