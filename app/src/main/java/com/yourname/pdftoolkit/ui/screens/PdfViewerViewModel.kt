@@ -207,23 +207,22 @@ class PdfViewerViewModel : ViewModel() {
             searchJob = null
         }
 
+        // If entering Edit mode, ensure search is cleared first to prevent state overlap
+        if (tool is PdfTool.Edit) {
+            clearSearch()
+        }
+
         _toolState.value = tool
         // Reset specific annotation tool if we leave Edit mode
-        if (tool != PdfTool.Edit) {
+        if (tool !is PdfTool.Edit) {
             _selectedAnnotationTool.value = AnnotationTool.NONE
-        } else {
-            // Clear search when entering Edit mode to prevent UI conflict
-            clearSearch()
-
-            // Note: We no longer auto-select Highlighter here.
-            // This allows the user to start in "None" (Pan) mode.
         }
     }
 
     fun setAnnotationTool(tool: AnnotationTool) {
         _selectedAnnotationTool.value = tool
-        if (tool != AnnotationTool.NONE) {
-            _toolState.value = PdfTool.Edit
+        if (tool != AnnotationTool.NONE && _toolState.value !is PdfTool.Edit) {
+            setTool(PdfTool.Edit)
         }
     }
 

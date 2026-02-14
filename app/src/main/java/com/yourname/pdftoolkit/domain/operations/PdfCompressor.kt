@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.tom_roush.pdfbox.cos.COSName
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
@@ -15,8 +16,8 @@ import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject
 import com.tom_roush.pdfbox.rendering.PDFRenderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.io.OutputStream
 
 /**
@@ -88,23 +89,33 @@ class PdfCompressor {
         onProgress: (Float) -> Unit = {}
     ): Result<CompressionResult> = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
+        var tempFile: File? = null
         
         try {
             onProgress(0.05f)
             
-            // Get original file size and bytes
-            val originalBytes = context.contentResolver.openInputStream(inputUri)?.use { 
-                it.readBytes() 
+            // Create a temp file to avoid loading everything into memory
+            val cacheDir = File(context.cacheDir, "compress_cache")
+            if (!cacheDir.exists()) cacheDir.mkdirs()
+            tempFile = File(cacheDir, "temp_compress_${System.currentTimeMillis()}.pdf")
+
+            // Copy URI content to temp file
+            context.contentResolver.openInputStream(inputUri)?.use { input ->
+                FileOutputStream(tempFile).use { output ->
+                    input.copyTo(output)
+                }
             } ?: return@withContext Result.failure(
                 IllegalStateException("Cannot open input file")
             )
             
-            val originalSize = originalBytes.size.toLong()
+            val originalSize = tempFile.length()
             
             // Skip compression for very small files (< 50KB)
             if (originalSize < 50 * 1024) {
                 onProgress(1.0f)
-                outputStream.write(originalBytes)
+                tempFile.inputStream().use { input ->
+                    input.copyTo(outputStream)
+                }
                 outputStream.flush()
                 return@withContext Result.success(
                     CompressionResult(
@@ -112,7 +123,7 @@ class PdfCompressor {
                         compressedSize = originalSize,
                         compressionRatio = 1f,
                         timeTakenMs = System.currentTimeMillis() - startTime,
-                        pagesProcessed = countPages(originalBytes),
+                        pagesProcessed = countPages(tempFile),
                         strategyUsed = CompressionStrategy.IMAGE_OPTIMIZATION
                     )
                 )
@@ -121,51 +132,64 @@ class PdfCompressor {
             onProgress(0.10f)
             
             // Try image optimization first (preserves text quality)
-            val optimizedResult = tryImageOptimization(originalBytes, level, onProgress)
+            // Note: tryImageOptimization writes to a temp file internally if successful
+            val optimizedFile = tryImageOptimization(context, tempFile, level, onProgress)
             
             onProgress(0.55f)
             
             // Try full re-render approach for potentially better compression
-            val rerenderedResult = tryFullRerender(originalBytes, level) { progress ->
+            val rerenderedFile = tryFullRerender(context, tempFile, level) { progress ->
                 onProgress(0.55f + progress * 0.35f)
             }
             
             onProgress(0.90f)
             
             // Collect all valid compression results
-            val candidates = mutableListOf<Pair<ByteArray, CompressionStrategy>>()
+            // List of Pair<File, Strategy>
+            val candidates = mutableListOf<Pair<File, CompressionStrategy>>()
             
-            if (optimizedResult != null && optimizedResult.size < originalSize) {
-                candidates.add(optimizedResult to CompressionStrategy.IMAGE_OPTIMIZATION)
+            if (optimizedFile != null && optimizedFile.length() < originalSize) {
+                candidates.add(optimizedFile to CompressionStrategy.IMAGE_OPTIMIZATION)
             }
-            if (rerenderedResult != null && rerenderedResult.size < originalSize) {
-                candidates.add(rerenderedResult to CompressionStrategy.FULL_RERENDER)
+            if (rerenderedFile != null && rerenderedFile.length() < originalSize) {
+                candidates.add(rerenderedFile to CompressionStrategy.FULL_RERENDER)
             }
             
             // Select the smallest result that's still smaller than original
-            val (finalBytes, strategyUsed) = if (candidates.isNotEmpty()) {
-                candidates.minByOrNull { it.first.size }!!
+            val bestMatch = if (candidates.isNotEmpty()) {
+                candidates.minByOrNull { it.first.length() }!!
             } else {
-                // No compression method reduced size - return original
-                originalBytes to CompressionStrategy.IMAGE_OPTIMIZATION
+                null
             }
             
+            val finalFile = bestMatch?.first ?: tempFile
+            val strategyUsed = bestMatch?.second ?: CompressionStrategy.IMAGE_OPTIMIZATION
+
             onProgress(0.95f)
             
             // Write the best result to output
-            outputStream.write(finalBytes)
+            finalFile.inputStream().use { input ->
+                input.copyTo(outputStream)
+            }
             outputStream.flush()
             
             onProgress(1.0f)
             
             val timeTaken = System.currentTimeMillis() - startTime
-            val pagesProcessed = countPages(finalBytes)
+            val pagesProcessed = countPages(finalFile)
+            val compressedSize = finalFile.length()
+
+            // Clean up temporary result files
+            if (optimizedFile != null && optimizedFile != finalFile) optimizedFile.delete()
+            if (rerenderedFile != null && rerenderedFile != finalFile) rerenderedFile.delete()
+            // We delete finalFile later if it was a temp file created by optimization
+            if (finalFile != tempFile) finalFile.delete()
             
             Result.success(
                 CompressionResult(
                     originalSize = originalSize,
-                    compressedSize = finalBytes.size.toLong(),
-                    compressionRatio = if (originalSize > 0) finalBytes.size.toFloat() / originalSize else 1f,
+                    compressedSize = compressedSize,
+                    compressionRatio = if (originalSize > 0) compressedSize.toFloat() / originalSize else 1f,
                     timeTakenMs = timeTaken,
                     pagesProcessed = pagesProcessed,
                     strategyUsed = strategyUsed
@@ -174,6 +198,8 @@ class PdfCompressor {
             
         } catch (e: Exception) {
             Result.failure(e)
+        } finally {
+            tempFile?.delete()
         }
     }
     
@@ -182,14 +208,17 @@ class PdfCompressor {
      * This preserves text quality and searchability.
      */
     private fun tryImageOptimization(
-        pdfBytes: ByteArray,
+        context: Context,
+        inputFile: File,
         level: CompressionLevel,
         onProgress: (Float) -> Unit
-    ): ByteArray? {
+    ): File? {
         var document: PDDocument? = null
+        val outputFile = File(context.cacheDir, "opt_${System.currentTimeMillis()}.pdf")
         
         return try {
-            document = PDDocument.load(ByteArrayInputStream(pdfBytes))
+            // Use MemoryUsageSetting to enable temp file buffering instead of full memory load
+            document = PDDocument.load(inputFile, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = document.numberOfPages
             
             if (totalPages == 0) return null
@@ -208,14 +237,11 @@ class PdfCompressor {
                 onProgress(pageProgress)
             }
             
-            // If no images were found/optimized, this method may not help much
-            // but we still save to check
-            
-            val output = ByteArrayOutputStream()
-            document.save(output)
-            output.toByteArray()
+            document.save(outputFile)
+            outputFile
             
         } catch (e: Exception) {
+            outputFile.delete()
             null
         } finally {
             document?.close()
@@ -308,15 +334,17 @@ class PdfCompressor {
      * Best for scanned documents but loses text searchability.
      */
     private fun tryFullRerender(
-        pdfBytes: ByteArray,
+        context: Context,
+        inputFile: File,
         level: CompressionLevel,
         onProgress: (Float) -> Unit
-    ): ByteArray? {
+    ): File? {
         var inputDocument: PDDocument? = null
         var outputDocument: PDDocument? = null
+        val outputFile = File(context.cacheDir, "rerender_${System.currentTimeMillis()}.pdf")
         
         return try {
-            inputDocument = PDDocument.load(ByteArrayInputStream(pdfBytes))
+            inputDocument = PDDocument.load(inputFile, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = inputDocument.numberOfPages
             
             if (totalPages == 0) return null
@@ -360,11 +388,11 @@ class PdfCompressor {
                 onProgress((pageIndex + 1).toFloat() / totalPages)
             }
             
-            val output = ByteArrayOutputStream()
-            outputDocument.save(output)
-            output.toByteArray()
+            outputDocument.save(outputFile)
+            outputFile
             
         } catch (e: Exception) {
+            outputFile.delete()
             null
         } finally {
             inputDocument?.close()
@@ -373,45 +401,15 @@ class PdfCompressor {
     }
     
     /**
-     * Count pages in a PDF byte array.
+     * Count pages in a PDF file.
      */
-    private fun countPages(pdfBytes: ByteArray): Int {
+    private fun countPages(file: File): Int {
         return try {
-            PDDocument.load(ByteArrayInputStream(pdfBytes)).use { doc ->
+            PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly()).use { doc ->
                 doc.numberOfPages
             }
         } catch (e: Exception) {
             0
-        }
-    }
-    
-    /**
-     * Get the actual file size in bytes using proper cursor query.
-     */
-    private fun getActualFileSize(context: Context, uri: Uri): Long {
-        return try {
-            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val sizeIndex = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
-                    if (sizeIndex >= 0) {
-                        cursor.getLong(sizeIndex)
-                    } else {
-                        context.contentResolver.openInputStream(uri)?.use { stream ->
-                            stream.readBytes().size.toLong()
-                        } ?: 0L
-                    }
-                } else {
-                    0L
-                }
-            } ?: 0L
-        } catch (e: Exception) {
-            try {
-                context.contentResolver.openInputStream(uri)?.use { stream ->
-                    stream.readBytes().size.toLong()
-                } ?: 0L
-            } catch (e2: Exception) {
-                0L
-            }
         }
     }
     
