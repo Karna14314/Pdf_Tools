@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
@@ -204,6 +205,16 @@ fun PdfViewerScreen(
                                                 modifier = Modifier.size(16.dp),
                                                 strokeWidth = 2.dp
                                             )
+                                            IconButton(
+                                                onClick = { viewModel.stopSearch() },
+                                                modifier = Modifier.size(24.dp)
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.Stop,
+                                                    contentDescription = "Stop Search",
+                                                    tint = MaterialTheme.colorScheme.error
+                                                )
+                                            }
                                             Spacer(modifier = Modifier.width(8.dp))
                                         }
                                         if (searchState.query.isNotEmpty()) {
@@ -517,12 +528,25 @@ fun PdfViewerScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    enabled = !(toolState is PdfTool.Edit)
-                ) {
-                    showControls = !showControls
+                .pointerInput(toolState, selectedAnnotationTool) {
+                    // Bolt: Enable controls toggle in Pan mode (Edit + None)
+                    // Disable gestures only when actively drawing (Edit + Tool)
+                    val isDrawing = toolState is PdfTool.Edit && selectedAnnotationTool != AnnotationTool.NONE
+
+                    if (!isDrawing) {
+                        detectTapGestures(
+                            onTap = { showControls = !showControls },
+                            onDoubleTap = {
+                                // Bolt: Double Tap to Zoom
+                                val newScale = if (scale >= 2f) 1f else 2f
+                                scale = newScale
+                                if (newScale == 1f) {
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                }
+                            }
+                        )
+                    }
                 }
         ) {
             when (uiState) {
@@ -580,7 +604,8 @@ fun PdfViewerScreen(
             }
 
             // Save Blocking Overlay
-            if (saveState is SaveState.Saving) {
+            val currentSaveState = saveState
+            if (currentSaveState is SaveState.Saving) {
                  BackHandler(enabled = true) {
                      // Prevent back navigation while saving
                  }
@@ -601,10 +626,13 @@ fun PdfViewerScreen(
                              modifier = Modifier.padding(24.dp),
                              horizontalAlignment = Alignment.CenterHorizontally
                          ) {
-                             CircularProgressIndicator()
+                             LinearProgressIndicator(
+                                 progress = currentSaveState.progress,
+                                 modifier = Modifier.fillMaxWidth(0.7f)
+                             )
                              Spacer(modifier = Modifier.height(16.dp))
                              Text(
-                                 text = "Saving Annotations...",
+                                 text = "Saving Annotations... ${(currentSaveState.progress * 100).toInt()}%",
                                  style = MaterialTheme.typography.titleMedium
                              )
                          }

@@ -65,7 +65,7 @@ data class SearchState(
 
 sealed class SaveState {
     object Idle : SaveState()
-    object Saving : SaveState()
+    data class Saving(val progress: Float) : SaveState()
     data class Success(val uri: Uri) : SaveState()
     data class Error(val message: String) : SaveState()
 }
@@ -201,19 +201,28 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     fun setTool(tool: PdfTool) {
-        // Cancel active search if leaving Search mode
+        // Bolt: Logic Conflict Fix - Ensure state cleanup on transition
+
+        // 1. If leaving Search mode
         if (_toolState.value is PdfTool.Search && tool !is PdfTool.Search) {
-            searchJob?.cancel()
-            searchJob = null
+            stopSearch() // Stop any active search
         }
 
-        // If entering Edit mode, ensure search is cleared first to prevent state overlap
+        // 2. If entering Search mode
+        if (tool is PdfTool.Search) {
+            // Ensure edit tools are deactivated to prevent ghost interactions
+            _selectedAnnotationTool.value = AnnotationTool.NONE
+        }
+
+        // 3. If entering Edit mode
         if (tool is PdfTool.Edit) {
-            clearSearch()
+            clearSearch() // Clear search results entirely
         }
 
+        // 4. Update tool state
         _toolState.value = tool
-        // Reset specific annotation tool if we leave Edit mode
+
+        // 5. Reset specific annotation tool if we leave Edit mode
         if (tool !is PdfTool.Edit) {
             _selectedAnnotationTool.value = AnnotationTool.NONE
         }
@@ -248,9 +257,18 @@ class PdfViewerViewModel : ViewModel() {
         _annotations.value = emptyList()
     }
 
+    fun stopSearch() {
+        searchJob?.cancel()
+        searchJob = null
+        val currentState = _searchState.value
+        if (currentState.isLoading) {
+            _searchState.value = currentState.copy(isLoading = false)
+        }
+    }
+
     fun search(query: String) {
         // Cancel previous search
-        searchJob?.cancel()
+        stopSearch()
 
         if (query.length < 2) {
             _searchState.value = SearchState(query = query)
@@ -383,7 +401,7 @@ class PdfViewerViewModel : ViewModel() {
         val currentAnnotations = _annotations.value
 
         viewModelScope.launch(Dispatchers.IO) {
-            _saveState.value = SaveState.Saving
+            _saveState.value = SaveState.Saving(0f)
 
             documentMutex.withLock {
                 val sourceDoc = document
@@ -467,6 +485,10 @@ class PdfViewerViewModel : ViewModel() {
                                 }
                             }
                         }
+
+                        // Update Progress
+                        val progress = (pageIndex + 1).toFloat() / totalPages
+                        _saveState.value = SaveState.Saving(progress)
                     }
 
                     destDoc.save(outputStream)
