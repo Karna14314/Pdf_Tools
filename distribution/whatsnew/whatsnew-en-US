@@ -1,0 +1,6 @@
+v1.3.3 - Performance & Reliability Update
+
+• Improved 16KB memory page size support for newer Android devices
+• Enhanced app signing and build pipeline reliability
+• Bug fixes and performance optimizations
+• Improved PDF processing stability
