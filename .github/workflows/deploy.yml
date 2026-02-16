@@ -41,6 +41,16 @@ jobs:
           CI: true
         run: ./gradlew bundleRelease
 
+      - name: Verify Build Outputs
+        run: |
+          echo "=== AAB File ==="
+          ls -lh app/build/outputs/bundle/release/*.aab
+          echo "=== Mapping File ==="
+          ls -lh app/build/outputs/mapping/release/mapping.txt || echo "No mapping file found (minify may be disabled)"
+          echo "=== Version Info ==="
+          grep 'versionCode' app/build.gradle.kts | head -1
+          grep 'versionName' app/build.gradle.kts | head -1
+
       - name: Upload to Play Store
         uses: r0adkll/upload-google-play@v1
         with:
@@ -50,3 +60,4 @@ jobs:
           track: internal
           status: completed
           mappingFile: app/build/outputs/mapping/release/mapping.txt
+          whatsNewDirectory: distribution/whatsnew
