@@ -27,10 +27,16 @@ jobs:
 
       - name: Configure Version Code and Name
         run: |
-          # Use GitHub Run Number + Offset (20) to ensure we are above version 18
-          # run_number increments automatically on every workflow run.
-          OFFSET=20
-          NEW_VERSION_CODE=$(( $GITHUB_RUN_NUMBER + $OFFSET ))
+          # Retrieve the last Version Code from GitHub Variables
+          # If not set (first run), default to 29 so the next one is 30.
+          LAST_CODE="${{ vars.APP_VERSION_CODE }}"
+          if [ -z "$LAST_CODE" ]; then
+            echo "No APP_VERSION_CODE variable found. Defaulting to 29."
+            LAST_CODE=29
+          fi
+          
+          # Increment to get the new code for this build
+          NEW_VERSION_CODE=$(( LAST_CODE + 1 ))
           
           # Read Version Name from repo vars (or default to 1.0.0 if missing)
           VERSION_NAME="${{ vars.VERSION_NAME }}"
@@ -88,21 +94,24 @@ jobs:
           mappingFile: app/build/outputs/mapping/release/mapping.txt
           whatsNewDirectory: distribution/whatsnew
 
-      # Only runs if upload succeeded — increment VERSION_NAME for next build
-      # We no longer need to increment VERSION_CODE variable as we use run_number
-      - name: Increment Version Name
+      # Only runs if upload succeeded — increment VERSION_NAME & CODE for next build
+      - name: Increment Version Name & Code
         if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # 1. Update Version Code (Save the one we just used)
+          NEW_CODE="${{ env.APP_VERSION_CODE }}"
+          gh variable set APP_VERSION_CODE --body "$NEW_CODE"
+          echo "Updated APP_VERSION_CODE variable to $NEW_CODE"
+
+          # 2. Increment Version Name for next time
           CURRENT_VN="${{ env.APP_VERSION_NAME }}"
-          # Split version name by dots, increment patch number
           MAJOR=$(echo "$CURRENT_VN" | cut -d. -f1)
           MINOR=$(echo "$CURRENT_VN" | cut -d. -f2)
           PATCH=$(echo "$CURRENT_VN" | cut -d. -f3)
           NEXT_PATCH=$((PATCH + 1))
           NEXT_VN="${MAJOR}.${MINOR}.${NEXT_PATCH}"
           
-          # Check if the variable exists before trying to set it, or just set it
           gh variable set VERSION_NAME --body "$NEXT_VN"
-          echo "Version name incremented: $CURRENT_VN -> $NEXT_VN"
+          echo "Updated VERSION_NAME variable: $CURRENT_VN -> $NEXT_VN"
