@@ -5,9 +5,9 @@ on:
     branches:
       - master
 
-# Need write permission to update repo variables (VERSION_NAME) after successful deploy
+# Write permission needed to push VERSION_HISTORY.md and update repo variables
 permissions:
-  contents: read
+  contents: write
   actions: write
 
 jobs:
@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for commit log generation
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -28,19 +30,19 @@ jobs:
       - name: Configure Version Code and Name
         run: |
           # Retrieve the last Version Code from GitHub Variables
-          # If not set (first run), default to 29 so the next one is 30.
+          # If not set (first run), default to 30 so the next one is 31.
           LAST_CODE="${{ vars.APP_VERSION_CODE }}"
           if [ -z "$LAST_CODE" ]; then
-            echo "No APP_VERSION_CODE variable found. Defaulting to 29."
-            LAST_CODE=29
+            echo "No APP_VERSION_CODE variable found. Defaulting to 30."
+            LAST_CODE=30
           fi
           
           # Increment to get the new code for this build
           NEW_VERSION_CODE=$(( LAST_CODE + 1 ))
           
-          # Read Version Name from repo vars (or default to 1.0.0 if missing)
+          # Read Version Name from repo vars (or default to 1.3.5 if missing)
           VERSION_NAME="${{ vars.VERSION_NAME }}"
-          if [ -z "$VERSION_NAME" ]; then VERSION_NAME="1.0.0"; fi
+          if [ -z "$VERSION_NAME" ]; then VERSION_NAME="1.3.5"; fi
           
           echo "APP_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
           echo "APP_VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
@@ -49,6 +51,37 @@ jobs:
           echo "Building with versionCode: $NEW_VERSION_CODE"
           echo "Building with versionName: $VERSION_NAME"
           echo "================================================"
+
+      - name: Generate Release Notes
+        run: |
+          # Extract the latest commit message for release metadata
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          COMMIT_HASH=$(git log -1 --pretty=format:"%h")
+          BUILD_DATE=$(date -u +"%Y-%m-%d")
+          
+          # Write to release_description.txt (artifact-level description)
+          cat > release_description.txt <<EOF
+          Build: v${{ env.APP_VERSION_NAME }} (code ${{ env.APP_VERSION_CODE }})
+          Date:  ${BUILD_DATE}
+          Commit: ${COMMIT_HASH}
+          
+          ${COMMIT_MSG}
+          EOF
+          
+          # Update whatsnew for Play Store listing
+          cat > distribution/whatsnew/whatsnew-en-US <<EOF
+          v${{ env.APP_VERSION_NAME }} - ${COMMIT_MSG}
+          
+          • Latest improvements and bug fixes
+          • Android 15 (16 KB page alignment) compatible
+          • Enhanced performance and stability
+          EOF
+          
+          echo "=== Release Description ==="
+          cat release_description.txt
+          echo ""
+          echo "=== What's New ==="
+          cat distribution/whatsnew/whatsnew-en-US
 
       - name: Decode Keystore
         env:
@@ -115,3 +148,21 @@ jobs:
           
           gh variable set VERSION_NAME --body "$NEXT_VN"
           echo "Updated VERSION_NAME variable: $CURRENT_VN -> $NEXT_VN"
+
+      - name: Update VERSION_HISTORY.md
+        if: success()
+        run: |
+          BUILD_DATE=$(date -u +"%Y-%m-%d")
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          
+          # Append the new version entry to VERSION_HISTORY.md
+          echo "| ${{ env.APP_VERSION_CODE }}           | ${{ env.APP_VERSION_NAME }}       | ${BUILD_DATE} | ${COMMIT_MSG} |" >> VERSION_HISTORY.md
+          
+          # Configure git for the commit
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Commit and push the updated VERSION_HISTORY.md and whatsnew
+          git add VERSION_HISTORY.md distribution/whatsnew/whatsnew-en-US
+          git commit -m "ci: update VERSION_HISTORY.md and release notes [v${{ env.APP_VERSION_NAME }}, code ${{ env.APP_VERSION_CODE }}]" || echo "No changes to commit"
+          git push origin master || echo "Push failed — VERSION_HISTORY.md update skipped"
