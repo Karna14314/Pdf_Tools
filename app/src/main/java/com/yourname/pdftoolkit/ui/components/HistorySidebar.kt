@@ -445,7 +445,7 @@ private fun HistoryItem(
                                     try {
                                         val uri = Uri.parse(entry.outputFileUri)
                                         if (isImage) {
-                                            FileOpener.openWithSystemPicker(context, uri)
+                                            FileOpener.openImage(context, uri)
                                         } else {
                                             onOpenFile(uri)
                                         }

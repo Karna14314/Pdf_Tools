@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -57,7 +58,7 @@ fun ImageToolsScreen(
     
     // State
     var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
-    var selectedOperation by remember { mutableStateOf(ImageOperation.RESIZE) }
+    var selectedOperation by rememberSaveable { mutableStateOf(ImageOperation.RESIZE) }
     var isProcessing by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
     var showResult by remember { mutableStateOf(false) }

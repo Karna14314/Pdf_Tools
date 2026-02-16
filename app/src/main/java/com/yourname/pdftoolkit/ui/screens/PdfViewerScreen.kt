@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -529,20 +530,33 @@ fun PdfViewerScreen(
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
                 .pointerInput(toolState, selectedAnnotationTool) {
-                    // Bolt: Enable controls toggle in Pan mode (Edit + None)
+                    // Enable controls toggle in Pan mode (Edit + None)
                     // Disable gestures only when actively drawing (Edit + Tool)
                     val isDrawing = toolState is PdfTool.Edit && selectedAnnotationTool != AnnotationTool.NONE
 
                     if (!isDrawing) {
                         detectTapGestures(
                             onTap = { showControls = !showControls },
-                            onDoubleTap = {
-                                // Bolt: Double Tap to Zoom
-                                val newScale = if (scale >= 2f) 1f else 2f
-                                scale = newScale
+                            onDoubleTap = { tapOffset ->
+                                // Double-tap zooms to the specific tap coordinates
+                                val newScale = if (scale >= 2f) 1f else 2.5f
                                 if (newScale == 1f) {
+                                    // Reset to default
+                                    scale = 1f
                                     offsetX = 0f
                                     offsetY = 0f
+                                } else {
+                                    val zoomFactor = newScale / scale
+                                    // Calculate offset so the tap point stays under the finger
+                                    val centerX = size.width / 2f
+                                    val centerY = size.height / 2f
+                                    val newOffsetX = (centerX - tapOffset.x) * (zoomFactor - 1f) + offsetX * zoomFactor
+                                    val newOffsetY = (centerY - tapOffset.y) * (zoomFactor - 1f) + offsetY * zoomFactor
+                                    val maxOffsetX = (size.width * (newScale - 1f))
+                                    val maxOffsetY = (size.height * (newScale - 1f))
+                                    scale = newScale
+                                    offsetX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
+                                    offsetY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
                                 }
                             }
                         )
@@ -1021,8 +1035,10 @@ private fun PdfPagesContent(
                     Modifier.pointerInput(Unit) {
                         detectTransformGestures { centroid, pan, zoom, _ ->
                             val oldScale = scale
-                            val newScale = (scale * zoom).coerceIn(0.5f, 3f)
-                            
+                            // Apply a minimum zoom delta threshold to prevent accidental zoom
+                            val effectiveZoom = if (kotlin.math.abs(zoom - 1f) < 0.01f) 1f else zoom
+                            val newScale = (scale * effectiveZoom).coerceIn(0.5f, 5f)
+
                             if (newScale > 1f) {
                                 val zoomFactor = newScale / oldScale
                                 val centerX = containerSize.width / 2f
@@ -1031,9 +1047,10 @@ private fun PdfPagesContent(
                                 val newOffsetXCandidate = (centroid.x - centerX) * (1 - zoomFactor) + offsetX * zoomFactor + pan.x
                                 val newOffsetYCandidate = (centroid.y - centerY) * (1 - zoomFactor) + offsetY * zoomFactor + pan.y
 
-                                val maxOffsetX = (containerSize.width * (newScale - 1f)) / 2f
-                                val maxOffsetY = (containerSize.height * (newScale - 1f)) / 2f
-                                
+                                // Use generous bounds (full container * scale) to prevent snap-back
+                                val maxOffsetX = (containerSize.width * (newScale - 1f))
+                                val maxOffsetY = (containerSize.height * (newScale - 1f))
+
                                 onOffsetChange(
                                     newOffsetXCandidate.coerceIn(-maxOffsetX, maxOffsetX),
                                     newOffsetYCandidate.coerceIn(-maxOffsetY, maxOffsetY)
@@ -1041,7 +1058,7 @@ private fun PdfPagesContent(
                             } else {
                                 onOffsetChange(0f, 0f)
                             }
-                            
+
                             onScaleChange(newScale)
                         }
                     }
@@ -1227,12 +1244,24 @@ private fun PdfPageWithAnnotations(
                                                     AnnotationTool.UNDERLINE -> 4f
                                                     else -> 8f
                                                 }
+                                                
+                                                // For highlighter: snap to a clean horizontal rectangle
+                                                val finalPoints = if (selectedTool == AnnotationTool.HIGHLIGHTER && localStroke.size >= 2) {
+                                                    val minX = localStroke.minOf { it.x }
+                                                    val maxX = localStroke.maxOf { it.x }
+                                                    val avgY = localStroke.map { it.y }.average().toFloat()
+                                                    // Create a straight horizontal line at the average Y
+                                                    listOf(Offset(minX, avgY), Offset(maxX, avgY))
+                                                } else {
+                                                    localStroke.toList()
+                                                }
+                                                
                                                 onAddAnnotation(
                                                     AnnotationStroke(
                                                         pageIndex = pageIndex,
                                                         tool = selectedTool,
                                                         color = selectedColor,
-                                                        points = localStroke.toList(),
+                                                        points = finalPoints,
                                                         strokeWidth = strokeWidth
                                                     )
                                                 )
@@ -1253,14 +1282,23 @@ private fun PdfPageWithAnnotations(
                                     lineTo(stroke.points[i].x, stroke.points[i].y)
                                 }
                             }
+                            // Highlighter uses semi-transparent Multiply blend so text shows through
+                            // Marker and other tools render opaque
+                            val blendMode = if (stroke.tool == AnnotationTool.HIGHLIGHTER) BlendMode.Multiply else BlendMode.SrcOver
+                            val drawColor = if (stroke.tool == AnnotationTool.HIGHLIGHTER) {
+                                stroke.color.copy(alpha = 0.35f)
+                            } else {
+                                stroke.color
+                            }
                             drawPath(
                                 path = path,
-                                color = stroke.color,
+                                color = drawColor,
                                 style = androidx.compose.ui.graphics.drawscope.Stroke(
                                     width = stroke.strokeWidth,
                                     cap = StrokeCap.Round,
                                     join = androidx.compose.ui.graphics.StrokeJoin.Round
-                                )
+                                ),
+                                blendMode = blendMode
                             )
                         }
                     }
@@ -1277,13 +1315,20 @@ private fun PdfPageWithAnnotations(
                             AnnotationTool.UNDERLINE -> 4f
                             else -> 8f
                         }
+                        val liveBlendMode = if (selectedTool == AnnotationTool.HIGHLIGHTER) BlendMode.Multiply else BlendMode.SrcOver
+                        val liveColor = if (selectedTool == AnnotationTool.HIGHLIGHTER) {
+                            selectedColor.copy(alpha = 0.35f)
+                        } else {
+                            selectedColor
+                        }
                         drawPath(
                             path = path,
-                            color = selectedColor,
+                            color = liveColor,
                             style = androidx.compose.ui.graphics.drawscope.Stroke(
                                 width = strokeWidth,
                                 cap = StrokeCap.Round
-                            )
+                            ),
+                            blendMode = liveBlendMode
                         )
                     }
                 }

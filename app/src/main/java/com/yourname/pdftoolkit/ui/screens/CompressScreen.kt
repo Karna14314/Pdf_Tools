@@ -47,7 +47,14 @@ fun CompressScreen(
     
     // State
     var selectedFile by remember { mutableStateOf<PdfFileInfo?>(null) }
-    var compressionLevel by remember { mutableStateOf(CompressionLevel.MEDIUM) }
+    var compressionSliderValue by remember { mutableStateOf(50f) }
+    // Derive CompressionLevel from slider position
+    val compressionLevel = when {
+        compressionSliderValue < 25f -> CompressionLevel.LOW
+        compressionSliderValue < 50f -> CompressionLevel.MEDIUM
+        compressionSliderValue < 75f -> CompressionLevel.HIGH
+        else -> CompressionLevel.MAXIMUM
+    }
     var isProcessing by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
     var showResult by remember { mutableStateOf(false) }
@@ -321,59 +328,86 @@ fun CompressScreen(
                             }
                         }
                         
-                        // Compression level selection
+                        // Compression level slider
                         item {
-                            Text(
-                                text = "Compression Level",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        
-                        item {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
                             ) {
-                                CompressionLevelOption(
-                                    level = CompressionLevel.LOW,
-                                    title = "Low",
-                                    description = "Best quality, minor size reduction",
-                                    icon = Icons.Default.HighQuality,
-                                    estimatedReduction = "~20%",
-                                    isSelected = compressionLevel == CompressionLevel.LOW,
-                                    onClick = { compressionLevel = CompressionLevel.LOW }
-                                )
-                                
-                                CompressionLevelOption(
-                                    level = CompressionLevel.MEDIUM,
-                                    title = "Medium (Recommended)",
-                                    description = "Good balance of quality and size",
-                                    icon = Icons.Default.Balance,
-                                    estimatedReduction = "~45%",
-                                    isSelected = compressionLevel == CompressionLevel.MEDIUM,
-                                    onClick = { compressionLevel = CompressionLevel.MEDIUM }
-                                )
-                                
-                                CompressionLevelOption(
-                                    level = CompressionLevel.HIGH,
-                                    title = "High",
-                                    description = "Smaller file, reduced quality",
-                                    icon = Icons.Default.Compress,
-                                    estimatedReduction = "~65%",
-                                    isSelected = compressionLevel == CompressionLevel.HIGH,
-                                    onClick = { compressionLevel = CompressionLevel.HIGH }
-                                )
-                                
-                                CompressionLevelOption(
-                                    level = CompressionLevel.MAXIMUM,
-                                    title = "Maximum",
-                                    description = "Smallest file, lowest quality",
-                                    icon = Icons.Default.DataSaverOn,
-                                    estimatedReduction = "~75%",
-                                    isSelected = compressionLevel == CompressionLevel.MAXIMUM,
-                                    onClick = { compressionLevel = CompressionLevel.MAXIMUM }
-                                )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "Compression Level",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Surface(
+                                            shape = MaterialTheme.shapes.small,
+                                            color = MaterialTheme.colorScheme.primary
+                                        ) {
+                                            Text(
+                                                text = when (compressionLevel) {
+                                                    CompressionLevel.LOW -> "Low"
+                                                    CompressionLevel.MEDIUM -> "Medium"
+                                                    CompressionLevel.HIGH -> "High"
+                                                    CompressionLevel.MAXIMUM -> "Maximum"
+                                                },
+                                                style = MaterialTheme.typography.labelMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onPrimary,
+                                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                            )
+                                        }
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    
+                                    Text(
+                                        text = when (compressionLevel) {
+                                            CompressionLevel.LOW -> "Best quality, minor size reduction"
+                                            CompressionLevel.MEDIUM -> "Good balance of quality and size"
+                                            CompressionLevel.HIGH -> "Smaller file, reduced quality"
+                                            CompressionLevel.MAXIMUM -> "Smallest file, lowest quality"
+                                        },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    
+                                    Slider(
+                                        value = compressionSliderValue,
+                                        onValueChange = { compressionSliderValue = it },
+                                        valueRange = 0f..100f,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "Better quality",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = "Smaller file",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
                             }
                         }
                         
@@ -513,89 +547,7 @@ fun CompressScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun CompressionLevelOption(
-    level: CompressionLevel,
-    title: String,
-    description: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    estimatedReduction: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.secondaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RadioButton(
-                selected = isSelected,
-                onClick = onClick
-            )
-            
-            Spacer(modifier = Modifier.width(8.dp))
-            
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = if (isSelected) {
-                    MaterialTheme.colorScheme.onSecondaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
-            )
-            
-            Spacer(modifier = Modifier.width(12.dp))
-            
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = if (isSelected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                }
-            ) {
-                Text(
-                    text = estimatedReduction,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                )
-            }
-        }
-    }
-}
+// CompressionLevelOption removed - replaced by slider UI above
 
 /**
  * Copy a URI to the viewer cache directory and return a FileProvider URI.

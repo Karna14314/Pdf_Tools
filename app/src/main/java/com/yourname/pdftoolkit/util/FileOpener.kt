@@ -76,6 +76,37 @@ object FileOpener {
     }
     
     /**
+     * Open multiple images using ACTION_SEND_MULTIPLE for gallery/viewer.
+     * Falls back to opening first image if multi-send is not supported.
+     *
+     * @param context Android context
+     * @param uris List of image URIs to open
+     * @return true if intent was launched successfully
+     */
+    fun openMultipleImages(context: Context, uris: List<Uri>): Boolean {
+        if (uris.isEmpty()) return false
+        if (uris.size == 1) return openImage(context, uris.first())
+        
+        return try {
+            val accessibleUris = ArrayList(uris.map { getAccessibleUri(context, it, "image") })
+            
+            val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                type = "image/*"
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, accessibleUris)
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            val chooser = Intent.createChooser(intent, "View images...").apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            context.startActivity(chooser)
+            true
+        } catch (e: Exception) {
+            // Fallback: open the first image individually
+            openImage(context, uris.first())
+        }
+    }
+    
+    /**
      * Open a text file with the default text viewer.
      * 
      * @param context Android context

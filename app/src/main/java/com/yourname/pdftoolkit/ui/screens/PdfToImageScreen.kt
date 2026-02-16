@@ -30,6 +30,7 @@ import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.ImageConverter
 import com.yourname.pdftoolkit.domain.operations.ImageFormat
 import com.yourname.pdftoolkit.ui.components.*
+import com.yourname.pdftoolkit.util.FileOpener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,24 +69,19 @@ fun PdfToImageScreen(
         }
     }
     
-    // Open gallery to view images
+    // Open the specific saved images, or fall back to generic gallery
     fun openGallery() {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                type = "image/*"
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            // Fallback - open file manager
+        if (savedImageUris.isNotEmpty()) {
+            FileOpener.openMultipleImages(context, savedImageUris)
+        } else {
             try {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
+                val intent = Intent(Intent.ACTION_VIEW).apply {
                     type = "image/*"
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
                 context.startActivity(intent)
-            } catch (e2: Exception) {
-                // Ignore if cannot open
+            } catch (e: Exception) {
+                // Ignore
             }
         }
     }
