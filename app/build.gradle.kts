@@ -10,6 +10,7 @@ plugins {
 android {
     namespace = "com.yourname.pdftoolkit"
     compileSdk = 35
+    ndkVersion = "28.0.12433510"
 
     defaultConfig {
         applicationId = "com.yourname.pdftoolkit"
@@ -27,11 +28,6 @@ android {
         
         // Play Store requirements
         multiDexEnabled = true
-        
-        // App Bundle optimization
-        ndk {
-            debugSymbolLevel = "FULL"
-        }
     }
 
     signingConfigs {
@@ -98,6 +94,11 @@ android {
             // Play Store optimization
             isDebuggable = false
             isJniDebuggable = false
+            
+            // Bundle debug symbols in the AAB for Play Console crash reports
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
         debug {
             isMinifyEnabled = false
@@ -107,12 +108,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -133,6 +134,10 @@ android {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/NOTICE.md"
             excludes += "META-INF/versions/9/module-info.class"
+        }
+        // 16 KB page alignment: store native libs uncompressed & page-aligned
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
     
