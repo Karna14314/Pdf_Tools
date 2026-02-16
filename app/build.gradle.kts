@@ -15,7 +15,9 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 17
+        // Dynamic versionCode from GitHub Actions run number + offset (20) to start above 17
+        // Fallback to 18 for local builds
+        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()?.plus(20) ?: 18
         versionName = "1.3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
