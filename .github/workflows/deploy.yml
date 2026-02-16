@@ -5,7 +5,7 @@ on:
     branches:
       - master
 
-# Write permission needed to push VERSION_HISTORY.md and update repo variables
+# Write permission needed to push VERSION, VERSION_HISTORY.md updates
 permissions:
   contents: write
   actions: write
@@ -27,22 +27,26 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Configure Version Code and Name
+      - name: Calculate Version Code and Read Version Name
         run: |
-          # Retrieve the last Version Code from GitHub Variables
-          # If not set (first run), default to 30 so the next one is 31.
-          LAST_CODE="${{ vars.APP_VERSION_CODE }}"
-          if [ -z "$LAST_CODE" ]; then
-            echo "No APP_VERSION_CODE variable found. Defaulting to 30."
-            LAST_CODE=30
+          # --- VERSION CODE ---
+          # Use the VERSION_CODE file as the source of truth.
+          # If missing, default to 31 (since 30 and 31 are already used).
+          if [ -f VERSION_CODE ]; then
+            NEW_VERSION_CODE=$(cat VERSION_CODE | tr -d '[:space:]')
+          else
+            echo "No VERSION_CODE file found. Defaulting to 32."
+            NEW_VERSION_CODE=32
           fi
           
-          # Increment to get the new code for this build
-          NEW_VERSION_CODE=$(( LAST_CODE + 1 ))
-          
-          # Read Version Name from repo vars (or default to 1.3.5 if missing)
-          VERSION_NAME="${{ vars.VERSION_NAME }}"
-          if [ -z "$VERSION_NAME" ]; then VERSION_NAME="1.3.5"; fi
+          # --- VERSION NAME ---
+          # Read from the VERSION file committed in the repo.
+          if [ -f VERSION ]; then
+            VERSION_NAME=$(cat VERSION | tr -d '[:space:]')
+          else
+            echo "No VERSION file found. Defaulting to 1.3.5."
+            VERSION_NAME="1.3.5"
+          fi
           
           echo "APP_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
           echo "APP_VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
@@ -112,6 +116,8 @@ jobs:
           ls -lh app/build/outputs/bundle/release/*.aab
           echo "=== Mapping File ==="
           ls -lh app/build/outputs/mapping/release/mapping.txt || echo "No mapping file found (minify may be disabled)"
+          echo "=== Native Debug Symbols ==="
+          ls -lh app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip || echo "No native debug symbols zip found"
           echo "=== Version ==="
           echo "versionCode: ${{ env.APP_VERSION_CODE }}"
           echo "versionName: ${{ env.APP_VERSION_NAME }}"
@@ -125,44 +131,39 @@ jobs:
           track: internal
           status: completed
           mappingFile: app/build/outputs/mapping/release/mapping.txt
+          debugSymbols: app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib
           whatsNewDirectory: distribution/whatsnew
 
-      # Only runs if upload succeeded — increment VERSION_NAME & CODE for next build
-      - name: Increment Version Name & Code
+      # Only runs if upload succeeded — increment VERSION, VERSION_CODE, and update history
+      - name: Increment Version and Update History
         if: success()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Update Version Code (Save the one we just used)
-          NEW_CODE="${{ env.APP_VERSION_CODE }}"
-          gh variable set APP_VERSION_CODE --body "$NEW_CODE"
-          echo "Updated APP_VERSION_CODE variable to $NEW_CODE"
-
-          # 2. Increment Version Name for next time
+          BUILD_DATE=$(date -u +"%Y-%m-%d")
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          
+          # --- Increment VERSION_CODE for next build ---
+          CURRENT_CODE="${{ env.APP_VERSION_CODE }}"
+          NEXT_CODE=$(( CURRENT_CODE + 1 ))
+          echo "$NEXT_CODE" > VERSION_CODE
+          echo "Updated VERSION_CODE: $CURRENT_CODE -> $NEXT_CODE"
+          
+          # --- Increment VERSION_NAME (patch bump) for next build ---
           CURRENT_VN="${{ env.APP_VERSION_NAME }}"
           MAJOR=$(echo "$CURRENT_VN" | cut -d. -f1)
           MINOR=$(echo "$CURRENT_VN" | cut -d. -f2)
           PATCH=$(echo "$CURRENT_VN" | cut -d. -f3)
           NEXT_PATCH=$((PATCH + 1))
           NEXT_VN="${MAJOR}.${MINOR}.${NEXT_PATCH}"
+          echo "$NEXT_VN" > VERSION
+          echo "Updated VERSION: $CURRENT_VN -> $NEXT_VN"
           
-          gh variable set VERSION_NAME --body "$NEXT_VN"
-          echo "Updated VERSION_NAME variable: $CURRENT_VN -> $NEXT_VN"
-
-      - name: Update VERSION_HISTORY.md
-        if: success()
-        run: |
-          BUILD_DATE=$(date -u +"%Y-%m-%d")
-          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          # --- Append to VERSION_HISTORY.md ---
+          echo "| $CURRENT_CODE           | $CURRENT_VN       | ${BUILD_DATE} | ${COMMIT_MSG} |" >> VERSION_HISTORY.md
           
-          # Append the new version entry to VERSION_HISTORY.md
-          echo "| ${{ env.APP_VERSION_CODE }}           | ${{ env.APP_VERSION_NAME }}       | ${BUILD_DATE} | ${COMMIT_MSG} |" >> VERSION_HISTORY.md
-          
-          # Configure git for the commit
+          # --- Configure git and push ---
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Commit and push the updated VERSION_HISTORY.md and whatsnew
-          git add VERSION_HISTORY.md distribution/whatsnew/whatsnew-en-US
-          git commit -m "ci: update VERSION_HISTORY.md and release notes [v${{ env.APP_VERSION_NAME }}, code ${{ env.APP_VERSION_CODE }}]" || echo "No changes to commit"
-          git push origin master || echo "Push failed — VERSION_HISTORY.md update skipped"
+          git add VERSION VERSION_CODE VERSION_HISTORY.md distribution/whatsnew/whatsnew-en-US
+          git commit -m "ci: deployed v${CURRENT_VN} (code ${CURRENT_CODE}) → next: v${NEXT_VN} (code ${NEXT_CODE})" || echo "No changes to commit"
+          git push origin master || echo "Push failed — version update skipped"

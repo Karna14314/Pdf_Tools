@@ -194,7 +194,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     
     // CameraX for Scan to PDF (Apache 2.0)
-    val cameraxVersion = "1.3.1"
+    // v1.4.1+ includes 16KB page-aligned native libraries
+    val cameraxVersion = "1.4.1"
     implementation("androidx.camera:camera-core:$cameraxVersion")
     implementation("androidx.camera:camera-camera2:$cameraxVersion")
     implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
@@ -202,16 +203,20 @@ dependencies {
     
     // ML Kit Text Recognition for OCR (Apache 2.0)
     // Note: Models are downloaded on-demand when first used (~40MB)
-    implementation("com.google.mlkit:text-recognition:16.0.0")
+    // v16.0.1+ includes 16KB page-aligned native libraries
+    implementation("com.google.mlkit:text-recognition:16.0.1")
     
     // Coil for image loading (Apache 2.0) - lightweight (~2MB)
     implementation("io.coil-kt:coil-compose:2.5.0")
     
     // Glide for advanced image loading with EXIF rotation support (BSD-like license)
+    // v4.16.0+ AVIF decoder is 16KB page-aligned
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    ksp("com.github.bumptech.glide:ksp:4.16.0")
     
     // uCrop for lightweight image cropping (Apache 2.0)
-    implementation("com.github.yalantis:ucrop:2.2.8")
+    // v2.2.9+ includes 16KB page-aligned native libraries
+    implementation("com.github.yalantis:ucrop:2.2.9")
 
     // Room Database
     val roomVersion = "2.6.1"
