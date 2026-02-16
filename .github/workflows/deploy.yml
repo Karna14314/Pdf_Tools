@@ -5,6 +5,11 @@ on:
     branches:
       - master
 
+# Need write permission to update repo variables after successful deploy
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,6 +24,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
+
+      - name: Read Version from Repo Variables
+        run: |
+          echo "APP_VERSION_CODE=${{ vars.VERSION_CODE }}" >> $GITHUB_ENV
+          echo "APP_VERSION_NAME=${{ vars.VERSION_NAME }}" >> $GITHUB_ENV
+          echo "================================================"
+          echo "Building with versionCode: ${{ vars.VERSION_CODE }}"
+          echo "Building with versionName: ${{ vars.VERSION_NAME }}"
+          echo "================================================"
+
+      - name: Validate Version Code
+        run: |
+          VC="${{ vars.VERSION_CODE }}"
+          if [ -z "$VC" ] || [ "$VC" -lt 18 ]; then
+            echo "ERROR: VERSION_CODE is missing or less than 18 (current Play Store min)."
+            echo "Please set VERSION_CODE repo variable to a value >= 18."
+            exit 1
+          fi
+          echo "Version code $VC is valid (>= 18)."
 
       - name: Decode Keystore
         env:
@@ -38,6 +62,8 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           ANDROID_KEYSTORE_FILE: keystore.jks
+          APP_VERSION_CODE: ${{ vars.VERSION_CODE }}
+          APP_VERSION_NAME: ${{ vars.VERSION_NAME }}
           CI: true
         run: ./gradlew bundleRelease
 
@@ -47,9 +73,9 @@ jobs:
           ls -lh app/build/outputs/bundle/release/*.aab
           echo "=== Mapping File ==="
           ls -lh app/build/outputs/mapping/release/mapping.txt || echo "No mapping file found (minify may be disabled)"
-          echo "=== Version Info ==="
-          grep 'versionCode' app/build.gradle.kts | head -1
-          grep 'versionName' app/build.gradle.kts | head -1
+          echo "=== Version ==="
+          echo "versionCode: ${{ vars.VERSION_CODE }}"
+          echo "versionName: ${{ vars.VERSION_NAME }}"
 
       - name: Upload to Play Store
         uses: r0adkll/upload-google-play@v1
@@ -61,3 +87,29 @@ jobs:
           status: completed
           mappingFile: app/build/outputs/mapping/release/mapping.txt
           whatsNewDirectory: distribution/whatsnew
+
+      # Only runs if upload succeeded — increment version for next build
+      - name: Increment Version Code
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_VC=${{ vars.VERSION_CODE }}
+          NEXT_VC=$((CURRENT_VC + 1))
+          gh variable set VERSION_CODE --body "$NEXT_VC"
+          echo "Version code incremented: $CURRENT_VC -> $NEXT_VC"
+
+      - name: Increment Version Name
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_VN="${{ vars.VERSION_NAME }}"
+          # Split version name by dots, increment patch number
+          MAJOR=$(echo "$CURRENT_VN" | cut -d. -f1)
+          MINOR=$(echo "$CURRENT_VN" | cut -d. -f2)
+          PATCH=$(echo "$CURRENT_VN" | cut -d. -f3)
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VN="${MAJOR}.${MINOR}.${NEXT_PATCH}"
+          gh variable set VERSION_NAME --body "$NEXT_VN"
+          echo "Version name incremented: $CURRENT_VN -> $NEXT_VN"

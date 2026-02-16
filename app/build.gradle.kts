@@ -15,10 +15,10 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        // Dynamic versionCode from GitHub Actions run number + offset (20) to start above 17
-        // Fallback to 18 for local builds
-        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()?.plus(20) ?: 18
-        versionName = "1.3.3"
+        // Version is managed via GitHub repo variables and passed as env vars by CI
+        // Local builds use fallback values (not published to Play Store)
+        versionCode = System.getenv("APP_VERSION_CODE")?.toIntOrNull() ?: 1
+        versionName = System.getenv("APP_VERSION_NAME") ?: "dev"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
