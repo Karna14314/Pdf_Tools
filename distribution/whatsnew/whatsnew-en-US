@@ -1,6 +1,5 @@
-v1.3.3 - Performance & Reliability Update
+v1.3.5 - fix: 16KB alignment (upgrade AGP 8.7.3, CameraX 1.4.1, MLKit 16.0.1), debug symbols upload, file-based versioning (fixes gh variable 403 error)
 
-• Improved 16KB memory page size support for newer Android devices
-• Enhanced app signing and build pipeline reliability
-• Bug fixes and performance optimizations
-• Improved PDF processing stability
+• Latest improvements and bug fixes
+• Android 15 (16 KB page alignment) compatible
+• Enhanced performance and stability
