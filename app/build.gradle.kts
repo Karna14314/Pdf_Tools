@@ -34,14 +34,51 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystorePropertiesFile = rootProject.file("keystore.properties")
-            if (keystorePropertiesFile.exists()) {
-                val properties = Properties()
-                properties.load(FileInputStream(keystorePropertiesFile))
-                storeFile = rootProject.file(properties["storeFile"] as String)
-                storePassword = properties["storePassword"] as String
-                keyAlias = properties["keyAlias"] as String
-                keyPassword = properties["keyPassword"] as String
+            val isCi = System.getenv("CI") == "true"
+            if (isCi) {
+                println("Configuring signing for CI...")
+                val keystorePath = System.getenv("ANDROID_KEYSTORE_FILE") ?: "keystore.jks"
+                val keystoreFile = file(keystorePath)
+                
+                if (keystoreFile.exists()) {
+                    println("Keystore file found at: ${keystoreFile.absolutePath}")
+                    storeFile = keystoreFile
+                } else {
+                     println("ERROR: Keystore file NOT found at: ${keystoreFile.absolutePath}")
+                     // Don't throw here, let gradle fail naturally or subsequent checks fail
+                }
+
+                val kPassword = System.getenv("KEYSTORE_PASSWORD")
+                val kAlias = System.getenv("KEY_ALIAS")
+                val kKeyPassword = System.getenv("KEY_PASSWORD")
+
+                println("KEYSTORE_PASSWORD present: ${!kPassword.isNullOrEmpty()}")
+                println("KEY_ALIAS present: ${!kAlias.isNullOrEmpty()}")
+                println("KEY_PASSWORD present: ${!kKeyPassword.isNullOrEmpty()}")
+                // Mask alias for safety in logs though usually public
+                println("KEY_ALIAS value: '${if (kAlias.isNullOrEmpty()) "null/empty" else kAlias}'") 
+                
+                if (!kPassword.isNullOrEmpty() && !kAlias.isNullOrEmpty() && !kKeyPassword.isNullOrEmpty()) {
+                    storePassword = kPassword
+                    keyAlias = kAlias
+                    keyPassword = kKeyPassword
+                } else {
+                    println("ERROR: One or more signing secrets are missing in CI environment.")
+                    // Initialize with empty strings to verify if NPE comes from null values
+                    storePassword = kPassword ?: ""
+                    keyAlias = kAlias ?: ""
+                    keyPassword = kKeyPassword ?: ""
+                }
+            } else {
+                val keystorePropertiesFile = rootProject.file("keystore.properties")
+                if (keystorePropertiesFile.exists()) {
+                    val properties = Properties()
+                    properties.load(FileInputStream(keystorePropertiesFile))
+                    storeFile = rootProject.file(properties["storeFile"] as String)
+                    storePassword = properties["storePassword"] as String
+                    keyAlias = properties["keyAlias"] as String
+                    keyPassword = properties["keyPassword"] as String
+                }
             }
         }
     }
