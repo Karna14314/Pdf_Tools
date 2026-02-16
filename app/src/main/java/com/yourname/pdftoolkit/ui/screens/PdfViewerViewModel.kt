@@ -24,14 +24,15 @@ import com.tom_roush.pdfbox.text.TextPosition
 import java.io.BufferedOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 data class PageTextData(val text: String, val positions: List<TextPosition>)
 
@@ -118,6 +119,9 @@ class PdfViewerViewModel : ViewModel() {
     // Search Job Control
     private var searchJob: Job? = null
 
+    // Prefetch Job Control
+    private var prefetchJob: Job? = null
+
     // Bitmap Cache
     // Calculate cache size: Use 1/8th of the available memory for this memory cache.
     private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
@@ -130,13 +134,8 @@ class PdfViewerViewModel : ViewModel() {
         }
 
         override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap, newValue: Bitmap?) {
-             // Recycle bitmap if evicted to free native memory?
-             // Android Bitmaps on newer versions (Honeycomb+) are managed by Dalvik/ART,
-             // but recycling can still help with large images.
-             // However, reusing them via an object pool would be better than recycling if we re-render.
-             // For simplicity and safety against reusing recycled bitmaps, we won't manually recycle here
-             // immediately unless we are sure it's not used.
-             // Relying on GC is safer for ViewModels.
+             // Bolt: Safety Check - Do not recycle immediately as UI might be using it.
+             // Relying on GC is safer for ViewModels unless we implement a strict BitmapPool.
         }
     }
 
@@ -177,15 +176,28 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     suspend fun loadPage(pageIndex: Int): Bitmap? {
-        // Check cache first
+        // Check cache first (Main Thread check is fast)
         bitmapCache.get(pageIndex)?.let { return it }
 
+        // Bolt: Smart Prefetch - Trigger load for adjacent pages
+        prefetchPages(pageIndex)
+
         return withContext(Dispatchers.IO) {
+            // Bolt: Cancellation Check - Ensure we stop waiting if job is cancelled
+            ensureActive()
+
             documentMutex.withLock {
                 try {
+                    // Double check cache inside lock
+                    bitmapCache.get(pageIndex)?.let { return@withLock it }
+
                     val renderer = pdfRenderer ?: return@withLock null
                     // Render at 1.5x scale (approx 108 dpi) for good quality on mobile
                     val scale = 1.5f
+
+                    // Bolt: Ensure cancellation before heavy rendering
+                    ensureActive()
+
                     val bitmap = renderer.renderImage(pageIndex, scale)
 
                     if (bitmap != null) {
@@ -195,6 +207,40 @@ class PdfViewerViewModel : ViewModel() {
                 } catch (e: Exception) {
                     Log.e("PdfViewerVM", "Error rendering page $pageIndex", e)
                     null
+                }
+            }
+        }
+    }
+
+    private fun prefetchPages(currentPage: Int) {
+        // Bolt: Smart Prefetch implementation
+        // Only prefetch if we have a valid document
+        val totalPages = (uiState.value as? PdfViewerUiState.Loaded)?.totalPages ?: return
+
+        prefetchJob?.cancel()
+        prefetchJob = viewModelScope.launch(Dispatchers.IO) {
+            val range = listOf(currentPage + 1, currentPage - 1)
+
+            for (page in range) {
+                if (page in 0 until totalPages) {
+                    if (bitmapCache.get(page) == null) {
+                        // Try to acquire lock without blocking user interaction too much
+                        // Since we are on IO, we can wait, but we yield to prioritize loadPage
+                        yield()
+
+                        try {
+                            documentMutex.withLock {
+                                // Double check inside lock
+                                if (bitmapCache.get(page) == null) {
+                                    pdfRenderer?.renderImage(page, 1.5f)?.let { bitmap ->
+                                        bitmapCache.put(page, bitmap)
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Ignore prefetch errors
+                        }
+                    }
                 }
             }
         }
@@ -286,7 +332,7 @@ class PdfViewerViewModel : ViewModel() {
 
                 for (pageIndex in 0 until totalPages) {
                     ensureActive() // Allow cancellation
-                    kotlinx.coroutines.yield()
+                    yield()
 
                     try {
                         val lowerQuery = query.lowercase()
@@ -420,22 +466,35 @@ class PdfViewerViewModel : ViewModel() {
 
                     for (pageIndex in 0 until totalPages) {
                         ensureActive() // Allow cancellation
-                        kotlinx.coroutines.yield()
+                        yield() // Bolt: Allow UI updates
 
                         val pageAnnotations = currentAnnotations.filter { it.pageIndex == pageIndex }
 
                         if (pageAnnotations.isEmpty()) {
                             // OPTIMIZATION: Fast copy for pages without annotations
                             val importedPage = destDoc.importPage(sourceDoc.getPage(pageIndex))
+                            // PDDocument.importPage returns the imported page, which belongs to destDoc but isn't added yet
+                            // We don't need to add it again if importPage adds it?
+                            // Documentation says: "This method will import a page from another document... The returned page is owned by this document."
+                            // It does NOT add it to the page tree. We must call addPage.
+                            // However, we should verify if importPage copies resources correctly. It usually does.
+                            // But for safety with annotations, we might want to strip old annotations?
+                            // Assuming source PDF is clean or we want to keep existing annotations.
                             destDoc.addPage(importedPage)
                         } else {
                             // Render and flatten
                             val cachedBitmap = bitmapCache.get(pageIndex)
                             // Use cached bitmap copy if available, otherwise render fresh
+                            // Bolt: Fix - Ensure workingBitmap is mutable for Canvas
                             val workingBitmap = if (cachedBitmap != null && !cachedBitmap.isRecycled) {
                                 cachedBitmap.copy(Bitmap.Config.ARGB_8888, true)
                             } else {
-                                pdfRenderer?.renderImage(pageIndex, 1.5f)
+                                // Render fresh and ensure mutable copy
+                                val rendered = pdfRenderer?.renderImage(pageIndex, 1.5f)
+                                rendered?.copy(Bitmap.Config.ARGB_8888, true).also {
+                                    // Recycle the immutable rendered one if it was created just for this
+                                    rendered?.recycle()
+                                }
                             }
 
                             if (workingBitmap != null) {
@@ -468,6 +527,9 @@ class PdfViewerViewModel : ViewModel() {
                                     }
 
                                     // Scale back to PDF points (72 DPI)
+                                    // Render scale is 1.5f (approx 108 DPI)
+                                    // PDF point is 1/72 inch.
+                                    // 108 / 72 = 1.5.
                                     val scaleFactor = 1.5f
                                     val pageWidth = workingBitmap.width / scaleFactor
                                     val pageHeight = workingBitmap.height / scaleFactor
