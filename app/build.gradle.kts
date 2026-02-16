@@ -10,15 +10,16 @@ plugins {
 android {
     namespace = "com.yourname.pdftoolkit"
     compileSdk = 35
+    ndkVersion = "28.0.12433510"
 
     defaultConfig {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        // Dynamic versionCode from GitHub Actions run number + offset (20) to start above 17
-        // Fallback to 18 for local builds
-        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()?.plus(20) ?: 18
-        versionName = "1.3.3"
+        // Version is managed via GitHub repo variables and passed as env vars by CI
+        // Local builds use fallback values (not published to Play Store)
+        versionCode = System.getenv("APP_VERSION_CODE")?.toIntOrNull() ?: 1
+        versionName = System.getenv("APP_VERSION_NAME") ?: "dev"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -27,11 +28,6 @@ android {
         
         // Play Store requirements
         multiDexEnabled = true
-        
-        // App Bundle optimization
-        ndk {
-            debugSymbolLevel = "FULL"
-        }
     }
 
     signingConfigs {
@@ -98,6 +94,11 @@ android {
             // Play Store optimization
             isDebuggable = false
             isJniDebuggable = false
+            
+            // Bundle debug symbols in the AAB for Play Console crash reports
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
         debug {
             isMinifyEnabled = false
@@ -107,12 +108,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -133,6 +134,10 @@ android {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/NOTICE.md"
             excludes += "META-INF/versions/9/module-info.class"
+        }
+        // 16 KB page alignment: store native libs uncompressed & page-aligned
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
     
@@ -189,7 +194,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     
     // CameraX for Scan to PDF (Apache 2.0)
-    val cameraxVersion = "1.3.1"
+    // v1.4.1+ includes 16KB page-aligned native libraries
+    val cameraxVersion = "1.4.1"
     implementation("androidx.camera:camera-core:$cameraxVersion")
     implementation("androidx.camera:camera-camera2:$cameraxVersion")
     implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
@@ -197,16 +203,20 @@ dependencies {
     
     // ML Kit Text Recognition for OCR (Apache 2.0)
     // Note: Models are downloaded on-demand when first used (~40MB)
-    implementation("com.google.mlkit:text-recognition:16.0.0")
+    // v16.0.1+ includes 16KB page-aligned native libraries
+    implementation("com.google.mlkit:text-recognition:16.0.1")
     
     // Coil for image loading (Apache 2.0) - lightweight (~2MB)
     implementation("io.coil-kt:coil-compose:2.5.0")
     
     // Glide for advanced image loading with EXIF rotation support (BSD-like license)
+    // v4.16.0+ AVIF decoder is 16KB page-aligned
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    ksp("com.github.bumptech.glide:ksp:4.16.0")
     
     // uCrop for lightweight image cropping (Apache 2.0)
-    implementation("com.github.yalantis:ucrop:2.2.8")
+    // v2.2.9+ includes 16KB page-aligned native libraries
+    implementation("com.github.yalantis:ucrop:2.2.9")
 
     // Room Database
     val roomVersion = "2.6.1"

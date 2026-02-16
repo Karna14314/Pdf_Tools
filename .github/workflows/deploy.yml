@@ -5,6 +5,11 @@ on:
     branches:
       - master
 
+# Write permission needed to push VERSION, VERSION_HISTORY.md updates
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -12,13 +17,75 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for commit log generation
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
+
+      - name: Calculate Version Code and Read Version Name
+        run: |
+          # --- VERSION CODE ---
+          # Use the VERSION_CODE file as the source of truth.
+          # If missing, default to 31 (since 30 and 31 are already used).
+          if [ -f VERSION_CODE ]; then
+            NEW_VERSION_CODE=$(cat VERSION_CODE | tr -d '[:space:]')
+          else
+            echo "No VERSION_CODE file found. Defaulting to 32."
+            NEW_VERSION_CODE=32
+          fi
+          
+          # --- VERSION NAME ---
+          # Read from the VERSION file committed in the repo.
+          if [ -f VERSION ]; then
+            VERSION_NAME=$(cat VERSION | tr -d '[:space:]')
+          else
+            echo "No VERSION file found. Defaulting to 1.3.5."
+            VERSION_NAME="1.3.5"
+          fi
+          
+          echo "APP_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
+          echo "APP_VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          
+          echo "================================================"
+          echo "Building with versionCode: $NEW_VERSION_CODE"
+          echo "Building with versionName: $VERSION_NAME"
+          echo "================================================"
+
+      - name: Generate Release Notes
+        run: |
+          # Extract the latest commit message for release metadata
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          COMMIT_HASH=$(git log -1 --pretty=format:"%h")
+          BUILD_DATE=$(date -u +"%Y-%m-%d")
+          
+          # Write to release_description.txt (artifact-level description)
+          cat > release_description.txt <<EOF
+          Build: v${{ env.APP_VERSION_NAME }} (code ${{ env.APP_VERSION_CODE }})
+          Date:  ${BUILD_DATE}
+          Commit: ${COMMIT_HASH}
+          
+          ${COMMIT_MSG}
+          EOF
+          
+          # Update whatsnew for Play Store listing
+          cat > distribution/whatsnew/whatsnew-en-US <<EOF
+          v${{ env.APP_VERSION_NAME }} - ${COMMIT_MSG}
+          
+          • Latest improvements and bug fixes
+          • Android 15 (16 KB page alignment) compatible
+          • Enhanced performance and stability
+          EOF
+          
+          echo "=== Release Description ==="
+          cat release_description.txt
+          echo ""
+          echo "=== What's New ==="
+          cat distribution/whatsnew/whatsnew-en-US
 
       - name: Decode Keystore
         env:
@@ -38,6 +105,8 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           ANDROID_KEYSTORE_FILE: keystore.jks
+          APP_VERSION_CODE: ${{ env.APP_VERSION_CODE }}
+          APP_VERSION_NAME: ${{ env.APP_VERSION_NAME }}
           CI: true
         run: ./gradlew bundleRelease
 
@@ -47,9 +116,11 @@ jobs:
           ls -lh app/build/outputs/bundle/release/*.aab
           echo "=== Mapping File ==="
           ls -lh app/build/outputs/mapping/release/mapping.txt || echo "No mapping file found (minify may be disabled)"
-          echo "=== Version Info ==="
-          grep 'versionCode' app/build.gradle.kts | head -1
-          grep 'versionName' app/build.gradle.kts | head -1
+          echo "=== Native Debug Symbols ==="
+          ls -lh app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip || echo "No native debug symbols zip found"
+          echo "=== Version ==="
+          echo "versionCode: ${{ env.APP_VERSION_CODE }}"
+          echo "versionName: ${{ env.APP_VERSION_NAME }}"
 
       - name: Upload to Play Store
         uses: r0adkll/upload-google-play@v1
@@ -60,4 +131,39 @@ jobs:
           track: internal
           status: completed
           mappingFile: app/build/outputs/mapping/release/mapping.txt
+          debugSymbols: app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib
           whatsNewDirectory: distribution/whatsnew
+
+      # Only runs if upload succeeded — increment VERSION, VERSION_CODE, and update history
+      - name: Increment Version and Update History
+        if: success()
+        run: |
+          BUILD_DATE=$(date -u +"%Y-%m-%d")
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          
+          # --- Increment VERSION_CODE for next build ---
+          CURRENT_CODE="${{ env.APP_VERSION_CODE }}"
+          NEXT_CODE=$(( CURRENT_CODE + 1 ))
+          echo "$NEXT_CODE" > VERSION_CODE
+          echo "Updated VERSION_CODE: $CURRENT_CODE -> $NEXT_CODE"
+          
+          # --- Increment VERSION_NAME (patch bump) for next build ---
+          CURRENT_VN="${{ env.APP_VERSION_NAME }}"
+          MAJOR=$(echo "$CURRENT_VN" | cut -d. -f1)
+          MINOR=$(echo "$CURRENT_VN" | cut -d. -f2)
+          PATCH=$(echo "$CURRENT_VN" | cut -d. -f3)
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VN="${MAJOR}.${MINOR}.${NEXT_PATCH}"
+          echo "$NEXT_VN" > VERSION
+          echo "Updated VERSION: $CURRENT_VN -> $NEXT_VN"
+          
+          # --- Append to VERSION_HISTORY.md ---
+          echo "| $CURRENT_CODE           | $CURRENT_VN       | ${BUILD_DATE} | ${COMMIT_MSG} |" >> VERSION_HISTORY.md
+          
+          # --- Configure git and push ---
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add VERSION VERSION_CODE VERSION_HISTORY.md distribution/whatsnew/whatsnew-en-US
+          git commit -m "ci: deployed v${CURRENT_VN} (code ${CURRENT_CODE}) → next: v${NEXT_VN} (code ${NEXT_CODE})" || echo "No changes to commit"
+          git push origin master || echo "Push failed — version update skipped"
