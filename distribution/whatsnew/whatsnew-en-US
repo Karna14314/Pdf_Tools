@@ -1,4 +1,4 @@
-v1.3.5 - fix: 16KB alignment (upgrade AGP 8.7.3, CameraX 1.4.1, MLKit 16.0.1), debug symbols upload, file-based versioning (fixes gh variable 403 error)
+v1.3.6 - fix: restore execute permission on gradlew for CI/CD
 
 • Latest improvements and bug fixes
 • Android 15 (16 KB page alignment) compatible
