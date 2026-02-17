@@ -18,6 +18,7 @@ import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
 import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
 import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory
+import com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState
 import com.tom_roush.pdfbox.rendering.PDFRenderer
 import com.tom_roush.pdfbox.text.PDFTextStripper
 import com.tom_roush.pdfbox.text.TextPosition
@@ -86,6 +87,10 @@ sealed class PdfViewerUiState {
 }
 
 class PdfViewerViewModel : ViewModel() {
+
+    companion object {
+        const val RENDER_SCALE = 1.5f
+    }
 
     private val _uiState = MutableStateFlow<PdfViewerUiState>(PdfViewerUiState.Idle)
     val uiState: StateFlow<PdfViewerUiState> = _uiState.asStateFlow()
@@ -193,7 +198,7 @@ class PdfViewerViewModel : ViewModel() {
 
                     val renderer = pdfRenderer ?: return@withLock null
                     // Render at 1.5x scale (approx 108 dpi) for good quality on mobile
-                    val scale = 1.5f
+                    val scale = RENDER_SCALE
 
                     // Bolt: Ensure cancellation before heavy rendering
                     ensureActive()
@@ -232,7 +237,7 @@ class PdfViewerViewModel : ViewModel() {
                             documentMutex.withLock {
                                 // Double check inside lock
                                 if (bitmapCache.get(page) == null) {
-                                    pdfRenderer?.renderImage(page, 1.5f)?.let { bitmap ->
+                                    pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
                                         bitmapCache.put(page, bitmap)
                                     }
                                 }
@@ -388,7 +393,7 @@ class PdfViewerViewModel : ViewModel() {
                                     val tp = pageData.positions[tpIndex]
 
                                     // Scale 1.5f (Matches render scale)
-                                    val scale = 1.5f
+                                    val scale = RENDER_SCALE
                                     val x = tp.xDirAdj * scale
                                     val y = tp.yDirAdj * scale
                                     val w = tp.widthDirAdj * scale
@@ -469,19 +474,68 @@ class PdfViewerViewModel : ViewModel() {
                         yield() // Bolt: Allow UI updates
 
                         val pageAnnotations = currentAnnotations.filter { it.pageIndex == pageIndex }
+                        val sourcePage = sourceDoc.getPage(pageIndex)
+                        val rotation = sourcePage.rotation
 
                         if (pageAnnotations.isEmpty()) {
                             // OPTIMIZATION: Fast copy for pages without annotations
-                            val importedPage = destDoc.importPage(sourceDoc.getPage(pageIndex))
+                            val importedPage = destDoc.importPage(sourcePage)
                             // PDDocument.importPage returns the imported page, which belongs to destDoc but isn't added yet
-                            // We don't need to add it again if importPage adds it?
-                            // Documentation says: "This method will import a page from another document... The returned page is owned by this document."
-                            // It does NOT add it to the page tree. We must call addPage.
-                            // However, we should verify if importPage copies resources correctly. It usually does.
-                            // But for safety with annotations, we might want to strip old annotations?
-                            // Assuming source PDF is clean or we want to keep existing annotations.
+                            // We must call addPage.
                             destDoc.addPage(importedPage)
+                        } else if (rotation == 0) {
+                            // VECTOR INJECTION: Preserve text and vectors for upright pages
+                            val importedPage = destDoc.importPage(sourcePage)
+                            // importedPage is owned by destDoc, so we don't need to manually copy mediaBox from source.
+                            destDoc.addPage(importedPage)
+
+                            // Append content stream to draw on top
+                            PDPageContentStream(destDoc, importedPage, PDPageContentStream.AppendMode.APPEND, true, true).use { cs ->
+                                val pageHeight = importedPage.mediaBox.height
+                                var currentAlpha = -1f // Initialize with impossible alpha
+
+                                pageAnnotations.forEach { annotation ->
+                                    // Set color and alpha
+                                    cs.setStrokingColor(annotation.color.red, annotation.color.green, annotation.color.blue)
+
+                                    if (currentAlpha != annotation.color.alpha) {
+                                        currentAlpha = annotation.color.alpha
+                                        val graphicsState = PDExtendedGraphicsState()
+                                        graphicsState.strokingAlphaConstant = currentAlpha
+                                        cs.setGraphicsStateParameters(graphicsState)
+                                    }
+
+                                    // Set line width (scaled from Android pixels to PDF points)
+                                    // Android Scale: 1.5f (108 DPI). PDF: 72 DPI.
+                                    // Width_PDF = Width_Android / 1.5f
+                                    val pdfStrokeWidth = annotation.strokeWidth / RENDER_SCALE
+                                    cs.setLineWidth(pdfStrokeWidth)
+                                    cs.setLineCapStyle(1) // Round Cap
+                                    cs.setLineJoinStyle(1) // Round Join
+
+                                    if (annotation.points.isNotEmpty()) {
+                                        val first = annotation.points.first()
+                                        // Coordinate Transform: Android Top-Left -> PDF Bottom-Left
+                                        // X_pdf = X_android / 1.5
+                                        // Y_pdf = PageHeight - (Y_android / 1.5)
+
+                                        val startX = first.x / RENDER_SCALE
+                                        val startY = pageHeight - (first.y / RENDER_SCALE)
+
+                                        cs.moveTo(startX, startY)
+
+                                        for (i in 1 until annotation.points.size) {
+                                            val p = annotation.points[i]
+                                            val px = p.x / RENDER_SCALE
+                                            val py = pageHeight - (p.y / RENDER_SCALE)
+                                            cs.lineTo(px, py)
+                                        }
+                                        cs.stroke()
+                                    }
+                                }
+                            }
                         } else {
+                            // RASTER FALLBACK: For rotated pages, use safer bitmap rasterization to guarantee alignment
                             // Render and flatten
                             val cachedBitmap = bitmapCache.get(pageIndex)
                             // Use cached bitmap copy if available, otherwise render fresh
@@ -490,7 +544,7 @@ class PdfViewerViewModel : ViewModel() {
                                 cachedBitmap.copy(Bitmap.Config.ARGB_8888, true)
                             } else {
                                 // Render fresh and ensure mutable copy
-                                val rendered = pdfRenderer?.renderImage(pageIndex, 1.5f)
+                                val rendered = pdfRenderer?.renderImage(pageIndex, RENDER_SCALE)
                                 rendered?.copy(Bitmap.Config.ARGB_8888, true).also {
                                     // Recycle the immutable rendered one if it was created just for this
                                     rendered?.recycle()
@@ -530,7 +584,7 @@ class PdfViewerViewModel : ViewModel() {
                                     // Render scale is 1.5f (approx 108 DPI)
                                     // PDF point is 1/72 inch.
                                     // 108 / 72 = 1.5.
-                                    val scaleFactor = 1.5f
+                                    val scaleFactor = RENDER_SCALE
                                     val pageWidth = workingBitmap.width / scaleFactor
                                     val pageHeight = workingBitmap.height / scaleFactor
 
