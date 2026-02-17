@@ -96,6 +96,7 @@ fun CompressScreen(
                             inputUri = file.uri,
                             outputStream = outputStream,
                             level = compressionLevel,
+                            qualityPercent = compressionSliderValue.toInt(),
                             onProgress = { progress = it }
                         )
                         
@@ -173,6 +174,7 @@ fun CompressScreen(
                             inputUri = originalFile.uri,
                             outputStream = outputResult.outputStream,
                             level = compressionLevel,
+                            qualityPercent = compressionSliderValue.toInt(),
                             onProgress = { progress = it }
                         )
                         
@@ -414,7 +416,10 @@ fun CompressScreen(
                         // Estimated result
                         item {
                             val estimatedSize = selectedFile?.let { file ->
-                                pdfCompressor.estimateCompressedSize(file.size, compressionLevel)
+                                pdfCompressor.estimateCompressedSize(
+                                    file.size,
+                                    compressionSliderValue.toInt()
+                                )
                             } ?: 0L
                             
                             Card(

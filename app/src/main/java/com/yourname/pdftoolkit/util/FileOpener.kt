@@ -2,6 +2,7 @@ package com.yourname.pdftoolkit.util
 
 import android.content.Context
 import android.content.Intent
+import android.content.ClipData
 import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -89,16 +90,35 @@ object FileOpener {
         
         return try {
             val accessibleUris = ArrayList(uris.map { getAccessibleUri(context, it, "image") })
-            
-            val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                type = "image/*"
+            val first = accessibleUris.first()
+
+            // Try true viewer intent first so user lands in gallery-style app if available.
+            val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(first, "image/*")
+                clipData = ClipData.newUri(context.contentResolver, "image", first).apply {
+                    accessibleUris.drop(1).forEach { addItem(ClipData.Item(it)) }
+                }
                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, accessibleUris)
                 flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
             }
-            val chooser = Intent.createChooser(intent, "View images...").apply {
+            val viewChooser = Intent.createChooser(viewIntent, "View images...").apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
-            context.startActivity(chooser)
+
+            runCatching {
+                context.startActivity(viewChooser)
+            }.getOrElse {
+                val sendIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                    type = "image/*"
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, accessibleUris)
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                val chooser = Intent.createChooser(sendIntent, "View images...").apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(chooser)
+            }
+            
             true
         } catch (e: Exception) {
             // Fallback: open the first image individually
@@ -286,4 +306,3 @@ object FileOpener {
         }
     }
 }
-

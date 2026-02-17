@@ -138,6 +138,7 @@ fun PdfToImageScreen(
                         operationType = OperationType.PDF_TO_IMAGE,
                         inputFileName = file.name,
                         outputFileUri = uriList.firstOrNull(),
+                        outputFileUris = uriList,
                         outputFileName = "${file.name.removeSuffix(".pdf")}_images.${imageFormat.extension}",
                         details = "Converted to $savedCount ${imageFormat.extension.uppercase()} images",
                         isImageOutput = true
