@@ -1,4 +1,7 @@
 # PDF Toolkit
+A privacy-first, offline PDF utility for Android. Built with AI assistance.
+
+Download on Play Store:https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit
 
 A powerful, privacy-first Android application for all your PDF manipulation needs. Built with modern Android technologies including Kotlin, Jetpack Compose, and Material Design 3.
 
