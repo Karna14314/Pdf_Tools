@@ -238,12 +238,16 @@ class PdfViewerViewModel : ViewModel() {
                         yield()
 
                         try {
-                            documentMutex.withLock {
-                                // Double check inside lock
-                                if (bitmapCache.get(page) == null) {
-                                    pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
-                                        bitmapCache.put(page, bitmap)
+                            if (documentMutex.tryLock()) {
+                                try {
+                                    // Double check inside lock
+                                    if (bitmapCache.get(page) == null) {
+                                        pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
+                                            bitmapCache.put(page, bitmap)
+                                        }
                                     }
+                                } finally {
+                                    documentMutex.unlock()
                                 }
                             }
                         } catch (e: Exception) {
@@ -509,29 +513,29 @@ class PdfViewerViewModel : ViewModel() {
                                         cs.setGraphicsStateParameters(graphicsState)
                                     }
 
-                                    // Set line width (scaled from Android pixels to PDF points)
-                                    // Android Scale: 1.5f (108 DPI). PDF: 72 DPI.
-                                    // Width_PDF = Width_Android / 1.5f
-                                    val pdfStrokeWidth = annotation.strokeWidth / RENDER_SCALE
+                                    // Set line width (normalized to PDF points)
+                                    val pageWidth = importedPage.mediaBox.width
+                                    val pdfStrokeWidth = annotation.strokeWidth * pageWidth
+
                                     cs.setLineWidth(pdfStrokeWidth)
                                     cs.setLineCapStyle(1) // Round Cap
                                     cs.setLineJoinStyle(1) // Round Join
 
                                     if (annotation.points.isNotEmpty()) {
                                         val first = annotation.points.first()
-                                        // Coordinate Transform: Android Top-Left -> PDF Bottom-Left
-                                        // X_pdf = X_android / 1.5
-                                        // Y_pdf = PageHeight - (Y_android / 1.5)
+                                        // Coordinate Transform: Normalized -> PDF Bottom-Left
+                                        // X_pdf = X_norm * PageWidth
+                                        // Y_pdf = PageHeight - (Y_norm * PageHeight)
 
-                                        val startX = first.x / RENDER_SCALE
-                                        val startY = pageHeight - (first.y / RENDER_SCALE)
+                                        val startX = first.x * pageWidth
+                                        val startY = pageHeight - (first.y * pageHeight)
 
                                         cs.moveTo(startX, startY)
 
                                         for (i in 1 until annotation.points.size) {
                                             val p = annotation.points[i]
-                                            val px = p.x / RENDER_SCALE
-                                            val py = pageHeight - (p.y / RENDER_SCALE)
+                                            val px = p.x * pageWidth
+                                            val py = pageHeight - (p.y * pageHeight)
                                             cs.lineTo(px, py)
                                         }
                                         cs.stroke()
@@ -589,13 +593,17 @@ class PdfViewerViewModel : ViewModel() {
                                                 paint.xfermode = null
                                             }
                                         }
-                                        paint.strokeWidth = annotation.strokeWidth
+                                        // Denormalize stroke width for bitmap
+                                        paint.strokeWidth = annotation.strokeWidth * workingBitmap.width
 
                                         if (annotation.points.isNotEmpty()) {
                                             val path = android.graphics.Path()
-                                            path.moveTo(annotation.points.first().x, annotation.points.first().y)
+                                            val first = annotation.points.first()
+                                            path.moveTo(first.x * workingBitmap.width, first.y * workingBitmap.height)
+
                                             for (i in 1 until annotation.points.size) {
-                                                path.lineTo(annotation.points[i].x, annotation.points[i].y)
+                                                val p = annotation.points[i]
+                                                path.lineTo(p.x * workingBitmap.width, p.y * workingBitmap.height)
                                             }
                                             canvas.drawPath(path, paint)
                                         }
