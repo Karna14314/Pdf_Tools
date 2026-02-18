@@ -1388,15 +1388,19 @@ private fun PdfPageWithAnnotations(
                                                     else -> 8f
                                                 }
                                                 
+                                                // Normalize points and stroke width
+                                                val w = size.width.toFloat()
+                                                val h = size.height.toFloat()
+
                                                 // For highlighter: snap to a clean horizontal rectangle
                                                 val finalPoints = if (selectedTool == AnnotationTool.HIGHLIGHTER && localStroke.size >= 2) {
                                                     val minX = localStroke.minOf { it.x }
                                                     val maxX = localStroke.maxOf { it.x }
                                                     val avgY = localStroke.map { it.y }.average().toFloat()
                                                     // Create a straight horizontal line at the average Y
-                                                    listOf(Offset(minX, avgY), Offset(maxX, avgY))
+                                                    listOf(Offset(minX / w, avgY / h), Offset(maxX / w, avgY / h))
                                                 } else {
-                                                    localStroke.toList()
+                                                    localStroke.map { Offset(it.x / w, it.y / h) }
                                                 }
                                                 
                                                 onAddAnnotation(
@@ -1405,7 +1409,7 @@ private fun PdfPageWithAnnotations(
                                                         tool = selectedTool,
                                                         color = selectedColor,
                                                         points = finalPoints,
-                                                        strokeWidth = strokeWidth
+                                                        strokeWidth = strokeWidth / w
                                                     )
                                                 )
                                                 localStroke = mutableListOf()
@@ -1417,12 +1421,17 @@ private fun PdfPageWithAnnotations(
                             } else Modifier
                         )
                 ) {
+                    val w = size.width.toFloat()
+                    val h = size.height.toFloat()
+
                     annotations.forEach { stroke ->
                         if (stroke.points.isNotEmpty()) {
                             val path = androidx.compose.ui.graphics.Path().apply {
-                                moveTo(stroke.points.first().x, stroke.points.first().y)
+                                val first = stroke.points.first()
+                                moveTo(first.x * w, first.y * h)
                                 for (i in 1 until stroke.points.size) {
-                                    lineTo(stroke.points[i].x, stroke.points[i].y)
+                                    val p = stroke.points[i]
+                                    lineTo(p.x * w, p.y * h)
                                 }
                             }
                             // Highlighter uses semi-transparent Multiply blend so text shows through
@@ -1437,7 +1446,7 @@ private fun PdfPageWithAnnotations(
                                 path = path,
                                 color = drawColor,
                                 style = androidx.compose.ui.graphics.drawscope.Stroke(
-                                    width = stroke.strokeWidth,
+                                    width = stroke.strokeWidth * w,
                                     cap = StrokeCap.Round,
                                     join = androidx.compose.ui.graphics.StrokeJoin.Round
                                 ),
