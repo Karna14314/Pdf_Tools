@@ -1,6 +1,5 @@
-v1.3.6 - feat: High-quality vector annotations
+v1.3.7 - Merge branch 'main' into master
 
-• Improved PDF Saving: Annotations are now saved as high-quality vector paths, preserving original text and significantly reducing file size.
 • Latest improvements and bug fixes
 • Android 15 (16 KB page alignment) compatible
 • Enhanced performance and stability

@@ -55,6 +55,12 @@ data class CompressionResult(
     val wasReduced: Boolean get() = compressedSize < originalSize
 }
 
+data class CompressionProfile(
+    val dpi: Float,
+    val jpegQuality: Float,
+    val scaleFactor: Float
+)
+
 /**
  * Handles PDF compression operations with smart strategy selection.
  * 
@@ -86,10 +92,12 @@ class PdfCompressor {
         inputUri: Uri,
         outputStream: OutputStream,
         level: CompressionLevel = CompressionLevel.MEDIUM,
+        qualityPercent: Int? = null,
         onProgress: (Float) -> Unit = {}
     ): Result<CompressionResult> = withContext(Dispatchers.IO) {
         val startTime = System.currentTimeMillis()
         var tempFile: File? = null
+        val profile = profileFromSlider(qualityPercent) ?: profileFromLevel(level)
         
         try {
             onProgress(0.05f)
@@ -135,14 +143,12 @@ class PdfCompressor {
             
             // Try image optimization first (preserves text quality)
             // Note: tryImageOptimization writes to a temp file internally if successful
-            val optimizedFile = tryImageOptimization(context, tempFile, level, onProgress) { count ->
-                if (detectedPageCount == null) detectedPageCount = count
-            }
+            val optimizedFile = tryImageOptimization(context, tempFile, profile, onProgress)
             
             onProgress(0.55f)
             
             // Try full re-render approach for potentially better compression
-            val rerenderedFile = tryFullRerender(context, tempFile, level, { progress ->
+            val rerenderedFile = tryFullRerender(context, tempFile, profile) { progress ->
                 onProgress(0.55f + progress * 0.35f)
             }, { count ->
                 if (detectedPageCount == null) detectedPageCount = count
@@ -202,8 +208,20 @@ class PdfCompressor {
                 )
             )
             
+        } catch (e: OutOfMemoryError) {
+            Result.failure(
+                IllegalStateException(
+                    "Compression failed due to low memory. Try closing other apps or lowering compression level.",
+                    e
+                )
+            )
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(
+                IllegalStateException(
+                    e.message ?: "Compression failed. The PDF may be encrypted or unsupported.",
+                    e
+                )
+            )
         } finally {
             tempFile?.delete()
         }
@@ -216,9 +234,8 @@ class PdfCompressor {
     private fun tryImageOptimization(
         context: Context,
         inputFile: File,
-        level: CompressionLevel,
-        onProgress: (Float) -> Unit,
-        onPageCountAvailable: (Int) -> Unit
+        profile: CompressionProfile,
+        onProgress: (Float) -> Unit
     ): File? {
         var document: PDDocument? = null
         val outputFile = File(context.cacheDir, "opt_${System.currentTimeMillis()}.pdf")
@@ -239,7 +256,7 @@ class PdfCompressor {
                 val resources = page.resources ?: continue
                 
                 // Optimize images in this page
-                imagesOptimized += optimizePageImages(document, resources, level)
+                imagesOptimized += optimizePageImages(document, resources, profile)
                 
                 val pageProgress = 0.10f + (0.45f * (pageIndex + 1).toFloat() / totalPages)
                 onProgress(pageProgress)
@@ -263,7 +280,7 @@ class PdfCompressor {
     private fun optimizePageImages(
         document: PDDocument,
         resources: PDResources,
-        level: CompressionLevel
+        profile: CompressionProfile
     ): Int {
         var optimizedCount = 0
         
@@ -275,7 +292,7 @@ class PdfCompressor {
                     val xObject = resources.getXObject(name)
                     
                     if (xObject is PDImageXObject) {
-                        val optimized = optimizeImage(document, xObject, level)
+                        val optimized = optimizeImage(document, xObject, profile)
                         if (optimized != null) {
                             resources.put(name, optimized)
                             optimizedCount++
@@ -299,19 +316,14 @@ class PdfCompressor {
     private fun optimizeImage(
         document: PDDocument,
         image: PDImageXObject,
-        level: CompressionLevel
+        profile: CompressionProfile
     ): PDImageXObject? {
         return try {
             // Get the image as bitmap
             val originalImage = image.image ?: return null
             
             // Calculate target dimensions based on compression level
-            val scaleFactor = when (level) {
-                CompressionLevel.LOW -> 1.0f
-                CompressionLevel.MEDIUM -> 0.85f
-                CompressionLevel.HIGH -> 0.70f
-                CompressionLevel.MAXIMUM -> 0.55f
-            }
+            val scaleFactor = profile.scaleFactor
             
             val targetWidth = (originalImage.width * scaleFactor).toInt().coerceAtLeast(100)
             val targetHeight = (originalImage.height * scaleFactor).toInt().coerceAtLeast(100)
@@ -325,7 +337,7 @@ class PdfCompressor {
             
             try {
                 // Create JPEG with specified quality
-                JPEGFactory.createFromImage(document, scaledBitmap, level.jpegQuality)
+                JPEGFactory.createFromImage(document, scaledBitmap, profile.jpegQuality)
             } finally {
                 if (scaledBitmap != originalImage) {
                     scaledBitmap.recycle()
@@ -344,9 +356,8 @@ class PdfCompressor {
     private fun tryFullRerender(
         context: Context,
         inputFile: File,
-        level: CompressionLevel,
-        onProgress: (Float) -> Unit,
-        onPageCountAvailable: (Int) -> Unit
+        profile: CompressionProfile,
+        onProgress: (Float) -> Unit
     ): File? {
         var inputDocument: PDDocument? = null
         var outputDocument: PDDocument? = null
@@ -367,7 +378,7 @@ class PdfCompressor {
                 val pageRect = originalPage.mediaBox ?: PDRectangle.A4
                 
                 // Render page to bitmap at compression DPI
-                val bitmap = renderer.renderImageWithDPI(pageIndex, level.dpi)
+                val bitmap = renderer.renderImageWithDPI(pageIndex, profile.dpi)
                 
                 try {
                     // Create new page matching original dimensions
@@ -378,7 +389,7 @@ class PdfCompressor {
                     val pdImage = JPEGFactory.createFromImage(
                         outputDocument, 
                         bitmap, 
-                        level.jpegQuality
+                        profile.jpegQuality
                     )
                     
                     // Draw the compressed image to fill the page
@@ -435,5 +446,42 @@ class PdfCompressor {
             CompressionLevel.MAXIMUM -> 0.30f
         }
         return (originalSize * reductionFactor).toLong()
+    }
+
+    fun estimateCompressedSize(originalSize: Long, qualityPercent: Int): Long {
+        val clamped = qualityPercent.coerceIn(0, 100)
+        // 0 = best quality (minimal reduction), 100 = max compression.
+        val reductionFactor = 0.85f - (0.55f * (clamped / 100f))
+        return (originalSize * reductionFactor).toLong()
+    }
+
+    private fun profileFromLevel(level: CompressionLevel): CompressionProfile {
+        val scale = when (level) {
+            CompressionLevel.LOW -> 1.0f
+            CompressionLevel.MEDIUM -> 0.85f
+            CompressionLevel.HIGH -> 0.70f
+            CompressionLevel.MAXIMUM -> 0.55f
+        }
+        return CompressionProfile(
+            dpi = level.dpi,
+            jpegQuality = level.jpegQuality,
+            scaleFactor = scale
+        )
+    }
+
+    private fun profileFromSlider(qualityPercent: Int?): CompressionProfile? {
+        if (qualityPercent == null) return null
+        val clamped = qualityPercent.coerceIn(0, 100)
+        val ratio = clamped / 100f
+
+        val dpi = 150f - (78f * ratio) // 150 -> 72
+        val jpegQuality = 0.9f - (0.52f * ratio) // 0.90 -> 0.38
+        val scaleFactor = 1.0f - (0.45f * ratio) // 1.00 -> 0.55
+
+        return CompressionProfile(
+            dpi = dpi.coerceIn(72f, 150f),
+            jpegQuality = jpegQuality.coerceIn(0.35f, 0.92f),
+            scaleFactor = scaleFactor.coerceIn(0.55f, 1.0f)
+        )
     }
 }
