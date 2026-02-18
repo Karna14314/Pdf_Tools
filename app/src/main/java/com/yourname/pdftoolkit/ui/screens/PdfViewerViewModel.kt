@@ -2,10 +2,14 @@ package com.yourname.pdftoolkit.ui.screens
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BlendMode
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
 import android.graphics.RectF
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.util.LruCache
 import androidx.compose.ui.geometry.Offset
@@ -107,7 +111,7 @@ class PdfViewerViewModel : ViewModel() {
     private val _selectedAnnotationTool = MutableStateFlow(AnnotationTool.NONE)
     val selectedAnnotationTool: StateFlow<AnnotationTool> = _selectedAnnotationTool.asStateFlow()
 
-    private val _selectedColor = MutableStateFlow(Color.Yellow.copy(alpha = 0.5f))
+    private val _selectedColor = MutableStateFlow(Color.Yellow)
     val selectedColor: StateFlow<Color> = _selectedColor.asStateFlow()
 
     private val _annotations = MutableStateFlow<List<AnnotationStroke>>(emptyList())
@@ -562,12 +566,29 @@ class PdfViewerViewModel : ViewModel() {
                                     }
 
                                     pageAnnotations.forEach { annotation ->
-                                        paint.color = android.graphics.Color.argb(
-                                            (annotation.color.alpha * 255).toInt(),
-                                            (annotation.color.red * 255).toInt(),
-                                            (annotation.color.green * 255).toInt(),
-                                            (annotation.color.blue * 255).toInt()
-                                        )
+                                        val red = (annotation.color.red * 255).toInt()
+                                        val green = (annotation.color.green * 255).toInt()
+                                        val blue = (annotation.color.blue * 255).toInt()
+
+                                        if (annotation.tool == AnnotationTool.HIGHLIGHTER) {
+                                            // Keep text readable under highlights in exported PDF.
+                                            paint.color = android.graphics.Color.argb(90, red, green, blue)
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                                paint.blendMode = BlendMode.MULTIPLY
+                                            } else {
+                                                @Suppress("DEPRECATION")
+                                                paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.MULTIPLY)
+                                            }
+                                        } else {
+                                            // Marker/underline should remain solid in exported output.
+                                            paint.color = android.graphics.Color.argb(255, red, green, blue)
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                                paint.blendMode = null
+                                            } else {
+                                                @Suppress("DEPRECATION")
+                                                paint.xfermode = null
+                                            }
+                                        }
                                         paint.strokeWidth = annotation.strokeWidth
 
                                         if (annotation.points.isNotEmpty()) {

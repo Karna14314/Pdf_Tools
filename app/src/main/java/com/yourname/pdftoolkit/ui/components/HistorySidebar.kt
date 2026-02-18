@@ -443,10 +443,18 @@ private fun HistoryItem(
                                 onClick = {
                                     showMenu = false
                                     try {
-                                        val uri = Uri.parse(entry.outputFileUri)
                                         if (isImage) {
-                                            FileOpener.openWithSystemPicker(context, uri)
+                                            val uris = entry.outputFileUris.mapNotNull {
+                                                runCatching { Uri.parse(it) }.getOrNull()
+                                            }
+                                            if (uris.isNotEmpty()) {
+                                                FileOpener.openMultipleImages(context, uris)
+                                            } else {
+                                                val fallbackUri = Uri.parse(entry.outputFileUri)
+                                                FileOpener.openImage(context, fallbackUri)
+                                            }
                                         } else {
+                                            val uri = Uri.parse(entry.outputFileUri)
                                             onOpenFile(uri)
                                         }
                                     } catch (e: Exception) {

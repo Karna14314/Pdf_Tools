@@ -22,6 +22,7 @@ data class HistoryEntry(
     val timestamp: Long = System.currentTimeMillis(),
     val inputFileName: String?,
     val outputFileUri: String?,
+    val outputFileUris: List<String> = emptyList(),
     val outputFileName: String?,
     val status: OperationStatus = OperationStatus.SUCCESS,
     val details: String? = null,
@@ -139,15 +140,19 @@ object HistoryManager {
         operationType: OperationType,
         inputFileName: String? = null,
         outputFileUri: Uri? = null,
+        outputFileUris: List<Uri> = emptyList(),
         outputFileName: String? = null,
         details: String? = null,
         isImageOutput: Boolean = false
     ) {
+        val uriStrings = outputFileUris.map { it.toString() }
+        val primaryOutputUri = outputFileUri?.toString() ?: uriStrings.firstOrNull()
         addEntry(context, HistoryEntry(
             operationType = operationType,
             operationName = operationType.displayName,
             inputFileName = inputFileName,
-            outputFileUri = outputFileUri?.toString(),
+            outputFileUri = primaryOutputUri,
+            outputFileUris = uriStrings,
             outputFileName = outputFileName,
             status = OperationStatus.SUCCESS,
             details = details,
@@ -240,6 +245,7 @@ object HistoryManager {
             put("timestamp", entry.timestamp)
             put("inputFileName", entry.inputFileName ?: JSONObject.NULL)
             put("outputFileUri", entry.outputFileUri ?: JSONObject.NULL)
+            put("outputFileUris", JSONArray(entry.outputFileUris))
             put("outputFileName", entry.outputFileName ?: JSONObject.NULL)
             put("status", entry.status.name)
             put("details", entry.details ?: JSONObject.NULL)
@@ -259,6 +265,7 @@ object HistoryManager {
             timestamp = obj.getLong("timestamp"),
             inputFileName = obj.optString("inputFileName").takeIf { it.isNotEmpty() && it != "null" },
             outputFileUri = obj.optString("outputFileUri").takeIf { it.isNotEmpty() && it != "null" },
+            outputFileUris = parseOutputUris(obj),
             outputFileName = obj.optString("outputFileName").takeIf { it.isNotEmpty() && it != "null" },
             status = try {
                 OperationStatus.valueOf(obj.getString("status"))
@@ -268,5 +275,22 @@ object HistoryManager {
             details = obj.optString("details").takeIf { it.isNotEmpty() && it != "null" },
             isImageOutput = obj.optBoolean("isImageOutput", false)
         )
+    }
+
+    private fun parseOutputUris(obj: JSONObject): List<String> {
+        val urisArray = obj.optJSONArray("outputFileUris")
+        if (urisArray != null) {
+            val uris = mutableListOf<String>()
+            for (i in 0 until urisArray.length()) {
+                val value = urisArray.optString(i)
+                if (value.isNotEmpty() && value != "null") {
+                    uris.add(value)
+                }
+            }
+            if (uris.isNotEmpty()) return uris
+        }
+
+        val fallback = obj.optString("outputFileUri")
+        return if (fallback.isNotEmpty() && fallback != "null") listOf(fallback) else emptyList()
     }
 }
