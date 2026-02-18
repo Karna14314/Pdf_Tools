@@ -11,7 +11,6 @@ import android.graphics.RectF
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.util.LruCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -128,26 +127,6 @@ class PdfViewerViewModel : ViewModel() {
     // Search Job Control
     private var searchJob: Job? = null
 
-    // Prefetch Job Control
-    private var prefetchJob: Job? = null
-
-    // Bitmap Cache
-    // Calculate cache size: Use 1/8th of the available memory for this memory cache.
-    private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-    private val cacheSize = maxMemory / 8
-
-    private val bitmapCache = object : LruCache<Int, Bitmap>(cacheSize) {
-        override fun sizeOf(key: Int, bitmap: Bitmap): Int {
-            // The cache size will be measured in kilobytes rather than number of items.
-            return bitmap.byteCount / 1024
-        }
-
-        override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap, newValue: Bitmap?) {
-             // Bolt: Safety Check - Do not recycle immediately as UI might be using it.
-             // Relying on GC is safer for ViewModels unless we implement a strict BitmapPool.
-        }
-    }
-
     fun loadPdf(context: Context, uri: Uri, password: String = "") {
         viewModelScope.launch {
             _uiState.value = PdfViewerUiState.Loading
@@ -180,81 +159,6 @@ class PdfViewerViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("PdfViewerVM", "Error loading PDF", e)
                 _uiState.value = PdfViewerUiState.Error(e.message ?: "Failed to load PDF")
-            }
-        }
-    }
-
-    suspend fun loadPage(pageIndex: Int): Bitmap? {
-        // Check cache first (Main Thread check is fast)
-        bitmapCache.get(pageIndex)?.let { return it }
-
-        // Bolt: Smart Prefetch - Trigger load for adjacent pages
-        prefetchPages(pageIndex)
-
-        return withContext(Dispatchers.IO) {
-            // Bolt: Cancellation Check - Ensure we stop waiting if job is cancelled
-            ensureActive()
-
-            documentMutex.withLock {
-                try {
-                    // Double check cache inside lock
-                    bitmapCache.get(pageIndex)?.let { return@withLock it }
-
-                    val renderer = pdfRenderer ?: return@withLock null
-                    // Render at 1.5x scale (approx 108 dpi) for good quality on mobile
-                    val scale = RENDER_SCALE
-
-                    // Bolt: Ensure cancellation before heavy rendering
-                    ensureActive()
-
-                    val bitmap = renderer.renderImage(pageIndex, scale)
-
-                    if (bitmap != null) {
-                        bitmapCache.put(pageIndex, bitmap)
-                    }
-                    bitmap
-                } catch (e: Exception) {
-                    Log.e("PdfViewerVM", "Error rendering page $pageIndex", e)
-                    null
-                }
-            }
-        }
-    }
-
-    private fun prefetchPages(currentPage: Int) {
-        // Bolt: Smart Prefetch implementation
-        // Only prefetch if we have a valid document
-        val totalPages = (uiState.value as? PdfViewerUiState.Loaded)?.totalPages ?: return
-
-        prefetchJob?.cancel()
-        prefetchJob = viewModelScope.launch(Dispatchers.IO) {
-            val range = listOf(currentPage + 1, currentPage - 1)
-
-            for (page in range) {
-                if (page in 0 until totalPages) {
-                    if (bitmapCache.get(page) == null) {
-                        // Try to acquire lock without blocking user interaction too much
-                        // Since we are on IO, we can wait, but we yield to prioritize loadPage
-                        yield()
-
-                        try {
-                            if (documentMutex.tryLock()) {
-                                try {
-                                    // Double check inside lock
-                                    if (bitmapCache.get(page) == null) {
-                                        pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
-                                            bitmapCache.put(page, bitmap)
-                                        }
-                                    }
-                                } finally {
-                                    documentMutex.unlock()
-                                }
-                            }
-                        } catch (e: Exception) {
-                            // Ignore prefetch errors
-                        }
-                    }
-                }
             }
         }
     }
@@ -545,18 +449,12 @@ class PdfViewerViewModel : ViewModel() {
                         } else {
                             // RASTER FALLBACK: For rotated pages, use safer bitmap rasterization to guarantee alignment
                             // Render and flatten
-                            val cachedBitmap = bitmapCache.get(pageIndex)
-                            // Use cached bitmap copy if available, otherwise render fresh
-                            // Bolt: Fix - Ensure workingBitmap is mutable for Canvas
-                            val workingBitmap = if (cachedBitmap != null && !cachedBitmap.isRecycled) {
-                                cachedBitmap.copy(Bitmap.Config.ARGB_8888, true)
-                            } else {
-                                // Render fresh and ensure mutable copy
-                                val rendered = pdfRenderer?.renderImage(pageIndex, RENDER_SCALE)
-                                rendered?.copy(Bitmap.Config.ARGB_8888, true).also {
-                                    // Recycle the immutable rendered one if it was created just for this
-                                    rendered?.recycle()
-                                }
+
+                            // Render fresh and ensure mutable copy
+                            val rendered = pdfRenderer?.renderImage(pageIndex, RENDER_SCALE)
+                            val workingBitmap = rendered?.copy(Bitmap.Config.ARGB_8888, true).also {
+                                // Recycle the immutable rendered one if it was created just for this
+                                rendered?.recycle()
                             }
 
                             if (workingBitmap != null) {
@@ -659,7 +557,6 @@ class PdfViewerViewModel : ViewModel() {
             } finally {
                 document = null
                 pdfRenderer = null
-                bitmapCache.evictAll()
                 extractedTextCache.clear()
             }
         }

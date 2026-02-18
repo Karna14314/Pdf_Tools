@@ -1,0 +1,2 @@
+- The highlighter must highlight the text, not simply work same as a marker.
+- Always hide zoom buttons in the PDF viewer.

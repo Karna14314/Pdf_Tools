@@ -235,4 +235,14 @@ dependencies {
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // PDF Viewer (Jetpack PDF)
+    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha04")
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
+
+    // Ink Library (for annotations)
+    implementation("androidx.ink:ink-brush:1.0.0-alpha01")
+    implementation("androidx.ink:ink-geometry:1.0.0-alpha01")
+    implementation("androidx.ink:ink-rendering:1.0.0-alpha01")
+    implementation("androidx.ink:ink-strokes:1.0.0-alpha01")
 }
