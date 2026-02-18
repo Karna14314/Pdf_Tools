@@ -94,6 +94,8 @@ class PdfCompressor {
         try {
             onProgress(0.05f)
             
+            var detectedPageCount: Int? = null
+
             // Create a temp file to avoid loading everything into memory
             val cacheDir = File(context.cacheDir, "compress_cache")
             if (!cacheDir.exists()) cacheDir.mkdirs()
@@ -133,14 +135,18 @@ class PdfCompressor {
             
             // Try image optimization first (preserves text quality)
             // Note: tryImageOptimization writes to a temp file internally if successful
-            val optimizedFile = tryImageOptimization(context, tempFile, level, onProgress)
+            val optimizedFile = tryImageOptimization(context, tempFile, level, onProgress) { count ->
+                if (detectedPageCount == null) detectedPageCount = count
+            }
             
             onProgress(0.55f)
             
             // Try full re-render approach for potentially better compression
-            val rerenderedFile = tryFullRerender(context, tempFile, level) { progress ->
+            val rerenderedFile = tryFullRerender(context, tempFile, level, { progress ->
                 onProgress(0.55f + progress * 0.35f)
-            }
+            }, { count ->
+                if (detectedPageCount == null) detectedPageCount = count
+            })
             
             onProgress(0.90f)
             
@@ -176,7 +182,7 @@ class PdfCompressor {
             onProgress(1.0f)
             
             val timeTaken = System.currentTimeMillis() - startTime
-            val pagesProcessed = countPages(finalFile)
+            val pagesProcessed = detectedPageCount ?: countPages(finalFile)
             val compressedSize = finalFile.length()
 
             // Clean up temporary result files
@@ -211,7 +217,8 @@ class PdfCompressor {
         context: Context,
         inputFile: File,
         level: CompressionLevel,
-        onProgress: (Float) -> Unit
+        onProgress: (Float) -> Unit,
+        onPageCountAvailable: (Int) -> Unit
     ): File? {
         var document: PDDocument? = null
         val outputFile = File(context.cacheDir, "opt_${System.currentTimeMillis()}.pdf")
@@ -220,6 +227,7 @@ class PdfCompressor {
             // Use MemoryUsageSetting to enable temp file buffering instead of full memory load
             document = PDDocument.load(inputFile, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = document.numberOfPages
+            onPageCountAvailable(totalPages)
             
             if (totalPages == 0) return null
             
@@ -337,7 +345,8 @@ class PdfCompressor {
         context: Context,
         inputFile: File,
         level: CompressionLevel,
-        onProgress: (Float) -> Unit
+        onProgress: (Float) -> Unit,
+        onPageCountAvailable: (Int) -> Unit
     ): File? {
         var inputDocument: PDDocument? = null
         var outputDocument: PDDocument? = null
@@ -346,6 +355,7 @@ class PdfCompressor {
         return try {
             inputDocument = PDDocument.load(inputFile, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = inputDocument.numberOfPages
+            onPageCountAvailable(totalPages)
             
             if (totalPages == 0) return null
             
