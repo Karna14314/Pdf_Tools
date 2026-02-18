@@ -1,5 +1,6 @@
-v1.3.5 - fix: 16KB alignment (upgrade AGP 8.7.3, CameraX 1.4.1, MLKit 16.0.1), debug symbols upload, file-based versioning (fixes gh variable 403 error)
+v1.3.6 - feat: High-quality vector annotations
 
+• Improved PDF Saving: Annotations are now saved as high-quality vector paths, preserving original text and significantly reducing file size.
 • Latest improvements and bug fixes
 • Android 15 (16 KB page alignment) compatible
 • Enhanced performance and stability
