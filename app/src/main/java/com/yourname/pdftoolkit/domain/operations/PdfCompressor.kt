@@ -150,9 +150,7 @@ class PdfCompressor {
             // Try full re-render approach for potentially better compression
             val rerenderedFile = tryFullRerender(context, tempFile, profile) { progress ->
                 onProgress(0.55f + progress * 0.35f)
-            }, { count ->
-                if (detectedPageCount == null) detectedPageCount = count
-            })
+            }
             
             onProgress(0.90f)
             
@@ -244,7 +242,6 @@ class PdfCompressor {
             // Use MemoryUsageSetting to enable temp file buffering instead of full memory load
             document = PDDocument.load(inputFile, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = document.numberOfPages
-            onPageCountAvailable(totalPages)
             
             if (totalPages == 0) return null
             
@@ -366,7 +363,6 @@ class PdfCompressor {
         return try {
             inputDocument = PDDocument.load(inputFile, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = inputDocument.numberOfPages
-            onPageCountAvailable(totalPages)
             
             if (totalPages == 0) return null
             
