@@ -14,3 +14,4 @@
 | 38           | 1.3.11       | 2026-02-19 | fix: Indus App Store upload with correct JKS keystore |
 | 39           | 1.3.12       | 2026-02-19 | feat: add F-Droid metadata and GitHub release management workflow |
 | 40           | 1.3.13       | 2026-02-19 | feat: add Tesseract training data for F-Droid OCR support |
+| 41           | 1.3.14       | 2026-02-19 | Fix PDF viewer blank page issue and update guidelines |
