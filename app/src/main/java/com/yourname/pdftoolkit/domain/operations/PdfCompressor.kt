@@ -102,6 +102,8 @@ class PdfCompressor {
         try {
             onProgress(0.05f)
             
+            var detectedPageCount: Int? = null
+
             // Create a temp file to avoid loading everything into memory
             val cacheDir = File(context.cacheDir, "compress_cache")
             if (!cacheDir.exists()) cacheDir.mkdirs()
@@ -184,7 +186,7 @@ class PdfCompressor {
             onProgress(1.0f)
             
             val timeTaken = System.currentTimeMillis() - startTime
-            val pagesProcessed = countPages(finalFile)
+            val pagesProcessed = detectedPageCount ?: countPages(finalFile)
             val compressedSize = finalFile.length()
 
             // Clean up temporary result files
