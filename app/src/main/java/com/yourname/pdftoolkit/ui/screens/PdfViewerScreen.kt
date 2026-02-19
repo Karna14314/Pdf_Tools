@@ -224,30 +224,35 @@ fun PdfViewerScreen(
                     update = { container ->
                         val fragmentManager = (context as? FragmentActivity)?.supportFragmentManager
                         if (fragmentManager != null) {
-                            val tag = "pdf_viewer_fragment_${pdfUri.hashCode()}"
-                            var fragment = fragmentManager.findFragmentByTag(tag) as? EditablePdfViewerFragment
-
-                            if (fragment == null) {
-                                // CRITICAL FIX: Create fragment and set documentUri BEFORE adding to fragment manager
-                                fragment = EditablePdfViewerFragment().apply {
-                                    // Set the PDF URI before the fragment is added
-                                    loadPdf(pdfUri)
-                                }
-                                
+                            // CRITICAL FIX: Use unique tag per PDF to force fresh fragment creation
+                            // This prevents fragment reuse issues with the alpha androidx.pdf library
+                            val tag = "pdf_viewer_${pdfUri.hashCode()}_${System.currentTimeMillis()}"
+                            
+                            // Always remove any existing fragments to ensure clean state
+                            fragmentManager.fragments.filterIsInstance<EditablePdfViewerFragment>().forEach { oldFragment ->
                                 fragmentManager.commit {
-                                    replace(container.id, fragment!!, tag)
+                                    remove(oldFragment)
                                 }
                             }
-
+                            
+                            // Create fresh fragment with PDF URI set BEFORE adding to manager
+                            val fragment = EditablePdfViewerFragment().apply {
+                                // CRITICAL: Set documentUri before fragment is added
+                                loadPdf(pdfUri)
+                            }
+                            
+                            // Add the new fragment
+                            fragmentManager.commit {
+                                replace(container.id, fragment, tag)
+                            }
+                            
                             // Update fragment state (annotations, tools, colors)
-                            fragment?.let { frag ->
-                                val tool = if (toolState is PdfTool.Edit) selectedAnnotationTool else AnnotationTool.NONE
-                                frag.setAnnotationMode(tool)
-                                frag.setAnnotationColor(selectedColor.toArgb())
-                                frag.setAnnotations(annotations)
-                                frag.setOnAnnotationAddedListener { stroke ->
-                                    viewModel.addAnnotation(stroke)
-                                }
+                            val tool = if (toolState is PdfTool.Edit) selectedAnnotationTool else AnnotationTool.NONE
+                            fragment.setAnnotationMode(tool)
+                            fragment.setAnnotationColor(selectedColor.toArgb())
+                            fragment.setAnnotations(annotations)
+                            fragment.setOnAnnotationAddedListener { stroke ->
+                                viewModel.addAnnotation(stroke)
                             }
                         }
                     }

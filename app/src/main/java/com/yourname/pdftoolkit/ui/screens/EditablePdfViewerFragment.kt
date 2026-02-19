@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -32,16 +33,25 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
+        // Log for debugging
+        Log.d("EditablePdfViewer", "onViewCreated called, documentUri=$documentUri")
+        
         // CRITICAL: Post these operations to ensure PDF is fully loaded first
         view.post {
-            hideZoomButtons(view)
-            setupInkLayer(view)
+            try {
+                hideZoomButtons(view)
+                setupInkLayer(view)
+                Log.d("EditablePdfViewer", "PDF viewer setup completed")
+            } catch (e: Exception) {
+                Log.e("EditablePdfViewer", "Error during setup", e)
+            }
         }
     }
 
     fun loadPdf(uri: Uri) {
         // CRITICAL FIX: Set documentUri BEFORE the fragment is added to ensure proper initialization
         // The androidx.pdf library requires documentUri to be set before onViewCreated
+        Log.d("EditablePdfViewer", "loadPdf called with uri=$uri")
         documentUri = uri
     }
 
