@@ -100,6 +100,9 @@ jobs:
         run: |
           echo "$PLAY_STORE_JSON_KEY" > play-store-key.json
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Build Release AAB
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
