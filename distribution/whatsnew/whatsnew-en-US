@@ -1,5 +1,7 @@
-Bug fixes and improvements for PDF viewer zoom functionality
+Build flavor implementation for dual-store deployment
 
-• Fixed zoom controls visibility issues
-• Improved pinch-to-zoom gesture handling
-• Enhanced PDF viewer performance and stability
+• Implemented Play Store and F-Droid build flavors
+• Play Store: ML Kit OCR (smaller APK + runtime download)
+• F-Droid: Tesseract OCR (larger APK, fully open source)
+• OCR feature available in both builds
+• Improved deployment workflow with better error handling

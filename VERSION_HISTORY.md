@@ -12,3 +12,4 @@
 | 36           | 1.3.9       | 2026-02-18 | Merge pull request #38 from Karna14314/viewer-perf-coords-fix-262324067902429563 |
 | 37           | 1.3.10       | 2026-02-19 | fix: dual-store deployment with zoom improvements and GitHub releases |
 | 38           | 1.3.11       | 2026-02-19 | fix: Indus App Store upload with correct JKS keystore |
+| 39           | 1.3.12       | 2026-02-19 | feat: add F-Droid metadata and GitHub release management workflow |
