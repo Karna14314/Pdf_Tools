@@ -36,29 +36,20 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
         // Log for debugging
         Log.d("EditablePdfViewer", "onViewCreated called, documentUri=$documentUri")
         
-        // CRITICAL: Post these operations to ensure PDF is fully loaded first
-        view.post {
-            try {
-                hideZoomButtons(view)
-                setupInkLayer(view)
-                Log.d("EditablePdfViewer", "PDF viewer setup completed")
-            } catch (e: Exception) {
-                Log.e("EditablePdfViewer", "Error during setup", e)
-            }
-        }
+        hideZoomButtons(view)
+        setupInkLayer(view)
+        Log.d("EditablePdfViewer", "PDF viewer setup completed")
     }
 
     fun loadPdf(uri: Uri) {
-        // CRITICAL FIX: Set documentUri BEFORE the fragment is added to ensure proper initialization
-        // The androidx.pdf library requires documentUri to be set before onViewCreated
+        // CRITICAL FIX: Use setDocumentUri() method instead of direct property assignment
+        // This is the proper API method that triggers PDF loading in androidx.pdf library
         Log.d("EditablePdfViewer", "loadPdf called with uri=$uri")
-        documentUri = uri
+        setDocumentUri(uri)
     }
 
     fun setAnnotationMode(tool: AnnotationTool) {
         inkOverlay?.setTool(tool)
-        // CRITICAL: Update overlay clickability to allow touch pass-through when not annotating
-        inkOverlay?.isClickable = (tool != AnnotationTool.NONE)
     }
 
     fun setAnnotationColor(color: Int) {
@@ -105,17 +96,6 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
 
                 val overlay = InkOverlayView(context, pageContainer)
                 inkOverlay = overlay
-
-                // CRITICAL: Make overlay completely transparent to all events by default
-                overlay.isClickable = false
-                overlay.isFocusable = false
-                overlay.isFocusableInTouchMode = false
-                
-                // CRITICAL: Ensure overlay doesn't intercept any touch events
-                overlay.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                
-                // CRITICAL: Make the overlay truly transparent to touch events
-                overlay.setOnTouchListener { _, _ -> false } // Always return false to pass through
 
                 // Set initial listener
                 overlay.setOnAnnotationAddedListener { stroke ->
@@ -194,36 +174,8 @@ class InkOverlayView @JvmOverloads constructor(
 
     private val layerPaint = Paint()
 
-    init {
-        // CRITICAL: Make view transparent to touches by default
-        isClickable = false
-        isFocusable = false
-        
-        // CRITICAL: Disable all touch interception by default
-        // This ensures pinch-to-zoom and double-tap work properly
-        setWillNotDraw(false) // We still need to draw annotations
-        
-        // Ensure this view doesn't block accessibility or touch events
-        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        
-        // Listen for scroll/zoom changes to redraw annotations
-        addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            invalidate()
-        }
-    }
-    
     fun setTool(tool: AnnotationTool) {
         currentTool = tool
-        // Update whether we should intercept touches
-        isClickable = (tool != AnnotationTool.NONE)
-        isFocusable = (tool != AnnotationTool.NONE)
-        
-        // When switching to/from annotation mode, ensure proper touch handling
-        if (tool == AnnotationTool.NONE) {
-            // Clear any in-progress drawing
-            currentPoints.clear()
-            invalidate()
-        }
     }
 
     fun setColor(color: Int) {
@@ -382,21 +334,12 @@ class InkOverlayView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        // CRITICAL: Always pass through multi-touch gestures (pinch-to-zoom)
-        if (event.pointerCount > 1) {
-            return false // Don't consume - let PDF viewer handle pinch
-        }
-        
-        // CRITICAL: Only intercept touches when actively drawing
-        // This allows the underlying PDF viewer to handle pan/zoom/double-tap gestures
-        if (currentTool == AnnotationTool.NONE) {
-            return false // Don't consume the event - let it pass through
-        }
+        if (currentTool == AnnotationTool.NONE) return false
 
         val x = event.x
         val y = event.y
 
-        when (event.action and MotionEvent.ACTION_MASK) {
+        when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 currentPoints.clear()
                 currentPoints.add(Offset(x, y))
@@ -404,17 +347,11 @@ class InkOverlayView @JvmOverloads constructor(
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
-                // If a second pointer comes down while drawing, cancel the stroke
-                if (event.pointerCount > 1) {
-                    currentPoints.clear()
-                    invalidate()
-                    return false
-                }
                 currentPoints.add(Offset(x, y))
                 invalidate()
                 return true
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+            MotionEvent.ACTION_UP -> {
                 // Finalize stroke
                 if (currentPoints.isNotEmpty()) {
                     val first = currentPoints.first()
@@ -445,44 +382,17 @@ class InkOverlayView @JvmOverloads constructor(
                 invalidate()
                 return true
             }
-            MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_POINTER_UP -> {
-                // Multi-touch started/ended - cancel current stroke and pass through
-                currentPoints.clear()
-                invalidate()
-                return false
-            }
         }
         return false
-    }
-
-    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-        // CRITICAL FIX: When not in annotation mode, make overlay completely transparent to touches
-        // This ensures pan/zoom/double-tap gestures work properly
-        if (currentTool == AnnotationTool.NONE) {
-            return false // Don't intercept - pass through to underlying view
-        }
-        
-        // CRITICAL: Always pass through multi-touch gestures
-        if (event.pointerCount > 1) {
-            // Cancel any current drawing
-            if (currentPoints.isNotEmpty()) {
-                currentPoints.clear()
-                invalidate()
-            }
-            return false
-        }
-        
-        return super.dispatchTouchEvent(event)
     }
 
     private fun findPageUnder(x: Float, y: Float): Pair<Int, View?> {
         if (pageContainer == null) return -1 to null
 
         if (pageContainer is RecyclerView) {
-            // CRITICAL FIX: Properly map overlay coordinates to RecyclerView coordinates
-            // Account for RecyclerView's position and scroll offset
-            val rx = x - pageContainer.left + pageContainer.scrollX
-            val ry = y - pageContainer.top + pageContainer.scrollY
+            // Adjust for RecyclerView position relative to Overlay
+            val rx = x - pageContainer.left
+            val ry = y - pageContainer.top
 
             val child = pageContainer.findChildViewUnder(rx, ry)
             if (child != null) {
