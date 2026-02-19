@@ -11,6 +11,7 @@ import android.graphics.RectF
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.util.LruCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -28,6 +29,12 @@ import com.tom_roush.pdfbox.text.TextPosition
 import java.io.BufferedOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -218,6 +225,86 @@ class PdfViewerViewModel : ViewModel() {
 
     fun clearAnnotations() {
         _annotations.value = emptyList()
+    }
+
+    // Bitmap cache for rendered pages
+    private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
+    private val cacheSize = maxMemory / 8
+    private val bitmapCache = object : LruCache<Int, Bitmap>(cacheSize) {
+        override fun sizeOf(key: Int, bitmap: Bitmap): Int {
+            return bitmap.byteCount / 1024
+        }
+        
+        override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap, newValue: Bitmap?) {
+            if (evicted) {
+                oldValue.recycle()
+            }
+        }
+    }
+    
+    private var prefetchJob: Job? = null
+    
+    suspend fun loadPage(pageIndex: Int): Bitmap? {
+        // Check cache first
+        bitmapCache.get(pageIndex)?.let { return it }
+        
+        // Trigger prefetch for adjacent pages
+        prefetchPages(pageIndex)
+        
+        return withContext(Dispatchers.IO) {
+            ensureActive()
+            
+            documentMutex.withLock {
+                try {
+                    // Double check cache inside lock
+                    bitmapCache.get(pageIndex)?.let { return@withLock it }
+                    
+                    val renderer = pdfRenderer ?: return@withLock null
+                    val scale = RENDER_SCALE
+                    
+                    ensureActive()
+                    
+                    val bitmap = renderer.renderImage(pageIndex, scale)
+                    
+                    if (bitmap != null) {
+                        bitmapCache.put(pageIndex, bitmap)
+                    }
+                    bitmap
+                } catch (e: Exception) {
+                    Log.e("PdfViewerVM", "Error rendering page $pageIndex", e)
+                    null
+                }
+            }
+        }
+    }
+    
+    private fun prefetchPages(currentPage: Int) {
+        val totalPages = (_uiState.value as? PdfViewerUiState.Loaded)?.totalPages ?: return
+        
+        prefetchJob?.cancel()
+        prefetchJob = viewModelScope.launch(Dispatchers.IO) {
+            val range = listOf(currentPage + 1, currentPage - 1)
+            
+            for (page in range) {
+                if (page in 0 until totalPages) {
+                    if (bitmapCache.get(page) == null) {
+                        yield()
+                        
+                        try {
+                            documentMutex.withLock {
+                                if (bitmapCache.get(page) == null) {
+                                    pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
+                                        bitmapCache.put(page, bitmap)
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Ignore prefetch errors
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun stopSearch() {
