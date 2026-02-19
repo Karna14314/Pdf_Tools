@@ -58,6 +58,7 @@ jobs:
           echo "================================================"
 
       - name: Generate Release Notes
+        id: generate-notes
         run: |
           # Extract the latest commit message for release metadata
           COMMIT_MSG=$(git log -1 --pretty=format:"%s")
@@ -81,6 +82,11 @@ jobs:
           • Improved pinch-to-zoom gesture handling
           • Enhanced PDF viewer performance and stability
           EOF
+          
+          # Set output for GitHub Release
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          cat distribution/whatsnew/whatsnew-en-US >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           
           echo "=== Release Description ==="
           cat release_description.txt
@@ -199,6 +205,35 @@ jobs:
           fi
           
           echo "At least one deployment succeeded - proceeding with version increment"
+
+      - name: Create GitHub Release
+        if: success()
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.APP_VERSION_NAME }}
+          name: Release v${{ env.APP_VERSION_NAME }}
+          body: |
+            ## PDF Toolkit v${{ env.APP_VERSION_NAME }} (Build ${{ env.APP_VERSION_CODE }})
+            
+            ### What's New
+            ${{ steps.generate-notes.outputs.release_notes }}
+            
+            ### Deployment Status
+            - Play Store: ${{ steps.upload-play-store.outcome == 'success' && '✅ Deployed' || '❌ Failed' }}
+            - Indus App Store: ${{ steps.upload-indus-store.outcome == 'success' && '✅ Deployed' || '❌ Failed' }}
+            
+            ### Build Info
+            - Version Code: ${{ env.APP_VERSION_CODE }}
+            - Version Name: ${{ env.APP_VERSION_NAME }}
+            - Min SDK: 26 (Android 8.0)
+            - Target SDK: 35 (Android 15)
+          files: |
+            app/build/outputs/bundle/release/*.aab
+            app/build/outputs/mapping/release/mapping.txt
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Only runs if at least one upload succeeded — increment VERSION, VERSION_CODE, and update history
       - name: Increment Version and Update History

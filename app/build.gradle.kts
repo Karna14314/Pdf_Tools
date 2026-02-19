@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.yourname.pdftoolkit"
-        minSdk = 31
+        minSdk = 26
         targetSdk = 35
         // Version is managed via GitHub repo variables and passed as env vars by CI
         // Local builds use fallback values (not published to Play Store)
@@ -172,6 +172,9 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.documentfile:documentfile:1.0.1")
+    
+    // RecyclerView for PDF viewer page management
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     
     // ExifInterface for EXIF metadata reading (Apache 2.0)
     implementation("androidx.exifinterface:exifinterface:1.3.7")

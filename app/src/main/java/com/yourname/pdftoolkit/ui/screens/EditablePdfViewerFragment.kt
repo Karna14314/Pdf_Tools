@@ -37,7 +37,8 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
     }
 
     fun loadPdf(uri: Uri) {
-        setDocumentUri(uri)
+        // Use the correct API method for loading PDF
+        documentUri = uri
     }
 
     fun setAnnotationMode(tool: AnnotationTool) {
@@ -257,10 +258,6 @@ class InkOverlayView @JvmOverloads constructor(
         }
     }
 
-    fun setTool(tool: AnnotationTool) {
-        currentTool = tool
-    }
-
     fun setColor(color: Int) {
         currentColor = color
     }
@@ -275,28 +272,9 @@ class InkOverlayView @JvmOverloads constructor(
         onAnnotationAdded = listener
     }
     
-    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
-        // CRITICAL: Never intercept multi-touch gestures (pinch-to-zoom)
-        if (event.pointerCount > 1) {
-            return false
-        }
-        
-        // CRITICAL: Never intercept double-tap gestures
-        // Check if this might be a double-tap by looking at action
-        if (event.action == MotionEvent.ACTION_DOWN) {
-            // Don't intercept - let the underlying view handle double-tap
-            // We'll only handle it in onTouchEvent if we're in annotation mode
-        }
-        
-        // Only intercept single-touch when in annotation mode
-        if (currentTool == AnnotationTool.NONE) {
-            return false
-        }
-        
-        // For annotation mode, intercept single touch
-        return event.pointerCount == 1
-    }
-
+    // Note: View doesn't have onInterceptTouchEvent, only ViewGroup does
+    // We handle touch events directly in onTouchEvent instead
+    
     override fun dispatchDraw(canvas: Canvas) {
         // Non-stacking logic for highlighter: Use a layer
         val highlighters = annotations.filter { it.tool == AnnotationTool.HIGHLIGHTER }
