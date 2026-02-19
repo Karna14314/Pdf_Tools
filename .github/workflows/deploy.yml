@@ -76,11 +76,13 @@ jobs:
           
           # Update whatsnew for Play Store listing
           cat > distribution/whatsnew/whatsnew-en-US <<EOF
-          Bug fixes and improvements for PDF viewer zoom functionality
+          Build flavor implementation for dual-store deployment
           
-          • Fixed zoom controls visibility issues
-          • Improved pinch-to-zoom gesture handling
-          • Enhanced PDF viewer performance and stability
+          • Implemented Play Store and F-Droid build flavors
+          • Play Store: ML Kit OCR (smaller APK + runtime download)
+          • F-Droid: Tesseract OCR (larger APK, fully open source)
+          • OCR feature available in both builds
+          • Improved deployment workflow with better error handling
           EOF
           
           # Set output for GitHub Release
@@ -120,16 +122,16 @@ jobs:
           APP_VERSION_CODE: ${{ env.APP_VERSION_CODE }}
           APP_VERSION_NAME: ${{ env.APP_VERSION_NAME }}
           CI: true
-        run: ./gradlew bundleRelease
+        run: ./gradlew bundlePlaystoreRelease
 
       - name: Verify Build Outputs
         run: |
           echo "=== AAB File ==="
-          ls -lh app/build/outputs/bundle/release/*.aab
+          ls -lh app/build/outputs/bundle/playstoreRelease/*.aab
           echo "=== Mapping File ==="
-          ls -lh app/build/outputs/mapping/release/mapping.txt || echo "No mapping file found (minify may be disabled)"
+          ls -lh app/build/outputs/mapping/playstoreRelease/mapping.txt || echo "No mapping file found (minify may be disabled)"
           echo "=== Native Debug Symbols ==="
-          ls -lh app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip || echo "No native debug symbols zip found"
+          ls -lh app/build/outputs/native-debug-symbols/playstoreRelease/native-debug-symbols.zip || echo "No native debug symbols zip found"
           echo "=== Version ==="
           echo "versionCode: ${{ env.APP_VERSION_CODE }}"
           echo "versionName: ${{ env.APP_VERSION_NAME }}"
@@ -141,18 +143,18 @@ jobs:
         with:
           serviceAccountJson: play-store-key.json
           packageName: com.yourname.pdftoolkit
-          releaseFiles: app/build/outputs/bundle/release/*.aab
+          releaseFiles: app/build/outputs/bundle/playstoreRelease/*.aab
           track: internal
           status: completed
-          mappingFile: app/build/outputs/mapping/release/mapping.txt
-          debugSymbols: app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib
+          mappingFile: app/build/outputs/mapping/playstoreRelease/mapping.txt
+          debugSymbols: app/build/intermediates/merged_native_libs/playstoreRelease/mergePlaystoreReleaseNativeLibs/out/lib
           whatsNewDirectory: distribution/whatsnew
 
       - name: Upload to Indus App Store
         id: upload-indus-store
         continue-on-error: true
         run: |
-          AAB_FILE=$(ls app/build/outputs/bundle/release/*.aab | head -n 1)
+          AAB_FILE=$(ls app/build/outputs/bundle/playstoreRelease/*.aab | head -n 1)
           KEYSTORE_FILE="keystore.jks"
           
           echo "Uploading to Indus App Store..."
@@ -177,12 +179,27 @@ jobs:
           echo "HTTP Status: $HTTP_CODE"
           echo "Response: $BODY"
           
+          # Check for success (2xx)
           if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
             echo "✓ Successfully uploaded to Indus App Store"
+            echo "indus_status=success" >> $GITHUB_OUTPUT
             exit 0
+          # Check for 409 (app under review)
+          elif [ "$HTTP_CODE" -eq 409 ]; then
+            echo "⚠ Indus App Store: App is currently under review"
+            echo "Skipping upload - previous version is being reviewed"
+            echo "indus_status=skipped" >> $GITHUB_OUTPUT
+            exit 0
+          # Check for 400 (version already exists or other validation error)
+          elif [ "$HTTP_CODE" -eq 400 ]; then
+            echo "⚠ Indus App Store: Version validation error"
+            echo "Response: $BODY"
+            echo "indus_status=failed" >> $GITHUB_OUTPUT
+            exit 1
           else
             echo "✗ Failed to upload to Indus App Store"
             echo "Response body: $BODY"
+            echo "indus_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
 
@@ -192,8 +209,16 @@ jobs:
           echo "Play Store: ${{ steps.upload-play-store.outcome }}"
           echo "Indus App Store: ${{ steps.upload-indus-store.outcome }}"
           
+          INDUS_STATUS="${{ steps.upload-indus-store.outputs.indus_status }}"
+          echo "Indus Status Detail: $INDUS_STATUS"
+          
           # Fail the job only if BOTH deployments failed
           if [[ "${{ steps.upload-play-store.outcome }}" == "failure" && "${{ steps.upload-indus-store.outcome }}" == "failure" ]]; then
+            # But don't fail if Indus was skipped due to review
+            if [[ "$INDUS_STATUS" == "skipped" ]]; then
+              echo "INFO: Indus App Store skipped (under review), but Play Store failed"
+              exit 1
+            fi
             echo "ERROR: Both store deployments failed!"
             exit 1
           fi
@@ -203,10 +228,14 @@ jobs:
           fi
           
           if [[ "${{ steps.upload-indus-store.outcome }}" == "failure" ]]; then
-            echo "WARNING: Indus App Store deployment failed, but Play Store succeeded"
+            if [[ "$INDUS_STATUS" == "skipped" ]]; then
+              echo "INFO: Indus App Store skipped - app is under review"
+            else
+              echo "WARNING: Indus App Store deployment failed, but Play Store succeeded"
+            fi
           fi
           
-          echo "At least one deployment succeeded - proceeding with version increment"
+          echo "At least one deployment succeeded or was skipped - proceeding with version increment"
 
       - name: Create GitHub Release
         if: success()
@@ -222,7 +251,7 @@ jobs:
             
             ### Deployment Status
             - Play Store: ${{ steps.upload-play-store.outcome == 'success' && '✅ Deployed' || '❌ Failed' }}
-            - Indus App Store: ${{ steps.upload-indus-store.outcome == 'success' && '✅ Deployed' || '❌ Failed' }}
+            - Indus App Store: ${{ steps.upload-indus-store.outputs.indus_status == 'success' && '✅ Deployed' || steps.upload-indus-store.outputs.indus_status == 'skipped' && '⏭️ Skipped (Under Review)' || '❌ Failed' }}
             
             ### Build Info
             - Version Code: ${{ env.APP_VERSION_CODE }}
@@ -230,8 +259,8 @@ jobs:
             - Min SDK: 26 (Android 8.0)
             - Target SDK: 35 (Android 15)
           files: |
-            app/build/outputs/bundle/release/*.aab
-            app/build/outputs/mapping/release/mapping.txt
+            app/build/outputs/bundle/playstoreRelease/*.aab
+            app/build/outputs/mapping/playstoreRelease/mapping.txt
           draft: false
           prerelease: false
         env:

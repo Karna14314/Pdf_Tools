@@ -83,6 +83,25 @@ android {
         }
     }
 
+    flavorDimensions += "store"
+    productFlavors {
+        create("playstore") {
+            dimension = "store"
+            // Play Store and Indus App Store flavor
+            // Uses ML Kit for OCR (proprietary but smaller)
+            buildConfigField("boolean", "HAS_OCR", "true")
+            buildConfigField("boolean", "USE_MLKIT_OCR", "true")
+        }
+        
+        create("fdroid") {
+            dimension = "store"
+            // F-Droid flavor with only open source dependencies
+            // Uses Tesseract for OCR (open source but larger APK)
+            buildConfigField("boolean", "HAS_OCR", "true")
+            buildConfigField("boolean", "USE_MLKIT_OCR", "false")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -173,6 +192,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.documentfile:documentfile:1.0.1")
     
+    // AppCompat for uCrop compatibility
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    
     // RecyclerView for PDF viewer page management
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     
@@ -206,10 +228,11 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
     implementation("androidx.camera:camera-view:$cameraxVersion")
     
-    // ML Kit Text Recognition for OCR (Apache 2.0)
-    // Note: Models are downloaded on-demand when first used (~40MB)
-    // v16.0.1+ includes 16KB page-aligned native libraries
-    implementation("com.google.mlkit:text-recognition:16.0.1")
+    // OCR Libraries - flavor-specific
+    // Play Store: ML Kit (proprietary, smaller APK + 40MB runtime download)
+    "playstoreImplementation"("com.google.mlkit:text-recognition:16.0.1")
+    // F-Droid: Tesseract (open source, larger APK but no runtime downloads)
+    "fdroidImplementation"("com.rmtheis:tess-two:9.1.0")
     
     // Coil for image loading (Apache 2.0) - lightweight (~2MB)
     implementation("io.coil-kt:coil-compose:2.5.0")

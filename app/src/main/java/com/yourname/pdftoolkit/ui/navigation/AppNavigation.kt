@@ -30,6 +30,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.yourname.pdftoolkit.BuildConfig
 import com.yourname.pdftoolkit.ui.components.HistorySidebar
 import com.yourname.pdftoolkit.ui.screens.*
 
@@ -380,8 +381,11 @@ fun AppNavigation(
                 ScanToPdfScreen(onNavigateBack = { navController.popBackStack() })
             }
             
-            composable(Screen.Ocr.route) {
-                OcrScreen(onNavigateBack = { navController.popBackStack() })
+            // OCR screen - only available in Play Store flavor
+            if (BuildConfig.HAS_OCR) {
+                composable(Screen.Ocr.route) {
+                    OcrScreen(onNavigateBack = { navController.popBackStack() })
+                }
             }
             
             composable(Screen.ImageTools.route) {
