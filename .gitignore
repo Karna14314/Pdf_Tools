@@ -103,3 +103,8 @@ lint/tmp/
 .Trashes
 ehthumbs.db
 Thumbs.db.vscode/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
