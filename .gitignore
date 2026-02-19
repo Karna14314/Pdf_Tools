@@ -108,3 +108,6 @@ Thumbs.db.vscode/
 .env
 .env.local
 .env.*.local
+
+# F-Droid data repository (external clone)
+fdroiddata/

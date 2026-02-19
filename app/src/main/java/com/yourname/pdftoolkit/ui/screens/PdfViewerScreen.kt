@@ -228,15 +228,19 @@ fun PdfViewerScreen(
                             var fragment = fragmentManager.findFragmentByTag(tag) as? EditablePdfViewerFragment
 
                             if (fragment == null) {
-                                fragment = EditablePdfViewerFragment()
+                                // CRITICAL FIX: Create fragment and set documentUri BEFORE adding to fragment manager
+                                fragment = EditablePdfViewerFragment().apply {
+                                    // Set the PDF URI before the fragment is added
+                                    loadPdf(pdfUri)
+                                }
+                                
                                 fragmentManager.commit {
                                     replace(container.id, fragment!!, tag)
                                 }
                             }
 
+                            // Update fragment state (annotations, tools, colors)
                             fragment?.let { frag ->
-                                frag.loadPdf(pdfUri)
-
                                 val tool = if (toolState is PdfTool.Edit) selectedAnnotationTool else AnnotationTool.NONE
                                 frag.setAnnotationMode(tool)
                                 frag.setAnnotationColor(selectedColor.toArgb())

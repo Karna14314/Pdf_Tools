@@ -31,13 +31,17 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        hideZoomButtons(view)
-        hideAllPdfViewerControls(view)
-        setupInkLayer(view)
+        
+        // CRITICAL: Post these operations to ensure PDF is fully loaded first
+        view.post {
+            hideZoomButtons(view)
+            setupInkLayer(view)
+        }
     }
 
     fun loadPdf(uri: Uri) {
-        // Use the correct API method for loading PDF
+        // CRITICAL FIX: Set documentUri BEFORE the fragment is added to ensure proper initialization
+        // The androidx.pdf library requires documentUri to be set before onViewCreated
         documentUri = uri
     }
 
@@ -73,64 +77,13 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
     }
 
     private fun hideZoomButtons(root: View) {
-        // Hide zoom buttons container
+        // Hide zoom buttons container only (keep 3-dot menu visible)
         val zoomContainerId = resources.getIdentifier("zoom_buttons_container", "id", "androidx.pdf")
         if (zoomContainerId != 0) {
             root.findViewById<View>(zoomContainerId)?.visibility = View.GONE
         }
-        
-        // Hide the 3-dot menu that contains zoom percentage options
-        val menuButtonId = resources.getIdentifier("menu_button", "id", "androidx.pdf")
-        if (menuButtonId != 0) {
-            root.findViewById<View>(menuButtonId)?.visibility = View.GONE
-        }
-        
-        // Alternative menu identifiers to try
-        val overflowMenuId = resources.getIdentifier("overflow_menu", "id", "androidx.pdf")
-        if (overflowMenuId != 0) {
-            root.findViewById<View>(overflowMenuId)?.visibility = View.GONE
-        }
-        
-        val actionMenuId = resources.getIdentifier("action_menu", "id", "androidx.pdf")
-        if (actionMenuId != 0) {
-            root.findViewById<View>(actionMenuId)?.visibility = View.GONE
-        }
-        
-        val toolbarId = resources.getIdentifier("toolbar", "id", "androidx.pdf")
-        if (toolbarId != 0) {
-            root.findViewById<View>(toolbarId)?.visibility = View.GONE
-        }
     }
     
-    private fun hideAllPdfViewerControls(root: View) {
-        // Recursively search for and hide ImageButton or any view that looks like a menu button
-        if (root is ViewGroup) {
-            for (i in 0 until root.childCount) {
-                val child = root.getChildAt(i)
-                
-                // Hide ImageButton widgets (likely the 3-dot menu)
-                if (child is android.widget.ImageButton) {
-                    child.visibility = View.GONE
-                }
-                
-                // Hide any view with "menu" in its resource name
-                try {
-                    val resourceName = child.resources.getResourceEntryName(child.id)
-                    if (resourceName.contains("menu", ignoreCase = true) || 
-                        resourceName.contains("overflow", ignoreCase = true) ||
-                        resourceName.contains("action", ignoreCase = true)) {
-                        child.visibility = View.GONE
-                    }
-                } catch (e: Exception) {
-                    // Ignore views without resource IDs
-                }
-                
-                // Recursively check children
-                hideAllPdfViewerControls(child)
-            }
-        }
-    }
-
     private fun setupInkLayer(root: View) {
         val zoomView = findZoomView(root)
         if (zoomView != null && zoomView is ViewGroup) {
@@ -143,11 +96,16 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
                 val overlay = InkOverlayView(context, pageContainer)
                 inkOverlay = overlay
 
-                // CRITICAL: Make overlay non-clickable by default to allow touch pass-through
+                // CRITICAL: Make overlay completely transparent to all events by default
                 overlay.isClickable = false
                 overlay.isFocusable = false
-                // Ensure overlay doesn't block touch events when not needed
+                overlay.isFocusableInTouchMode = false
+                
+                // CRITICAL: Ensure overlay doesn't intercept any touch events
                 overlay.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                
+                // CRITICAL: Make the overlay truly transparent to touch events
+                overlay.setOnTouchListener { _, _ -> false } // Always return false to pass through
 
                 // Set initial listener
                 overlay.setOnAnnotationAddedListener { stroke ->
