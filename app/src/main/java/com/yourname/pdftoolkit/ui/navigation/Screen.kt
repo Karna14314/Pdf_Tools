@@ -57,7 +57,11 @@ sealed class Screen(val route: String) {
     object Annotate : Screen("annotate")
     object ScanToPdf : Screen("scan_to_pdf")
     object Ocr : Screen("ocr")
-    object ImageTools : Screen("image_tools")
+    object ImageTools : Screen("image_tools?operation={operation}") {
+        fun createRoute(operation: String = "resize"): String {
+            return "image_tools?operation=$operation"
+        }
+    }
     
     // Legacy compatibility
     object Home : Screen("tools")
@@ -86,7 +90,10 @@ sealed class Screen(val route: String) {
                 "unlock" -> Unlock
                 "watermark" -> Watermark
                 "sign" -> SignPdf
-                "image_compress", "image_resize", "image_convert", "image_metadata" -> ImageTools
+                "image_compress" -> ImageTools
+                "image_resize" -> ImageTools
+                "image_convert" -> ImageTools
+                "image_metadata" -> ImageTools
                 "page_numbers" -> PageNumber
                 "metadata" -> Metadata
                 "flatten" -> Flatten
@@ -94,6 +101,20 @@ sealed class Screen(val route: String) {
                 "fill_forms" -> FillForms
                 "repair" -> Repair
                 else -> Tools
+            }
+        }
+        
+        /**
+         * Returns the route string for a given tool ID.
+         * Used for navigation with parameters (e.g., image tools with operation).
+         */
+        fun getRouteForToolId(toolId: String): String {
+            return when (toolId) {
+                "image_compress" -> ImageTools.createRoute("compress")
+                "image_resize" -> ImageTools.createRoute("resize")
+                "image_convert" -> ImageTools.createRoute("convert")
+                "image_metadata" -> ImageTools.createRoute("strip_metadata")
+                else -> fromToolId(toolId).route
             }
         }
         

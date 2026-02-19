@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.yourname.pdftoolkit.BuildConfig
@@ -169,6 +170,9 @@ fun AppNavigation(
                 ToolsScreen(
                     onNavigateToScreen = { screen ->
                         navController.navigate(screen.route)
+                    },
+                    onNavigateToRoute = { route ->
+                        navController.navigate(route)
                     },
                     onOpenPdfViewer = { uri, name ->
                         val encodedUri = Uri.encode(uri.toString())
@@ -388,8 +392,20 @@ fun AppNavigation(
                 }
             }
             
-            composable(Screen.ImageTools.route) {
-                ImageToolsScreen(onNavigateBack = { navController.popBackStack() })
+            composable(
+                route = Screen.ImageTools.route,
+                arguments = listOf(
+                    navArgument("operation") {
+                        type = NavType.StringType
+                        defaultValue = "resize"
+                    }
+                )
+            ) { backStackEntry ->
+                val operation = backStackEntry.arguments?.getString("operation") ?: "resize"
+                ImageToolsScreen(
+                    initialOperation = operation,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
         }
     }

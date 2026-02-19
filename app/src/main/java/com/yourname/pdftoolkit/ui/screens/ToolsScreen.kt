@@ -59,6 +59,7 @@ data class ToolItem(
 @Composable
 fun ToolsScreen(
     onNavigateToScreen: (Screen) -> Unit,
+    onNavigateToRoute: ((String) -> Unit)? = null,
     onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
@@ -131,7 +132,16 @@ fun ToolsScreen(
                                 // Special handling for View PDF
                                 pdfPickerLauncher.launch(arrayOf("application/pdf"))
                             } else {
-                                onNavigateToScreen(tool.screen)
+                                // Check if this is an image tool that needs special routing
+                                val imageToolIds = listOf("image_compress", "image_resize", "image_convert", "image_metadata")
+                                if (imageToolIds.contains(tool.id) && onNavigateToRoute != null) {
+                                    // Use route with operation parameter for image tools
+                                    val route = Screen.getRouteForToolId(tool.id)
+                                    onNavigateToRoute(route)
+                                } else {
+                                    // Use screen object for other tools
+                                    onNavigateToScreen(tool.screen)
+                                }
                             }
                         }
                     )
