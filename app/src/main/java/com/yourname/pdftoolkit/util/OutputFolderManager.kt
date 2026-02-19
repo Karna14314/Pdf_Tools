@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
+import com.yourname.pdftoolkit.data.FileManager
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -175,7 +176,7 @@ object OutputFolderManager {
                         uri = uri,
                         name = file.name,
                         size = file.length(),
-                        formattedSize = formatFileSize(file.length()),
+                        formattedSize = FileManager.formatFileSize(file.length()),
                         lastModified = file.lastModified()
                     )
                 } ?: emptyList()
@@ -233,15 +234,6 @@ object OutputFolderManager {
         }
         
         return fileName
-    }
-    
-    private fun formatFileSize(bytes: Long): String {
-        return when {
-            bytes < 1024 -> "$bytes B"
-            bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-            bytes < 1024 * 1024 * 1024 -> String.format("%.1f MB", bytes / (1024.0 * 1024.0))
-            else -> String.format("%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0))
-        }
     }
     
     /**

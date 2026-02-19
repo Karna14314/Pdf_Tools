@@ -1,0 +1,198 @@
+name: Manage Releases and Prune Old Versions
+
+on:
+  push:
+    branches:
+      - master
+
+# Required permissions for the workflow
+permissions:
+  contents: write  # Needed to create/delete releases, tags, and commit files
+  actions: write   # Needed for workflow operations
+
+jobs:
+  manage-releases:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Create releases directory
+        run: |
+          mkdir -p releases
+          echo "Releases directory created/verified"
+      
+      - name: Check for build artifacts
+        id: check-artifacts
+        run: |
+          # Check if there are any AAB files in the expected location
+          if ls app/build/outputs/bundle/playstoreRelease/*.aab 1> /dev/null 2>&1; then
+            echo "artifacts_exist=true" >> $GITHUB_OUTPUT
+            echo "Found build artifacts"
+          else
+            echo "artifacts_exist=false" >> $GITHUB_OUTPUT
+            echo "No build artifacts found - skipping artifact copy"
+          fi
+      
+      - name: Copy latest build artifacts to releases folder
+        if: steps.check-artifacts.outputs.artifacts_exist == 'true'
+        run: |
+          # Copy AAB files if they exist
+          if ls app/build/outputs/bundle/playstoreRelease/*.aab 1> /dev/null 2>&1; then
+            cp app/build/outputs/bundle/playstoreRelease/*.aab releases/
+            echo "Copied AAB files to releases/"
+          fi
+          
+          # Copy mapping files if they exist
+          if [ -f app/build/outputs/mapping/playstoreRelease/mapping.txt ]; then
+            cp app/build/outputs/mapping/playstoreRelease/mapping.txt releases/mapping-$(date +%Y%m%d-%H%M%S).txt
+            echo "Copied mapping file to releases/"
+          fi
+          
+          ls -lh releases/
+      
+      - name: Commit and push releases folder
+        if: steps.check-artifacts.outputs.artifacts_exist == 'true'
+        run: |
+          git add releases/
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update releases folder with latest build artifacts [skip ci]"
+            git push origin master
+            echo "Pushed releases folder updates"
+          fi
+      
+      - name: Generate unique tag
+        id: generate-tag
+        run: |
+          # Try to get version from VERSION file
+          if [ -f VERSION ]; then
+            VERSION=$(cat VERSION | tr -d '[:space:]')
+            TAG="v${VERSION}"
+          else
+            # Fallback to timestamp-based tag
+            TAG="release-$(date +%Y%m%d-%H%M%S)"
+          fi
+          
+          # Check if tag already exists
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            # Tag exists, append short SHA
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            TAG="${TAG}-${SHORT_SHA}"
+          fi
+          
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated tag: $TAG"
+      
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.generate-tag.outputs.tag }}"
+          
+          # Get version info
+          if [ -f VERSION ]; then
+            VERSION=$(cat VERSION | tr -d '[:space:]')
+          else
+            VERSION="dev"
+          fi
+          
+          if [ -f VERSION_CODE ]; then
+            VERSION_CODE=$(cat VERSION_CODE | tr -d '[:space:]')
+          else
+            VERSION_CODE="0"
+          fi
+          
+          # Get latest commit message
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          
+          # Create release notes
+          cat > release_notes.md <<EOF
+          ## PDF Toolkit ${VERSION} (Build ${VERSION_CODE})
+          
+          ### Changes
+          ${COMMIT_MSG}
+          
+          ### Build Info
+          - Version: ${VERSION}
+          - Build Code: ${VERSION_CODE}
+          - Commit: $(git rev-parse --short HEAD)
+          - Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          ### Downloads
+          - Play Store: Available in internal track
+          - F-Droid: Submission in progress
+          EOF
+          
+          # Create the release
+          gh release create "$TAG" \
+            --title "Release ${VERSION}" \
+            --notes-file release_notes.md \
+            --target master
+          
+          # Upload artifacts if they exist
+          if [ -d releases ] && [ "$(ls -A releases)" ]; then
+            gh release upload "$TAG" releases/* --clobber || echo "No artifacts to upload"
+          fi
+          
+          echo "Created release: $TAG"
+      
+      - name: Prune old releases (keep latest 5)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching all releases..."
+          
+          # Get all release tags sorted by creation date (newest first)
+          RELEASES=$(gh release list --limit 1000 --json tagName,createdAt --jq 'sort_by(.createdAt) | reverse | .[].tagName')
+          
+          # Convert to array
+          RELEASE_ARRAY=($RELEASES)
+          TOTAL_RELEASES=${#RELEASE_ARRAY[@]}
+          
+          echo "Total releases found: $TOTAL_RELEASES"
+          
+          # Check if we have more than 5 releases
+          if [ $TOTAL_RELEASES -le 5 ]; then
+            echo "Only $TOTAL_RELEASES releases exist. No pruning needed (keeping all)."
+            exit 0
+          fi
+          
+          # Calculate how many to delete
+          TO_DELETE=$((TOTAL_RELEASES - 5))
+          echo "Will delete $TO_DELETE old releases (keeping latest 5)"
+          
+          # Delete old releases (skip first 5, delete the rest)
+          for ((i=5; i<$TOTAL_RELEASES; i++)); do
+            TAG="${RELEASE_ARRAY[$i]}"
+            echo "Deleting release and tag: $TAG"
+            
+            # Delete the release
+            gh release delete "$TAG" --yes || echo "Failed to delete release $TAG"
+            
+            # Delete the tag from remote
+            git push origin --delete "$TAG" || echo "Failed to delete tag $TAG from remote"
+          done
+          
+          echo "Pruning complete. Kept latest 5 releases."
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== Release Management Summary ==="
+          echo "Artifacts copied: ${{ steps.check-artifacts.outputs.artifacts_exist }}"
+          echo "New tag created: ${{ steps.generate-tag.outputs.tag }}"
+          echo "Releases pruned: Old releases beyond the latest 5 were removed"
+          echo "=================================="

@@ -1,0 +1,49 @@
+Categories:
+  - Reading
+  - Writing
+License: Apache-2.0
+AuthorName: PDF Toolkit Contributors
+SourceCode: https://github.com/Karna14314/Pdf_Tools
+IssueTracker: https://github.com/Karna14314/Pdf_Tools/issues
+
+AutoName: PDF Toolkit
+
+RepoType: git
+Repo: https://github.com/Karna14314/Pdf_Tools
+
+Builds:
+  - versionName: 1.3.11
+    versionCode: 38
+    commit: v1.3.11
+    subdir: app
+    gradle:
+      - fdroid
+    prebuild: echo "versionCode=38" > ../VERSION_CODE && echo "1.3.11" > ../VERSION
+
+Description: |-
+  PDF Toolkit is a comprehensive PDF and image manipulation tool for Android.
+  
+  Features include:
+  * Merge multiple PDFs into one
+  * Split PDF into multiple files
+  * Compress PDF to reduce file size
+  * Convert PDF pages to images
+  * Convert images to PDF
+  * Reorder, rotate, and delete PDF pages
+  * Extract specific pages from PDF
+  * Add watermarks and page numbers
+  * Password protect PDFs (lock/unlock)
+  * Sign PDFs with digital signatures
+  * OCR (Optical Character Recognition) using Tesseract
+  * Scan documents to PDF using camera
+  * Extract text from PDFs
+  * View and edit PDF metadata
+  * Image tools (compress, resize, convert formats)
+  
+  The F-Droid version uses Tesseract OCR (open source) instead of Google ML Kit
+  to maintain compatibility with F-Droid's free software requirements.
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.3.11
+CurrentVersionCode: 38

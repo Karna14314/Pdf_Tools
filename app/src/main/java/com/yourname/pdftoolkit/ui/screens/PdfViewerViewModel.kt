@@ -38,6 +38,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
+import kotlinx.coroutines.yield
 
 data class PageTextData(val text: String, val positions: List<TextPosition>)
 
@@ -128,26 +129,6 @@ class PdfViewerViewModel : ViewModel() {
     // Search Job Control
     private var searchJob: Job? = null
 
-    // Prefetch Job Control
-    private var prefetchJob: Job? = null
-
-    // Bitmap Cache
-    // Calculate cache size: Use 1/8th of the available memory for this memory cache.
-    private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-    private val cacheSize = maxMemory / 8
-
-    private val bitmapCache = object : LruCache<Int, Bitmap>(cacheSize) {
-        override fun sizeOf(key: Int, bitmap: Bitmap): Int {
-            // The cache size will be measured in kilobytes rather than number of items.
-            return bitmap.byteCount / 1024
-        }
-
-        override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap, newValue: Bitmap?) {
-             // Bolt: Safety Check - Do not recycle immediately as UI might be using it.
-             // Relying on GC is safer for ViewModels unless we implement a strict BitmapPool.
-        }
-    }
-
     fun loadPdf(context: Context, uri: Uri, password: String = "") {
         viewModelScope.launch {
             _uiState.value = PdfViewerUiState.Loading
@@ -180,77 +161,6 @@ class PdfViewerViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("PdfViewerVM", "Error loading PDF", e)
                 _uiState.value = PdfViewerUiState.Error(e.message ?: "Failed to load PDF")
-            }
-        }
-    }
-
-    suspend fun loadPage(pageIndex: Int): Bitmap? {
-        // Check cache first (Main Thread check is fast)
-        bitmapCache.get(pageIndex)?.let { return it }
-
-        // Bolt: Smart Prefetch - Trigger load for adjacent pages
-        prefetchPages(pageIndex)
-
-        return withContext(Dispatchers.IO) {
-            // Bolt: Cancellation Check - Ensure we stop waiting if job is cancelled
-            ensureActive()
-
-            documentMutex.withLock {
-                try {
-                    // Double check cache inside lock
-                    bitmapCache.get(pageIndex)?.let { return@withLock it }
-
-                    val renderer = pdfRenderer ?: return@withLock null
-                    // Render at 1.5x scale (approx 108 dpi) for good quality on mobile
-                    val scale = RENDER_SCALE
-
-                    // Bolt: Ensure cancellation before heavy rendering
-                    ensureActive()
-
-                    val bitmap = renderer.renderImage(pageIndex, scale)
-
-                    if (bitmap != null) {
-                        bitmapCache.put(pageIndex, bitmap)
-                    }
-                    bitmap
-                } catch (e: Exception) {
-                    Log.e("PdfViewerVM", "Error rendering page $pageIndex", e)
-                    null
-                }
-            }
-        }
-    }
-
-    private fun prefetchPages(currentPage: Int) {
-        // Bolt: Smart Prefetch implementation
-        // Only prefetch if we have a valid document
-        val totalPages = (uiState.value as? PdfViewerUiState.Loaded)?.totalPages ?: return
-
-        prefetchJob?.cancel()
-        prefetchJob = viewModelScope.launch(Dispatchers.IO) {
-            val range = listOf(currentPage + 1, currentPage - 1)
-
-            for (page in range) {
-                if (page in 0 until totalPages) {
-                    if (bitmapCache.get(page) == null) {
-                        // Try to acquire lock without blocking user interaction too much
-                        // Since we are on IO, we can wait, but we yield to prioritize loadPage
-                        yield()
-
-                        try {
-                            documentMutex.withLock {
-                                // Double check inside lock
-                                if (bitmapCache.get(page) == null) {
-                                    pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
-                                        bitmapCache.put(page, bitmap)
-                                    }
-                                }
-                            }
-                        } catch (e: Exception) {
-                            // Ignore prefetch errors
-                        }
-                    }
-                }
             }
         }
     }
@@ -310,6 +220,86 @@ class PdfViewerViewModel : ViewModel() {
 
     fun clearAnnotations() {
         _annotations.value = emptyList()
+    }
+
+    // Bitmap cache for rendered pages
+    private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
+    private val cacheSize = maxMemory / 8
+    private val bitmapCache = object : LruCache<Int, Bitmap>(cacheSize) {
+        override fun sizeOf(key: Int, bitmap: Bitmap): Int {
+            return bitmap.byteCount / 1024
+        }
+        
+        override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap, newValue: Bitmap?) {
+            if (evicted) {
+                oldValue.recycle()
+            }
+        }
+    }
+    
+    private var prefetchJob: Job? = null
+    
+    suspend fun loadPage(pageIndex: Int): Bitmap? {
+        // Check cache first
+        bitmapCache.get(pageIndex)?.let { return it }
+        
+        // Trigger prefetch for adjacent pages
+        prefetchPages(pageIndex)
+        
+        return withContext(Dispatchers.IO) {
+            ensureActive()
+            
+            documentMutex.withLock {
+                try {
+                    // Double check cache inside lock
+                    bitmapCache.get(pageIndex)?.let { return@withLock it }
+                    
+                    val renderer = pdfRenderer ?: return@withLock null
+                    val scale = RENDER_SCALE
+                    
+                    ensureActive()
+                    
+                    val bitmap = renderer.renderImage(pageIndex, scale)
+                    
+                    if (bitmap != null) {
+                        bitmapCache.put(pageIndex, bitmap)
+                    }
+                    bitmap
+                } catch (e: Exception) {
+                    Log.e("PdfViewerVM", "Error rendering page $pageIndex", e)
+                    null
+                }
+            }
+        }
+    }
+    
+    private fun prefetchPages(currentPage: Int) {
+        val totalPages = (_uiState.value as? PdfViewerUiState.Loaded)?.totalPages ?: return
+        
+        prefetchJob?.cancel()
+        prefetchJob = viewModelScope.launch(Dispatchers.IO) {
+            val range = listOf(currentPage + 1, currentPage - 1)
+            
+            for (page in range) {
+                if (page in 0 until totalPages) {
+                    if (bitmapCache.get(page) == null) {
+                        yield()
+                        
+                        try {
+                            documentMutex.withLock {
+                                if (bitmapCache.get(page) == null) {
+                                    pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
+                                        bitmapCache.put(page, bitmap)
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Ignore prefetch errors
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun stopSearch() {
@@ -509,29 +499,29 @@ class PdfViewerViewModel : ViewModel() {
                                         cs.setGraphicsStateParameters(graphicsState)
                                     }
 
-                                    // Set line width (scaled from Android pixels to PDF points)
-                                    // Android Scale: 1.5f (108 DPI). PDF: 72 DPI.
-                                    // Width_PDF = Width_Android / 1.5f
-                                    val pdfStrokeWidth = annotation.strokeWidth / RENDER_SCALE
+                                    // Set line width (normalized to PDF points)
+                                    val pageWidth = importedPage.mediaBox.width
+                                    val pdfStrokeWidth = annotation.strokeWidth * pageWidth
+
                                     cs.setLineWidth(pdfStrokeWidth)
                                     cs.setLineCapStyle(1) // Round Cap
                                     cs.setLineJoinStyle(1) // Round Join
 
                                     if (annotation.points.isNotEmpty()) {
                                         val first = annotation.points.first()
-                                        // Coordinate Transform: Android Top-Left -> PDF Bottom-Left
-                                        // X_pdf = X_android / 1.5
-                                        // Y_pdf = PageHeight - (Y_android / 1.5)
+                                        // Coordinate Transform: Normalized -> PDF Bottom-Left
+                                        // X_pdf = X_norm * PageWidth
+                                        // Y_pdf = PageHeight - (Y_norm * PageHeight)
 
-                                        val startX = first.x / RENDER_SCALE
-                                        val startY = pageHeight - (first.y / RENDER_SCALE)
+                                        val startX = first.x * pageWidth
+                                        val startY = pageHeight - (first.y * pageHeight)
 
                                         cs.moveTo(startX, startY)
 
                                         for (i in 1 until annotation.points.size) {
                                             val p = annotation.points[i]
-                                            val px = p.x / RENDER_SCALE
-                                            val py = pageHeight - (p.y / RENDER_SCALE)
+                                            val px = p.x * pageWidth
+                                            val py = pageHeight - (p.y * pageHeight)
                                             cs.lineTo(px, py)
                                         }
                                         cs.stroke()
@@ -541,18 +531,12 @@ class PdfViewerViewModel : ViewModel() {
                         } else {
                             // RASTER FALLBACK: For rotated pages, use safer bitmap rasterization to guarantee alignment
                             // Render and flatten
-                            val cachedBitmap = bitmapCache.get(pageIndex)
-                            // Use cached bitmap copy if available, otherwise render fresh
-                            // Bolt: Fix - Ensure workingBitmap is mutable for Canvas
-                            val workingBitmap = if (cachedBitmap != null && !cachedBitmap.isRecycled) {
-                                cachedBitmap.copy(Bitmap.Config.ARGB_8888, true)
-                            } else {
-                                // Render fresh and ensure mutable copy
-                                val rendered = pdfRenderer?.renderImage(pageIndex, RENDER_SCALE)
-                                rendered?.copy(Bitmap.Config.ARGB_8888, true).also {
-                                    // Recycle the immutable rendered one if it was created just for this
-                                    rendered?.recycle()
-                                }
+
+                            // Render fresh and ensure mutable copy
+                            val rendered = pdfRenderer?.renderImage(pageIndex, RENDER_SCALE)
+                            val workingBitmap = rendered?.copy(Bitmap.Config.ARGB_8888, true).also {
+                                // Recycle the immutable rendered one if it was created just for this
+                                rendered?.recycle()
                             }
 
                             if (workingBitmap != null) {
@@ -589,13 +573,17 @@ class PdfViewerViewModel : ViewModel() {
                                                 paint.xfermode = null
                                             }
                                         }
-                                        paint.strokeWidth = annotation.strokeWidth
+                                        // Denormalize stroke width for bitmap
+                                        paint.strokeWidth = annotation.strokeWidth * workingBitmap.width
 
                                         if (annotation.points.isNotEmpty()) {
                                             val path = android.graphics.Path()
-                                            path.moveTo(annotation.points.first().x, annotation.points.first().y)
+                                            val first = annotation.points.first()
+                                            path.moveTo(first.x * workingBitmap.width, first.y * workingBitmap.height)
+
                                             for (i in 1 until annotation.points.size) {
-                                                path.lineTo(annotation.points[i].x, annotation.points[i].y)
+                                                val p = annotation.points[i]
+                                                path.lineTo(p.x * workingBitmap.width, p.y * workingBitmap.height)
                                             }
                                             canvas.drawPath(path, paint)
                                         }
@@ -651,7 +639,6 @@ class PdfViewerViewModel : ViewModel() {
             } finally {
                 document = null
                 pdfRenderer = null
-                bitmapCache.evictAll()
                 extractedTextCache.clear()
             }
         }

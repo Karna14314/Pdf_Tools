@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.yourname.pdftoolkit.data.FileManager
 import com.yourname.pdftoolkit.data.PersistedFile
 import com.yourname.pdftoolkit.data.SafUriManager
 import kotlinx.coroutines.launch
@@ -384,7 +385,7 @@ private fun RecentFileItem(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = formatFileSize(file.size),
+                        text = FileManager.formatFileSize(file.size),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -433,14 +434,6 @@ private fun getFileIcon(mimeType: String): ImageVector {
         mimeType.contains("excel") || mimeType.contains("spreadsheet") -> Icons.Default.TableView
         mimeType.contains("powerpoint") || mimeType.contains("presentation") -> Icons.Default.Slideshow
         else -> Icons.Default.InsertDriveFile
-    }
-}
-
-private fun formatFileSize(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "$bytes B"
-        bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-        else -> "${bytes / (1024 * 1024)} MB"
     }
 }
 

@@ -1,5 +1,7 @@
-v1.3.7 - Merge branch 'main' into master
+Build flavor implementation for dual-store deployment
 
-• Latest improvements and bug fixes
-• Android 15 (16 KB page alignment) compatible
-• Enhanced performance and stability
+• Implemented Play Store and F-Droid build flavors
+• Play Store: ML Kit OCR (smaller APK + runtime download)
+• F-Droid: Tesseract OCR (larger APK, fully open source)
+• OCR feature available in both builds
+• Improved deployment workflow with better error handling

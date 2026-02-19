@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
+import kotlin.math.pow
 
 /**
  * Data class representing a selected PDF file with metadata.
@@ -62,11 +63,27 @@ object FileManager {
      * Format file size to human-readable format.
      */
     fun formatFileSize(bytes: Long): String {
-        return when {
-            bytes < 1024 -> "$bytes B"
-            bytes < 1024 * 1024 -> "${bytes / 1024} KB"
-            bytes < 1024 * 1024 * 1024 -> String.format("%.1f MB", bytes / (1024.0 * 1024.0))
-            else -> String.format("%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0))
+        if (bytes <= 0) return "0 B"
+
+        val units = arrayOf("B", "KB", "MB", "GB", "TB")
+        val digitGroups = (kotlin.math.log10(bytes.toDouble()) / kotlin.math.log10(1024.0)).toInt()
+        val index = digitGroups.coerceIn(0, units.size - 1)
+
+        val value = bytes / 1024.0.pow(index.toDouble())
+
+        return if (index < 2) {
+            // B or KB
+            if (index == 0) {
+                "$bytes ${units[index]}"
+            } else {
+                // KB: Format to 2 decimal places, then strip trailing zeros
+                val formatted = String.format(java.util.Locale.US, "%.2f", value)
+                val cleanFormatted = formatted.trimEnd('0').trimEnd('.')
+                "$cleanFormatted ${units[index]}"
+            }
+        } else {
+            // MB, GB...: Keep 2 decimal places
+            String.format(java.util.Locale.US, "%.2f %s", value, units[index])
         }
     }
     

@@ -4,25 +4,16 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
 import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
 import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
-import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
 import com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState
 import com.tom_roush.pdfbox.rendering.PDFRenderer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.io.IOException
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * OCR language support.
@@ -102,14 +93,12 @@ data class SearchablePdfResult(
 
 /**
  * OCR Processor - Performs Optical Character Recognition on PDF pages.
- * Uses Google ML Kit Text Recognition (Apache 2.0 compatible).
+ * Uses flavor-specific OCR engine (ML Kit for Play Store, Tesseract for F-Droid).
  * Can extract text and make scanned PDFs searchable.
  */
 class PdfOcrProcessor(private val context: Context) {
     
-    private val recognizer: TextRecognizer by lazy {
-        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    }
+    private val ocrEngine = OcrEngine(context)
     
     /**
      * Extract text from a PDF using OCR.
@@ -157,22 +146,22 @@ class PdfOcrProcessor(private val context: Context) {
                 val pageImage = renderer.renderImageWithDPI(pageIndex, dpi)
                 
                 // Perform OCR on the image
-                val ocrResult = performOcrOnBitmap(pageImage)
+                val ocrText = performOcrOnBitmap(pageImage)
                 pageImage.recycle()
                 
-                if (ocrResult != null) {
+                if (ocrText.isNotEmpty()) {
                     val pageResult = OcrPageResult(
                         pageNumber = pageIndex + 1,
-                        text = ocrResult.text,
-                        blocks = convertTextBlocks(ocrResult),
-                        confidence = calculateConfidence(ocrResult)
+                        text = ocrText,
+                        blocks = emptyList(), // Simplified - no block info
+                        confidence = 0.85f // Estimated confidence
                     )
                     pageResults.add(pageResult)
                     
                     if (fullTextBuilder.isNotEmpty()) {
                         fullTextBuilder.append("\n\n--- Page ${pageIndex + 1} ---\n\n")
                     }
-                    fullTextBuilder.append(ocrResult.text)
+                    fullTextBuilder.append(ocrText)
                 }
                 
                 val progress = 10 + ((index + 1) * 85 / validPages.size)
@@ -249,11 +238,11 @@ class PdfOcrProcessor(private val context: Context) {
                 val pageImage = renderer.renderImageWithDPI(pageIndex, dpi)
                 
                 // Perform OCR
-                val ocrResult = performOcrOnBitmap(pageImage)
+                val ocrText = performOcrOnBitmap(pageImage)
                 
-                if (ocrResult != null) {
+                if (ocrText.isNotEmpty()) {
                     // Add invisible text layer to the page
-                    addTextLayerToPage(document, page, ocrResult, pageImage.width, pageImage.height, dpi)
+                    addTextLayerToPage(document, page, ocrText, pageImage.width, pageImage.height, dpi)
                 }
                 
                 pageImage.recycle()
@@ -308,76 +297,28 @@ class PdfOcrProcessor(private val context: Context) {
             val result = performOcrOnBitmap(bitmap)
             bitmap.recycle()
             
-            result?.text ?: ""
+            result
         } catch (e: Exception) {
             ""
         }
     }
     
     /**
-     * Perform OCR on a bitmap using ML Kit.
+     * Perform OCR on a bitmap using the flavor-specific OCR engine.
      */
-    private suspend fun performOcrOnBitmap(bitmap: Bitmap): Text? {
-        return suspendCancellableCoroutine { continuation ->
-            val inputImage = InputImage.fromBitmap(bitmap, 0)
-            
-            recognizer.process(inputImage)
-                .addOnSuccessListener { text ->
-                    continuation.resume(text)
-                }
-                .addOnFailureListener { e ->
-                    continuation.resume(null)
-                }
-        }
-    }
-    
-    /**
-     * Convert ML Kit text blocks to our data class.
-     */
-    private fun convertTextBlocks(text: Text): List<OcrTextBlock> {
-        return text.textBlocks.map { block ->
-            OcrTextBlock(
-                text = block.text,
-                boundingBox = block.boundingBox?.let {
-                    OcrBoundingBox(it.left, it.top, it.right, it.bottom)
-                },
-                lines = block.lines.map { line ->
-                    OcrTextLine(
-                        text = line.text,
-                        boundingBox = line.boundingBox?.let {
-                            OcrBoundingBox(it.left, it.top, it.right, it.bottom)
-                        },
-                        words = line.elements.map { element ->
-                            OcrWord(
-                                text = element.text,
-                                boundingBox = element.boundingBox?.let {
-                                    OcrBoundingBox(it.left, it.top, it.right, it.bottom)
-                                },
-                                confidence = 0.9f // ML Kit doesn't expose per-word confidence
-                            )
-                        }
-                    )
-                }
-            )
-        }
-    }
-    
-    /**
-     * Calculate average confidence for OCR result.
-     */
-    private fun calculateConfidence(text: Text): Float {
-        // ML Kit doesn't provide explicit confidence scores
-        // We estimate based on text presence
-        return if (text.text.isNotEmpty()) 0.85f else 0f
+    private suspend fun performOcrOnBitmap(bitmap: Bitmap): String {
+        ocrEngine.initialize()
+        return ocrEngine.recognizeText(bitmap)
     }
     
     /**
      * Add invisible text layer to a page for searchability.
+     * Simplified version that adds text as a single block.
      */
     private fun addTextLayerToPage(
         document: PDDocument,
         page: PDPage,
-        text: Text,
+        text: String,
         imageWidth: Int,
         imageHeight: Int,
         dpi: Float
@@ -385,10 +326,6 @@ class PdfOcrProcessor(private val context: Context) {
         val pageRect = page.mediaBox
         val pageWidth = pageRect.width
         val pageHeight = pageRect.height
-        
-        // Scale factor from image pixels to PDF points
-        val scaleX = pageWidth / imageWidth
-        val scaleY = pageHeight / imageHeight
         
         val contentStream = PDPageContentStream(
             document,
@@ -405,46 +342,39 @@ class PdfOcrProcessor(private val context: Context) {
             contentStream.setGraphicsStateParameters(graphicsState)
             
             val font = PDType1Font.HELVETICA
+            val fontSize = 8f
             
-            for (block in text.textBlocks) {
-                for (line in block.lines) {
-                    val bbox = line.boundingBox ?: continue
-                    
-                    // Convert coordinates from image space to PDF space
-                    // Note: PDF origin is bottom-left, image origin is top-left
-                    val x = bbox.left * scaleX
-                    val y = pageHeight - (bbox.bottom * scaleY)
-                    
-                    // Estimate font size based on bounding box height
-                    val lineHeight = (bbox.bottom - bbox.top) * scaleY
-                    val fontSize = (lineHeight * 0.8f).coerceIn(6f, 24f)
-                    
-                    contentStream.setFont(font, fontSize)
-                    contentStream.beginText()
-                    contentStream.newLineAtOffset(x, y)
-                    
-                    // Clean the text to remove unsupported characters
-                    val cleanText = line.text.filter { it.code < 256 }
-                    if (cleanText.isNotEmpty()) {
-                        try {
-                            contentStream.showText(cleanText)
-                        } catch (e: Exception) {
-                            // Skip if text can't be rendered
-                        }
+            contentStream.setFont(font, fontSize)
+            contentStream.beginText()
+            contentStream.newLineAtOffset(10f, pageHeight - 20f)
+            
+            // Split text into lines and add each line
+            val lines = text.split("\n")
+            var yOffset = 0f
+            for (line in lines.take(50)) { // Limit to 50 lines per page
+                // Clean the text to remove unsupported characters
+                val cleanText = line.filter { it.code < 256 }
+                if (cleanText.isNotEmpty()) {
+                    try {
+                        contentStream.showText(cleanText)
+                        yOffset -= fontSize + 2
+                        contentStream.newLineAtOffset(0f, -(fontSize + 2))
+                    } catch (e: Exception) {
+                        // Skip if text can't be rendered
                     }
-                    
-                    contentStream.endText()
                 }
             }
+            
+            contentStream.endText()
         } finally {
             contentStream.close()
         }
     }
     
     /**
-     * Close the recognizer when done.
+     * Close the OCR engine when done.
      */
     fun close() {
-        recognizer.close()
+        ocrEngine.close()
     }
 }
