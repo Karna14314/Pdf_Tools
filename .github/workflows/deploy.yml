@@ -144,18 +144,39 @@ jobs:
       - name: Upload to Indus App Store
         id: upload-indus-store
         continue-on-error: true
-        env:
-          INDUS_API_KEY: ${{ secrets.INDUS_APP_STORE_KEY }}
-        uses: yogeshpaliyal/upload-indus-appstore@main
-        with:
-          type: UPLOAD_AAB
-          apiKey: ${{ secrets.INDUS_APP_STORE_KEY }}
-          packageName: com.yourname.pdftoolkit
-          aabFilePath: app/build/outputs/bundle/release/PDFToolkit-v${{ env.APP_VERSION_NAME }}-release.aab
-          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-          keystoreAlias: ${{ secrets.KEY_ALIAS }}
-          keystorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          AAB_FILE="app/build/outputs/bundle/release/PDFToolkit-v${{ env.APP_VERSION_NAME }}-release.aab"
+          KEYSTORE_FILE="app/keystore.jks"
+          
+          echo "Uploading to Indus App Store..."
+          echo "AAB File: $AAB_FILE"
+          
+          # Create multipart form data request
+          RESPONSE=$(curl -X POST \
+            "https://developer-api.indusappstore.com/devtools/aab/upgrade/com.yourname.pdftoolkit" \
+            -H "Authorization: ${{ secrets.INDUS_APP_STORE_KEY }}" \
+            -F "file=@${AAB_FILE}" \
+            -F "file=@${KEYSTORE_FILE}" \
+            -F "keyPassword=${{ secrets.KEY_PASSWORD }}" \
+            -F "keystoreAlias=${{ secrets.KEY_ALIAS }}" \
+            -F "keystorePassword=${{ secrets.KEYSTORE_PASSWORD }}" \
+            -w "\n%{http_code}" \
+            -s)
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "✓ Successfully uploaded to Indus App Store"
+            exit 0
+          else
+            echo "✗ Failed to upload to Indus App Store"
+            echo "Response body: $BODY"
+            exit 1
+          fi
 
       - name: Check Deployment Results
         run: |

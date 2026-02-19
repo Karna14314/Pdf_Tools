@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId = "com.yourname.pdftoolkit"
-        minSdk = 26
+        minSdk = 31
         targetSdk = 35
         // Version is managed via GitHub repo variables and passed as env vars by CI
         // Local builds use fallback values (not published to Play Store)

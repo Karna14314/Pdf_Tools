@@ -1,0 +1,748 @@
+API Reference
+Use the BASE URL with the endpoints below to integrate and interact with Indus Appstore APIs (eg: https://developer-api.indusappstore.com/devtools/apk/upgrade/com.example.myapp).
+Each endpoint comes with a detailed request structure, parameters and response format to help you get started quickly.
+Note: Old BASE URL (https://developer-api.indusappstore.com/apis/indus-developerdashboard-service) will be deprecated soon. Please use the new BASE URL for all your API requests.
+BASE URL
+https://developer-api.indusappstore.com
+APK Upgrade/Upload
+This API is curated to seamlessly submit a new APK file to upgrade your app.
+This will help your users access the most recent version of the app with updated features or bug fixes.
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+file
+A binary file containing the APK file to be uploaded for the app upgrade.
+POST
+/devtools/apk/upgrade/{package}
+REQUEST
+javascriptchevron
+1. 
+const headers = {
+2. 
+    Authorization: '{API_KEY}'
+3. 
+};
+4. 
+const formData = new FormData();
+5. 
+formData.append('file', yourFileBlob);
+6. 
+fetch('{API_URL}/devtools/apk/upgrade/{package}', {
+7. 
+    method: 'POST',
+8. 
+    headers: headers,
+9. 
+    body: formData
+10. 
+})
+11.
+ 
+RESPONSE
+1. 
+{
+2. 
+    "message": "string",
+3. 
+}
+APKS Upgrade/Upload
+This API helps you to easily submit your app using the APKS (Android App Bundle Split APKs) format.
+The APKS format enables you to upload optimized app bundles which will support dynamic delivery, ensuring efficient app distribution and installation for users.
+This API is beneficial if you want to leverage the benefits of split APKs for better performance and reduced app size.
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+file
+A binary file containing the APKS file to be uploaded for the app upgrade.
+POST
+/devtools/apks/upgrade/{package}
+REQUEST
+javascriptchevron
+1. 
+const headers = {
+2. 
+    Authorization: '{API_KEY}'
+3. 
+};
+4. 
+const formData = new FormData();
+5. 
+formData.append('file', yourFileBlob);
+6. 
+fetch('{API_URL}/devtools/apks/upgrade/{package}', {
+7. 
+    method: 'POST',
+8. 
+    headers: headers,
+9. 
+    body: formData
+10. 
+});
+RESPONSE
+1. 
+{
+2. 
+    "message": "string",
+3. 
+    "data": {
+4. 
+        "id": "string",
+5. 
+        "appId": number
+6. 
+    }
+7. 
+}
+AAB Upgrade/Upload
+This API helps you to update your Android App Bundle (AAB) file and Java Keystore (JKS) file.
+This API requires the AAB file, keystore file, and associated credentials as mandatory fields to sign and validate the app bundle.
+Using the AAB format allows for more efficient app distribution and installation, as it enables dynamic delivery of features and resources based on the users device configuration.
+Dont worry we dont store your keystore values, we only use it to sign the AAB file.
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+file
+An array of binary files containing AAB file & JKS (keystore) file.
+keyPassword
+The password for the private key in the keystore.
+keystoreAlias
+The alias name of the keystore that has been configured.
+keystorePassword
+The password required to access the protected keystore file.
+message
+message indicating the result of the operation
+POST
+/devtools/aab/upgrade/{package}
+REQUEST
+javascriptchevron
+1. 
+const formData = new FormData(); 
+2. 
+formData.append('file', fs.createReadStream('path-to-aab-file')); 
+3. 
+formData.append('file', fs.createReadStream('path-to-keystore-file')); 
+4. 
+formData.append('keyPassword', 'key-password'); 
+5. 
+formData.append('keystoreAlias', 'keystore-alias'); 
+6. 
+formData.append('keystorePassword', 'keystore-password'); 
+7. 
+fetch('{API_URL}/devtools/aab/upgrade/{package}', { 
+8. 
+    method: 'POST', 
+9. 
+    headers: { 
+10. 
+        'Authorization': 'O-Bearer {API_KEY}',
+11.
+         'Content-Type': 'multipart/form-data', 
+12.
+    }, 
+13.
+    body: formData, 
+14.
+}) 
+RESPONSE
+1. 
+{
+2. 
+    "message": "string",
+3. 
+    "data": {
+4. 
+        "id": "string",
+5. 
+        "appId": number
+6. 
+    }
+7. 
+}
+Errors
+We use standard HTTP status codes to indicate the success or failure of an API request.
+The API will return a JSON response with an error message and a status code indicating the type of error.
+Every error response will include a message field that provides more details about the error.
+These errors are common for all endpoints
+Parameter	Description
+2xx
+The request was successful.
+4xx
+Your request has failed due to error in data provided. This could be due to invalid input, authentication failure, or other issues.
+5xx
+Your request has failed due to a server error. This is rare and usually indicates a problem with the API itself. Please try again later.
+ERROR CODES
+200: This is successful request.
+400: The data provided in request is invalid. Please check you request body.
+403: Authentication failed. Please check your API key and try again.
+404: The app you are trying to access does not exist. please recheck the package name.
+409: The app is already in review. Please wait for the review to complete before making any changes.
+433: The File uploaded doesnt match the required format. Please check your file type and try again.
+Update MetaData
+This API allows you to update the metadata of your app, which is displayed to users on the apps store page.
+Metadata includes details such as the app title & description.
+You can upload titles and descriptions that support multiple Indian languages and are tailored to geolocations
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+description
+An array of objects containing language (e.g., "en" for the language code), value (e.g., "new description" for the updated text), and country (e.g., "IN" for the country code)
+title
+An array of objects containing language (e.g., "en" for the language code), value (e.g., "new description" for the updated text), and country (e.g., "IN" for the country code)
+PUT
+/devtools/app/metadata/{package}
+REQUEST
+javascriptchevron
+1. 
+const headers = {
+2. 
+    Authorization: "{API_KEY}"
+3. 
+};
+4. 
+const requestBody = {
+5. 
+    Authorization: "{API_KEY}",
+6. 
+    description: [
+7. 
+        {
+8. 
+            "language": "en",
+9. 
+            "value": "new description",
+10. 
+           "country": "IN"
+11.
+        }
+12.
+    ],
+13.
+    "title": [
+14.
+        {
+15.
+            "language": "en",
+16.
+            "value": "new title",
+17.
+            "country": "IN"
+18.
+        }
+19.
+    ]
+20.
+};
+21.
+fetch("{API_URL}/devtools/app/metadata/{package}", {
+22.
+    method: "PUT",
+23.
+    headers: headers,
+24.
+    body: JSON.stringify(requestBody)
+25.
+});
+RESPONSE
+1. 
+{
+2. 
+    "message": "string",
+3. 
+    "appId": number
+4. 
+}
+Get App Statistics
+This API provides you with detailed statistics of your app.
+The statistics include key performance metrics such as the number of installs, updateCount, ratings, and other engagement data.
+Using this you will be able to visualize valuable insights on how the app has been performing and will be able to make a data-driven approach.
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+GET
+/devtools/app/stats/{package}
+REQUEST
+javascriptchevron
+1. 
+const headers = {
+2. 
+    Authorization: "{API_KEY}"
+3. 
+};
+4. 
+fetch("{API_URL}/devtools/app/stats/{package}", {
+5. 
+    method: "GET",
+6. 
+    headers: headers,
+7. 
+    body: null
+8. 
+});
+RESPONSE
+1. 
+{
+2. 
+    "data": {
+3. 
+        "installs": number,
+4. 
+        "updateCount": number,
+5. 
+        "install24hrs": number,
+6. 
+        "appRating": number
+7. 
+    },
+8. 
+    "definitions": {
+9. 
+        "installs": "string",
+10. 
+       "updateCount": "string",
+11.
+        "install24hrs": "string",
+12.
+        "appRating": "string"
+13.
+    }
+14.
+}
+Get App Details
+This API provides comprehensive details about your listed app.
+The Response includes metadata such as the app title, description, category, developer information (email, country, and verification status), download count, supported services, and form factors. Additionally, it provides links to the apps icon, screenshots, privacy policy, and IAS badge.
+The API also gives the details of the multilingual fields for titles, descriptions, and short descriptions, making it ideal for apps targeting diverse audiences.
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+GET
+/devtools/app/details/{package}
+REQUEST
+javascriptchevron
+1. 
+const headers = {
+2. 
+    Authorization: "{API_KEY}"
+3. 
+};
+4. 
+fetch("{API_URL}/devtools/app/details/{package}", {
+5. 
+    method: "GET",
+6. 
+    headers: headers,
+7. 
+    body: null
+8. 
+});
+RESPONSE
+1. 
+{
+2. 
+    "data": {
+3. 
+    "date": "DateString",
+4. 
+    "packageCaseInsensitive": "string",
+5. 
+    "package": "string",
+6. 
+    "formFactor": [
+7. 
+        "string"
+8. 
+        ],
+9. 
+        "icon": "string",
+10. 
+        "servicesSupported": [
+11.
+        "string"
+12.
+        ],
+13.
+        "title": [
+14.
+        {
+15.
+            "language": "string",
+16.
+            "value": "string"
+17.
+        },
+18.
+        ],
+19.
+        "downloads": number,
+20.
+        "title.en": "string",
+21.
+        "developer": number,
+22.
+        "seq_id": number,
+23.
+        "category": number,
+24.
+        "udate": "DateString",
+25.
+        "status": "string",
+26.
+        "description": [
+27.
+        {
+28.
+            "language": "string",
+29.
+            "value": "string"
+30.
+        }
+31.
+        ],
+32.
+        "developerEmail": "string",
+33.
+        "developerType": "string",
+34.
+        "screens": [
+35.
+        {
+36.
+            "values": [
+37.
+            "string",
+38.
+            ],
+39.
+            "language": "string"
+40.
+        }
+41.
+        ],
+42.
+        "email": "string",
+43.
+        "website": "string",
+44.
+        "developerCountry": "string",
+45.
+        "developerVerified": "string",
+46.
+        "privacyPolicy": {
+47.
+        "exists": boolean,
+48.
+        "url": "string"
+49.
+        },
+50.
+        "shortDescription": [
+51.
+        {
+52.
+            "language": "string",
+53.
+            "value": "string"
+54.
+        }
+55.
+        ],
+56.
+        "versionId": "string",
+57.
+        "phone": "string",
+58.
+        "iasBadgeUrl": {
+59.
+            "version": "string",
+60.
+            "url": "string"
+61.
+        }
+62.
+    }
+63.
+}
+APK Management
+The APK Management API allows you to fetch the APKs submitted and validate multiple fields including minimum SDK version, target SDK version change log screenshots and current review state of your apks
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+GET
+/devtools/app/versions/{package}
+REQUEST
+javascriptchevron
+1. 
+const headers = {
+2. 
+    Authorization: "{API_KEY}"
+3. 
+};
+4. 
+fetch("{API_URL}/devtools/app/versions/{package}", {
+5. 
+    method: "GET",
+6. 
+    headers: headers,
+7. 
+    body: null
+8. 
+});
+RESPONSE
+1. 
+{
+2. 
+    "data": [
+3. 
+        {
+4. 
+            "_id": "string",
+5. 
+            "obb_supported": boolean,
+6. 
+            "package": "string",
+7. 
+            "seq_id": number,
+8. 
+            "permissions": "string",
+9. 
+            "version_label": "string",
+10. 
+            "version_code": number,
+11.
+            "models": [
+12.
+                number
+13.
+            ],
+14.
+            "oem": [
+15.
+                "string"
+16.
+            ],
+17.
+            "os": [
+18.
+                number
+19.
+            ],
+20.
+            "resolution": [
+21.
+                "string"
+22.
+            ],
+23.
+            "abi": [
+24.
+                "string"
+25.
+            ],
+26.
+            "country": [
+27.
+                "string"
+28.
+            ],
+29.
+            "min_sdk_version": number,
+30.
+            "target_sdk_version": number,
+31.
+            "status": boolean,
+32.
+            "filename": "string",
+33.
+            "filesize": number,
+34.
+            "hash": "string",
+35.
+            "apk_type": number,
+36.
+            "source": "string",
+37.
+            "signature": [
+38.
+                "string"
+39.
+            ],
+40.
+            "integrationType": [
+41.
+                "string"
+42.
+            ],
+43.
+            "changelog": {},
+44.
+            "screenshots": {},
+45.
+            "updatedAt": number,
+46.
+            "formFactor": [
+47.
+                "string"
+48.
+            ],
+49.
+            "servicesSupported": [
+50.
+                "string"
+51.
+            ],
+52.
+            "reviewState": "string",
+53.
+            "individualSplits": boolean,
+54.
+            "docRefId": "string",
+55.
+            "externalRefId": "string",
+56.
+            "appLabels": "string",
+57.
+            "antivirus_scan": boolean,
+58.
+            "createdAt": number,
+59.
+            "security": {
+60.
+                "avScannedAt": number,
+61.
+                "avScanResult": "string"
+62.
+            },
+63.
+            "rolling_update_percentage": number
+64.
+        },
+65.
+    ]
+66.
+}
+Cancel App Review
+The Cancel App In-Review API allows you to cancel an app review that is currently in progress. This is useful when you need to make changes to the app or its metadata before it is reviewed or published.
+This API ensures that you can halt the review process when necessary, giving you the flexibility to make updates or corrections before resubmitting the app for review.
+You can find the id of the version you want to cancel in the response of the Get All App Versions API.
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+id
+A unique identifier for the review process you want to cancel.
+POST
+/devtools/review/cancel/{package}
+REQUEST
+javascriptchevron
+1. 
+const headers = {
+2. 
+    Authorization: "{API_KEY}"
+3. 
+};
+4. 
+const requestBody = {
+5. 
+    id: "V12345678"
+6. 
+};
+7. 
+fetch("{API_URL}/devtools/review/cancel/{package}", {
+8. 
+    method: "POST",
+9. 
+    headers: headers,
+10. 
+    body: JSON.stringify(requestBody)
+11.
+});
+RESPONSE
+1. 
+{
+2. 
+    "message": "string",
+3. 
+    "appId": number
+4. 
+}
+Get All App Versions
+The Get All App Versions API retrieves a list of all versions of your app available on the Indus Appstore. This API provides detailed metadata for each version, such as version ID, title, update date, status, and descriptions.
+This API is useful for tracking the history of your app versions, manage updates, and ensure that your users have access to the latest features and improvements.
+Parameter	Description
+package
+The unique package name of the app you want to upgrade. (eg: com.example.myapp)
+GET
+/devtools/app/app-versions/{package}
+REQUEST
+javascriptchevron
+1. 
+const headers = {
+2. 
+    Authorization: "{API_KEY}"
+3. 
+};
+4. 
+fetch("{API_URL}/devtools/app/app-versions/{package}", {
+5. 
+    method: "GET",
+6. 
+    headers: headers,
+7. 
+    body: null
+8. 
+});
+RESPONSE
+1. 
+{
+2. 
+    "data": [
+3. 
+        {
+4. 
+            "_id": "string",
+5. 
+            "seq_id": number,
+6. 
+            "icon": "string",
+7. 
+            "title": "string",
+8. 
+            "package_name": "string",
+9. 
+            "update": "DateText",
+10. 
+            "status": "string",
+11.
+            "screenshot": [
+12.
+            {
+13.
+                "values": [
+14.
+                "string",
+15.
+                ],
+16.
+                "language": "string"
+17.
+            }
+18.
+            ],
+19.
+            "description": [
+20.
+            {
+21.
+                "language": "string",
+22.
+                "value": "string"
+23.
+            },
+24.
+            ]
+25.
+        }
+26.
+    ]
+27.
+}
+alertIcon
+Disclaimer: These APIs are provided for legitimate use only. Misuse may lead to
