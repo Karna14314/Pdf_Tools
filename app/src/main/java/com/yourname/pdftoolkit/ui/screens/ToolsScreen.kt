@@ -422,6 +422,14 @@ fun getAllTools(): List<ToolItem> = listOf(
         section = ToolSection.SECURITY,
         screen = Screen.SignPdf
     ),
+    ToolItem(
+        id = "flatten",
+        title = "Flatten PDF",
+        description = "Convert forms to static content",
+        icon = Icons.Default.Layers,
+        section = ToolSection.SECURITY,
+        screen = Screen.Flatten
+    ),
     
     // SECTION 5: IMAGE TOOLS (LOW-BLOAT ONLY)
     ToolItem(

@@ -1317,7 +1317,7 @@ private fun PdfPageWithAnnotations(
                         .matchParentSize()
                         .then(
                             if (isEditMode && selectedTool != AnnotationTool.NONE) {
-                                Modifier.pointerInput(isEditMode, selectedTool) {
+                                Modifier.pointerInput(isEditMode, selectedTool, selectedColor) {
                                     if (!isEditMode || selectedTool == AnnotationTool.NONE) return@pointerInput
                                     
                                     var localStroke = mutableListOf<Offset>()
