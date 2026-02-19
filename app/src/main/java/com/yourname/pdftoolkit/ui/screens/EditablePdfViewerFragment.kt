@@ -32,6 +32,7 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         hideZoomButtons(view)
+        hideAllPdfViewerControls(view)
         setupInkLayer(view)
     }
 
@@ -41,6 +42,8 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
 
     fun setAnnotationMode(tool: AnnotationTool) {
         inkOverlay?.setTool(tool)
+        // CRITICAL: Update overlay clickability to allow touch pass-through when not annotating
+        inkOverlay?.isClickable = (tool != AnnotationTool.NONE)
     }
 
     fun setAnnotationColor(color: Int) {
@@ -69,9 +72,61 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
     }
 
     private fun hideZoomButtons(root: View) {
+        // Hide zoom buttons container
         val zoomContainerId = resources.getIdentifier("zoom_buttons_container", "id", "androidx.pdf")
         if (zoomContainerId != 0) {
             root.findViewById<View>(zoomContainerId)?.visibility = View.GONE
+        }
+        
+        // Hide the 3-dot menu that contains zoom percentage options
+        val menuButtonId = resources.getIdentifier("menu_button", "id", "androidx.pdf")
+        if (menuButtonId != 0) {
+            root.findViewById<View>(menuButtonId)?.visibility = View.GONE
+        }
+        
+        // Alternative menu identifiers to try
+        val overflowMenuId = resources.getIdentifier("overflow_menu", "id", "androidx.pdf")
+        if (overflowMenuId != 0) {
+            root.findViewById<View>(overflowMenuId)?.visibility = View.GONE
+        }
+        
+        val actionMenuId = resources.getIdentifier("action_menu", "id", "androidx.pdf")
+        if (actionMenuId != 0) {
+            root.findViewById<View>(actionMenuId)?.visibility = View.GONE
+        }
+        
+        val toolbarId = resources.getIdentifier("toolbar", "id", "androidx.pdf")
+        if (toolbarId != 0) {
+            root.findViewById<View>(toolbarId)?.visibility = View.GONE
+        }
+    }
+    
+    private fun hideAllPdfViewerControls(root: View) {
+        // Recursively search for and hide ImageButton or any view that looks like a menu button
+        if (root is ViewGroup) {
+            for (i in 0 until root.childCount) {
+                val child = root.getChildAt(i)
+                
+                // Hide ImageButton widgets (likely the 3-dot menu)
+                if (child is android.widget.ImageButton) {
+                    child.visibility = View.GONE
+                }
+                
+                // Hide any view with "menu" in its resource name
+                try {
+                    val resourceName = child.resources.getResourceEntryName(child.id)
+                    if (resourceName.contains("menu", ignoreCase = true) || 
+                        resourceName.contains("overflow", ignoreCase = true) ||
+                        resourceName.contains("action", ignoreCase = true)) {
+                        child.visibility = View.GONE
+                    }
+                } catch (e: Exception) {
+                    // Ignore views without resource IDs
+                }
+                
+                // Recursively check children
+                hideAllPdfViewerControls(child)
+            }
         }
     }
 
@@ -86,6 +141,12 @@ class EditablePdfViewerFragment : PdfViewerFragment() {
 
                 val overlay = InkOverlayView(context, pageContainer)
                 inkOverlay = overlay
+
+                // CRITICAL: Make overlay non-clickable by default to allow touch pass-through
+                overlay.isClickable = false
+                overlay.isFocusable = false
+                // Ensure overlay doesn't block touch events when not needed
+                overlay.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
 
                 // Set initial listener
                 overlay.setOnAnnotationAddedListener { stroke ->
@@ -164,6 +225,38 @@ class InkOverlayView @JvmOverloads constructor(
 
     private val layerPaint = Paint()
 
+    init {
+        // CRITICAL: Make view transparent to touches by default
+        isClickable = false
+        isFocusable = false
+        
+        // CRITICAL: Disable all touch interception by default
+        // This ensures pinch-to-zoom and double-tap work properly
+        setWillNotDraw(false) // We still need to draw annotations
+        
+        // Ensure this view doesn't block accessibility or touch events
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        
+        // Listen for scroll/zoom changes to redraw annotations
+        addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            invalidate()
+        }
+    }
+    
+    fun setTool(tool: AnnotationTool) {
+        currentTool = tool
+        // Update whether we should intercept touches
+        isClickable = (tool != AnnotationTool.NONE)
+        isFocusable = (tool != AnnotationTool.NONE)
+        
+        // When switching to/from annotation mode, ensure proper touch handling
+        if (tool == AnnotationTool.NONE) {
+            // Clear any in-progress drawing
+            currentPoints.clear()
+            invalidate()
+        }
+    }
+
     fun setTool(tool: AnnotationTool) {
         currentTool = tool
     }
@@ -180,6 +273,28 @@ class InkOverlayView @JvmOverloads constructor(
 
     fun setOnAnnotationAddedListener(listener: (AnnotationStroke) -> Unit) {
         onAnnotationAdded = listener
+    }
+    
+    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+        // CRITICAL: Never intercept multi-touch gestures (pinch-to-zoom)
+        if (event.pointerCount > 1) {
+            return false
+        }
+        
+        // CRITICAL: Never intercept double-tap gestures
+        // Check if this might be a double-tap by looking at action
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            // Don't intercept - let the underlying view handle double-tap
+            // We'll only handle it in onTouchEvent if we're in annotation mode
+        }
+        
+        // Only intercept single-touch when in annotation mode
+        if (currentTool == AnnotationTool.NONE) {
+            return false
+        }
+        
+        // For annotation mode, intercept single touch
+        return event.pointerCount == 1
     }
 
     override fun dispatchDraw(canvas: Canvas) {
@@ -321,12 +436,21 @@ class InkOverlayView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (currentTool == AnnotationTool.NONE) return false
+        // CRITICAL: Always pass through multi-touch gestures (pinch-to-zoom)
+        if (event.pointerCount > 1) {
+            return false // Don't consume - let PDF viewer handle pinch
+        }
+        
+        // CRITICAL: Only intercept touches when actively drawing
+        // This allows the underlying PDF viewer to handle pan/zoom/double-tap gestures
+        if (currentTool == AnnotationTool.NONE) {
+            return false // Don't consume the event - let it pass through
+        }
 
         val x = event.x
         val y = event.y
 
-        when (event.action) {
+        when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 currentPoints.clear()
                 currentPoints.add(Offset(x, y))
@@ -334,14 +458,18 @@ class InkOverlayView @JvmOverloads constructor(
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
+                // If a second pointer comes down while drawing, cancel the stroke
+                if (event.pointerCount > 1) {
+                    currentPoints.clear()
+                    invalidate()
+                    return false
+                }
                 currentPoints.add(Offset(x, y))
                 invalidate()
                 return true
             }
-            MotionEvent.ACTION_UP -> {
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 // Finalize stroke
-                // Determine page index based on start/mid/end point?
-                // Use first point to identify page.
                 if (currentPoints.isNotEmpty()) {
                     val first = currentPoints.first()
                     val (pageIndex, pageView) = findPageUnder(first.x, first.y)
@@ -361,7 +489,7 @@ class InkOverlayView @JvmOverloads constructor(
                             tool = currentTool,
                             color = Color(currentColor),
                             points = normalizedPoints,
-                            strokeWidth = if (currentTool == AnnotationTool.HIGHLIGHTER) 30f / pageBounds.width() else 8f / pageBounds.width() // Normalize width
+                            strokeWidth = if (currentTool == AnnotationTool.HIGHLIGHTER) 30f / pageBounds.width() else 8f / pageBounds.width()
                         )
 
                         onAnnotationAdded?.invoke(stroke)
@@ -371,29 +499,44 @@ class InkOverlayView @JvmOverloads constructor(
                 invalidate()
                 return true
             }
+            MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_POINTER_UP -> {
+                // Multi-touch started/ended - cancel current stroke and pass through
+                currentPoints.clear()
+                invalidate()
+                return false
+            }
         }
         return false
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        // CRITICAL FIX: When not in annotation mode, make overlay completely transparent to touches
+        // This ensures pan/zoom/double-tap gestures work properly
+        if (currentTool == AnnotationTool.NONE) {
+            return false // Don't intercept - pass through to underlying view
+        }
+        
+        // CRITICAL: Always pass through multi-touch gestures
+        if (event.pointerCount > 1) {
+            // Cancel any current drawing
+            if (currentPoints.isNotEmpty()) {
+                currentPoints.clear()
+                invalidate()
+            }
+            return false
+        }
+        
+        return super.dispatchTouchEvent(event)
     }
 
     private fun findPageUnder(x: Float, y: Float): Pair<Int, View?> {
         if (pageContainer == null) return -1 to null
 
         if (pageContainer is RecyclerView) {
-            val child = pageContainer.findChildViewUnder(x, y) // x,y need to be relative to RecyclerView?
-            // x,y are in Overlay coords (parent of RecyclerView?).
-            // If Overlay is sibling of RecyclerView (in ZoomView), and both match parent...
-            // Then coords match.
-            // But if RecyclerView is scrolled/transformed by ZoomView?
-            // ZoomView handles the scroll/scale. The children are laid out in scaled/scrolled space?
-            // Usually ZoomView scales its canvas.
-            // If Overlay is added to ZoomView, it is also scaled.
-            // So event.x/y are in zoomed coordinates.
-            // RecyclerView child coordinates are also in zoomed coordinates.
-            // So findChildViewUnder should work if we offset by RecyclerView position?
-
-            // Adjust for RecyclerView position relative to Overlay
-            val rx = x - pageContainer.left
-            val ry = y - pageContainer.top
+            // CRITICAL FIX: Properly map overlay coordinates to RecyclerView coordinates
+            // Account for RecyclerView's position and scroll offset
+            val rx = x - pageContainer.left + pageContainer.scrollX
+            val ry = y - pageContainer.top + pageContainer.scrollY
 
             val child = pageContainer.findChildViewUnder(rx, ry)
             if (child != null) {
@@ -401,7 +544,7 @@ class InkOverlayView @JvmOverloads constructor(
                 return pos to child
             }
         } else {
-            // Linear scan
+            // Linear scan for non-RecyclerView containers
             for (i in 0 until pageContainer.childCount) {
                 val child = pageContainer.getChildAt(i)
                 val bounds = getPageBoundsInOverlay(child)

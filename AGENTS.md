@@ -1,2 +1,4 @@
 - The highlighter must highlight the text, not simply work same as a marker.
 - Always hide zoom buttons in the PDF viewer.
+- Hide the 3-dot menu and all zoom percentage options (100%, 150%, 200%, 300%) in the PDF viewer.
+- Ensure pinch-to-zoom gestures work properly in the PDF viewer.
