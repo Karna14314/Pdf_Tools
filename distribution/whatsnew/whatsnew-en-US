@@ -1,5 +1,5 @@
-v1.3.9 - Merge pull request #38 from Karna14314/viewer-perf-coords-fix-262324067902429563
+Bug fixes and improvements for PDF viewer zoom functionality
 
-• Latest improvements and bug fixes
-• Android 15 (16 KB page alignment) compatible
-• Enhanced performance and stability
+• Fixed zoom controls visibility issues
+• Improved pinch-to-zoom gesture handling
+• Enhanced PDF viewer performance and stability

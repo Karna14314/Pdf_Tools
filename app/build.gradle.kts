@@ -18,7 +18,9 @@ android {
         targetSdk = 35
         // Version is managed via GitHub repo variables and passed as env vars by CI
         // Local builds use fallback values (not published to Play Store)
-        versionCode = System.getenv("APP_VERSION_CODE")?.toIntOrNull() ?: 1
+        versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() 
+            ?: System.getenv("APP_VERSION_CODE")?.toIntOrNull() 
+            ?: 1
         versionName = System.getenv("APP_VERSION_NAME") ?: "dev"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

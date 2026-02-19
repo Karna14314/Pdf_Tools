@@ -1,4 +1,4 @@
-name: Deploy to Play Store
+name: Deploy to Play Store & Indus App Store
 
 on:
   push:
@@ -48,6 +48,7 @@ jobs:
             VERSION_NAME="1.3.5"
           fi
           
+          echo "VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
           echo "APP_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
           echo "APP_VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
           
@@ -74,11 +75,11 @@ jobs:
           
           # Update whatsnew for Play Store listing
           cat > distribution/whatsnew/whatsnew-en-US <<EOF
-          v${{ env.APP_VERSION_NAME }} - ${COMMIT_MSG}
+          Bug fixes and improvements for PDF viewer zoom functionality
           
-          • Latest improvements and bug fixes
-          • Android 15 (16 KB page alignment) compatible
-          • Enhanced performance and stability
+          • Fixed zoom controls visibility issues
+          • Improved pinch-to-zoom gesture handling
+          • Enhanced PDF viewer performance and stability
           EOF
           
           echo "=== Release Description ==="
@@ -105,6 +106,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           ANDROID_KEYSTORE_FILE: keystore.jks
+          VERSION_CODE: ${{ env.VERSION_CODE }}
           APP_VERSION_CODE: ${{ env.APP_VERSION_CODE }}
           APP_VERSION_NAME: ${{ env.APP_VERSION_NAME }}
           CI: true
@@ -123,6 +125,8 @@ jobs:
           echo "versionName: ${{ env.APP_VERSION_NAME }}"
 
       - name: Upload to Play Store
+        id: upload-play-store
+        continue-on-error: true
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJson: play-store-key.json
@@ -134,7 +138,45 @@ jobs:
           debugSymbols: app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib
           whatsNewDirectory: distribution/whatsnew
 
-      # Only runs if upload succeeded — increment VERSION, VERSION_CODE, and update history
+      - name: Upload to Indus App Store
+        id: upload-indus-store
+        continue-on-error: true
+        env:
+          INDUS_API_KEY: ${{ secrets.INDUS_APP_STORE_KEY }}
+        uses: yogeshpaliyal/upload-indus-appstore@v1
+        with:
+          type: UPLOAD_AAB
+          apiKey: ${{ secrets.INDUS_APP_STORE_KEY }}
+          packageName: com.yourname.pdftoolkit
+          aabFilePath: app/build/outputs/bundle/release/PDFToolkit-v${{ env.APP_VERSION_NAME }}-release.aab
+          signingKeyBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+          keystoreAlias: ${{ secrets.KEY_ALIAS }}
+          keystorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Check Deployment Results
+        run: |
+          echo "=== Deployment Summary ==="
+          echo "Play Store: ${{ steps.upload-play-store.outcome }}"
+          echo "Indus App Store: ${{ steps.upload-indus-store.outcome }}"
+          
+          # Fail the job only if BOTH deployments failed
+          if [[ "${{ steps.upload-play-store.outcome }}" == "failure" && "${{ steps.upload-indus-store.outcome }}" == "failure" ]]; then
+            echo "ERROR: Both store deployments failed!"
+            exit 1
+          fi
+          
+          if [[ "${{ steps.upload-play-store.outcome }}" == "failure" ]]; then
+            echo "WARNING: Play Store deployment failed, but Indus App Store succeeded"
+          fi
+          
+          if [[ "${{ steps.upload-indus-store.outcome }}" == "failure" ]]; then
+            echo "WARNING: Indus App Store deployment failed, but Play Store succeeded"
+          fi
+          
+          echo "At least one deployment succeeded - proceeding with version increment"
+
+      # Only runs if at least one upload succeeded — increment VERSION, VERSION_CODE, and update history
       - name: Increment Version and Update History
         if: success()
         run: |
