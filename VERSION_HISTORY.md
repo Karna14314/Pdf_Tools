@@ -3,3 +3,4 @@
 | 44           | 1.3.17       | 2026-02-19 | feat: Add theme management and PDF flatten tool with bug fixes |
 | 45           | 1.3.18       | 2026-02-19 | Merge pull request #41 from Karna14314/perf/pdf-loading-optimization-18396356067654839455 |
 | 46           | 1.3.19       | 2026-02-20 | Add fastlane metadata structure for F-Droid submission |
+| 47           | 1.3.20       | 2026-02-20 | Merge branch 'master' of https://github.com/Karna14314/Pdf_Tools |
