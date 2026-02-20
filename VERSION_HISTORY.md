@@ -8,3 +8,4 @@
 | 49           | 1.3.23       | 2026-02-20 | Bump version to 1.3.23 |
 | 50           | 1.3.24       | 2026-02-20 | Make version declarations single-line for F-Droid sed compatibility |
 | 51           | 1.3.25       | 2026-02-20 | Use static version values for F-Droid compatibility |
+| 52           | 1.3.26       | 2026-02-20 | Bump version to 1.3.26 |
