@@ -18,14 +18,15 @@ android {
         targetSdk = 35
         // Version is managed via GitHub repo variables and passed as env vars by CI
         // F-Droid and local builds can use gradle.properties as fallback
+        // Hardcoded fallback for F-Droid's static parser
         versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() 
             ?: System.getenv("APP_VERSION_CODE")?.toIntOrNull()
             ?: project.findProperty("VERSION_CODE")?.toString()?.toIntOrNull()
             ?: project.findProperty("APP_VERSION_CODE")?.toString()?.toIntOrNull()
-            ?: 1
+            ?: 48  // F-Droid fallback - update this with each release
         versionName = System.getenv("APP_VERSION_NAME") 
             ?: project.findProperty("APP_VERSION_NAME")?.toString()
-            ?: "dev"
+            ?: "1.3.21"  // F-Droid fallback - update this with each release
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
