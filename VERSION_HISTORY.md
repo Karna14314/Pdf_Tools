@@ -7,3 +7,4 @@
 | 48           | 1.3.21       | 2026-02-20 | Merge branch 'master' of https://github.com/Karna14314/Pdf_Tools |
 | 49           | 1.3.23       | 2026-02-20 | Bump version to 1.3.23 |
 | 50           | 1.3.24       | 2026-02-20 | Make version declarations single-line for F-Droid sed compatibility |
+| 51           | 1.3.25       | 2026-02-20 | Use static version values for F-Droid compatibility |
