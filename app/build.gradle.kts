@@ -16,12 +16,14 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        // Version management: gradle.properties is the source of truth
-        // CI can override via environment variables if needed
-        versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() 
-            ?: project.property("VERSION_CODE").toString().toInt()
-        versionName = System.getenv("VERSION_NAME") 
-            ?: project.property("VERSION_NAME").toString()
+        // Version is set by F-Droid via sed in prebuild step
+        // For local/CI builds, use gradle.properties or environment variables
+        versionCode = project.findProperty("VERSION_CODE")?.toString()?.toIntOrNull() 
+            ?: System.getenv("VERSION_CODE")?.toIntOrNull() 
+            ?: 1
+        versionName = project.findProperty("VERSION_NAME")?.toString() 
+            ?: System.getenv("VERSION_NAME") 
+            ?: "dev"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
