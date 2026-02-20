@@ -23,10 +23,10 @@ android {
             ?: System.getenv("APP_VERSION_CODE")?.toIntOrNull()
             ?: project.findProperty("VERSION_CODE")?.toString()?.toIntOrNull()
             ?: project.findProperty("APP_VERSION_CODE")?.toString()?.toIntOrNull()
-            ?: 48  // F-Droid fallback - update this with each release
+            ?: 49  // F-Droid fallback - update this with each release
         versionName = System.getenv("APP_VERSION_NAME") 
             ?: project.findProperty("APP_VERSION_NAME")?.toString()
-            ?: "1.3.21"  // F-Droid fallback - update this with each release
+            ?: "1.3.22"  // F-Droid fallback - update this with each release
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
