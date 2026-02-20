@@ -1,0 +1,11 @@
+Initial release of PDF Toolkit for F-Droid
+
+Features:
+• Complete PDF manipulation suite (merge, split, compress, convert)
+• Tesseract OCR for text extraction
+• PDF viewer with annotation support
+• Image tools (compress, resize, convert, remove metadata)
+• Security features (lock/unlock PDFs, watermark)
+• Scan to PDF with camera
+• 100% offline, privacy-first operation
+• No ads, no tracking, no data collection

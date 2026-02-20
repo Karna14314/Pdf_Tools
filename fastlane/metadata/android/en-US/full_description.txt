@@ -1,0 +1,47 @@
+PDF Toolkit is a comprehensive, privacy-first Android application for all your PDF manipulation needs. All operations happen on-device for maximum privacy - no internet connection required.
+
+<b>Core PDF Operations</b>
+• Merge PDFs - Combine multiple PDF files into a single document
+• Split PDF - Split a PDF into multiple files or specific page ranges
+• Compress PDF - Reduce file size while maintaining quality
+• Convert Images to PDF - Create PDFs from your gallery images
+• PDF to Images - Convert PDF pages into high-quality images
+• HTML to PDF - Direct conversion of webpages to PDF
+• Scan to PDF - Use your camera to scan physical documents
+• Extract Text - Extract text content from PDF pages with Tesseract OCR
+
+<b>Organization Tools</b>
+• Reorder Pages - Visual page reordering interface
+• Rotate Pages - Rotate specific pages or the entire document
+• Extract Pages - Extract specific pages to create a new PDF
+• Delete Pages - Remove unwanted pages from your document
+
+<b>Security & Privacy</b>
+• Lock PDF - Add password protection to your files
+• Unlock PDF - Remove passwords from protected PDFs (with password)
+• Watermark - Add text or image watermarks for copyright/branding
+• Local Processing - All operations happen on-device for maximum privacy
+
+<b>Editing & Annotation</b>
+• Annotate - Highlight, draw, and mark up your PDFs
+• Sign PDF - Add your digital signature to documents
+• Fill Forms - Complete PDF forms on the go
+• Flatten PDF - Make form fields and annotations permanent
+
+<b>Image Tools</b>
+• Compress Images - Optimize image file sizes
+• Resize Images - Change image dimensions
+• Convert Format - Switch between standard image formats (JPG, PNG, WebP)
+• Remove Metadata - Strip EXIF data for privacy
+
+<b>F-Droid Version</b>
+This F-Droid version uses Tesseract OCR for text recognition, ensuring 100% open source compatibility. The app is built with modern Android technologies including Kotlin, Jetpack Compose, and Material Design 3.
+
+<b>Privacy First</b>
+• No internet permission required
+• All processing happens locally on your device
+• No data collection or tracking
+• No ads
+
+<b>Open Source</b>
+Licensed under Apache License 2.0. Source code available at: https://github.com/Karna14314/Pdf_Tools
