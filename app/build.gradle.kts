@@ -16,12 +16,8 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        // Version is managed via GitHub repo variables and passed as env vars by CI
-        // Local builds use fallback values (not published to Play Store)
-        versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() 
-            ?: System.getenv("APP_VERSION_CODE")?.toIntOrNull() 
-            ?: 1
-        versionName = System.getenv("APP_VERSION_NAME") ?: "dev"
+        versionCode = 51
+        versionName = "1.3.26"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -106,7 +102,10 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+            // Only use signing config if it exists (not available in F-Droid builds)
+            if (signingConfigs.findByName("release") != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -251,6 +250,9 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
+    
+    // DataStore for preferences
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

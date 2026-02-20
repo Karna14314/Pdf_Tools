@@ -4,10 +4,13 @@ import android.app.Application
 import android.util.Log
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.yourname.pdftoolkit.util.CacheManager
+import com.yourname.pdftoolkit.util.ThemeManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * Application class for PDF Toolkit.
@@ -22,6 +25,13 @@ class PdfToolkitApplication : Application() {
         
         // Initialize PdfBox-Android
         PDFBoxResourceLoader.init(applicationContext)
+        
+        // Initialize theme synchronously to avoid flicker
+        runBlocking {
+            val themeMode = ThemeManager.getThemeMode(applicationContext).first()
+            ThemeManager.applyTheme(themeMode)
+            Log.d("PdfToolkit", "Theme initialized: $themeMode")
+        }
         
         // Auto-clean cache on startup (runs in background)
         applicationScope.launch {

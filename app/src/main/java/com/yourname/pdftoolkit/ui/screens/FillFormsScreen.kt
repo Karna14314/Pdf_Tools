@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yourname.pdftoolkit.domain.operations.*
+import com.yourname.pdftoolkit.util.FileOpener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -120,11 +121,16 @@ class FillFormsViewModel : ViewModel() {
                 }
             )
             
+            if (result.success) {
+                com.yourname.pdftoolkit.data.SafUriManager.addRecentFile(context, outputUri)
+            }
+            
             _state.value = _state.value.copy(
                 isProcessing = false,
                 isComplete = result.success,
                 error = result.errorMessage,
-                fieldsUpdated = result.fieldsUpdated
+                fieldsUpdated = result.fieldsUpdated,
+                resultUri = if (result.success) outputUri else null
             )
         }
     }
@@ -149,7 +155,8 @@ data class FillFormsUiState(
     val isComplete: Boolean = false,
     val error: String? = null,
     val analyzeError: String? = null,
-    val fieldsUpdated: Int = 0
+    val fieldsUpdated: Int = 0,
+    val resultUri: Uri? = null
 )
 
 /**
@@ -423,7 +430,7 @@ fun FillFormsScreen(
                             tint = MaterialTheme.colorScheme.tertiary
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 "Form Filled!",
                                 style = MaterialTheme.typography.titleMedium,
@@ -433,6 +440,15 @@ fun FillFormsScreen(
                                 "${state.fieldsUpdated} fields updated",
                                 style = MaterialTheme.typography.bodyMedium
                             )
+                        }
+                        state.resultUri?.let { uri ->
+                            FilledTonalButton(
+                                onClick = { FileOpener.openPdf(context, uri) }
+                            ) {
+                                Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Open")
+                            }
                         }
                     }
                 }

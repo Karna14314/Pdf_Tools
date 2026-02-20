@@ -1,0 +1,1 @@
+Privacy-first offline PDF utility with merge, split, compress, OCR, and more

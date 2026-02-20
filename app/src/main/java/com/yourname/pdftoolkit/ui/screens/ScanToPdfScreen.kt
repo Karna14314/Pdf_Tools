@@ -130,13 +130,32 @@ class ScanToPdfViewModel : ViewModel() {
             
             if (result.success) {
                 com.yourname.pdftoolkit.data.SafUriManager.addRecentFile(context, outputUri)
+                
+                // Record in history
+                com.yourname.pdftoolkit.data.HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = com.yourname.pdftoolkit.data.OperationType.SCAN_TO_PDF,
+                    inputFileName = "${_state.value.selectedImages.size} images",
+                    outputFileUri = outputUri,
+                    outputFileName = "scanned.pdf",
+                    details = "Scanned ${result.pagesScanned} pages to PDF"
+                )
+            } else {
+                // Record failure in history
+                com.yourname.pdftoolkit.data.HistoryManager.recordFailure(
+                    context = context,
+                    operationType = com.yourname.pdftoolkit.data.OperationType.SCAN_TO_PDF,
+                    inputFileName = "${_state.value.selectedImages.size} images",
+                    errorMessage = result.errorMessage
+                )
             }
 
             _state.value = _state.value.copy(
                 isProcessing = false,
                 isComplete = result.success,
                 error = result.errorMessage,
-                pagesScanned = result.pagesScanned
+                pagesScanned = result.pagesScanned,
+                resultUri = if (result.success) outputUri else null
             )
         }
     }
@@ -157,7 +176,8 @@ data class ScanToPdfUiState(
     val progress: Int = 0,
     val isComplete: Boolean = false,
     val error: String? = null,
-    val pagesScanned: Int = 0
+    val pagesScanned: Int = 0,
+    val resultUri: Uri? = null
 )
 
 /**
@@ -529,6 +549,20 @@ fun ScanToPdfScreen(
                                 )
                             }
                         }
+                    }
+                }
+                
+                // Open PDF Button (shown after success)
+                if (state.isComplete && state.resultUri != null) {
+                    Button(
+                        onClick = {
+                            com.yourname.pdftoolkit.util.FileOpener.openPdf(context, state.resultUri!!)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.OpenInNew, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Open PDF")
                     }
                 }
                 

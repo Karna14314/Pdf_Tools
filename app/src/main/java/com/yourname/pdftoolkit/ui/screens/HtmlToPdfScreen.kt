@@ -85,12 +85,38 @@ fun HtmlToPdfScreen(
                             resultSuccess = true
                             resultUri = saveUri
                             resultMessage = "PDF created successfully!\n\nPages: ${conversionResult.pageCount}"
+                            
+                            // Add to recent files
+                            com.yourname.pdftoolkit.data.SafUriManager.addRecentFile(context, saveUri)
+                            
+                            // Record in history
+                            scope.launch {
+                                com.yourname.pdftoolkit.data.HistoryManager.recordSuccess(
+                                    context = context,
+                                    operationType = com.yourname.pdftoolkit.data.OperationType.HTML_TO_PDF,
+                                    inputFileName = if (inputMode == InputMode.URL) urlInput else "HTML content",
+                                    outputFileUri = saveUri,
+                                    outputFileName = "html_to_pdf.pdf",
+                                    details = "Converted to PDF with ${conversionResult.pageCount} pages"
+                                )
+                            }
+                            
                             urlInput = ""
                             htmlInput = ""
                         },
                         onFailure = { error ->
                             resultSuccess = false
                             resultMessage = error.message ?: "Conversion failed"
+                            
+                            // Record failure in history
+                            scope.launch {
+                                com.yourname.pdftoolkit.data.HistoryManager.recordFailure(
+                                    context = context,
+                                    operationType = com.yourname.pdftoolkit.data.OperationType.HTML_TO_PDF,
+                                    inputFileName = if (inputMode == InputMode.URL) urlInput else "HTML content",
+                                    errorMessage = error.message
+                                )
+                            }
                         }
                     )
                 } ?: run {
@@ -163,6 +189,28 @@ fun HtmlToPdfScreen(
             resultSuccess = result.first
             resultMessage = result.second
             resultUri = result.third
+            
+            // Record in history
+            if (resultSuccess && result.third != null) {
+                com.yourname.pdftoolkit.data.SafUriManager.addRecentFile(context, result.third!!)
+                
+                com.yourname.pdftoolkit.data.HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = com.yourname.pdftoolkit.data.OperationType.HTML_TO_PDF,
+                    inputFileName = if (inputMode == InputMode.URL) urlInput else "HTML content",
+                    outputFileUri = result.third,
+                    outputFileName = "html_to_pdf.pdf",
+                    details = resultMessage.substringBefore("\n\nSaved to:")
+                )
+            } else if (!resultSuccess) {
+                com.yourname.pdftoolkit.data.HistoryManager.recordFailure(
+                    context = context,
+                    operationType = com.yourname.pdftoolkit.data.OperationType.HTML_TO_PDF,
+                    inputFileName = if (inputMode == InputMode.URL) urlInput else "HTML content",
+                    errorMessage = resultMessage
+                )
+            }
+            
             if (resultSuccess) {
                 urlInput = ""
                 htmlInput = ""

@@ -51,14 +51,23 @@ enum class ImageOperation(val title: String, val description: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImageToolsScreen(
+    initialOperation: String = "resize",
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     
+    // Map string to enum
+    val startOperation = when (initialOperation.lowercase()) {
+        "compress" -> ImageOperation.COMPRESS
+        "convert" -> ImageOperation.CONVERT
+        "strip_metadata" -> ImageOperation.STRIP_METADATA
+        else -> ImageOperation.RESIZE
+    }
+    
     // State
     var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
-    var selectedOperation by rememberSaveable { mutableStateOf(ImageOperation.RESIZE) }
+    var selectedOperation by rememberSaveable { mutableStateOf(startOperation) }
     var isProcessing by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
     var showResult by remember { mutableStateOf(false) }

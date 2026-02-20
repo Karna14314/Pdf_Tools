@@ -6,6 +6,8 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,9 +29,13 @@ import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.BuildConfig
 import com.yourname.pdftoolkit.ui.components.LicensesDialog
 import com.yourname.pdftoolkit.util.CacheManager
+import com.yourname.pdftoolkit.util.ThemeManager
+import com.yourname.pdftoolkit.util.ThemeMode
+import com.yourname.pdftoolkit.util.PdfTools
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * Image format options for default setting.
@@ -92,10 +98,14 @@ fun SettingsScreen(
     var showFeatureRequestDialog by remember { mutableStateOf(false) }
     var showImageFormatDialog by remember { mutableStateOf(false) }
     var showLicensesDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
     
     // Settings state
     var compressionQuality by remember { mutableStateOf(SettingsPreferences.getCompressionQuality(context)) }
     var defaultImageFormat by remember { mutableStateOf(SettingsPreferences.getDefaultImageFormat(context)) }
+    
+    // Theme state
+    val currentTheme by ThemeManager.getThemeMode(context).collectAsState(initial = ThemeMode.SYSTEM)
     
     // Calculate cache size on screen load
     LaunchedEffect(Unit) {
@@ -220,6 +230,21 @@ fun SettingsScreen(
                     subtitle = defaultImageFormat.displayName,
                     icon = Icons.Default.Image,
                     onClick = { showImageFormatDialog = true }
+                )
+            }
+            
+            // Appearance Section
+            item {
+                SettingsSectionHeader(title = "Appearance")
+            }
+            
+            // Theme Mode
+            item {
+                SettingsItem(
+                    title = "Theme Mode",
+                    subtitle = currentTheme.displayName,
+                    icon = Icons.Default.Palette,
+                    onClick = { showThemeDialog = true }
                 )
             }
             
@@ -374,6 +399,68 @@ fun SettingsScreen(
     if (showLicensesDialog) {
         LicensesDialog(
             onDismiss = { showLicensesDialog = false }
+        )
+    }
+    
+    // Theme Selection Dialog
+    if (showThemeDialog) {
+        AlertDialog(
+            onDismissRequest = { showThemeDialog = false },
+            icon = { Icon(Icons.Default.Palette, contentDescription = null) },
+            title = { Text("Theme Mode") },
+            text = {
+                Column {
+                    ThemeMode.entries.forEach { theme ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    scope.launch {
+                                        ThemeManager.setThemeMode(context, theme)
+                                        // Recreate activity to apply theme immediately
+                                        (context as? android.app.Activity)?.recreate()
+                                    }
+                                    showThemeDialog = false
+                                }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = currentTheme == theme,
+                                onClick = {
+                                    scope.launch {
+                                        ThemeManager.setThemeMode(context, theme)
+                                        // Recreate activity to apply theme immediately
+                                        (context as? android.app.Activity)?.recreate()
+                                    }
+                                    showThemeDialog = false
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = theme.displayName,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Text(
+                                    text = when (theme) {
+                                        ThemeMode.LIGHT -> "Always use light theme"
+                                        ThemeMode.DARK -> "Always use dark theme"
+                                        ThemeMode.SYSTEM -> "Follow system settings"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showThemeDialog = false }) {
+                    Text("Cancel")
+                }
+            }
         )
     }
     

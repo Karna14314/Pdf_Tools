@@ -26,7 +26,10 @@ import com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState
 import com.tom_roush.pdfbox.rendering.PDFRenderer
 import com.tom_roush.pdfbox.text.PDFTextStripper
 import com.tom_roush.pdfbox.text.TextPosition
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
@@ -122,6 +125,7 @@ class PdfViewerViewModel : ViewModel() {
     private var document: PDDocument? = null
     private var pdfRenderer: PDFRenderer? = null
     private val documentMutex = Mutex()
+    private var tempFile: File? = null
 
     // Search Cache
     private val extractedTextCache = mutableMapOf<Int, PageTextData>()
@@ -140,23 +144,47 @@ class PdfViewerViewModel : ViewModel() {
                 closeDocument() // Close existing if any
 
                 withContext(Dispatchers.IO) {
-                    val inputStream = context.contentResolver.openInputStream(uri)
-                        ?: throw Exception("Cannot open URI")
+                    // Use a temp file to load the PDF to avoid OOM with large files
+                    // PDDocument.load(File, MemoryUsageSetting) allows using disk instead of RAM
+                    val fileToLoad: File
+                    var createdTempFile: File? = null
 
-                    val doc = if (password.isNotEmpty()) {
-                        PDDocument.load(inputStream, password)
-                    } else {
-                        PDDocument.load(inputStream)
+                    try {
+                        if (uri.scheme == "file" && uri.path != null) {
+                            fileToLoad = File(uri.path!!)
+                        } else {
+                            // For content URIs, copy to a temp file
+                            // Create a unique temp file in cache dir
+                            val temp = File.createTempFile("pdf_view_", ".pdf", context.cacheDir)
+
+                            context.contentResolver.openInputStream(uri)?.use { input ->
+                                FileOutputStream(temp).use { output ->
+                                    input.copyTo(output)
+                                }
+                            } ?: throw Exception("Cannot open URI")
+
+                            fileToLoad = temp
+                            createdTempFile = temp // Track locally
+                        }
+
+                        val doc = if (password.isNotEmpty()) {
+                            PDDocument.load(fileToLoad, password, MemoryUsageSetting.setupTempFileOnly())
+                        } else {
+                            PDDocument.load(fileToLoad, MemoryUsageSetting.setupTempFileOnly())
+                        }
+
+                        documentMutex.withLock {
+                            document = doc
+                            pdfRenderer = PDFRenderer(doc)
+                            tempFile = createdTempFile // Transfer ownership to instance
+                        }
+
+                        _uiState.value = PdfViewerUiState.Loaded(doc.numberOfPages)
+                    } catch (e: Exception) {
+                        // Clean up any temp file created if loading failed
+                        createdTempFile?.delete()
+                        throw e // Rethrow to outer catch
                     }
-                    // inputStream is closed by PDDocument.load usually, but check source.
-                    // PDDocument.load(InputStream) reads the stream.
-
-                    documentMutex.withLock {
-                        document = doc
-                        pdfRenderer = PDFRenderer(doc)
-                    }
-
-                    _uiState.value = PdfViewerUiState.Loaded(doc.numberOfPages)
                 }
             } catch (e: Exception) {
                 Log.e("PdfViewerVM", "Error loading PDF", e)
@@ -640,6 +668,16 @@ class PdfViewerViewModel : ViewModel() {
                 document = null
                 pdfRenderer = null
                 extractedTextCache.clear()
+
+                // Clean up temp file
+                try {
+                    if (tempFile?.exists() == true) {
+                        tempFile?.delete()
+                    }
+                } catch (e: Exception) {
+                    Log.e("PdfViewerVM", "Error deleting temp file", e)
+                }
+                tempFile = null
             }
         }
     }
