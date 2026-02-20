@@ -1,7 +1,8 @@
-Build flavor implementation for dual-store deployment
+Bug fixes and improvements
 
-• Implemented Play Store and F-Droid build flavors
-• Play Store: ML Kit OCR (smaller APK + runtime download)
-• F-Droid: Tesseract OCR (larger APK, fully open source)
-• OCR feature available in both builds
-• Improved deployment workflow with better error handling
+• Fixed: Scan to PDF now properly saves to history and shows "Open PDF" button
+• Fixed: HTML to PDF operations now appear in history
+• Fixed: OCR (Make Searchable) operations now tracked in history
+• Fixed: Fill Forms now shows "Open PDF" button after completion
+• Improved: All PDF creation tools now consistently show open button and save to history
+

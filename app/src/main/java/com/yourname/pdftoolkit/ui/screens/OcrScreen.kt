@@ -89,6 +89,28 @@ class OcrViewModel : ViewModel() {
                 }
             )
             
+            if (result?.success == true) {
+                com.yourname.pdftoolkit.data.SafUriManager.addRecentFile(context, outputUri)
+                
+                // Record in history
+                com.yourname.pdftoolkit.data.HistoryManager.recordSuccess(
+                    context = context,
+                    operationType = com.yourname.pdftoolkit.data.OperationType.OCR,
+                    inputFileName = sourceUri.lastPathSegment ?: "PDF",
+                    outputFileUri = outputUri,
+                    outputFileName = "searchable.pdf",
+                    details = "Made PDF searchable with ${result.pagesProcessed} pages processed"
+                )
+            } else if (result?.success == false) {
+                // Record failure in history
+                com.yourname.pdftoolkit.data.HistoryManager.recordFailure(
+                    context = context,
+                    operationType = com.yourname.pdftoolkit.data.OperationType.OCR,
+                    inputFileName = sourceUri.lastPathSegment ?: "PDF",
+                    errorMessage = result.errorMessage
+                )
+            }
+            
             _state.value = _state.value.copy(
                 isProcessing = false,
                 isComplete = result?.success == true,
