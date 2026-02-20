@@ -17,11 +17,15 @@ android {
         minSdk = 26
         targetSdk = 35
         // Version is managed via GitHub repo variables and passed as env vars by CI
-        // Local builds use fallback values (not published to Play Store)
+        // F-Droid and local builds can use gradle.properties as fallback
         versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() 
-            ?: System.getenv("APP_VERSION_CODE")?.toIntOrNull() 
+            ?: System.getenv("APP_VERSION_CODE")?.toIntOrNull()
+            ?: project.findProperty("VERSION_CODE")?.toString()?.toIntOrNull()
+            ?: project.findProperty("APP_VERSION_CODE")?.toString()?.toIntOrNull()
             ?: 1
-        versionName = System.getenv("APP_VERSION_NAME") ?: "dev"
+        versionName = System.getenv("APP_VERSION_NAME") 
+            ?: project.findProperty("APP_VERSION_NAME")?.toString()
+            ?: "dev"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
