@@ -16,17 +16,12 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        // Version is managed via GitHub repo variables and passed as env vars by CI
-        // F-Droid and local builds can use gradle.properties as fallback
-        // Hardcoded fallback for F-Droid's static parser
+        // Version management: gradle.properties is the source of truth
+        // CI can override via environment variables if needed
         versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() 
-            ?: System.getenv("APP_VERSION_CODE")?.toIntOrNull()
-            ?: project.findProperty("VERSION_CODE")?.toString()?.toIntOrNull()
-            ?: project.findProperty("APP_VERSION_CODE")?.toString()?.toIntOrNull()
-            ?: 49  // F-Droid fallback - update this with each release
-        versionName = System.getenv("APP_VERSION_NAME") 
-            ?: project.findProperty("APP_VERSION_NAME")?.toString()
-            ?: "1.3.22"  // F-Droid fallback - update this with each release
+            ?: project.property("VERSION_CODE").toString().toInt()
+        versionName = System.getenv("VERSION_NAME") 
+            ?: project.property("VERSION_NAME").toString()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
