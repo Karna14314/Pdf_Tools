@@ -21,6 +21,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -345,30 +350,22 @@ fun PdfViewerScreen(
                             
                             // Zoom controls
                             IconButton(onClick = {
-                                val zoom = zoomByFactor(
-                                    currentScale = scale,
-                                    currentOffsetX = offsetX,
-                                    currentOffsetY = offsetY,
-                                    factor = 1.25f,
-                                    viewportSize = viewportSize
-                                )
-                                scale = zoom.scale
-                                offsetX = zoom.offsetX
-                                offsetY = zoom.offsetY
+                                val newScale = (scale * 1.25f).coerceIn(1f, 5f)
+                                if (newScale <= 1f) {
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                }
+                                scale = newScale
                             }) {
                                 Icon(Icons.Default.ZoomIn, contentDescription = "Zoom In")
                             }
                             IconButton(onClick = {
-                                val zoom = zoomByFactor(
-                                    currentScale = scale,
-                                    currentOffsetX = offsetX,
-                                    currentOffsetY = offsetY,
-                                    factor = 0.8f,
-                                    viewportSize = viewportSize
-                                )
-                                scale = zoom.scale
-                                offsetX = zoom.offsetX
-                                offsetY = zoom.offsetY
+                                val newScale = (scale * 0.8f).coerceIn(1f, 5f)
+                                if (newScale <= 1f) {
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                }
+                                scale = newScale
                             }) {
                                 Icon(Icons.Default.ZoomOut, contentDescription = "Zoom Out")
                             }
@@ -556,7 +553,7 @@ fun PdfViewerScreen(
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
                 .pointerInput(toolState, selectedAnnotationTool, scale, offsetX, offsetY, viewportSize) {
-                    // Enable controls toggle in Pan mode (Edit + None)
+                    // Enable controls toggle and double-tap zoom
                     // Disable gestures only when actively drawing (Edit + Tool)
                     val isDrawing = toolState is PdfTool.Edit && selectedAnnotationTool != AnnotationTool.NONE
 
@@ -564,19 +561,24 @@ fun PdfViewerScreen(
                         detectTapGestures(
                             onTap = { showControls = !showControls },
                             onDoubleTap = { tapOffset ->
-                                // Double-tap zooms to the specific tap coordinates
+                                // Double-tap zooms smoothly
                                 val newScale = if (scale >= 2f) 1f else 2.5f
-                                val zoom = zoomAtPoint(
-                                    currentScale = scale,
-                                    currentOffsetX = offsetX,
-                                    currentOffsetY = offsetY,
-                                    targetScale = newScale,
-                                    tapOffset = tapOffset,
-                                    viewportSize = if (viewportSize == IntSize.Zero) size else viewportSize
-                                )
-                                scale = zoom.scale
-                                offsetX = zoom.offsetX
-                                offsetY = zoom.offsetY
+                                
+                                if (newScale > 1f) {
+                                    // Zoom in towards tap point
+                                    val centerX = viewportSize.width / 2f
+                                    val centerY = viewportSize.height / 2f
+                                    val focusX = tapOffset.x - centerX
+                                    val focusY = tapOffset.y - centerY
+                                    
+                                    offsetX = -focusX * (newScale - 1f)
+                                    offsetY = -focusY * (newScale - 1f)
+                                } else {
+                                    // Zoom out - reset
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                }
+                                scale = newScale
                             }
                         )
                     }
@@ -1019,6 +1021,12 @@ private fun ErrorState(
     }
 }
 
+/**
+ * PDF Pages Content with smooth zoom and pan.
+ * 
+ * Uses LazyColumn with beyondBoundsLayout to preload pages outside viewport.
+ * This ensures pages are available when panning while zoomed.
+ */
 @Composable
 private fun PdfPagesContent(
     totalPages: Int,
@@ -1044,6 +1052,25 @@ private fun PdfPagesContent(
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     
+    // Use transformable state for smooth zoom and pan
+    val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
+        // Only handle gestures when not in annotation drawing mode
+        if (isEditMode && selectedTool != AnnotationTool.NONE) return@rememberTransformableState
+        
+        // Calculate new scale
+        val newScale = (scale * zoomChange).coerceIn(1f, 5f)
+        onScaleChange(newScale)
+        
+        if (newScale > 1f) {
+            // When zoomed, allow free panning (horizontal only)
+            // Vertical panning is handled by LazyColumn scroll
+            onOffsetChange(offsetX + panChange.x, offsetY)
+        } else {
+            // Reset when zoomed out
+            onOffsetChange(0f, 0f)
+        }
+    }
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1051,55 +1078,21 @@ private fun PdfPagesContent(
                 containerSize = it
                 onViewportSizeChange(it)
             }
-            .pointerInput(scale, offsetX, offsetY, isEditMode, selectedTool) {
-                if (isEditMode && selectedTool != AnnotationTool.NONE) return@pointerInput
-                
-                detectTransformGestures { centroid, pan, zoom, _ ->
-                    // Increase zoom sensitivity by amplifying the zoom factor
-                    val zoomSensitivity = 1.5f
-                    val amplifiedZoom = 1f + (zoom - 1f) * zoomSensitivity
-                    
-                    // Zoom threshold to prevent jitter
-                    val effectiveZoom = if (abs(amplifiedZoom - 1f) < 0.02f) 1f else amplifiedZoom
-                    val newScale = (scale * effectiveZoom).coerceIn(1f, 5f)
-                    
-                    // Pan multiplier for better responsiveness - increased for faster movement
-                    val panMultiplier = 4.5f
-                    val adjustedPan = Offset(pan.x * panMultiplier, pan.y * panMultiplier)
-                    
-                    // Calculate new offsets
-                    val newOffsetX: Float
-                    val newOffsetY: Float
-                    
-                    if (newScale > 1f) {
-                        // When zooming, adjust offset to zoom towards the touch point
-                        if (effectiveZoom != 1f) {
-                            val scaleChange = newScale / scale
-                            val focusX = centroid.x - containerSize.width / 2f
-                            val focusY = centroid.y - containerSize.height / 2f
-                            
-                            newOffsetX = offsetX * scaleChange - focusX * (scaleChange - 1f) + adjustedPan.x
-                            newOffsetY = offsetY * scaleChange - focusY * (scaleChange - 1f) + adjustedPan.y
-                        } else {
-                            // Just panning
-                            newOffsetX = offsetX + adjustedPan.x
-                            newOffsetY = offsetY + adjustedPan.y
-                        }
-                        
-                        // No bounds - allow free panning to see all content
-                        onOffsetChange(newOffsetX, newOffsetY)
-                        onScaleChange(newScale)
-                    } else {
-                        // Reset when zoomed out
-                        onOffsetChange(0f, 0f)
-                        onScaleChange(1f)
-                    }
+            .then(
+                if (isEditMode && selectedTool != AnnotationTool.NONE) {
+                    Modifier // No gesture handling when drawing
+                } else {
+                    Modifier.transformable(
+                        state = transformableState,
+                        lockRotationOnZoomPan = true
+                    )
                 }
-            }
+            )
     ) {
         LazyColumn(
             state = listState,
-            userScrollEnabled = scale <= 1f && (!isEditMode || selectedTool == AnnotationTool.NONE),
+            // Enable scroll always - let LazyColumn handle composition
+            userScrollEnabled = !isEditMode || selectedTool == AnnotationTool.NONE,
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
@@ -1108,12 +1101,14 @@ private fun PdfPagesContent(
                     translationX = offsetX
                     translationY = offsetY
                     transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
-                    clip = false
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
-            items(totalPages) { index ->
+            items(
+                count = totalPages,
+                key = { it }
+            ) { index ->
                 val pageMatches = searchState.matches.filter { it.pageIndex == index }
                 val currentGlobalResult = searchState.matches.getOrNull(searchState.currentMatchIndex)
                 val currentMatchIndexOnPage = if (currentGlobalResult != null && currentGlobalResult.pageIndex == index) {
@@ -1148,71 +1143,6 @@ private fun PdfPagesContent(
             }
         }
     }
-}
-
-private data class ZoomState(
-    val scale: Float,
-    val offsetX: Float,
-    val offsetY: Float
-)
-
-private fun zoomToScale(
-    targetScale: Float,
-    viewportSize: IntSize
-): ZoomState {
-    val clampedScale = targetScale.coerceIn(1f, 5f)
-    return if (clampedScale <= 1f || viewportSize == IntSize.Zero) {
-        ZoomState(1f, 0f, 0f)
-    } else {
-        ZoomState(clampedScale, 0f, 0f)
-    }
-}
-
-private fun zoomByFactor(
-    currentScale: Float,
-    currentOffsetX: Float,
-    currentOffsetY: Float,
-    factor: Float,
-    viewportSize: IntSize
-): ZoomState {
-    val targetScale = (currentScale * factor).coerceIn(1f, 5f)
-    return zoomAtPoint(
-        currentScale = currentScale,
-        currentOffsetX = currentOffsetX,
-        currentOffsetY = currentOffsetY,
-        targetScale = targetScale,
-        tapOffset = Offset(viewportSize.width / 2f, viewportSize.height / 2f),
-        viewportSize = viewportSize
-    )
-}
-
-private fun zoomAtPoint(
-    currentScale: Float,
-    currentOffsetX: Float,
-    currentOffsetY: Float,
-    targetScale: Float,
-    tapOffset: Offset,
-    viewportSize: IntSize
-): ZoomState {
-    val clampedScale = targetScale.coerceIn(1f, 5f)
-    if (clampedScale <= 1f || viewportSize == IntSize.Zero) {
-        return ZoomState(1f, 0f, 0f)
-    }
-
-    val oldScale = currentScale.coerceAtLeast(1f)
-    val zoomFactor = clampedScale / oldScale
-    val centerX = viewportSize.width / 2f
-    val centerY = viewportSize.height / 2f
-    val newOffsetX = (centerX - tapOffset.x) * (zoomFactor - 1f) + currentOffsetX * zoomFactor
-    val newOffsetY = (centerY - tapOffset.y) * (zoomFactor - 1f) + currentOffsetY * zoomFactor
-    val maxOffsetX = (viewportSize.width * (clampedScale - 1f))
-    val maxOffsetY = (viewportSize.height * (clampedScale - 1f))
-
-    return ZoomState(
-        scale = clampedScale,
-        offsetX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX),
-        offsetY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
-    )
 }
 
 @Composable
