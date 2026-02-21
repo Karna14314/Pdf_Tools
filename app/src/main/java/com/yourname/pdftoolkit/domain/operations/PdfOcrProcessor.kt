@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
@@ -11,8 +12,12 @@ import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
 import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
 import com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState
 import com.tom_roush.pdfbox.rendering.PDFRenderer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 
 /**
@@ -115,20 +120,30 @@ class PdfOcrProcessor(private val context: Context) {
         progressCallback: (Int) -> Unit = {}
     ): OcrResult = withContext(Dispatchers.IO) {
         var document: PDDocument? = null
+        var tempFile: File? = null
         
         try {
+            ensureActive()
             progressCallback(0)
             
-            val inputStream = context.contentResolver.openInputStream(pdfUri)
-                ?: return@withContext OcrResult(
-                    success = false,
-                    pages = emptyList(),
-                    fullText = "",
-                    errorMessage = "Cannot open PDF file"
-                )
+            // Create a temp file to avoid loading everything into memory
+            val cacheDir = File(context.cacheDir, "ocr_cache")
+            if (!cacheDir.exists()) cacheDir.mkdirs()
+            tempFile = File(cacheDir, "temp_ocr_${System.currentTimeMillis()}.pdf")
             
-            document = PDDocument.load(inputStream)
-            inputStream.close()
+            context.contentResolver.openInputStream(pdfUri)?.use { input ->
+                FileOutputStream(tempFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return@withContext OcrResult(
+                success = false,
+                pages = emptyList(),
+                fullText = "",
+                errorMessage = "Cannot open PDF file"
+            )
+
+            // Use MemoryUsageSetting to enable temp file buffering instead of full memory load
+            document = PDDocument.load(tempFile, MemoryUsageSetting.setupTempFileOnly())
             
             val totalPages = document.numberOfPages
             val pagesToProcess = pageRange ?: (0 until totalPages)
@@ -141,27 +156,33 @@ class PdfOcrProcessor(private val context: Context) {
             val fullTextBuilder = StringBuilder()
             
             for ((index, pageIndex) in validPages.withIndex()) {
+                ensureActive()
+
                 // Render page to image
                 val dpi = 200f // Good balance of quality and speed
                 val pageImage = renderer.renderImageWithDPI(pageIndex, dpi)
                 
-                // Perform OCR on the image
-                val ocrText = performOcrOnBitmap(pageImage)
-                pageImage.recycle()
-                
-                if (ocrText.isNotEmpty()) {
-                    val pageResult = OcrPageResult(
-                        pageNumber = pageIndex + 1,
-                        text = ocrText,
-                        blocks = emptyList(), // Simplified - no block info
-                        confidence = 0.85f // Estimated confidence
-                    )
-                    pageResults.add(pageResult)
+                try {
+                    ensureActive()
+                    // Perform OCR on the image
+                    val ocrText = performOcrOnBitmap(pageImage)
                     
-                    if (fullTextBuilder.isNotEmpty()) {
-                        fullTextBuilder.append("\n\n--- Page ${pageIndex + 1} ---\n\n")
+                    if (ocrText.isNotEmpty()) {
+                        val pageResult = OcrPageResult(
+                            pageNumber = pageIndex + 1,
+                            text = ocrText,
+                            blocks = emptyList(), // Simplified - no block info
+                            confidence = 0.85f // Estimated confidence
+                        )
+                        pageResults.add(pageResult)
+
+                        if (fullTextBuilder.isNotEmpty()) {
+                            fullTextBuilder.append("\n\n--- Page ${pageIndex + 1} ---\n\n")
+                        }
+                        fullTextBuilder.append(ocrText)
                     }
-                    fullTextBuilder.append(ocrText)
+                } finally {
+                    pageImage.recycle()
                 }
                 
                 val progress = 10 + ((index + 1) * 85 / validPages.size)
@@ -177,6 +198,9 @@ class PdfOcrProcessor(private val context: Context) {
                 fullText = fullTextBuilder.toString()
             )
             
+        } catch (e: CancellationException) {
+            document?.close()
+            throw e
         } catch (e: IOException) {
             document?.close()
             OcrResult(
@@ -193,6 +217,8 @@ class PdfOcrProcessor(private val context: Context) {
                 fullText = "",
                 errorMessage = "Error: ${e.message}"
             )
+        } finally {
+            tempFile?.delete()
         }
     }
     
@@ -211,19 +237,29 @@ class PdfOcrProcessor(private val context: Context) {
         progressCallback: (Int) -> Unit = {}
     ): SearchablePdfResult = withContext(Dispatchers.IO) {
         var document: PDDocument? = null
+        var tempFile: File? = null
         
         try {
+            ensureActive()
             progressCallback(0)
             
-            val inputStream = context.contentResolver.openInputStream(inputUri)
-                ?: return@withContext SearchablePdfResult(
-                    success = false,
-                    pagesProcessed = 0,
-                    errorMessage = "Cannot open source PDF"
-                )
+            // Create a temp file
+            val cacheDir = File(context.cacheDir, "ocr_cache")
+            if (!cacheDir.exists()) cacheDir.mkdirs()
+            tempFile = File(cacheDir, "temp_searchable_${System.currentTimeMillis()}.pdf")
             
-            document = PDDocument.load(inputStream)
-            inputStream.close()
+            context.contentResolver.openInputStream(inputUri)?.use { input ->
+                FileOutputStream(tempFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return@withContext SearchablePdfResult(
+                success = false,
+                pagesProcessed = 0,
+                errorMessage = "Cannot open source PDF"
+            )
+
+            // Load with memory safety
+            document = PDDocument.load(tempFile, MemoryUsageSetting.setupTempFileOnly())
             
             val totalPages = document.numberOfPages
             progressCallback(10)
@@ -231,27 +267,32 @@ class PdfOcrProcessor(private val context: Context) {
             val renderer = PDFRenderer(document)
             
             for (pageIndex in 0 until totalPages) {
+                ensureActive()
                 val page = document.getPage(pageIndex)
                 
                 // Render page to image for OCR
                 val dpi = 200f
                 val pageImage = renderer.renderImageWithDPI(pageIndex, dpi)
                 
-                // Perform OCR
-                val ocrText = performOcrOnBitmap(pageImage)
-                
-                if (ocrText.isNotEmpty()) {
-                    // Add invisible text layer to the page
-                    addTextLayerToPage(document, page, ocrText, pageImage.width, pageImage.height, dpi)
+                try {
+                    ensureActive()
+                    // Perform OCR
+                    val ocrText = performOcrOnBitmap(pageImage)
+
+                    if (ocrText.isNotEmpty()) {
+                        // Add invisible text layer to the page
+                        addTextLayerToPage(document, page, ocrText, pageImage.width, pageImage.height, dpi)
+                    }
+                } finally {
+                    pageImage.recycle()
                 }
-                
-                pageImage.recycle()
                 
                 val progress = 10 + ((pageIndex + 1) * 80 / totalPages)
                 progressCallback(progress)
             }
             
             progressCallback(90)
+            ensureActive()
             
             // Save the document
             context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
@@ -266,6 +307,9 @@ class PdfOcrProcessor(private val context: Context) {
                 pagesProcessed = totalPages
             )
             
+        } catch (e: CancellationException) {
+            document?.close()
+            throw e
         } catch (e: IOException) {
             document?.close()
             SearchablePdfResult(
@@ -280,6 +324,8 @@ class PdfOcrProcessor(private val context: Context) {
                 pagesProcessed = 0,
                 errorMessage = "Error: ${e.message}"
             )
+        } finally {
+            tempFile?.delete()
         }
     }
     
@@ -290,10 +336,12 @@ class PdfOcrProcessor(private val context: Context) {
         imageUri: Uri
     ): String = withContext(Dispatchers.IO) {
         try {
+            ensureActive()
             val bitmap = context.contentResolver.openInputStream(imageUri)?.use {
                 BitmapFactory.decodeStream(it)
             } ?: return@withContext ""
             
+            ensureActive()
             val result = performOcrOnBitmap(bitmap)
             bitmap.recycle()
             
