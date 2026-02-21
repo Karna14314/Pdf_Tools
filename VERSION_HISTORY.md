@@ -10,3 +10,4 @@
 | 51           | 1.3.25       | 2026-02-20 | Use static version values for F-Droid compatibility |
 | 52           | 1.3.26       | 2026-02-20 | Bump version to 1.3.26 |
 | 53           | 1.3.27       | 2026-02-20 | Fix: Add history tracking and Open PDF buttons for Scan to PDF, HTML to PDF, OCR, and Fill Forms tools |
+| 54           | 1.3.28       | 2026-02-21 | Fixing Docs |
