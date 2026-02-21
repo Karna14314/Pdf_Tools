@@ -12,3 +12,4 @@
 | 53           | 1.3.27       | 2026-02-20 | Fix: Add history tracking and Open PDF buttons for Scan to PDF, HTML to PDF, OCR, and Fill Forms tools |
 | 54           | 1.3.28       | 2026-02-21 | Fixing Docs |
 | 55           | 1.3.29       | 2026-02-21 | Update app icon and changelogs |
+| ��52           | 1.3.30       | 2026-02-21 | fix: bump versionCode to 52 and versionName to 1.3.27 for Play Store release |
