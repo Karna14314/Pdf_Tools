@@ -4,8 +4,14 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
-# Write permission needed to push VERSION, VERSION_HISTORY.md updates
+# Cancel any in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Write permission needed for GitHub releases
 permissions:
   contents: write
   actions: write
@@ -13,50 +19,66 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
+    env:
+      # Offset to ensure version codes exceed any previously uploaded ones
+      # Current Play Store version is 51, so starting from 52
+      VERSION_CODE_OFFSET: 52
+      # Major.Minor prefix for versionName (versionName = VERSION_PREFIX.BUILD_NUMBER)
+      VERSION_PREFIX: '1.3'
 
     steps:
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 1. Checkout the repository
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Full history for commit log generation
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 2. Set up Java (required for Android/Gradle)
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
-      - name: Calculate Version Code and Read Version Name
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 3. Compute Version Code and Version Name
+      # ════════════════════════════════════════════════════════════════════════════════
+      - name: Compute Version
+        id: version
+        env:
+          OFFSET: ${{ env.VERSION_CODE_OFFSET }}
+          RUN_NUM: ${{ github.run_number }}
+          PREFIX: ${{ env.VERSION_PREFIX }}
         run: |
-          # --- VERSION CODE ---
-          # Use the VERSION_CODE file as the source of truth.
-          # If missing, default to 31 (since 30 and 31 are already used).
-          if [ -f VERSION_CODE ]; then
-            NEW_VERSION_CODE=$(cat VERSION_CODE | tr -d '[:space:]')
-          else
-            echo "No VERSION_CODE file found. Defaulting to 32."
-            NEW_VERSION_CODE=32
-          fi
+          # Use shell arithmetic with defaults
+          OFFSET=${OFFSET:-52}
+          RUN_NUM=${RUN_NUM:-1}
+          PREFIX=${PREFIX:-1.3}
           
-          # --- VERSION NAME ---
-          # Read from the VERSION file committed in the repo.
-          if [ -f VERSION ]; then
-            VERSION_NAME=$(cat VERSION | tr -d '[:space:]')
-          else
-            echo "No VERSION file found. Defaulting to 1.3.5."
-            VERSION_NAME="1.3.5"
-          fi
+          echo "DEBUG: OFFSET='$OFFSET', RUN_NUM='$RUN_NUM', PREFIX='$PREFIX'"
           
-          echo "VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
-          echo "APP_VERSION_CODE=$NEW_VERSION_CODE" >> $GITHUB_ENV
+          BUILD_NUMBER=$(( RUN_NUM + OFFSET ))
+          VERSION_NAME="${PREFIX}.${BUILD_NUMBER}"
+          
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "APP_VERSION_CODE=$BUILD_NUMBER" >> $GITHUB_ENV
           echo "APP_VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
           
           echo "================================================"
-          echo "Building with versionCode: $NEW_VERSION_CODE"
-          echo "Building with versionName: $VERSION_NAME"
+          echo "Computed versionCode: $BUILD_NUMBER (Run: $RUN_NUM + Offset: $OFFSET)"
+          echo "Computed versionName: $VERSION_NAME"
           echo "================================================"
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 4. Generate Release Notes
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Generate Release Notes
         id: generate-notes
         run: |
@@ -76,13 +98,12 @@ jobs:
           
           # Update whatsnew for Play Store listing
           cat > distribution/whatsnew/whatsnew-en-US <<EOF
-          Build flavor implementation for dual-store deployment
+          Version ${{ env.APP_VERSION_NAME }} - Dynamic versioning update
           
-          • Implemented Play Store and F-Droid build flavors
-          • Play Store: ML Kit OCR (smaller APK + runtime download)
-          • F-Droid: Tesseract OCR (larger APK, fully open source)
-          • OCR feature available in both builds
-          • Improved deployment workflow with better error handling
+          • Implemented CI/CD dynamic versioning
+          • No more version conflicts in git
+          • Automatic version increments per build
+          • Improved deployment reliability
           EOF
           
           # Set output for GitHub Release
@@ -96,34 +117,51 @@ jobs:
           echo "=== What's New ==="
           cat distribution/whatsnew/whatsnew-en-US
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 5. Decode the Android Keystore from secrets
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Decode Keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
           echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > keystore.jks
           cp keystore.jks app/keystore.jks
+          echo "Keystore decoded successfully"
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 6. Create Play Store JSON Key
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Create Play Store JSON Key
         env:
           PLAY_STORE_JSON_KEY: ${{ secrets.PLAY_STORE_JSON_KEY }}
         run: |
           echo "$PLAY_STORE_JSON_KEY" > play-store-key.json
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 7. Make gradlew executable
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 8. Build Release AAB
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Build Release AAB
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           ANDROID_KEYSTORE_FILE: keystore.jks
-          VERSION_CODE: ${{ env.VERSION_CODE }}
           APP_VERSION_CODE: ${{ env.APP_VERSION_CODE }}
           APP_VERSION_NAME: ${{ env.APP_VERSION_NAME }}
           CI: true
-        run: ./gradlew bundlePlaystoreRelease
+        run: |
+          echo "Building AAB — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
+          ./gradlew bundlePlaystoreRelease
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 9. Verify Build Outputs
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Verify Build Outputs
         run: |
           echo "=== AAB File ==="
@@ -136,6 +174,19 @@ jobs:
           echo "versionCode: ${{ env.APP_VERSION_CODE }}"
           echo "versionName: ${{ env.APP_VERSION_NAME }}"
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 10. Upload AAB as build artifact (for debugging)
+      # ════════════════════════════════════════════════════════════════════════════════
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-aab-v${{ env.APP_VERSION_NAME }}
+          path: app/build/outputs/bundle/playstoreRelease/app-playstoreRelease.aab
+          retention-days: 30
+
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 11. Deploy to Google Play Internal Track
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Upload to Play Store
         id: upload-play-store
         continue-on-error: true
@@ -150,6 +201,9 @@ jobs:
           debugSymbols: app/build/intermediates/merged_native_libs/playstoreRelease/mergePlaystoreReleaseNativeLibs/out/lib
           whatsNewDirectory: distribution/whatsnew
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 12. Deploy to Indus App Store
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Upload to Indus App Store
         id: upload-indus-store
         continue-on-error: true
@@ -203,6 +257,9 @@ jobs:
             exit 1
           fi
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 13. Check Deployment Results
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Check Deployment Results
         run: |
           echo "=== Deployment Summary ==="
@@ -235,8 +292,11 @@ jobs:
             fi
           fi
           
-          echo "At least one deployment succeeded or was skipped - proceeding with version increment"
+          echo "At least one deployment succeeded or was skipped"
 
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 14. Create GitHub Release
+      # ════════════════════════════════════════════════════════════════════════════════
       - name: Create GitHub Release
         if: success()
         uses: softprops/action-gh-release@v1
@@ -258,6 +318,7 @@ jobs:
             - Version Name: ${{ env.APP_VERSION_NAME }}
             - Min SDK: 26 (Android 8.0)
             - Target SDK: 35 (Android 15)
+            - Build Number: ${{ github.run_number }}
           files: |
             app/build/outputs/bundle/playstoreRelease/*.aab
             app/build/outputs/mapping/playstoreRelease/mapping.txt
@@ -266,36 +327,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Only runs if at least one upload succeeded — increment VERSION, VERSION_CODE, and update history
-      - name: Increment Version and Update History
+      # ════════════════════════════════════════════════════════════════════════════════
+      # 15. Post-deploy summary
+      # ════════════════════════════════════════════════════════════════════════════════
+      - name: Deployment Summary
         if: success()
         run: |
-          BUILD_DATE=$(date -u +"%Y-%m-%d")
-          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
-          
-          # --- Increment VERSION_CODE for next build ---
-          CURRENT_CODE="${{ env.APP_VERSION_CODE }}"
-          NEXT_CODE=$(( CURRENT_CODE + 1 ))
-          echo "$NEXT_CODE" > VERSION_CODE
-          echo "Updated VERSION_CODE: $CURRENT_CODE -> $NEXT_CODE"
-          
-          # --- Increment VERSION_NAME (patch bump) for next build ---
-          CURRENT_VN="${{ env.APP_VERSION_NAME }}"
-          MAJOR=$(echo "$CURRENT_VN" | cut -d. -f1)
-          MINOR=$(echo "$CURRENT_VN" | cut -d. -f2)
-          PATCH=$(echo "$CURRENT_VN" | cut -d. -f3)
-          NEXT_PATCH=$((PATCH + 1))
-          NEXT_VN="${MAJOR}.${MINOR}.${NEXT_PATCH}"
-          echo "$NEXT_VN" > VERSION
-          echo "Updated VERSION: $CURRENT_VN -> $NEXT_VN"
-          
-          # --- Append to VERSION_HISTORY.md ---
-          echo "| $CURRENT_CODE           | $CURRENT_VN       | ${BUILD_DATE} | ${COMMIT_MSG} |" >> VERSION_HISTORY.md
-          
-          # --- Configure git and push ---
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git add VERSION VERSION_CODE VERSION_HISTORY.md distribution/whatsnew/whatsnew-en-US
-          git commit -m "ci: deployed v${CURRENT_VN} (code ${CURRENT_CODE}) → next: v${NEXT_VN} (code ${NEXT_CODE})" || echo "No changes to commit"
-          git push origin master || echo "Push failed — version update skipped"
+          echo "## ✅ Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **App** | PDF Toolkit |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Package** | com.yourname.pdftoolkit |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Track** | Internal Testing |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version Name** | ${{ env.APP_VERSION_NAME }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version Code** | ${{ env.APP_VERSION_CODE }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Build Number** | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY

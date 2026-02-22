@@ -16,8 +16,10 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 52
-        versionName = "1.3.27"
+        // Version code and name are set dynamically by CI/CD
+        // Local builds use defaults: versionCode=1, versionName="1.0.0-local"
+        versionCode = (System.getenv("APP_VERSION_CODE") ?: "1").toInt()
+        versionName = System.getenv("APP_VERSION_NAME") ?: "1.0.0-local"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

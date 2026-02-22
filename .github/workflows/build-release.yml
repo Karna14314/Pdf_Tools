@@ -2,10 +2,23 @@ name: Build Release AAB
 
 on:
   workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name (e.g., 1.3.27)'
+        required: false
+        default: '1.0.0-manual'
+      version_code:
+        description: 'Version code (e.g., 52)'
+        required: false
+        default: '1'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    env:
+      VERSION_CODE_OFFSET: 52
+      VERSION_PREFIX: '1.3'
     
     steps:
     - name: Checkout code
@@ -16,32 +29,53 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: gradle
+    
+    - name: Compute Version
+      id: version
+      run: |
+        # Use manual input if provided, otherwise compute from run number
+        if [ -n "${{ github.event.inputs.version_name }}" ]; then
+          VERSION_NAME="${{ github.event.inputs.version_name }}"
+          VERSION_CODE="${{ github.event.inputs.version_code }}"
+        else
+          OFFSET=${{ env.VERSION_CODE_OFFSET }}
+          RUN_NUM=${{ github.run_number }}
+          PREFIX=${{ env.VERSION_PREFIX }}
+          
+          VERSION_CODE=$(( RUN_NUM + OFFSET ))
+          VERSION_NAME="${PREFIX}.${VERSION_CODE}"
+        fi
+        
+        echo "APP_VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+        echo "APP_VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+        echo "Building versionCode: $VERSION_CODE, versionName: $VERSION_NAME"
     
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
     
     - name: Decode Keystore
       run: |
-        echo "${{ secrets.PDFTOOLKIT_RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > pdftoolkit-release.keystore
+        echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > keystore.jks
+        cp keystore.jks app/keystore.jks
     
-    - name: Create keystore.properties
-      run: |
-        echo "storeFile=pdftoolkit-release.keystore" > keystore.properties
-        echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
-        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
-        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
+    - name: Make gradlew executable
+      run: chmod +x gradlew
     
     - name: Build Release AAB
-      run: ./gradlew bundleRelease
-    
-    - name: Rename AAB
-      run: |
-        VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | head -1 | grep -oP '"[^"]*"' | tr -d '"')
-        cp app/build/outputs/bundle/release/app-release.aab "PDFToolkit-v${VERSION_NAME}-release.aab"
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        ANDROID_KEYSTORE_FILE: keystore.jks
+        APP_VERSION_CODE: ${{ env.APP_VERSION_CODE }}
+        APP_VERSION_NAME: ${{ env.APP_VERSION_NAME }}
+        CI: true
+      run: ./gradlew bundlePlaystoreRelease
     
     - name: Upload AAB Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: release-aab
-        path: PDFToolkit-v*-release.aab
+        name: release-aab-v${{ env.APP_VERSION_NAME }}
+        path: app/build/outputs/bundle/playstoreRelease/app-playstoreRelease.aab
         retention-days: 30
