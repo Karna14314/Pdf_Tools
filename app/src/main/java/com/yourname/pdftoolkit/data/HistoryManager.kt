@@ -3,6 +3,7 @@ package com.yourname.pdftoolkit.data
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
+import com.yourname.pdftoolkit.util.RatingManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -158,6 +159,13 @@ object HistoryManager {
             details = details,
             isImageOutput = isImageOutput
         ))
+
+        // Trigger rating flow after successful operations
+        try {
+            RatingManager.incrementUsage(context)
+        } catch (e: Exception) {
+            // Ignore rating errors
+        }
     }
     
     /**

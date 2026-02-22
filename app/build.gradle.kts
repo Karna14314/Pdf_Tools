@@ -232,6 +232,8 @@ dependencies {
     // OCR Libraries - flavor-specific
     // Play Store: ML Kit (proprietary, smaller APK + 40MB runtime download)
     "playstoreImplementation"("com.google.mlkit:text-recognition:16.0.1")
+    "playstoreImplementation"("com.google.android.play:review:2.0.1")
+
     // F-Droid: Tesseract (open source, larger APK but no runtime downloads)
     "fdroidImplementation"("com.rmtheis:tess-two:9.1.0")
     

@@ -31,6 +31,20 @@ object CacheManager {
         
         return clearedSize
     }
+
+    /**
+     * Aggressively clear all temporary files (used when closing app).
+     */
+    fun clearAllTempFiles(context: Context): Long {
+        var clearedSize = 0L
+
+        clearedSize += clearPdfOperationsCache(context)
+        clearedSize += clearImageProcessingCache(context)
+        clearedSize += clearSharedFiles(context)
+        clearedSize += clearExternalCache(context)
+
+        return clearedSize
+    }
     
     /**
      * Clear old cache files (older than MAX_CACHE_AGE).
@@ -83,6 +97,31 @@ object CacheManager {
         return clearedSize
     }
     
+    /**
+     * Clear shared files directory used by MainActivity for intents.
+     * Keeps the current file if specified, otherwise deletes all.
+     */
+    fun clearSharedFiles(context: Context): Long {
+        var clearedSize = 0L
+        val sharedDir = File(context.cacheDir, "shared_files")
+        if (sharedDir.exists()) {
+            clearedSize += deleteRecursively(sharedDir)
+            sharedDir.mkdirs()
+        }
+        return clearedSize
+    }
+
+    /**
+     * Clear external cache directory.
+     */
+    fun clearExternalCache(context: Context): Long {
+        var clearedSize = 0L
+        context.externalCacheDir?.let { dir ->
+            clearedSize += deleteRecursively(dir)
+        }
+        return clearedSize
+    }
+
     /**
      * Clear image processing cache (processed, cropped, converted images).
      * Call this after completing image operations.
@@ -199,6 +238,7 @@ object CacheManager {
         clearedSize += clearOldCache(context)
         clearedSize += clearPdfOperationsCache(context)
         clearedSize += clearImageProcessingCache(context)
+        clearedSize += clearExternalCache(context)
         
         return clearedSize
     }
