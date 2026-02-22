@@ -1,6 +1,7 @@
-Improved PDF Operations & Stability
+Build flavor implementation for dual-store deployment
 
-• Fixed critical issue where cancelling operations (Compress, Merge) would continue in the background.
-• Enhanced PDF Compression: Shared images (like logos) are now reused, significantly reducing file size.
-• Improved memory handling for large PDF Merge and OCR operations to prevent crashes.
-• Added strict cancellation support for all long-running tasks.
+• Implemented Play Store and F-Droid build flavors
+• Play Store: ML Kit OCR (smaller APK + runtime download)
+• F-Droid: Tesseract OCR (larger APK, fully open source)
+• OCR feature available in both builds
+• Improved deployment workflow with better error handling
