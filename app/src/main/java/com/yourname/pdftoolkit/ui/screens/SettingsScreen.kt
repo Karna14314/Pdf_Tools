@@ -317,7 +317,7 @@ fun SettingsScreen(
             item {
                 SettingsItem(
                     title = "Version",
-                    subtitle = "${BuildConfig.VERSION_NAME} (Build ${BuildConfig.VERSION_CODE})",
+                    subtitle = BuildConfig.VERSION_NAME,
                     icon = Icons.Default.Info,
                     onClick = { showAboutDialog = true }
                 )
