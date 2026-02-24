@@ -16,8 +16,12 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 51
-        versionName = "1.3.26"
+        versionCode = System.getenv("APP_VERSION_CODE")?.toIntOrNull()
+            ?: (project.findProperty("VERSION_CODE") as? String)?.toIntOrNull()
+            ?: 51
+        versionName = System.getenv("APP_VERSION_NAME")
+            ?: (project.findProperty("VERSION_NAME") as? String)
+            ?: "1.3.26"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
