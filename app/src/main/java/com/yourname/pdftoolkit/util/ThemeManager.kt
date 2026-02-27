@@ -1,14 +1,12 @@
 package com.yourname.pdftoolkit.util
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.onStart
 
 /**
  * Theme modes available in the app.
@@ -26,23 +24,51 @@ enum class ThemeMode(val value: Int, val displayName: String) {
 }
 
 /**
- * ThemeManager handles theme persistence and application using DataStore.
- * Provides a modern, type-safe way to manage app theme preferences.
+ * ThemeManager handles theme persistence and application using SharedPreferences.
+ * Provides a synchronous way to read theme on startup and reactive flow for UI updates.
  */
 object ThemeManager {
     
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "theme_preferences")
-    private val THEME_MODE_KEY = intPreferencesKey("theme_mode")
+    private const val PREFS_NAME = "theme_preferences"
+    private const val KEY_THEME_MODE = "theme_mode"
+
+    private fun getPrefs(context: Context): SharedPreferences {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
     
     /**
      * Get the current theme mode as a Flow.
      * Defaults to SYSTEM if no preference is set.
      */
-    fun getThemeMode(context: Context): Flow<ThemeMode> {
-        return context.dataStore.data.map { preferences ->
-            val modeValue = preferences[THEME_MODE_KEY] ?: ThemeMode.SYSTEM.value
-            ThemeMode.fromValue(modeValue)
+    fun getThemeMode(context: Context): Flow<ThemeMode> = callbackFlow {
+        val prefs = getPrefs(context)
+
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            if (key == KEY_THEME_MODE) {
+                val modeValue = sharedPreferences.getInt(KEY_THEME_MODE, ThemeMode.SYSTEM.value)
+                trySend(ThemeMode.fromValue(modeValue))
+            }
         }
+
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+
+        // Initial emission handled by onStart to avoid race conditions
+
+        awaitClose {
+            prefs.unregisterOnSharedPreferenceChangeListener(listener)
+        }
+    }.onStart {
+        // Emit current value immediately
+        emit(getThemeModeImmediate(context))
+    }
+
+    /**
+     * Get the theme mode synchronously.
+     * Suitable for app startup initialization.
+     */
+    fun getThemeModeImmediate(context: Context): ThemeMode {
+        val modeValue = getPrefs(context).getInt(KEY_THEME_MODE, ThemeMode.SYSTEM.value)
+        return ThemeMode.fromValue(modeValue)
     }
     
     /**
@@ -52,9 +78,8 @@ object ThemeManager {
      * @param themeMode The theme mode to save
      */
     suspend fun setThemeMode(context: Context, themeMode: ThemeMode) {
-        context.dataStore.edit { preferences ->
-            preferences[THEME_MODE_KEY] = themeMode.value
-        }
+        // We can use apply() for async save but still update UI immediately
+        getPrefs(context).edit().putInt(KEY_THEME_MODE, themeMode.value).apply()
         applyTheme(themeMode)
     }
     
@@ -75,9 +100,18 @@ object ThemeManager {
      * @param onThemeLoaded Callback invoked when theme is loaded and applied
      */
     suspend fun initializeTheme(context: Context, onThemeLoaded: ((ThemeMode) -> Unit)? = null) {
-        getThemeMode(context).collect { themeMode ->
-            applyTheme(themeMode)
-            onThemeLoaded?.invoke(themeMode)
+        val themeMode = getThemeModeImmediate(context)
+        applyTheme(themeMode)
+        onThemeLoaded?.invoke(themeMode)
+
+        // Also subscribe to changes if needed (though typically this function was used as a one-shot or ongoing subscription)
+        // Given the signature is suspend and typically used with collect, we might want to mirror old behavior if possible,
+        // but for startup optimization, we just want immediate application.
+        // The previous implementation was: getThemeMode(context).collect { ... }
+        // To maintain compatibility if this is called as a long-running coroutine:
+        getThemeMode(context).collect { mode ->
+            applyTheme(mode)
+            onThemeLoaded?.invoke(mode)
         }
     }
 }
