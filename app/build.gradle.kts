@@ -280,3 +280,7 @@ dependencies {
     implementation("androidx.ink:ink-rendering:1.0.0-alpha01")
     implementation("androidx.ink:ink-strokes:1.0.0-alpha01")
 }
+dependencies {
+    testImplementation("androidx.test:core-ktx:1.5.0")
+    testImplementation("androidx.test.ext:junit-ktx:1.1.5")
+}

@@ -191,4 +191,69 @@ object PdfTools {
         val success: Boolean,
         val errorMessage: String?
     )
+    /**
+     * Print a PDF document using the system print service.
+     *
+     * @param context Context
+     * @param pdfUri URI of the PDF to print
+     * @param jobName Name of the print job
+     */
+    fun printPdf(context: Context, pdfUri: Uri, jobName: String) {
+        val printManager = context.getSystemService<PrintManager>() ?: return
+        val adapter = UriPrintDocumentAdapter(context, pdfUri, jobName)
+        printManager.print(jobName, adapter, null)
+    }
+
+    /**
+     * Adapter for printing a PDF from a URI.
+     */
+    private class UriPrintDocumentAdapter(
+        private val context: Context,
+        private val pdfUri: Uri,
+        private val fileName: String
+    ) : PrintDocumentAdapter() {
+
+        override fun onLayout(
+            oldAttributes: PrintAttributes?,
+            newAttributes: PrintAttributes?,
+            cancellationSignal: CancellationSignal?,
+            callback: LayoutResultCallback?,
+            extras: Bundle?
+        ) {
+            if (cancellationSignal?.isCanceled == true) {
+                callback?.onLayoutCancelled()
+                return
+            }
+
+            val info = PrintDocumentInfo.Builder(fileName)
+                .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                .setPageCount(PrintDocumentInfo.PAGE_COUNT_UNKNOWN)
+                .build()
+
+            callback?.onLayoutFinished(info, newAttributes != oldAttributes)
+        }
+
+        override fun onWrite(
+            pages: Array<out PageRange>?,
+            destination: ParcelFileDescriptor?,
+            cancellationSignal: CancellationSignal?,
+            callback: WriteResultCallback?
+        ) {
+             if (cancellationSignal?.isCanceled == true) {
+                callback?.onWriteCancelled()
+                return
+            }
+
+            try {
+                context.contentResolver.openInputStream(pdfUri)?.use { input ->
+                    FileOutputStream(destination?.fileDescriptor).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                callback?.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
+            } catch (e: Exception) {
+                callback?.onWriteFailed(e.message)
+            }
+        }
+    }
 }

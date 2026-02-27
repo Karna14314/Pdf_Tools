@@ -5,3 +5,5 @@ Build flavor implementation for dual-store deployment
 • F-Droid: Tesseract OCR (larger APK, fully open source)
 • OCR feature available in both builds
 • Improved deployment workflow with better error handling
+• Fixed scrolling bug on first page when zoomed in.
+• Added "Print" feature to PDF viewer menu.
