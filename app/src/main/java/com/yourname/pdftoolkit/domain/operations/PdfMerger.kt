@@ -2,9 +2,12 @@ package com.yourname.pdftoolkit.domain.operations
 
 import android.content.Context
 import android.net.Uri
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.multipdf.PDFMergerUtility
 import com.tom_roush.pdfbox.pdmodel.PDDocument
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.OutputStream
@@ -40,8 +43,12 @@ class PdfMerger {
         val inputStreams = mutableListOf<InputStream>()
         
         try {
+            ensureActive()
+
             // Load all input documents
             inputUris.forEachIndexed { index, uri ->
+                ensureActive()
+
                 val inputStream = context.contentResolver.openInputStream(uri)
                     ?: return@withContext Result.failure(
                         IllegalStateException("Cannot open file: $uri")
@@ -53,13 +60,18 @@ class PdfMerger {
                 onProgress((index + 1).toFloat() / (inputUris.size + 1))
             }
             
+            ensureActive()
+
             // Perform merge
             merger.destinationStream = outputStream
-            merger.mergeDocuments(null)
+            // Use temp file memory setting to prevent OOM during merge of large files
+            merger.mergeDocuments(MemoryUsageSetting.setupTempFileOnly())
             
             onProgress(1.0f)
             Result.success(Unit)
             
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
@@ -84,9 +96,11 @@ class PdfMerger {
         var totalPages = 0
         
         uris.forEach { uri ->
+            ensureActive()
             try {
                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                    PDDocument.load(inputStream).use { document ->
+                    // Use memory usage setting to avoid loading full document into RAM
+                    PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly()).use { document ->
                         totalPages += document.numberOfPages
                     }
                 }

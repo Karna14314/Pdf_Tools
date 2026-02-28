@@ -21,6 +21,9 @@ import androidx.navigation.compose.rememberNavController
 import com.yourname.pdftoolkit.data.SafUriManager
 import com.yourname.pdftoolkit.ui.navigation.AppNavigation
 import com.yourname.pdftoolkit.ui.theme.PDFToolkitTheme
+import com.yourname.pdftoolkit.util.CacheManager
+import com.yourname.pdftoolkit.util.RatingManager
+import com.yourname.pdftoolkit.util.ReviewHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -62,7 +65,11 @@ class MainActivity : ComponentActivity() {
         
         // Handle intent if app is opened with a PDF
         // This MUST happen before setContent so pendingPdfUri is set
-        handleIntent(intent)
+        try {
+            handleIntent(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling intent in onCreate", e)
+        }
         
         Log.d(TAG, "onCreate: After handleIntent, pendingPdfUri=$pendingPdfUri, pendingPdfName=$pendingPdfName, pendingIsLoading=$pendingIsLoading")
         
@@ -84,6 +91,15 @@ class MainActivity : ComponentActivity() {
                     pdfNameState = pdfName
                     isLoadingState = isLoading
                     
+                    // Observe rating request
+                    LaunchedEffect(Unit) {
+                        RatingManager.showRatingRequest.collect { shouldShow ->
+                            if (shouldShow) {
+                                ReviewHelper.showReview(this@MainActivity)
+                            }
+                        }
+                    }
+
                     Log.d(TAG, "Composing AppNavigation with initialPdfUri=${pdfUri.value}, initialPdfName=${pdfName.value}, isLoading=${isLoading.value}")
                     
                     if (isLoading.value) {
@@ -106,6 +122,23 @@ class MainActivity : ComponentActivity() {
         }
     }
     
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing) {
+            // Clean up ALL temporary files when the activity is actually finishing
+            // This prevents massive storage accumulation
+            try {
+                // Run in background to avoid blocking main thread
+                Thread {
+                    val cleared = CacheManager.clearAllTempFiles(applicationContext)
+                    Log.d(TAG, "App closing: Cleared $cleared bytes of temp files")
+                }.start()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error cleaning temp files", e)
+            }
+        }
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -115,7 +148,11 @@ class MainActivity : ComponentActivity() {
         pendingPdfName = null
         
         // Handle the new intent
-        handleIntent(intent)
+        try {
+            handleIntent(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling intent in onNewIntent", e)
+        }
         
         // Update Compose state to trigger navigation
         Log.d(TAG, "onNewIntent: Updating Compose state with PDF=$pendingPdfUri, Loading=$pendingIsLoading")
@@ -133,21 +170,25 @@ class MainActivity : ComponentActivity() {
         
         Log.d(TAG, "Handling intent action: ${intent.action}, data: ${intent.data}")
         
-        when (intent.action) {
-            Intent.ACTION_VIEW -> {
-                intent.data?.let { uri ->
-                    Log.d(TAG, "ACTION_VIEW with URI: $uri")
-                    processUri(uri, intent)
+        try {
+            when (intent.action) {
+                Intent.ACTION_VIEW -> {
+                    intent.data?.let { uri ->
+                        Log.d(TAG, "ACTION_VIEW with URI: $uri")
+                        processUri(uri, intent)
+                    }
+                }
+
+                Intent.ACTION_SEND -> {
+                    val uri = getParcelableExtraCompat(intent)
+                    uri?.let {
+                        Log.d(TAG, "ACTION_SEND with URI: $it")
+                        processUri(it, intent)
+                    }
                 }
             }
-            
-            Intent.ACTION_SEND -> {
-                val uri = getParcelableExtraCompat(intent)
-                uri?.let {
-                    Log.d(TAG, "ACTION_SEND with URI: $it")
-                    processUri(it, intent)
-                }
-            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in handleIntent logic", e)
         }
     }
     
@@ -157,7 +198,15 @@ class MainActivity : ComponentActivity() {
      * because these intents don't support persistable permissions.
      */
     private fun processUri(originalUri: Uri, intent: Intent) {
-        val mimeType = contentResolver.getType(originalUri)
+        var mimeType: String? = null
+        try {
+            mimeType = contentResolver.getType(originalUri)
+        } catch (e: SecurityException) {
+            Log.w(TAG, "SecurityException getting MIME type for $originalUri: ${e.message}")
+        } catch (e: Exception) {
+            Log.w(TAG, "Error getting MIME type for $originalUri: ${e.message}")
+        }
+
         val fileName = getFileName(originalUri) ?: "document.pdf"
         
         Log.d(TAG, "Processing URI: $originalUri, mimeType: $mimeType, fileName: $fileName, action: ${intent.action}")
@@ -183,17 +232,19 @@ class MainActivity : ComponentActivity() {
 
                     // Update state
                     pendingIsLoading = false
-                    pendingPdfUri = accessibleUri
-                    pendingPdfName = fileName.removeSuffix(".pdf").removeSuffix(".PDF")
-
-                    isLoadingState?.value = false
-                    pdfUriState?.value = accessibleUri
-                    pdfNameState?.value = pendingPdfName
 
                     if (accessibleUri == null) {
                         Log.e(TAG, "Could not obtain access to URI: $originalUri - file will not be opened")
+                        // Ensure we turn off loading state even on failure
+                        isLoadingState?.value = false
                     } else {
                         Log.d(TAG, "Successfully copied to cache: $accessibleUri")
+                        pendingPdfUri = accessibleUri
+                        pendingPdfName = fileName.removeSuffix(".pdf").removeSuffix(".PDF")
+
+                        pdfUriState?.value = accessibleUri
+                        pdfNameState?.value = pendingPdfName
+                        isLoadingState?.value = false
                     }
                 }
                 // Return immediately, results will be handled via state updates
@@ -418,8 +469,10 @@ class MainActivity : ComponentActivity() {
      * Check if the URI points to a PDF file.
      */
     private fun isPdfUri(uri: Uri, mimeType: String?): Boolean {
-        return mimeType == "application/pdf" || 
-               uri.toString().endsWith(".pdf", ignoreCase = true)
+        // If mimeType is null, we can't be sure, but check extension
+        if (mimeType != null && mimeType == "application/pdf") return true
+
+        return uri.toString().endsWith(".pdf", ignoreCase = true)
     }
     
     /**
@@ -431,13 +484,17 @@ class MainActivity : ComponentActivity() {
         try {
             when (uri.scheme) {
                 "content" -> {
-                    contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                        if (cursor.moveToFirst()) {
-                            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                            if (nameIndex >= 0) {
-                                fileName = cursor.getString(nameIndex)
+                    try {
+                        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                            if (cursor.moveToFirst()) {
+                                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                                if (nameIndex >= 0) {
+                                    fileName = cursor.getString(nameIndex)
+                                }
                             }
                         }
+                    } catch (e: SecurityException) {
+                        Log.w(TAG, "SecurityException querying file name: ${e.message}")
                     }
                 }
                 "file" -> {
@@ -446,6 +503,7 @@ class MainActivity : ComponentActivity() {
             }
         } catch (e: Exception) {
             // Fall back to URI parsing
+            Log.w(TAG, "Error parsing file name: ${e.message}")
             fileName = uri.lastPathSegment
         }
         

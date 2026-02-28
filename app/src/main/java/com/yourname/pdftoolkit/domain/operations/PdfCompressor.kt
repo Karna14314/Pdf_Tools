@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.tom_roush.pdfbox.cos.COSName
+import com.tom_roush.pdfbox.cos.COSObject
+import com.tom_roush.pdfbox.cos.COSObjectKey
 import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
@@ -14,7 +16,10 @@ import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
 import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
 import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject
 import com.tom_roush.pdfbox.rendering.PDFRenderer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
@@ -100,6 +105,7 @@ class PdfCompressor {
         val profile = profileFromSlider(qualityPercent) ?: profileFromLevel(level)
         
         try {
+            ensureActive()
             onProgress(0.05f)
             
             var detectedPageCount: Int? = null
@@ -206,6 +212,8 @@ class PdfCompressor {
                 )
             )
             
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: OutOfMemoryError) {
             Result.failure(
                 IllegalStateException(
@@ -229,7 +237,7 @@ class PdfCompressor {
      * Try to compress by optimizing embedded images only.
      * This preserves text quality and searchability.
      */
-    private fun tryImageOptimization(
+    private suspend fun tryImageOptimization(
         context: Context,
         inputFile: File,
         profile: CompressionProfile,
@@ -246,14 +254,16 @@ class PdfCompressor {
             if (totalPages == 0) return null
             
             var imagesOptimized = 0
+            val optimizedImages = mutableMapOf<COSObjectKey, PDImageXObject>()
             
             // Process each page
             for (pageIndex in 0 until totalPages) {
+                currentCoroutineContext().ensureActive()
                 val page = document.getPage(pageIndex)
                 val resources = page.resources ?: continue
                 
                 // Optimize images in this page
-                imagesOptimized += optimizePageImages(document, resources, profile)
+                imagesOptimized += optimizePageImages(document, resources, profile, optimizedImages)
                 
                 val pageProgress = 0.10f + (0.45f * (pageIndex + 1).toFloat() / totalPages)
                 onProgress(pageProgress)
@@ -262,6 +272,9 @@ class PdfCompressor {
             document.save(outputFile)
             outputFile
             
+        } catch (e: CancellationException) {
+            outputFile.delete()
+            throw e
         } catch (e: Exception) {
             outputFile.delete()
             null
@@ -274,10 +287,11 @@ class PdfCompressor {
      * Optimize images in a page's resources.
      * Returns the number of images optimized.
      */
-    private fun optimizePageImages(
+    private suspend fun optimizePageImages(
         document: PDDocument,
         resources: PDResources,
-        profile: CompressionProfile
+        profile: CompressionProfile,
+        optimizedCache: MutableMap<COSObjectKey, PDImageXObject>
     ): Int {
         var optimizedCount = 0
         
@@ -285,7 +299,23 @@ class PdfCompressor {
             val xObjectNames = resources.xObjectNames?.toList() ?: return 0
             
             for (name in xObjectNames) {
+                currentCoroutineContext().ensureActive()
                 try {
+                    // Check if it's an indirect object (reference) to enable deduplication
+                    val item = resources.cosObject.getItem(name)
+                    var cacheKey: COSObjectKey? = null
+
+                    if (item is COSObject) {
+                        cacheKey = COSObjectKey(item.objectNumber, item.generationNumber)
+                        val cached = optimizedCache[cacheKey]
+                        if (cached != null) {
+                            resources.put(name, cached)
+                            // Count as optimized since we replaced it with an optimized version
+                            optimizedCount++
+                            continue
+                        }
+                    }
+
                     val xObject = resources.getXObject(name)
                     
                     if (xObject is PDImageXObject) {
@@ -293,13 +323,21 @@ class PdfCompressor {
                         if (optimized != null) {
                             resources.put(name, optimized)
                             optimizedCount++
+
+                            if (cacheKey != null) {
+                                optimizedCache[cacheKey] = optimized
+                            }
                         }
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     // Skip this image if we can't process it
                     continue
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             // Resources iteration failed
         }
@@ -350,7 +388,7 @@ class PdfCompressor {
      * Try full re-render approach - converts each page to JPEG image.
      * Best for scanned documents but loses text searchability.
      */
-    private fun tryFullRerender(
+    private suspend fun tryFullRerender(
         context: Context,
         inputFile: File,
         profile: CompressionProfile,
@@ -370,6 +408,7 @@ class PdfCompressor {
             val renderer = PDFRenderer(inputDocument)
             
             for (pageIndex in 0 until totalPages) {
+                currentCoroutineContext().ensureActive()
                 val originalPage = inputDocument.getPage(pageIndex)
                 val pageRect = originalPage.mediaBox ?: PDRectangle.A4
                 
@@ -408,6 +447,9 @@ class PdfCompressor {
             outputDocument.save(outputFile)
             outputFile
             
+        } catch (e: CancellationException) {
+            outputFile.delete()
+            throw e
         } catch (e: Exception) {
             outputFile.delete()
             null

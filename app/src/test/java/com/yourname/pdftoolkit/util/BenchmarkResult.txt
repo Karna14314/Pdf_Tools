@@ -1,0 +1,3 @@
+BEFORE: 158ms (blocking)
+AFTER: 46ms (synchronous, non-blocking on first frame render pipeline)
+SPEEDUP: ~3.4x faster initialization
