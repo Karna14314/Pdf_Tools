@@ -504,12 +504,12 @@ class PdfViewerViewModel : ViewModel() {
                             val importedPage = destDoc.importPage(sourcePage)
                             // PDDocument.importPage returns the imported page, which belongs to destDoc but isn't added yet
                             // We must call addPage.
-                            destDoc.addPage(importedPage)
+                            // destDoc.addPage(importedPage) // Removed to prevent duplicate pages
                         } else if (rotation == 0) {
                             // VECTOR INJECTION: Preserve text and vectors for upright pages
                             val importedPage = destDoc.importPage(sourcePage)
                             // importedPage is owned by destDoc, so we don't need to manually copy mediaBox from source.
-                            destDoc.addPage(importedPage)
+                            // destDoc.addPage(importedPage) // Removed to prevent duplicate pages
 
                             // Append content stream to draw on top
                             PDPageContentStream(destDoc, importedPage, PDPageContentStream.AppendMode.APPEND, true, true).use { cs ->

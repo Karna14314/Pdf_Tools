@@ -1052,24 +1052,7 @@ private fun PdfPagesContent(
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     
-    // Use transformable state for smooth zoom and pan
-    val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
-        // Only handle gestures when not in annotation drawing mode
-        if (isEditMode && selectedTool != AnnotationTool.NONE) return@rememberTransformableState
-        
-        // Calculate new scale
-        val newScale = (scale * zoomChange).coerceIn(1f, 5f)
-        onScaleChange(newScale)
-        
-        if (newScale > 1f) {
-            // When zoomed, allow free panning (horizontal only)
-            // Vertical panning is handled by LazyColumn scroll
-            onOffsetChange(offsetX + panChange.x, offsetY)
-        } else {
-            // Reset when zoomed out
-            onOffsetChange(0f, 0f)
-        }
-    }
+    // Removed transformableState in favor of pointerInput
     
     Box(
         modifier = Modifier
@@ -1082,17 +1065,26 @@ private fun PdfPagesContent(
                 if (isEditMode && selectedTool != AnnotationTool.NONE) {
                     Modifier // No gesture handling when drawing
                 } else {
-                    Modifier.transformable(
-                        state = transformableState,
-                        lockRotationOnZoomPan = true
-                    )
+                    Modifier.pointerInput(Unit) {
+                        detectTransformGestures(panZoomLock = true) { _, panChange, zoomChange, _ ->
+                            val newScale = (scale * zoomChange).coerceIn(1f, 5f)
+                            onScaleChange(newScale)
+
+                            if (newScale > 1f) {
+                                // Allow both horizontal and vertical panning when zoomed
+                                onOffsetChange(offsetX + panChange.x, offsetY + panChange.y)
+                            } else {
+                                onOffsetChange(0f, 0f)
+                            }
+                        }
+                    }
                 }
             )
     ) {
         LazyColumn(
             state = listState,
-            // Enable scroll always - let LazyColumn handle composition
-            userScrollEnabled = !isEditMode || selectedTool == AnnotationTool.NONE,
+            // Enable scroll only if we aren't drawing, AND if we are not zoomed in
+            userScrollEnabled = (!isEditMode || selectedTool == AnnotationTool.NONE) && scale <= 1f,
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
