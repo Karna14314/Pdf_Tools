@@ -8,3 +8,4 @@ Build flavor implementation for dual-store deployment
 • Fixed scrolling bug on first page when zoomed in.
 • Added "Print" feature to PDF viewer menu.
 • Improved memory handling for large PDFs and background operations.
+• Improved memory and resource handling during app minimization for rotation and page numbering operations.

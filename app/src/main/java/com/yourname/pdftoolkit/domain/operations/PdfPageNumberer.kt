@@ -5,7 +5,9 @@ import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
 import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
 
@@ -98,6 +100,7 @@ class PdfPageNumberer {
             var numberedCount = 0
             
             for (pageIndex in 0 until totalPages) {
+                ensureActive()
                 // Skip pages before startPage (1-indexed)
                 if (pageIndex + 1 < options.startPage) {
                     continue
@@ -156,6 +159,8 @@ class PdfPageNumberer {
             
             Result.success(numberedCount)
             
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         } finally {

@@ -3,7 +3,9 @@ package com.yourname.pdftoolkit.domain.operations
 import android.content.Context
 import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
 
@@ -56,6 +58,7 @@ class PdfRotator {
             }
             
             for (pageIndex in 0 until totalPages) {
+                ensureActive()
                 val page = document.getPage(pageIndex)
                 val currentRotation = page.rotation
                 val newRotation = (currentRotation + angle.degrees) % 360
@@ -68,6 +71,8 @@ class PdfRotator {
             
             Result.success(totalPages)
             
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
@@ -113,6 +118,7 @@ class PdfRotator {
             
             var rotatedCount = 0
             rotations.entries.forEachIndexed { index, (pageNum, angle) ->
+                ensureActive()
                 val page = document.getPage(pageNum - 1) // 0-indexed
                 val currentRotation = page.rotation
                 val newRotation = (currentRotation + angle.degrees) % 360
@@ -126,6 +132,8 @@ class PdfRotator {
             
             Result.success(rotatedCount)
             
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
