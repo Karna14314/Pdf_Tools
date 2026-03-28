@@ -72,7 +72,7 @@ fun CompressScreen(
     
     // File picker launcher
     val pickPdfLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
+        contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
             selectedFile = FileManager.getFileInfo(context, uri)
@@ -182,7 +182,7 @@ fun CompressScreen(
                         
                         compressResult.fold(
                             onSuccess = { cResult ->
-                                val compressedSize = outputResult.outputFile.file.length()
+                                val compressedSize = FileManager.getFileInfo(context, outputResult.outputFile.contentUri)?.size ?: outputResult.outputFile.file.length()
                                 val originalBytes = originalFile.size
                                 val savedBytes = originalBytes - compressedSize
                                 val savedPercent = if (originalBytes > 0) {
@@ -502,7 +502,7 @@ fun CompressScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfLauncher.launch("application/pdf")
                             },
                             icon = Icons.Default.FolderOpen
                         )
