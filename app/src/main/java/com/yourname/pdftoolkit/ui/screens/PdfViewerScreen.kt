@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
@@ -1021,6 +1022,31 @@ private fun ErrorState(
     }
 }
 
+@Composable
+private fun InvalidBitmapPlaceholder() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f / 1.414f)
+            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Default.BrokenImage,
+                contentDescription = "Invalid bitmap",
+                tint = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Failed to render page",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
 /**
  * PDF Pages Content with smooth zoom and pan.
  * 
@@ -1177,15 +1203,21 @@ private fun PdfPageWithAnnotations(
                 .onSizeChanged { size = it }
                 .heightIn(min = 200.dp)
         ) {
-            if (bitmap != null && !bitmap!!.isRecycled) {
-                // PDF page image
-                Image(
-                    bitmap = bitmap!!.asImageBitmap(),
-                    contentDescription = "Page ${pageIndex + 1}",
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.FillWidth
-                )
+            if (bitmap != null) {
+                // PDF page image - validate before use to prevent race conditions
+                val bitmapSnapshot = bitmap
+                if (bitmapSnapshot != null && !bitmapSnapshot.isRecycled && bitmapSnapshot.width > 0 && bitmapSnapshot.height > 0) {
+                    Image(
+                        bitmap = bitmapSnapshot.asImageBitmap(),
+                        contentDescription = "Page ${pageIndex + 1}",
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentScale = ContentScale.FillWidth
+                    )
+                } else {
+                    // Invalid bitmap - show placeholder
+                    InvalidBitmapPlaceholder()
+                }
             } else {
                 // Placeholder
                 Box(
@@ -1198,35 +1230,33 @@ private fun PdfPageWithAnnotations(
                     CircularProgressIndicator(modifier = Modifier.size(32.dp))
                 }
             }
-            
-            // Search Highlights Overlay
-            if (pageMatches.isNotEmpty() && bitmap != null && !bitmap!!.isRecycled) {
-                Canvas(modifier = Modifier.matchParentSize()) {
-                    pageMatches.forEachIndexed { index, match ->
-                        val color = if (index == currentMatchIndexOnPage) {
-                            Color(0xFFFF8C00).copy(alpha = 0.5f)
-                        } else {
-                            Color.Yellow.copy(alpha = 0.4f)
-                        }
-                        
-                        match.rects.forEach { rect ->
-                            // Scale rect to current canvas size
-                            // The rects are 1.5x (from ViewModel).
-                            // The bitmap is 1.5x.
-                            // The Image composable scales the bitmap to fill width.
-                            // So we need to match the Image scaling.
 
-                            val scaleX = size.width.toFloat() / bitmap!!.width.toFloat()
-                            val scaleY = size.height.toFloat() / bitmap!!.height.toFloat()
-                            
-                            drawRect(
-                                color = color,
-                                topLeft = Offset(rect.left * scaleX, rect.top * scaleY),
-                                size = androidx.compose.ui.geometry.Size(
-                                    width = (rect.width()) * scaleX,
-                                    height = (rect.height()) * scaleY
+            // Search Highlights Overlay - use bitmap snapshot to avoid race conditions
+            if (pageMatches.isNotEmpty()) {
+                val bitmapSnapshot = bitmap
+                if (bitmapSnapshot != null && !bitmapSnapshot.isRecycled && bitmapSnapshot.width > 0 && bitmapSnapshot.height > 0) {
+                    Canvas(modifier = Modifier.matchParentSize()) {
+                        pageMatches.forEachIndexed { index, match ->
+                            val color = if (index == currentMatchIndexOnPage) {
+                                Color(0xFFFF8C00).copy(alpha = 0.5f)
+                            } else {
+                                Color.Yellow.copy(alpha = 0.4f)
+                            }
+
+                            match.rects.forEach { rect ->
+                                // Scale rect to current canvas size
+                                val scaleX = size.width.toFloat() / bitmapSnapshot.width.toFloat()
+                                val scaleY = size.height.toFloat() / bitmapSnapshot.height.toFloat()
+
+                                drawRect(
+                                    color = color,
+                                    topLeft = Offset(rect.left * scaleX, rect.top * scaleY),
+                                    size = androidx.compose.ui.geometry.Size(
+                                        width = (rect.width()) * scaleX,
+                                        height = (rect.height()) * scaleY
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }

@@ -9,6 +9,7 @@ import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.RectF
 import android.net.Uri
+import android.util.Log
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
@@ -292,6 +293,43 @@ class PdfScanner(private val context: Context) {
     }
     
     /**
+     * Validates a bitmap for safe drawing operations.
+     * @return true if bitmap is safe to draw (non-null, not recycled, has dimensions)
+     */
+    private fun isBitmapValid(bitmap: Bitmap?): Boolean {
+        if (bitmap == null) return false
+        if (bitmap.isRecycled) return false
+        if (bitmap.width <= 0 || bitmap.height <= 0) return false
+        return true
+    }
+
+    /**
+     * Safely draws a bitmap to a canvas with validation and error handling.
+     * @return true if draw operation succeeded
+     */
+    private fun safeDrawBitmap(
+        canvas: Canvas,
+        bitmap: Bitmap?,
+        left: Float,
+        top: Float,
+        paint: Paint? = null,
+        logTag: String = "PdfScanner"
+    ): Boolean {
+        if (!isBitmapValid(bitmap)) {
+            Log.w(logTag, "Skipping invalid bitmap - null: ${bitmap == null}, recycled: ${bitmap?.isRecycled}, size: ${bitmap?.width}x${bitmap?.height}")
+            return false
+        }
+
+        return try {
+            canvas.drawBitmap(bitmap!!, left, top, paint)
+            true
+        } catch (e: Exception) {
+            Log.e(logTag, "Failed to draw bitmap: ${e.message}", e)
+            false
+        }
+    }
+
+    /**
      * Apply color mode to bitmap.
      */
     private fun applyColorMode(bitmap: Bitmap, mode: ScanColorMode): Bitmap {
@@ -306,6 +344,11 @@ class PdfScanner(private val context: Context) {
      * Convert bitmap to grayscale.
      */
     private fun convertToGrayscale(source: Bitmap): Bitmap {
+        if (!isBitmapValid(source)) {
+            Log.w("PdfScanner", "Invalid source bitmap for grayscale conversion")
+            return source
+        }
+        
         val result = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
         
@@ -317,7 +360,7 @@ class PdfScanner(private val context: Context) {
             colorFilter = ColorMatrixColorFilter(colorMatrix)
         }
         
-        canvas.drawBitmap(source, 0f, 0f, paint)
+        safeDrawBitmap(canvas, source, 0f, 0f, paint, "convertToGrayscale")
         
         if (source != result) {
             source.recycle()
@@ -366,6 +409,11 @@ class PdfScanner(private val context: Context) {
      * Enhance contrast of bitmap.
      */
     private fun enhanceContrast(source: Bitmap): Bitmap {
+        if (!isBitmapValid(source)) {
+            Log.w("PdfScanner", "Invalid source bitmap for contrast enhancement")
+            return source
+        }
+        
         val result = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(result)
         
@@ -384,7 +432,7 @@ class PdfScanner(private val context: Context) {
             colorFilter = ColorMatrixColorFilter(colorMatrix)
         }
         
-        canvas.drawBitmap(source, 0f, 0f, paint)
+        safeDrawBitmap(canvas, source, 0f, 0f, paint, "enhanceContrast")
         
         if (source != result) {
             source.recycle()

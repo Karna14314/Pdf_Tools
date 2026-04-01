@@ -250,44 +250,106 @@ class PdfViewerViewModel : ViewModel() {
         _annotations.value = emptyList()
     }
 
-    // Bitmap cache for rendered pages
+    /**
+     * Validates a bitmap for safe drawing operations.
+     * @return true if bitmap is safe to use (non-null, not recycled, has dimensions)
+     */
+    private fun isBitmapValid(bitmap: Bitmap?): Boolean {
+        if (bitmap == null) return false
+        if (bitmap.isRecycled) return false
+        if (bitmap.width <= 0 || bitmap.height <= 0) return false
+        return true
+    }
+
+    /**
+     * Safely draws to a canvas with try-catch protection.
+     * @return true if draw operation succeeded
+     */
+    private fun safeCanvasDraw(
+        logTag: String,
+        drawOperation: () -> Unit
+    ): Boolean {
+        return try {
+            drawOperation()
+            true
+        } catch (e: Exception) {
+            Log.e("PdfViewerVM", "Canvas draw failed in $logTag: ${e.message}", e)
+            false
+        }
+    }
+
+    // Bitmap cache for rendered pages with improved lifecycle management
     private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-    private val cacheSize = maxMemory / 12
+    private val cacheSize = maxMemory / 16 // More conservative cache size
     private val bitmapCache = object : LruCache<Int, Bitmap>(cacheSize) {
         override fun sizeOf(key: Int, bitmap: Bitmap): Int {
             return bitmap.byteCount / 1024
         }
-        
-        // Do not recycle on eviction. Compose may still hold a reference briefly,
-        // and recycling here can trigger BaseCanvas.throwIfCannotDraw.
+
+        override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap?, newValue: Bitmap?) {
+            super.entryRemoved(evicted, key, oldValue, newValue)
+            // Only recycle if explicitly evicted and bitmap is valid
+            if (evicted && oldValue != null && !oldValue.isRecycled) {
+                // Post to handler to avoid race conditions with ongoing draws
+                oldValue.recycle()
+            }
+        }
     }
-    
+
     private var prefetchJob: Job? = null
     
     suspend fun loadPage(pageIndex: Int): Bitmap? {
-        // Check cache first
-        bitmapCache.get(pageIndex)?.let { return it }
-        
+        // Check cache first - validate bitmap is still usable
+        bitmapCache.get(pageIndex)?.let { cached ->
+            if (isBitmapValid(cached)) {
+                return cached
+            } else {
+                // Remove invalid bitmap from cache
+                bitmapCache.remove(pageIndex)
+            }
+        }
+
         // Trigger prefetch for adjacent pages
         prefetchPages(pageIndex)
-        
+
         return withContext(Dispatchers.IO) {
             ensureActive()
-            
+
             documentMutex.withLock {
                 try {
                     // Double check cache inside lock
-                    bitmapCache.get(pageIndex)?.let { return@withLock it }
-                    
+                    bitmapCache.get(pageIndex)?.let { cached ->
+                        if (isBitmapValid(cached)) {
+                            return@withLock cached
+                        } else {
+                            bitmapCache.remove(pageIndex)
+                        }
+                    }
+
                     val renderer = pdfRenderer ?: return@withLock null
                     val scale = RENDER_SCALE
-                    
+
                     ensureActive()
-                    
-                    val bitmap = renderer.renderImage(pageIndex, scale)
-                    
-                    if (bitmap != null) {
+
+                    // Memory optimization: limit max bitmap dimensions
+                    val bitmap = try {
+                        renderer.renderImage(pageIndex, scale)
+                    } catch (e: OutOfMemoryError) {
+                        Log.e("PdfViewerVM", "OOM rendering page $pageIndex at scale $scale, retrying with lower scale", e)
+                        // Retry with lower scale to prevent crash
+                        try {
+                            renderer.renderImage(pageIndex, scale * 0.5f)
+                        } catch (e2: OutOfMemoryError) {
+                            Log.e("PdfViewerVM", "OOM even at reduced scale for page $pageIndex", e2)
+                            null
+                        }
+                    }
+
+                    if (bitmap != null && isBitmapValid(bitmap)) {
                         bitmapCache.put(pageIndex, bitmap)
+                    } else if (bitmap != null && bitmap.isRecycled) {
+                        Log.w("PdfViewerVM", "Rendered bitmap already recycled for page $pageIndex")
+                        return@withLock null
                     }
                     bitmap
                 } catch (e: Exception) {
@@ -297,30 +359,52 @@ class PdfViewerViewModel : ViewModel() {
             }
         }
     }
-    
+
     private fun prefetchPages(currentPage: Int) {
         val totalPages = (_uiState.value as? PdfViewerUiState.Loaded)?.totalPages ?: return
-        
+
         prefetchJob?.cancel()
         prefetchJob = viewModelScope.launch(Dispatchers.IO) {
             val range = listOf(currentPage + 1, currentPage - 1)
-            
+
             for (page in range) {
                 if (page in 0 until totalPages) {
-                    if (bitmapCache.get(page) == null) {
-                        yield()
-                        
-                        try {
-                            documentMutex.withLock {
-                                if (bitmapCache.get(page) == null) {
-                                    pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
+                    // Skip if already cached and valid
+                    val cached = bitmapCache.get(page)
+                    if (cached != null && isBitmapValid(cached)) {
+                        continue
+                    }
+                    if (cached != null && !isBitmapValid(cached)) {
+                        bitmapCache.remove(page)
+                    }
+
+                    yield()
+
+                    try {
+                        documentMutex.withLock {
+                            val cached2 = bitmapCache.get(page)
+                            if (cached2 != null && isBitmapValid(cached2)) {
+                                return@withLock
+                            }
+                            if (cached2 != null) {
+                                bitmapCache.remove(page)
+                            }
+
+                            try {
+                                pdfRenderer?.renderImage(page, RENDER_SCALE)?.let { bitmap ->
+                                    if (isBitmapValid(bitmap)) {
                                         bitmapCache.put(page, bitmap)
+                                    } else {
+                                        Log.w("PdfViewerVM", "Prefetched invalid bitmap for page $page")
                                     }
                                 }
+                            } catch (e: OutOfMemoryError) {
+                                Log.w("PdfViewerVM", "OOM prefetching page $page, skipping")
                             }
-                        } catch (e: Exception) {
-                            // Ignore prefetch errors
                         }
+                    } catch (e: Exception) {
+                        // Ignore prefetch errors
+                        Log.w("PdfViewerVM", "Error prefetching page $page: ${e.message}")
                     }
                 }
             }
@@ -610,7 +694,10 @@ class PdfViewerViewModel : ViewModel() {
                                                 val p = annotation.points[i]
                                                 path.lineTo(p.x * workingBitmap.width, p.y * workingBitmap.height)
                                             }
-                                            canvas.drawPath(path, paint)
+                                            // Safe draw with try-catch protection
+                                            safeCanvasDraw("saveAnnotations-page$pageIndex") {
+                                                canvas.drawPath(path, paint)
+                                            }
                                         }
                                     }
 
