@@ -230,8 +230,6 @@ jobs:
           files: |
             app/build/outputs/apk/playstore/release/pdftoolkit-playstore-v${{ env.APP_VERSION_NAME }}.apk
             app/build/outputs/apk/opensource/release/pdftoolkit-opensource-v${{ env.APP_VERSION_NAME }}.apk
-            app/build/outputs/mapping/playstoreRelease/mapping.txt
-            app/build/outputs/mapping/opensourceRelease/mapping.txt
           draft: false
           prerelease: false
         env:
