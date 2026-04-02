@@ -148,8 +148,11 @@ class ImageConverter {
             // Process pages ONE AT A TIME to prevent OOM
             pagesToConvert.forEachIndexed { index, pageNum ->
                 try {
+                    // Capture renderer in local variable for smart cast
+                    val pdfRenderer = renderer ?: throw IllegalStateException("PDFRenderer is null")
+                    
                     // Render page at requested DPI
-                    val sourceBitmap = renderer.renderImageWithDPI(pageNum - 1, dpi.toFloat())
+                    val sourceBitmap = pdfRenderer.renderImageWithDPI(pageNum - 1, dpi.toFloat())
                     
                     // Convert to RGB_565 to halve memory usage
                     val bitmap = if (sourceBitmap.config != Bitmap.Config.RGB_565) {

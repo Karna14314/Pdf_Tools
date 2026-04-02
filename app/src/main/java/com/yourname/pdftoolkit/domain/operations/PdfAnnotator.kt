@@ -678,8 +678,8 @@ class PdfAnnotator {
      * Add stamp annotation.
      */
     private fun addStamp(document: PDDocument, page: PDPage, annotation: PdfAnnotation.Stamp) {
-        // Create stamp bitmap
-        val bitmap = createStampBitmap(annotation)
+        // Create stamp bitmap - return early if null
+        val bitmap = createStampBitmap(annotation) ?: return
         val pdImage = LosslessFactory.createFromImage(document, bitmap)
         
         val contentStream = PDPageContentStream(
@@ -705,7 +705,9 @@ class PdfAnnotator {
             }
         } finally {
             contentStream.close()
-            bitmap.recycle()
+            if (!bitmap.isRecycled) {
+                bitmap.recycle()
+            }
         }
     }
     
