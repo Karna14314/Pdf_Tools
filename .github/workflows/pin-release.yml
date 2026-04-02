@@ -1,0 +1,78 @@
+name: Pin or Unpin Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to pin/unpin (e.g., 1.3.128)'
+        required: true
+        default: '1.3.128'
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'pin'
+        type: choice
+        options:
+          - pin
+          - unpin
+
+permissions:
+  contents: write
+
+jobs:
+  pin-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Pin/Unpin Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          TAG="v${VERSION}"
+          ACTION="${{ github.event.inputs.action }}"
+          
+          echo "Performing $ACTION on release: $TAG"
+          
+          # Check if release exists
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            echo " Release $TAG does not exist!"
+            exit 1
+          fi
+          
+          if [ "$ACTION" = "pin" ]; then
+            # Update release title to indicate it's pinned
+            CURRENT_TITLE=$(gh release view "$TAG" --json name -q '.name')
+            if [[ "$CURRENT_TITLE" != *"📌"* ]]; then
+              gh release edit "$TAG" --title " 📌 $CURRENT_TITLE"
+              echo " Release $TAG has been pinned."
+              echo " Pinned releases are protected from auto-deletion."
+            else
+              echo " Release $TAG is already pinned."
+            fi
+          else
+            # Unpin - remove pin emoji from title
+            CURRENT_TITLE=$(gh release view "$TAG" --json name -q '.name')
+            if [[ "$CURRENT_TITLE" == *"📌"* ]]; then
+              NEW_TITLE=$(echo "$CURRENT_TITLE" | sed 's/ 📌 //g')
+              gh release edit "$TAG" --title "$NEW_TITLE"
+              echo " Release $TAG has been unpinned."
+            else
+              echo " Release $TAG is not pinned."
+            fi
+          fi
+      
+      - name: Summary
+        run: |
+          echo "=== Pin/Unpin Release Summary ==="
+          echo "Action: ${{ github.event.inputs.action }}"
+          echo "Version: ${{ github.event.inputs.version }}"
+          echo "Tag: v${{ github.event.inputs.version }}"
+          echo "Status: Completed"
+          echo "=================================="
