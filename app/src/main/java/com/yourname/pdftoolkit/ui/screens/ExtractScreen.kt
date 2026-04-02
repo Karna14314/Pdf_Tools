@@ -58,11 +58,17 @@ fun ExtractScreen(
     var resultUri by remember { mutableStateOf<Uri?>(null) }
     var useCustomLocation by remember { mutableStateOf(false) }
     
-    // File picker launcher
+    // File picker launcher - with PDF MIME type filter and validation
     val pickPdfLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
+            // Validate PDF file
+            val mimeType = context.contentResolver.getType(uri)
+            if (mimeType != "application/pdf") {
+                // Invalid file type - ignore or show error
+                return@let
+            }
             val fileInfo = FileManager.getFileInfo(context, uri)
             selectedFile = fileInfo
             selectedPages = emptySet()

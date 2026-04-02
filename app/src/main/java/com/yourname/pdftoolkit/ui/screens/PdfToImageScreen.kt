@@ -59,12 +59,19 @@ fun PdfToImageScreen(
     var resultSuccess by remember { mutableStateOf(false) }
     var resultMessage by remember { mutableStateOf("") }
     var savedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var showMultiOutputScreen by remember { mutableStateOf(false) }
     
-    // File picker launcher
+    // File picker launcher - with PDF MIME type filter and validation
     val pickPdfLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
+            // Validate PDF file
+            val mimeType = context.contentResolver.getType(uri)
+            if (mimeType != "application/pdf") {
+                // Invalid file type - ignore or show error
+                return@let
+            }
             selectedFile = FileManager.getFileInfo(context, uri)
         }
     }
@@ -160,7 +167,11 @@ fun PdfToImageScreen(
             )
             
             isProcessing = false
-            showResult = true
+            if (resultSuccess && savedImageUris.size > 1) {
+                showMultiOutputScreen = true
+            } else {
+                showResult = true
+            }
         }
     }
     
@@ -416,7 +427,7 @@ fun PdfToImageScreen(
         }
     }
     
-    // Result dialog with Open Gallery option
+    // Result dialog with Open Gallery option (for single output)
     if (showResult) {
         AlertDialog(
             onDismissRequest = { showResult = false },
@@ -457,6 +468,20 @@ fun PdfToImageScreen(
                         Text("Close")
                     }
                 }
+            }
+        )
+    }
+    
+    // Multi-output result screen (for multiple images)
+    if (showMultiOutputScreen && savedImageUris.isNotEmpty()) {
+        MultiOutputResultScreen(
+            title = "PDF to Images",
+            outputUris = savedImageUris,
+            isImageOutput = true,
+            onNavigateBack = { 
+                showMultiOutputScreen = false
+                savedImageUris = emptyList()
+                selectedFile = null
             }
         )
     }

@@ -53,13 +53,17 @@ fun MergeScreen(
     var resultUri by remember { mutableStateOf<Uri?>(null) }
     var useCustomLocation by remember { mutableStateOf(false) }
     
-    // File picker launcher for multiple PDFs
+    // File picker launcher for multiple PDFs - with MIME type filter
     val pickPdfsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris ->
         if (uris.isNotEmpty()) {
             val newFiles = uris.mapNotNull { uri ->
-                FileManager.getFileInfo(context, uri)
+                // Validate PDF file
+                val mimeType = context.contentResolver.getType(uri)
+                if (mimeType == "application/pdf") {
+                    FileManager.getFileInfo(context, uri)
+                } else null
             }
             selectedFiles = selectedFiles + newFiles
         }
@@ -321,7 +325,7 @@ fun MergeScreen(
                 ) {
                     if (selectedFiles.isEmpty()) {
                         ActionButton(
-                            text = "Select PDFs",
+                            text = "Add PDFs",
                             onClick = {
                                 pickPdfsLauncher.launch(arrayOf("application/pdf"))
                             },

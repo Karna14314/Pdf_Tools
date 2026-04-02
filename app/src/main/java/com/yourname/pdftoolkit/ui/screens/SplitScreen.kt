@@ -65,14 +65,21 @@ fun SplitScreen(
     var showResult by remember { mutableStateOf(false) }
     var resultSuccess by remember { mutableStateOf(false) }
     var resultMessage by remember { mutableStateOf("") }
-    var resultUri by remember { mutableStateOf<Uri?>(null) }
+    var resultUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var showMultiOutputScreen by remember { mutableStateOf(false) }
     var useCustomLocation by remember { mutableStateOf(false) }
     
-    // File picker launcher
+    // File picker launcher - with PDF MIME type filter
     val pickPdfLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
+            // Validate PDF file
+            val mimeType = context.contentResolver.getType(uri)
+            if (mimeType != "application/pdf") {
+                // Invalid file type - ignore or show error
+                return@let
+            }
             val fileInfo = FileManager.getFileInfo(context, uri)
             selectedFile = fileInfo
             
@@ -83,7 +90,7 @@ fun SplitScreen(
         }
     }
     
-    // Save file launcher (for custom location)
+    // Save file launcher (for custom location - only for single output modes)
     val savePdfLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
@@ -101,10 +108,10 @@ fun SplitScreen(
                 outputUri = outputUri,
                 onProgress = { progress = it },
                 onProcessing = { isProcessing = it },
-                onResult = { success, message, uri ->
+                onResult = { success, message, uris ->
                     resultSuccess = success
                     resultMessage = message
-                    resultUri = uri
+                    resultUris = uris
                     showResult = true
                 }
             )
@@ -118,75 +125,151 @@ fun SplitScreen(
             progress = 0f
             val originalFile = selectedFile!!
             
-            val result = withContext(Dispatchers.IO) {
-                try {
-                    val fileName = FileManager.generateOutputFileName("split")
-                    val outputResult = OutputFolderManager.createOutputStream(context, fileName)
-                    
-                    if (outputResult != null) {
-                        val file = selectedFile!!
-                        val pages = when (selectedMode) {
-                            SplitMode.EXTRACT_RANGE -> {
-                                val start = startPage.toIntOrNull() ?: 1
-                                val end = endPage.toIntOrNull() ?: pageCount
-                                (start..end).toList()
-                            }
-                            SplitMode.SPECIFIC_PAGES -> parsePageNumbers(specificPages, pageCount)
-                            SplitMode.ALL_PAGES -> (1..pageCount).toList()
-                        }
-                        
-                        val splitResult = pdfSplitter.extractPages(
+            // Handle ALL_PAGES mode separately to create multiple files
+            if (selectedMode == SplitMode.ALL_PAGES) {
+                val outputUris = mutableListOf<Uri>()
+                var success = false
+                var message = ""
+                
+                val result = withContext(Dispatchers.IO) {
+                    try {
+                        val splitResult = pdfSplitter.splitAllPages(
                             context = context,
-                            inputUri = file.uri,
-                            pageNumbers = pages,
-                            outputStream = outputResult.outputStream,
+                            inputUri = originalFile.uri,
+                            outputCallback = { pageNumber, inputStream ->
+                                // Save each page to a separate file
+                                val fileName = "${originalFile.name.removeSuffix(".pdf")}_page_$pageNumber.pdf"
+                                val outputFileResult = OutputFolderManager.createOutputStream(context, fileName)
+                                
+                                if (outputFileResult != null) {
+                                    inputStream.copyTo(outputFileResult.outputStream)
+                                    outputFileResult.outputStream.close()
+                                    outputUris.add(outputFileResult.outputFile.contentUri)
+                                }
+                                inputStream.close()
+                            },
                             onProgress = { progress = it }
                         )
                         
-                        outputResult.outputStream.close()
-                        
                         splitResult.fold(
-                            onSuccess = { count ->
-                                Triple(true, "Successfully extracted $count pages\n\nSaved to: ${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}", outputResult.outputFile.contentUri)
+                            onSuccess = { splitStats ->
+                                success = true
+                                message = "Successfully created ${splitStats.totalFilesCreated} PDF files"
                             },
                             onFailure = { error ->
-                                outputResult.outputFile.file.delete()
-                                Triple(false, error.message ?: "Split failed", null)
+                                success = false
+                                message = error.message ?: "Split failed"
                             }
                         )
-                    } else {
-                        Triple(false, "Cannot create output file", null)
+                    } catch (e: Exception) {
+                        success = false
+                        message = e.message ?: "Split failed"
                     }
-                } catch (e: Exception) {
-                    Triple(false, e.message ?: "Split failed", null)
                 }
+                
+                resultSuccess = success
+                resultMessage = message
+                resultUris = outputUris
+                
+                // Record in history with multiple outputs
+                if (success && outputUris.isNotEmpty()) {
+                    HistoryManager.recordSuccess(
+                        context = context,
+                        operationType = OperationType.SPLIT,
+                        inputFileName = originalFile.name,
+                        outputFileUri = outputUris.firstOrNull(),
+                        outputFileUris = outputUris,
+                        outputFileName = "${originalFile.name.removeSuffix(".pdf")}_pages.pdf",
+                        details = "Split into ${outputUris.size} individual pages"
+                    )
+                } else if (!success) {
+                    HistoryManager.recordFailure(
+                        context = context,
+                        operationType = OperationType.SPLIT,
+                        inputFileName = originalFile.name,
+                        errorMessage = message
+                    )
+                }
+                
+                isProcessing = false
+                if (success && outputUris.size > 1) {
+                    showMultiOutputScreen = true
+                } else {
+                    showResult = true
+                }
+            } else {
+                // Handle single output modes (EXTRACT_RANGE, SPECIFIC_PAGES)
+                val result = withContext(Dispatchers.IO) {
+                    try {
+                        val fileName = FileManager.generateOutputFileName("split")
+                        val outputResult = OutputFolderManager.createOutputStream(context, fileName)
+                        
+                        if (outputResult != null) {
+                            val file = selectedFile!!
+                            val pages = when (selectedMode) {
+                                SplitMode.EXTRACT_RANGE -> {
+                                    val start = startPage.toIntOrNull() ?: 1
+                                    val end = endPage.toIntOrNull() ?: pageCount
+                                    (start..end).toList()
+                                }
+                                SplitMode.SPECIFIC_PAGES -> parsePageNumbers(specificPages, pageCount)
+                                SplitMode.ALL_PAGES -> (1..pageCount).toList() // Won't reach here
+                            }
+                            
+                            val splitResult = pdfSplitter.extractPages(
+                                context = context,
+                                inputUri = file.uri,
+                                pageNumbers = pages,
+                                outputStream = outputResult.outputStream,
+                                onProgress = { progress = it }
+                            )
+                            
+                            outputResult.outputStream.close()
+                            
+                            splitResult.fold(
+                                onSuccess = { count ->
+                                    Triple(true, "Successfully extracted $count pages\n\nSaved to: ${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}", listOf(outputResult.outputFile.contentUri))
+                                },
+                                onFailure = { error ->
+                                    outputResult.outputFile.file.delete()
+                                    Triple(false, error.message ?: "Split failed", emptyList())
+                                }
+                            )
+                        } else {
+                            Triple(false, "Cannot create output file", emptyList())
+                        }
+                    } catch (e: Exception) {
+                        Triple(false, e.message ?: "Split failed", emptyList())
+                    }
+                }
+                
+                resultSuccess = result.first
+                resultMessage = result.second
+                resultUris = result.third
+                
+                // Record in history
+                if (resultSuccess && result.third.isNotEmpty()) {
+                    HistoryManager.recordSuccess(
+                        context = context,
+                        operationType = OperationType.SPLIT,
+                        inputFileName = originalFile.name,
+                        outputFileUri = result.third.firstOrNull(),
+                        outputFileUris = result.third,
+                        outputFileName = "split_${originalFile.name}",
+                        details = "Extracted pages from PDF"
+                    )
+                } else if (!resultSuccess) {
+                    HistoryManager.recordFailure(
+                        context = context,
+                        operationType = OperationType.SPLIT,
+                        inputFileName = originalFile.name,
+                        errorMessage = result.second
+                    )
+                }
+                
+                isProcessing = false
+                showResult = true
             }
-            
-            resultSuccess = result.first
-            resultMessage = result.second
-            resultUri = result.third
-            
-            // Record in history
-            if (resultSuccess && result.third != null) {
-                HistoryManager.recordSuccess(
-                    context = context,
-                    operationType = OperationType.SPLIT,
-                    inputFileName = originalFile.name,
-                    outputFileUri = result.third,
-                    outputFileName = "split_${originalFile.name}",
-                    details = "Extracted pages from PDF"
-                )
-            } else if (!resultSuccess) {
-                HistoryManager.recordFailure(
-                    context = context,
-                    operationType = OperationType.SPLIT,
-                    inputFileName = originalFile.name,
-                    errorMessage = result.second
-                )
-            }
-            
-            isProcessing = false
-            showResult = true
         }
     }
     
@@ -430,7 +513,7 @@ fun SplitScreen(
         }
     }
     
-    // Result dialog with View option
+    // Result dialog with View option (for single output)
     if (showResult) {
         ResultDialog(
             isSuccess = resultSuccess,
@@ -438,12 +521,26 @@ fun SplitScreen(
             message = resultMessage,
             onDismiss = { 
                 showResult = false
-                resultUri = null
+                resultUris = emptyList()
             },
-            onAction = resultUri?.let { uri ->
+            onAction = resultUris.firstOrNull()?.let { uri ->
                 { FileOpener.openPdf(context, uri) }
             },
             actionText = "Open PDF"
+        )
+    }
+    
+    // Multi-output result screen (for ALL_PAGES mode)
+    if (showMultiOutputScreen && resultUris.isNotEmpty()) {
+        MultiOutputResultScreen(
+            title = "Split PDF - All Pages",
+            outputUris = resultUris,
+            isImageOutput = false,
+            onNavigateBack = { 
+                showMultiOutputScreen = false
+                resultUris = emptyList()
+                selectedFile = null
+            }
         )
     }
 }
@@ -461,7 +558,7 @@ private fun performSplit(
     outputUri: Uri,
     onProgress: (Float) -> Unit,
     onProcessing: (Boolean) -> Unit,
-    onResult: (Boolean, String, Uri?) -> Unit
+    onResult: (Boolean, String, List<Uri>) -> Unit
 ) {
     scope.launch {
         onProcessing(true)
@@ -491,14 +588,14 @@ private fun performSplit(
             
             result.fold(
                 onSuccess = { count ->
-                    onResult(true, "Successfully extracted $count pages", outputUri)
+                    onResult(true, "Successfully extracted $count pages", listOf(outputUri))
                 },
                 onFailure = { error ->
-                    onResult(false, error.message ?: "Split failed", null)
+                    onResult(false, error.message ?: "Split failed", emptyList())
                 }
             )
         } else {
-            onResult(false, "Cannot create output file", null)
+            onResult(false, "Cannot create output file", emptyList())
         }
         
         onProcessing(false)

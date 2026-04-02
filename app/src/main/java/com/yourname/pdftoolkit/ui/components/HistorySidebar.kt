@@ -392,8 +392,14 @@ private fun HistoryItem(
                     )
                     
                     if (entry.outputFileName != null) {
+                        val outputCount = entry.outputFileUris.size
+                        val displayName = if (outputCount > 1) {
+                            "${entry.outputFileName} ($outputCount files)"
+                        } else {
+                            entry.outputFileName
+                        }
                         Text(
-                            text = entry.outputFileName,
+                            text = displayName,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
@@ -432,8 +438,42 @@ private fun HistoryItem(
                     ) {
                         if (entry.outputFileUri != null && entry.status == OperationStatus.SUCCESS) {
                             val isImage = entry.isImage
+                            val hasMultipleOutputs = entry.outputFileUris.size > 1
+                            
+                            // View all files option for multi-output entries
+                            if (hasMultipleOutputs) {
+                                DropdownMenuItem(
+                                    text = { Text("View All ${entry.outputFileUris.size} Files") },
+                                    leadingIcon = { 
+                                        Icon(
+                                            Icons.Default.Collections, 
+                                            null
+                                        ) 
+                                    },
+                                    onClick = {
+                                        showMenu = false
+                                        // Open all files
+                                        try {
+                                            val uris = entry.outputFileUris.mapNotNull {
+                                                runCatching { Uri.parse(it) }.getOrNull()
+                                            }
+                                            if (uris.isNotEmpty()) {
+                                                if (isImage) {
+                                                    FileOpener.openMultipleImages(context, uris)
+                                                } else {
+                                                    // For PDFs, open the first one
+                                                    onOpenFile(uris.first())
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            // Handle error
+                                        }
+                                    }
+                                )
+                            }
+                            
                             DropdownMenuItem(
-                                text = { Text(if (isImage) "Open in Gallery" else "Open PDF") },
+                                text = { Text(if (isImage) "Open in Gallery" else "Open File") },
                                 leadingIcon = { 
                                     Icon(
                                         if (isImage) Icons.Default.Photo else Icons.Default.OpenInNew, 

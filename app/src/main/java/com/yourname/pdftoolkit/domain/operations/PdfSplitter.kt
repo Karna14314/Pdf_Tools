@@ -55,14 +55,14 @@ class PdfSplitter {
      * 
      * @param context Android context
      * @param inputUri URI of the PDF to split
-     * @param outputCallback Callback for each split document (pageNumber, outputStream -> Unit)
+     * @param outputCallback Callback for each split document (pageNumber, inputStream -> Unit)
      * @param onProgress Progress callback (0.0 to 1.0)
      * @return Result with split statistics
      */
     suspend fun splitAllPages(
         context: Context,
         inputUri: Uri,
-        outputCallback: suspend (pageNumber: Int, outputStream: OutputStream) -> Unit,
+        outputCallback: suspend (pageNumber: Int, inputStream: java.io.InputStream) -> Unit,
         onProgress: (Float) -> Unit = {}
     ): Result<SplitResult> = withContext(Dispatchers.IO) {
         var document: PDDocument? = null
@@ -93,9 +93,15 @@ class PdfSplitter {
                     val page = loadedDocument.getPage(pageIndex)
                     newDoc.importPage(page)
                     
-                    // Get output stream from callback and save
-                    // Note: The caller is responsible for providing/closing the output stream
-                    outputCallback(pageIndex + 1, newDoc.saveToOutputStream())
+                    // Save to byte array first, then pass to callback
+                    val byteArrayOutputStream = java.io.ByteArrayOutputStream()
+                    newDoc.save(byteArrayOutputStream)
+                    val byteArray = byteArrayOutputStream.toByteArray()
+                    
+                    // Pass bytes to callback
+                    java.io.ByteArrayInputStream(byteArray).use { inputStream ->
+                        outputCallback(pageIndex + 1, inputStream)
+                    }
                 }
                 
                 onProgress((pageIndex + 1).toFloat() / totalPages)
@@ -117,7 +123,7 @@ class PdfSplitter {
         context: Context,
         inputUri: Uri,
         ranges: List<PageRange>,
-        outputCallback: suspend (rangeIndex: Int, outputStream: OutputStream) -> Unit,
+        outputCallback: suspend (rangeIndex: Int, inputStream: java.io.InputStream) -> Unit,
         onProgress: (Float) -> Unit = {}
     ): Result<SplitResult> = withContext(Dispatchers.IO) {
         var document: PDDocument? = null
@@ -152,7 +158,15 @@ class PdfSplitter {
                         totalPagesProcessed++
                     }
                     
-                    outputCallback(rangeIndex + 1, newDoc.saveToOutputStream())
+                    // Save to byte array first, then pass to callback
+                    val byteArrayOutputStream = java.io.ByteArrayOutputStream()
+                    newDoc.save(byteArrayOutputStream)
+                    val byteArray = byteArrayOutputStream.toByteArray()
+                    
+                    // Pass bytes to callback
+                    java.io.ByteArrayInputStream(byteArray).use { inputStream ->
+                        outputCallback(rangeIndex + 1, inputStream)
+                    }
                 }
                 
                 onProgress((rangeIndex + 1).toFloat() / ranges.size)
@@ -241,8 +255,10 @@ class PdfSplitter {
     /**
      * Extension to save PDDocument to an OutputStream.
      */
-    private fun PDDocument.saveToOutputStream(): OutputStream {
-        // This is a placeholder - actual implementation would need to be handled by caller
-        throw UnsupportedOperationException("Use outputCallback pattern instead")
+    private suspend fun PDDocument.saveToOutputStream(): java.io.ByteArrayInputStream {
+        val byteArrayOutputStream = java.io.ByteArrayOutputStream()
+        save(byteArrayOutputStream)
+        val bytes = byteArrayOutputStream.toByteArray()
+        return java.io.ByteArrayInputStream(bytes)
     }
 }
