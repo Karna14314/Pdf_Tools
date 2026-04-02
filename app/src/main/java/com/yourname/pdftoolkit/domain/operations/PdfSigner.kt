@@ -146,6 +146,9 @@ class PdfSigner(private val context: Context) {
                 signatureData,
                 placement.width.toInt(),
                 placement.height.toInt()
+            ) ?: return@withContext SignatureResult(
+                success = false,
+                errorMessage = "Cannot create signature bitmap"
             )
             
             progressCallback(40)
@@ -298,6 +301,12 @@ class PdfSigner(private val context: Context) {
     ): SavedSignature = withContext(Dispatchers.IO) {
         val id = System.currentTimeMillis().toString()
         val bitmap = createSignatureBitmap(signatureData, 400, 200)
+            ?: return@withContext SavedSignature(
+                id = id,
+                name = name,
+                bitmapPath = "",
+                createdAt = 0
+            )
         
         val signatureFile = File(signaturesDir, "signature_$id.png")
         FileOutputStream(signatureFile).use { out ->
@@ -350,8 +359,18 @@ class PdfSigner(private val context: Context) {
         data: SignatureData,
         width: Int,
         height: Int
-    ): Bitmap {
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    ): Bitmap? {
+        if (width <= 0 || height <= 0) return null
+        
+        val bitmap = try {
+            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        } catch (e: OutOfMemoryError) {
+            return null
+        }
+        
+        // Guard: check bitmap is valid before creating canvas
+        if (bitmap.isRecycled) return null
+        
         val canvas = Canvas(bitmap)
         
         // Transparent background

@@ -13,6 +13,7 @@ import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory
 import com.tom_roush.pdfbox.rendering.PDFRenderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import java.io.OutputStream
 
 /**
@@ -116,6 +117,7 @@ class ImageConverter {
         onProgress: (Float) -> Unit = {}
     ): Result<Int> = withContext(Dispatchers.IO) {
         var document: PDDocument? = null
+        var renderer: PDFRenderer? = null
         
         try {
             val inputStream = context.contentResolver.openInputStream(inputUri)
@@ -132,7 +134,7 @@ class ImageConverter {
                 )
             }
             
-            val renderer = PDFRenderer(document)
+            renderer = PDFRenderer(document)
             val pagesToConvert = pageNumbers ?: (1..totalPages).toList()
             
             // Validate page numbers
@@ -143,23 +145,57 @@ class ImageConverter {
                 )
             }
             
+            // Process pages ONE AT A TIME to prevent OOM
             pagesToConvert.forEachIndexed { index, pageNum ->
-                val bitmap = renderer.renderImageWithDPI(pageNum - 1, dpi.toFloat())
-                
                 try {
-                    outputCallback(pageNum, bitmap)
-                } finally {
-                    bitmap.recycle()
+                    // Render page at requested DPI
+                    val sourceBitmap = renderer.renderImageWithDPI(pageNum - 1, dpi.toFloat())
+                    
+                    // Convert to RGB_565 to halve memory usage
+                    val bitmap = if (sourceBitmap.config != Bitmap.Config.RGB_565) {
+                        val converted = sourceBitmap.copy(Bitmap.Config.RGB_565, false)
+                        sourceBitmap.recycle()
+                        converted
+                    } else {
+                        sourceBitmap
+                    }
+                    
+                    // Guard: Ensure bitmap is valid before callback
+                    if (bitmap == null || bitmap.isRecycled) {
+                        throw IllegalStateException("Failed to render page $pageNum")
+                    }
+                    
+                    try {
+                        outputCallback(pageNum, bitmap)
+                    } finally {
+                        // Recycle immediately after use
+                        if (!bitmap.isRecycled) {
+                            bitmap.recycle()
+                        }
+                    }
+                    
+                    onProgress((index + 1).toFloat() / pagesToConvert.size)
+                    
+                    // Yield to allow cancellation and GC between pages
+                    yield()
+                    System.gc()
+                    
+                } catch (e: OutOfMemoryError) {
+                    System.gc()
+                    throw IllegalStateException("Not enough memory to convert page $pageNum. Try with a smaller PDF or lower DPI.")
                 }
-                
-                onProgress((index + 1).toFloat() / pagesToConvert.size)
             }
             
             Result.success(pagesToConvert.size)
             
+        } catch (e: OutOfMemoryError) {
+            Result.failure(
+                IllegalStateException("Not enough memory. Try with a smaller PDF or lower DPI.")
+            )
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
+            renderer = null
             document?.close()
         }
     }

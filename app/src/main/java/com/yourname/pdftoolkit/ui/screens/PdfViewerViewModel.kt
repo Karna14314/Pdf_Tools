@@ -649,6 +649,11 @@ class PdfViewerViewModel : ViewModel() {
                             }
 
                             if (workingBitmap != null) {
+                                // Guard: Ensure bitmap is valid before creating canvas
+                                if (workingBitmap.isRecycled) {
+                                    return@withLock
+                                }
+                                
                                 try {
                                     val canvas = Canvas(workingBitmap)
                                     val paint = Paint().apply {

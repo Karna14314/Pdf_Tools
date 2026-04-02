@@ -421,7 +421,7 @@ class PdfAnnotator {
      */
     private fun addStickyNote(document: PDDocument, page: PDPage, annotation: PdfAnnotation.StickyNote) {
         // Create sticky note bitmap
-        val bitmap = createStickyNoteBitmap(annotation)
+        val bitmap = createStickyNoteBitmap(annotation) ?: return
         val pdImage = LosslessFactory.createFromImage(document, bitmap)
         
         val contentStream = PDPageContentStream(
@@ -433,17 +433,29 @@ class PdfAnnotator {
             contentStream.drawImage(pdImage, annotation.x, annotation.y, annotation.width, annotation.height)
         } finally {
             contentStream.close()
-            bitmap.recycle()
+            if (!bitmap.isRecycled) {
+                bitmap.recycle()
+            }
         }
     }
     
     /**
      * Create bitmap for sticky note.
      */
-    private fun createStickyNoteBitmap(annotation: PdfAnnotation.StickyNote): Bitmap {
+    private fun createStickyNoteBitmap(annotation: PdfAnnotation.StickyNote): Bitmap? {
         val width = annotation.width.toInt()
         val height = annotation.height.toInt()
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        if (width <= 0 || height <= 0) return null
+        
+        val bitmap = try {
+            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        } catch (e: OutOfMemoryError) {
+            return null
+        }
+        
+        // Guard: check bitmap is valid before creating canvas
+        if (bitmap.isRecycled) return null
+        
         val canvas = Canvas(bitmap)
         
         // Background
@@ -481,10 +493,6 @@ class PdfAnnotator {
         
         return bitmap
     }
-    
-    /**
-     * Wrap text to fit within a width.
-     */
     private fun wrapText(text: String, paint: Paint, maxWidth: Float): List<String> {
         val words = text.split(" ")
         val lines = mutableListOf<String>()
@@ -704,10 +712,20 @@ class PdfAnnotator {
     /**
      * Create bitmap for stamp.
      */
-    private fun createStampBitmap(annotation: PdfAnnotation.Stamp): Bitmap {
+    private fun createStampBitmap(annotation: PdfAnnotation.Stamp): Bitmap? {
         val width = annotation.width.toInt()
         val height = annotation.height.toInt()
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        if (width <= 0 || height <= 0) return null
+        
+        val bitmap = try {
+            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        } catch (e: OutOfMemoryError) {
+            return null
+        }
+        
+        // Guard: check bitmap is valid before creating canvas
+        if (bitmap.isRecycled) return null
+        
         val canvas = Canvas(bitmap)
         
         canvas.drawColor(Color.TRANSPARENT)
