@@ -144,7 +144,7 @@ jobs:
         run: chmod +x gradlew
 
       # ════════════════════════════════════════════════════════════════════════════════
-      # 8. Build Release AAB and APKs
+      # 8. Build Release AAB and APKs (PlayStore + OpenSource)
       # ════════════════════════════════════════════════════════════════════════════════
       - name: Build Release AAB
         env:
@@ -161,7 +161,7 @@ jobs:
             -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
             -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
 
-      - name: Build Release APKs
+      - name: Build Play Store APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -171,8 +171,23 @@ jobs:
           APP_VERSION_NAME: ${{ env.APP_VERSION_NAME }}
           CI: true
         run: |
-          echo "Building APKs — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
+          echo "Building Play Store APK — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
           ./gradlew assemblePlaystoreRelease \
+            -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
+            -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
+
+      - name: Build Open Source APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          ANDROID_KEYSTORE_FILE: keystore.jks
+          APP_VERSION_CODE: ${{ env.APP_VERSION_CODE }}
+          APP_VERSION_NAME: ${{ env.APP_VERSION_NAME }}
+          CI: true
+        run: |
+          echo "Building Open Source APK — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
+          ./gradlew assembleOpensourceRelease \
             -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
             -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
 
@@ -183,8 +198,10 @@ jobs:
         run: |
           echo "=== AAB Files ==="
           ls -lh app/build/outputs/bundle/playstoreRelease/*.aab
-          echo "=== APK Files ==="
-          ls -lh app/build/outputs/apk/playstore/release/*.apk || echo "No APK files found"
+          echo "=== Play Store APK ==="
+          ls -lh app/build/outputs/apk/playstore/release/*.apk || echo "Play Store APK not found"
+          echo "=== Open Source APK ==="
+          ls -lh app/build/outputs/apk/opensource/release/*.apk || echo "Open Source APK not found"
           echo "=== Mapping File ==="
           ls -lh app/build/outputs/mapping/playstoreRelease/mapping.txt || echo "No mapping file found"
           echo "=== Version ==="
@@ -201,11 +218,18 @@ jobs:
           path: app/build/outputs/bundle/playstoreRelease/app-playstoreRelease.aab
           retention-days: 30
 
-      - name: Upload APK artifacts
+      - name: Upload PlayStore APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-apks-v${{ env.APP_VERSION_NAME }}
+          name: release-playstore-apk-v${{ env.APP_VERSION_NAME }}
           path: app/build/outputs/apk/playstore/release/*.apk
+          retention-days: 30
+
+      - name: Upload OpenSource APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-opensource-apk-v${{ env.APP_VERSION_NAME }}
+          path: app/build/outputs/apk/opensource/release/*.apk
           retention-days: 30
 
       # ════════════════════════════════════════════════════════════════════════════════
@@ -319,15 +343,14 @@ jobs:
           echo "At least one deployment succeeded or was skipped"
 
       # ════════════════════════════════════════════════════════════════════════════════
-      # 14. Create GitHub Release with APKs and AAB (if not already created by dual-apks workflow)
+      # 14. Create GitHub Release with All Files (AAB + Both APKs)
       # ════════════════════════════════════════════════════════════════════════════════
       - name: Create GitHub Release
         if: success()
-        continue-on-error: true
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ env.APP_VERSION_NAME }}
-          name: "🚀 Deploy - Release v${{ env.APP_VERSION_NAME }}"
+          name: "� Release v${{ env.APP_VERSION_NAME }}"
           body: |
             ## PDF Toolkit v${{ env.APP_VERSION_NAME }} (Build ${{ env.APP_VERSION_CODE }})
             
@@ -338,6 +361,18 @@ jobs:
             - Play Store: ${{ steps.upload-play-store.outcome == 'success' && '✅ Deployed' || '❌ Failed' }}
             - Indus App Store: ${{ steps.upload-indus-store.outputs.indus_status == 'success' && '✅ Deployed' || steps.upload-indus-store.outputs.indus_status == 'skipped' && '⏭️ Skipped (Under Review)' || '❌ Failed' }}
             
+            ### 📱 APK Downloads
+            
+            **Play Store Variant:** Standard release with Play Services integration
+            - ML Kit OCR (smaller APK, downloads ML models on-demand)
+            - Google Play In-App Review API
+            - Optimized for Play Store distribution
+            
+            **Open Source Variant:** Fully open source with no proprietary dependencies
+            - Tesseract OCR (fully offline, larger APK but no runtime downloads)
+            - No Firebase or Google Play Services dependencies
+            - 100% FOSS (Free and Open Source Software)
+            
             ### Build Info
             - Version Code: ${{ env.APP_VERSION_CODE }}
             - Version Name: ${{ env.APP_VERSION_NAME }}
@@ -346,13 +381,13 @@ jobs:
             - Build Number: ${{ github.run_number }}
             
             ### Downloads
-            **APK Files** - For sideloading on Android devices  
-            **AAB File** - Android App Bundle for app stores
-            
-            > ⚠️ For dual APK downloads (Play Store + Open Source variants), see the "📱 Dual APKs" release.
+            - **AAB** - Android App Bundle for app stores
+            - **PlayStore APK** - For sideloading with Play Services
+            - **OpenSource APK** - For privacy-conscious users, fully offline
           files: |
             app/build/outputs/bundle/playstoreRelease/*.aab
             app/build/outputs/apk/playstore/release/*.apk
+            app/build/outputs/apk/opensource/release/*.apk
             app/build/outputs/mapping/playstoreRelease/mapping.txt
           draft: false
           prerelease: false
