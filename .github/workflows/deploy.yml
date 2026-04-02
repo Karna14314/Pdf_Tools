@@ -157,7 +157,9 @@ jobs:
           CI: true
         run: |
           echo "Building AAB — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
-          ./gradlew bundlePlaystoreRelease
+          ./gradlew bundlePlaystoreRelease \
+            -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
+            -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
 
       # ════════════════════════════════════════════════════════════════════════════════
       # 9. Verify Build Outputs

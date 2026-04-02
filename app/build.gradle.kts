@@ -16,10 +16,9 @@ android {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
         targetSdk = 35
-        // Version code and name are set dynamically by CI/CD
-        // Local builds use defaults: versionCode=1, versionName="1.0.0-local"
-        versionCode = (System.getenv("APP_VERSION_CODE") ?: "1").toInt()
-        versionName = System.getenv("APP_VERSION_NAME") ?: "1.0.0-local"
+        // Version code and name are read from gradle.properties for F-Droid compatibility
+        versionCode = project.property("APP_VERSION_CODE").toString().toInt()
+        versionName = project.property("APP_VERSION_NAME").toString()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

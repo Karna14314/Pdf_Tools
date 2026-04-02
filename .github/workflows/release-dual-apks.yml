@@ -169,7 +169,9 @@ jobs:
           CI: true
         run: |
           echo "Building Play Store APK — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
-          ./gradlew assemblePlaystoreRelease
+          ./gradlew assemblePlaystoreRelease \
+            -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
+            -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
 
       # ════════════════════════════════════════════════════════════════════════════════
       # 8. Build Open Source APK
@@ -185,7 +187,9 @@ jobs:
           CI: true
         run: |
           echo "Building Open Source APK — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
-          ./gradlew assembleOpensourceRelease
+          ./gradlew assembleOpensourceRelease \
+            -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
+            -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
 
       # ════════════════════════════════════════════════════════════════════════════════
       # 9. Verify Build Outputs
