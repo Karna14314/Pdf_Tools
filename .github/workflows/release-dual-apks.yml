@@ -2,6 +2,8 @@ name: Release Dual APKs
 
 on:
   push:
+    branches:
+      - master
     tags:
       - 'v*'
       - 'release-*'
@@ -46,23 +48,37 @@ jobs:
           cache: gradle
 
       # ════════════════════════════════════════════════════════════════════════════════
-      # 3. Extract Version from Tag
+      # 3. Extract Version from Tag or VERSION file
       # ════════════════════════════════════════════════════════════════════════════════
-      - name: Extract Version from Tag
+      - name: Extract Version
         id: version
         run: |
-          # Extract tag name (e.g., v1.3.60 -> 1.3.60)
-          TAG_NAME="${{ github.ref_name }}"
-          if [[ "$TAG_NAME" == v* ]]; then
-            VERSION_NAME="${TAG_NAME#v}"
+          # Check if this is a tag push or branch push
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            # Extract tag name (e.g., v1.3.60 -> 1.3.60)
+            TAG_NAME="${{ github.ref_name }}"
+            if [[ "$TAG_NAME" == v* ]]; then
+              VERSION_NAME="${TAG_NAME#v}"
+            else
+              VERSION_NAME="$TAG_NAME"
+            fi
+          elif [ -f VERSION ]; then
+            # Use VERSION file for branch pushes
+            VERSION_NAME=$(cat VERSION | tr -d '[:space:]')
+            TAG_NAME="v${VERSION_NAME}"
           else
-            VERSION_NAME="$TAG_NAME"
+            VERSION_NAME="1.0.0-dev"
+            TAG_NAME="v1.0.0-dev"
           fi
           
-          # Compute version code from tag or use offset + run number
-          OFFSET=${{ env.VERSION_CODE_OFFSET }}
-          RUN_NUM=${{ github.run_number }}
-          VERSION_CODE=$(( RUN_NUM + OFFSET ))
+          # Compute version code - use VERSION_CODE file if available, otherwise offset + run number
+          if [ -f VERSION_CODE ]; then
+            VERSION_CODE=$(cat VERSION_CODE | tr -d '[:space:]')
+          else
+            OFFSET=${{ env.VERSION_CODE_OFFSET }}
+            RUN_NUM=${{ github.run_number }}
+            VERSION_CODE=$(( RUN_NUM + OFFSET ))
+          fi
           
           echo "APP_VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
           echo "APP_VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
