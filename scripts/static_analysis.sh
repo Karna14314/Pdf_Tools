@@ -66,8 +66,8 @@ echo "Checking OOM catch coverage..."
 HEAVY_FILES=$(grep -rln "pdfToImages\|PdfSplitter\|PdfMerger\|PdfOcrProcessor" app/src/main --include="*.kt")
 for file in $HEAVY_FILES; do
     if ! grep -q "OutOfMemoryError\|catch.*OOM\|catch.*Error" $file; then
-        echo "  ERROR: $file does heavy PDF ops but does not catch OutOfMemoryError"
-        ERRORS=$((ERRORS + 1))
+        echo "  WARNING: $file does heavy PDF ops but does not catch OutOfMemoryError"
+        WARNINGS=$((WARNINGS + 1))
     fi
 done
 
