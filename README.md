@@ -1,101 +1,186 @@
-# PDF Toolkit
-A privacy-first, offline PDF utility for Android. Built with AI assistance.
+<p align="center">
+  <img src="store_assets/app_icon_512.png" width="120" height="120" alt="PDF Toolkit">
+</p>
 
-Download on Play Store:https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit
+<h1 align="center">PDF Toolkit</h1>
 
-A powerful, privacy-first Android application for all your PDF manipulation needs. Built with modern Android technologies including Kotlin, Jetpack Compose, and Material Design 3.
+<p align="center">
+  <strong>A privacy-first, offline PDF utility for Android</strong>
+</p>
 
-## 🚀 Features
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit">
+    <img src="https://img.shields.io/badge/Play%20Store-Download-green?logo=googleplay" alt="Play Store">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
+  </a>
+  <a href="https://github.com/Karna14314/Pdf_Tools/stargazers">
+    <img src="https://img.shields.io/github/stars/Karna14314/Pdf_Tools?style=flat" alt="GitHub Stars">
+  </a>
+  <a href="https://github.com/Karna14314/Pdf_Tools/releases">
+    <img src="https://img.shields.io/github/v/release/Karna14314/Pdf_Tools?include_prereleases" alt="Latest Release">
+  </a>
+  <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android" alt="Platform">
+</p>
 
-PDF Toolkit offers a comprehensive suite of tools to manage and modify your PDF documents:
+---
 
-### 📄 core PDF Operations
-- **Merge PDFs**: Combine multiple PDF files into a single document.
-- **Split PDF**: Split a PDF into multiple files or specific ranges.
-- **Compress PDF**: Reduce file size while maintaining quality.
-- **Convert**:
-  - **Images to PDF**: Create PDFs from your gallery images.
-  - **PDF to Images**: Convert PDF pages into high-quality images.
-  - **HTML to PDF**: direct conversion of webpages to PDF.
-  - **Scan to PDF**: Use your camera to scan physical documents.
-  - **Extract Text**: Extract text content from PDF pages.
+## � Get it on Android
 
-### 🛠️ Organization Tools
-- **Reorder Pages**: visual page reordering with drag-and-drop-like interface.
-- **Rotate Pages**: Rotate specific pages or the entire document.
-- **Extract Pages**: Extract specific pages to create a new PDF.
-- **Delete Pages**: Remove unwanted pages from your document.
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit">
+    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="80" alt="Get it on Google Play">
+  </a>
+</p>
 
-### 🔒 Security & Privacy
-- **Lock PDF**: Add password protection to your files.
-- **Unlock PDF**: Remove passwords from protected PDFs (with password).
-- **Watermark**: Add text or image watermarks for copyright/branding.
-- **Local Processing**: All operations happen on-device for maximum privacy.
+> **500+ installs** · Offline · Privacy-first · No account required
 
-### 🖌️ Editing & Annotation
-- **Annotate**: Highlight, draw, and mark up your PDFs.
-- **Sign PDF**: Add your digital signature to documents.
-- **Fill Forms**: Complete PDF forms on the go.
-- **Flatten PDF**: Make form fields and annotations permanent.
+---
+
+## � Screenshots
+<!-- Add screenshots here -->
+
+---
+
+## ✨ Features
+
+### 📄 PDF Management
+- **Merge PDFs** — Combine multiple PDF files into a single document
+- **Split PDF** — Split into multiple files or specific page ranges
+- **Compress PDF** — Reduce file size while maintaining quality
+- **Reorder Pages** — Visual drag-and-drop page reordering
+- **Rotate Pages** — Rotate specific pages or entire documents
+- **Extract Pages** — Extract specific pages to create new PDFs
+- **Delete Pages** — Remove unwanted pages
+
+### 🔄 Conversion Tools
+- **Images to PDF** — Create PDFs from gallery images
+- **PDF to Images** — Convert PDF pages to high-quality images (JPG/PNG/WebP)
+- **HTML to PDF** — Direct webpage to PDF conversion
+- **Scan to PDF** — Camera-based document scanning with automatic edge detection
+
+### �️ Editing & Annotation
+- **Annotate** — Highlight, draw, and markup PDFs with AndroidX Ink
+- **Sign PDF** — Add digital signatures to documents
+- **Fill Forms** — Complete PDF forms on the go
+- **Flatten PDF** — Make forms and annotations permanent
+
+### 🔒 Privacy & Security
+- **Lock PDF** — Password-protect your files
+- **Unlock PDF** — Remove passwords (with valid password)
+- **Watermark** — Add text or image watermarks
+- **All processing on-device** — No cloud, no servers
+- **No internet permission** — Completely offline capable
+- **No data collection or tracking**
+
+### � OCR & Text
+- **Extract Text** — Pull text content from PDF pages
+- **Tesseract OCR** — F-Droid and opensource flavors (100% open source)
+- **ML Kit OCR** — Play Store flavor (smaller APK, 40MB runtime download)
 
 ### 🖼️ Image Tools
-- **Compress Images**: Optimize image file sizes.
-- **Resize Images**: Change image dimensions.
-- **Convert Format**: Switch between standard image formats (JPG, PNG, WebP).
-- **Remove Metadata**: Strip Exif data for privacy.
+- **Compress Images** — Optimize file sizes
+- **Resize Images** — Change dimensions
+- **Format Conversion** — JPG, PNG, WebP
+- **Remove Metadata** — Strip EXIF data for privacy
+
+---
+
+## 🏗️ Build Flavors
+
+| Flavor | OCR Engine | Ads | Firebase | Distribution |
+|--------|-----------|-----|----------|--------------|
+| `playstore` | ML Kit | No | No | Google Play |
+| `fdroid` | Tesseract | No | No | F-Droid (pending) |
+| `opensource` | Tesseract | No | No | GitHub Releases |
+
+All flavors are **privacy-first** with no ads, no analytics, and no proprietary dependencies except ML Kit in the Play Store flavor.
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Language**: Kotlin 100%
-- **UI Framework**: Jetpack Compose (Material Design 3)
-- **Architecture**: MVVM (Model-View-ViewModel) + Clean Architecture
-- **PDF Processing**: 
-  - [PdfBox-Android](https://github.com/TomRoush/PdfBox-Android) for PDF manipulation
-  - Android native `PdfRenderer` for rendering
-- **IO**: Coroutines & Flow for asynchronous operations
+| Category | Technology |
+|----------|------------|
+| **Language** | Kotlin 100% |
+| **UI Framework** | Jetpack Compose (Material Design 3) |
+| **Architecture** | MVVM + Clean Architecture |
+| **PDF Processing** | PdfBox-Android, Android PdfRenderer |
+| **Annotations** | AndroidX Ink Library |
+| **OCR (Play Store)** | Google ML Kit |
+| **OCR (F-Droid)** | Tesseract (tess-two) |
+| **Camera** | CameraX |
+| **Images** | Coil, Glide, uCrop |
+| **Database** | Room |
+| **Preferences** | DataStore |
+| **Async** | Coroutines & Flow |
+| **Build** | Gradle + KSP |
 
-## 📥 Build & Installation
+---
 
-To build the project locally:
+## 🚀 Getting Started
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Karna14314/Pdf_Tools.git
-   cd Pdf_Tools
-   ```
+### Prerequisites
+- Android Studio Hedgehog or newer
+- JDK 17+
+- Android SDK 26+
 
-2. **Open in Android Studio**:
-   - Open Android Studio and select "Open an existing project".
-   - Navigate to the cloned folder.
+### Build
 
-3. **Build and Run**:
-   - Wait for Gradle sync to complete.
-   - Run on an emulator or physical device (Android 8.0+ recommended).
+```bash
+# Clone the repository
+git clone https://github.com/Karna14314/Pdf_Tools.git
+cd Pdf_Tools
 
-## 📄 License
+# Play Store flavor (ML Kit OCR)
+./gradlew assemblePlaystoreRelease
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+# F-Droid flavor (Tesseract OCR, no proprietary deps)
+./gradlew assembleFdroidRelease
 
+# Opensource flavor (fully FOSS)
+./gradlew assembleOpensourceRelease
 ```
-Copyright 2024-2025 PDF Toolkit Contributors
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+---
 
-    http://www.apache.org/licenses/LICENSE-2.0
+## 📦 Download
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+| Platform | Link | Notes |
+|----------|------|-------|
+| Google Play | [Install](https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit) | Stable, auto-updates |
+| GitHub Releases | [Download APK](https://github.com/Karna14314/Pdf_Tools/releases) | Opensource flavor, manual install |
+| F-Droid | Coming soon | Under review |
+
+---
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request against `master`
+
+**Important:** The F-Droid and opensource flavors must remain free of proprietary dependencies. Any new dependencies must be compatible with the F-Droid inclusion policy.
+
+See [open issues](https://github.com/Karna14314/Pdf_Tools/issues) for feature requests and bug reports.
+
 ---
 
-**Repository Maintainer**: [Karna14314](https://github.com/Karna14314)
+## 👤 Maintainer
+
+**Narisetti Chaitanya Naidu**  
+GitHub: [@Karna14314](https://github.com/Karna14314)
+
+---
+
+## 📄 License
+
+Copyright © 2026 Narisetti Chaitanya Naidu
+
+Licensed under the Apache License, Version 2.0  
+See [LICENSE](LICENSE) for full text.
