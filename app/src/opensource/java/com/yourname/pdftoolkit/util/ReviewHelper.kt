@@ -8,15 +8,16 @@ import android.util.Log
 
 /**
  * Helper class to handle Reviews.
- * F-Droid implementation shows a custom dialog since there's no native store review API.
+ * Open Source implementation shows a custom dialog linking to GitHub.
  */
 object ReviewHelper {
 
     private const val TAG = "ReviewHelper"
     private const val GITHUB_URL = "https://github.com/Karna14314/pdf-toolkit"
+    private const val GITHUB_RELEASES_URL = "https://github.com/Karna14314/pdf-toolkit/releases"
 
     /**
-     * Trigger the review flow (Custom Dialog for F-Droid).
+     * Trigger the review flow (Custom Dialog for Open Source).
      *
      * @param activity The activity context.
      */
@@ -24,7 +25,7 @@ object ReviewHelper {
         try {
             val builder = AlertDialog.Builder(activity)
             builder.setTitle("Enjoying PDF Toolkit?")
-            builder.setMessage("If you like this app, please consider starring us on GitHub or sharing it with friends. Your support helps us keep it free and open source!")
+            builder.setMessage("If you like this app, please consider starring us on GitHub or checking out the latest releases. Your support helps us keep it free and open source!")
 
             builder.setPositiveButton("Star on GitHub") { dialog, _ ->
                 openUrl(activity, GITHUB_URL)
@@ -35,8 +36,8 @@ object ReviewHelper {
                 dialog.dismiss()
             }
 
-            builder.setNeutralButton("Share App") { dialog, _ ->
-                shareApp(activity)
+            builder.setNeutralButton("View Releases") { dialog, _ ->
+                openUrl(activity, GITHUB_RELEASES_URL)
                 dialog.dismiss()
             }
 
@@ -54,19 +55,6 @@ object ReviewHelper {
             activity.startActivity(intent)
         } catch (e: Exception) {
             Log.e(TAG, "Error opening URL", e)
-        }
-    }
-
-    private fun shareApp(activity: Activity) {
-        try {
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_SUBJECT, "PDF Toolkit")
-                putExtra(Intent.EXTRA_TEXT, "Check out PDF Toolkit, a free and open source PDF tool: $GITHUB_URL")
-            }
-            activity.startActivity(Intent.createChooser(intent, "Share via"))
-        } catch (e: Exception) {
-            Log.e(TAG, "Error sharing app", e)
         }
     }
 }

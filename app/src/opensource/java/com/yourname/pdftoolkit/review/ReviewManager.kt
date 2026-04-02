@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * F-Droid flavor: Manages the review flow without Google Play Services.
- * Always redirects to the Play Store website as a fallback.
+ * Open Source flavor: Manages the review flow without any Google Play Services.
+ * Redirects to GitHub releases page for user feedback.
  */
 class ReviewManager private constructor(context: Context) {
 
@@ -78,7 +78,7 @@ class ReviewManager private constructor(context: Context) {
 
     /**
      * Request a review flow. Call this when the user completes a meaningful action.
-     * On F-Droid flavor, this redirects to Play Store web page.
+     * On Open Source flavor, this redirects to GitHub releases page.
      *
      * @param activity The current activity for showing the review dialog
      * @param onComplete Called when the review flow completes (success or failure)
@@ -94,8 +94,8 @@ class ReviewManager private constructor(context: Context) {
                 // Mark that we're showing the prompt (prevents spam)
                 reviewPreferences.markReviewPromptShown()
 
-                // F-Droid: Always redirect to Play Store web page
-                redirectToPlayStore(activity)
+                // Open Source: Redirect to GitHub releases page
+                redirectToGitHubReleases(activity)
                 markAsRated()
                 onComplete(true)
             } catch (e: Exception) {
@@ -120,8 +120,8 @@ class ReviewManager private constructor(context: Context) {
             // Mark that we're showing the prompt
             reviewPreferences.markReviewPromptShown()
 
-            // F-Droid: Always redirect to Play Store web page
-            redirectToPlayStore(activity)
+            // Open Source: Redirect to GitHub releases page
+            redirectToGitHubReleases(activity)
             markAsRated()
             true
         } catch (e: Exception) {
@@ -131,23 +131,21 @@ class ReviewManager private constructor(context: Context) {
     }
 
     /**
-     * Redirect user to GitHub releases page for manual rating
+     * Redirect user to GitHub releases page for feedback
      *
      * @param activity The current activity
      */
-    private fun redirectToPlayStore(activity: Activity) {
+    private fun redirectToGitHubReleases(activity: Activity) {
         ReviewLogger.logPlayStoreRedirect()
 
-        val packageName = appContext.packageName
-
-        // F-Droid: Use GitHub releases page (no Play Store)
-        val webUri = Uri.parse("https://github.com/Karna14314/pdf-toolkit/releases")
-        val webIntent = Intent(Intent.ACTION_VIEW, webUri).apply {
+        // Open Source: Use GitHub releases page (no Play Store)
+        val githubUri = Uri.parse("https://github.com/Karna14314/pdf-toolkit/releases")
+        val githubIntent = Intent(Intent.ACTION_VIEW, githubUri).apply {
             addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         }
 
         try {
-            activity.startActivity(webIntent)
+            activity.startActivity(githubIntent)
         } catch (e: ActivityNotFoundException) {
             ReviewLogger.logError("No browser available to open GitHub", e)
         }
