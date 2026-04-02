@@ -29,6 +29,20 @@ proguard/
 
 # Log Files
 *.log
+app_logs.txt
+logs/
+
+# Version artifacts (managed by gradle.properties now)
+VERSION
+VERSION_CODE
+
+# Temp/debug files
+temp_*
+debug_*
+
+# Internal documentation (not for public repo)
+PLAY_STORE_UPDATE_*.md
+INTERNAL_*.md
 
 # Android Studio Navigation editor temp files
 .navigation/
