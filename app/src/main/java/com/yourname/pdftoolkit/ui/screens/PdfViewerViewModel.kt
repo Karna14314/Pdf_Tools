@@ -288,11 +288,8 @@ class PdfViewerViewModel : ViewModel() {
 
         override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap?, newValue: Bitmap?) {
             super.entryRemoved(evicted, key, oldValue, newValue)
-            // Only recycle if explicitly evicted and bitmap is valid
-            if (evicted && oldValue != null && !oldValue.isRecycled) {
-                // Post to handler to avoid race conditions with ongoing draws
-                oldValue.recycle()
-            }
+            // Do NOT recycle here - bitmap may still be in use by Canvas draw operations.
+            // Let the garbage collector handle bitmap cleanup to avoid race conditions.
         }
     }
 
