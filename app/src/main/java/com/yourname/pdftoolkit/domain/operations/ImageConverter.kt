@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
@@ -125,7 +126,7 @@ class ImageConverter {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = document.numberOfPages
             
             if (totalPages == 0) {
