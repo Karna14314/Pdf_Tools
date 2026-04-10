@@ -185,12 +185,15 @@ class PdfViewerViewModel : ViewModel() {
                         }
 
                         _uiState.value = PdfViewerUiState.Loaded(doc.numberOfPages)
-                    } catch (e: Exception) {
+                    } catch (e: Throwable) {
                         // Clean up any temp file created if loading failed
                         createdTempFile?.delete()
                         throw e // Rethrow to outer catch
                     }
                 }
+            } catch (e: OutOfMemoryError) {
+                Log.e("PdfViewerVM", "OOM loading PDF - file too large or corrupted", e)
+                _uiState.value = PdfViewerUiState.Error("PDF too large or corrupted. Try a smaller file.")
             } catch (e: Exception) {
                 Log.e("PdfViewerVM", "Error loading PDF", e)
                 _uiState.value = PdfViewerUiState.Error(e.message ?: "Failed to load PDF")
