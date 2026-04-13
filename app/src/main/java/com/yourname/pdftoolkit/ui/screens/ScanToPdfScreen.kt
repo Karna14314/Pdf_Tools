@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.yourname.pdftoolkit.domain.operations.*
 import com.yourname.pdftoolkit.util.CropHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -192,6 +193,7 @@ fun ScanToPdfScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val state by viewModel.state.collectAsState()
+    val scope = rememberCoroutineScope()
     
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -556,7 +558,9 @@ fun ScanToPdfScreen(
                 if (state.isComplete && state.resultUri != null) {
                     Button(
                         onClick = {
-                            com.yourname.pdftoolkit.util.FileOpener.openPdf(context, state.resultUri!!)
+                            scope.launch(Dispatchers.IO) {
+                                com.yourname.pdftoolkit.util.FileOpener.openPdf(context, state.resultUri!!)
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {

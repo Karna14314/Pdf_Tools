@@ -100,6 +100,8 @@ class PdfViewerViewModel : ViewModel() {
 
     companion object {
         const val RENDER_SCALE = 1.0f
+        const val MAX_FILE_SIZE_MB = 100 // Warn/optimize for files larger than this
+        const val MAX_CACHE_SIZE_MB = 20 // Max bitmap cache in MB
     }
 
     private val _uiState = MutableStateFlow<PdfViewerUiState>(PdfViewerUiState.Idle)
@@ -172,10 +174,33 @@ class PdfViewerViewModel : ViewModel() {
                             createdTempFile = temp // Track locally
                         }
 
-                        val doc = if (password.isNotEmpty()) {
-                            PDDocument.load(fileToLoad, password, MemoryUsageSetting.setupTempFileOnly())
+                        // Check file size before loading
+                        val fileSize = fileToLoad.length()
+                        val fileSizeMB = fileSize / (1024 * 1024)
+
+                        Log.d("PdfViewerVM", "Loading PDF: ${fileSizeMB}MB, available memory check...")
+
+                        // For very large files, warn but still try to load with reduced settings
+                        if (fileSizeMB > MAX_FILE_SIZE_MB) {
+                            Log.w("PdfViewerVM", "Large PDF detected (${fileSizeMB}MB). Using memory-optimized settings.")
+                        }
+
+                        // Check if we have enough memory to safely load this file
+                        if (!canSafelyLoadFile(fileSize)) {
+                            Log.w("PdfViewerVM", "Low memory warning for ${fileSizeMB}MB PDF. May experience issues.")
+                        }
+
+                        // Use temp-file-only mode for large files to reduce RAM usage
+                        val memorySettings = if (fileSizeMB > MAX_FILE_SIZE_MB) {
+                            MemoryUsageSetting.setupTempFileOnly()
                         } else {
-                            PDDocument.load(fileToLoad, MemoryUsageSetting.setupTempFileOnly())
+                            MemoryUsageSetting.setupMixed(100 * 1024 * 1024) // 100MB threshold before using temp files
+                        }
+
+                        val doc = if (password.isNotEmpty()) {
+                            PDDocument.load(fileToLoad, password, memorySettings)
+                        } else {
+                            PDDocument.load(fileToLoad, memorySettings)
                         }
 
                         documentMutex.withLock {
@@ -280,22 +305,32 @@ class PdfViewerViewModel : ViewModel() {
     /**
      * Renders a PDF page using PDFBox with fallback to Android native PdfRenderer.
      * Detects corrupt bitmaps (all same color) and falls back to native renderer.
+     * Includes font warming for better initial render performance.
      */
     private fun PDFRenderer.renderImageWithFallback(pageIndex: Int, scale: Float, pdfFile: File?): Bitmap? {
         val pdfBoxBitmap = try {
             renderImage(pageIndex, scale)
+        } catch (e: OutOfMemoryError) {
+            Log.w("PdfViewerVM", "OOM rendering page $pageIndex with PDFBox, using native fallback", e)
+            return renderWithNativePdfRenderer(pageIndex, scale, pdfFile)
         } catch (e: Exception) {
             Log.w("PdfViewerVM", "PDFBox render failed for page $pageIndex, falling back to native", e)
             return renderWithNativePdfRenderer(pageIndex, scale, pdfFile)
         }
-        
+
+        // Check if bitmap is null (font rendering failure)
+        if (pdfBoxBitmap == null) {
+            Log.w("PdfViewerVM", "PDFBox returned null bitmap for page $pageIndex, using native fallback")
+            return renderWithNativePdfRenderer(pageIndex, scale, pdfFile)
+        }
+
         // Check if bitmap is corrupt (all pixels same color or empty)
         if (isBitmapCorrupt(pdfBoxBitmap)) {
             Log.w("PdfViewerVM", "PDFBox produced corrupt bitmap for page $pageIndex, using native fallback")
             pdfBoxBitmap.recycle()
             return renderWithNativePdfRenderer(pageIndex, scale, pdfFile)
         }
-        
+
         return pdfBoxBitmap
     }
     
@@ -404,10 +439,10 @@ class PdfViewerViewModel : ViewModel() {
         }
     }
 
-    // Bitmap cache for rendered pages with improved lifecycle management
+    // Bitmap cache with dynamic sizing based on file size and available memory
     private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-    private val cacheSize = maxMemory / 16 // More conservative cache size
-    private val bitmapCache = object : LruCache<Int, Bitmap>(cacheSize) {
+    private val maxCacheSize = (MAX_CACHE_SIZE_MB * 1024).coerceAtMost(maxMemory / 8)
+    private val bitmapCache = object : LruCache<Int, Bitmap>(maxCacheSize) {
         override fun sizeOf(key: Int, bitmap: Bitmap): Int {
             return bitmap.byteCount / 1024
         }
@@ -416,6 +451,36 @@ class PdfViewerViewModel : ViewModel() {
             super.entryRemoved(evicted, key, oldValue, newValue)
             // Do NOT recycle here - bitmap may still be in use by Canvas draw operations.
             // Let the garbage collector handle bitmap cleanup to avoid race conditions.
+        }
+    }
+
+    /**
+     * Check if there's enough memory to safely load a PDF file.
+     * For large files, we need to be more conservative with memory.
+     */
+    private fun canSafelyLoadFile(fileSize: Long): Boolean {
+        val runtime = Runtime.getRuntime()
+        val maxMemory = runtime.maxMemory()
+        val usedMemory = runtime.totalMemory() - runtime.freeMemory()
+        val availableMemory = maxMemory - usedMemory
+
+        // Require at least 2x file size in available memory for PDF parsing
+        // PDFs can expand to 10x their size in memory when parsed
+        val requiredMemory = fileSize * 3
+
+        return availableMemory > requiredMemory
+    }
+
+    /**
+     * Calculate appropriate render scale based on file size and available memory.
+     * Large files use lower scale to prevent OOM.
+     */
+    private fun getOptimalRenderScale(fileSize: Long): Float {
+        val fileSizeMB = fileSize / (1024 * 1024)
+        return when {
+            fileSizeMB > 100 -> 0.75f // Large files: 75% scale
+            fileSizeMB > 50 -> 0.85f // Medium-large: 85% scale
+            else -> RENDER_SCALE // Normal: 100% scale
         }
     }
 

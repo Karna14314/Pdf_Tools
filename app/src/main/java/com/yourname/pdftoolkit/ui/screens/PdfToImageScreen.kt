@@ -79,7 +79,9 @@ fun PdfToImageScreen(
     // Open the specific saved images, or fall back to generic gallery
     fun openGallery() {
         if (savedImageUris.isNotEmpty()) {
-            FileOpener.openMultipleImages(context, savedImageUris)
+            scope.launch(Dispatchers.IO) {
+                FileOpener.openMultipleImages(context, savedImageUris)
+            }
         } else {
             try {
                 val intent = Intent(Intent.ACTION_VIEW).apply {

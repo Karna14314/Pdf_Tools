@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yourname.pdftoolkit.domain.operations.FlattenConfig
 import com.yourname.pdftoolkit.domain.operations.PdfFlattener
 import com.yourname.pdftoolkit.util.FileOpener
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -132,6 +133,7 @@ fun FlattenScreen(
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    val scope = rememberCoroutineScope()
     
     val pdfPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -416,7 +418,7 @@ fun FlattenScreen(
                         }
                         state.resultUri?.let { uri ->
                             FilledTonalButton(
-                                onClick = { FileOpener.openPdf(context, uri) }
+                                onClick = { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
                             ) {
                                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))

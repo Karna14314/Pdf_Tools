@@ -22,6 +22,8 @@ import androidx.core.content.FileProvider
 import com.yourname.pdftoolkit.data.FileManager
 import com.yourname.pdftoolkit.ui.components.ToolTopBar
 import com.yourname.pdftoolkit.util.FileOpener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 
 /**
@@ -47,6 +49,7 @@ fun MultiOutputResultScreen(
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     
     // Build file items list
     val fileItems = remember(outputUris) {
@@ -106,12 +109,14 @@ fun MultiOutputResultScreen(
                     // Open all button
                     OutlinedButton(
                         onClick = {
-                            if (isImageOutput) {
-                                FileOpener.openMultipleImages(context, outputUris)
-                            } else {
-                                // For PDFs, open the first one
-                                outputUris.firstOrNull()?.let { 
-                                    FileOpener.openPdf(context, it)
+                            scope.launch(Dispatchers.IO) {
+                                if (isImageOutput) {
+                                    FileOpener.openMultipleImages(context, outputUris)
+                                } else {
+                                    // For PDFs, open the first one
+                                    outputUris.firstOrNull()?.let { 
+                                        FileOpener.openPdf(context, it)
+                                    }
                                 }
                             }
                         },
@@ -159,7 +164,7 @@ fun MultiOutputResultScreen(
                     ) { _, item ->
                         ImageOutputCard(
                             item = item,
-                            onOpen = { FileOpener.openImage(context, item.uri) },
+                            onOpen = { scope.launch(Dispatchers.IO) { FileOpener.openImage(context, item.uri) } },
                             onShare = { shareFile(context, item.uri) }
                         )
                     }
@@ -177,7 +182,7 @@ fun MultiOutputResultScreen(
                     ) { _, item ->
                         PdfOutputCard(
                             item = item,
-                            onOpen = { FileOpener.openPdf(context, item.uri) },
+                            onOpen = { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, item.uri) } },
                             onShare = { shareFile(context, item.uri) }
                         )
                     }

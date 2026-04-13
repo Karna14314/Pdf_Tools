@@ -29,6 +29,7 @@ import com.yourname.pdftoolkit.data.HistoryManager
 import com.yourname.pdftoolkit.data.OperationStatus
 import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.util.FileOpener
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -260,7 +261,9 @@ fun HistorySidebar(
                                                 onOpenFile(uri)
                                             } else {
                                                 // For non-PDF files, use system open
-                                                FileOpener.openWithSystemPicker(context, uri)
+                                                scope.launch(Dispatchers.IO) {
+                                                    FileOpener.openWithSystemPicker(context, uri)
+                                                }
                                             }
                                         },
                                         onDelete = {
@@ -332,6 +335,7 @@ private fun HistoryItem(
     onDelete: () -> Unit
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var showMenu by remember { mutableStateOf(false) }
     
     Card(
@@ -458,11 +462,13 @@ private fun HistoryItem(
                                                 runCatching { Uri.parse(it) }.getOrNull()
                                             }
                                             if (uris.isNotEmpty()) {
-                                                if (isImage) {
-                                                    FileOpener.openMultipleImages(context, uris)
-                                                } else {
-                                                    // For PDFs, open the first one
-                                                    onOpenFile(uris.first())
+                                                scope.launch(Dispatchers.IO) {
+                                                    if (isImage) {
+                                                        FileOpener.openMultipleImages(context, uris)
+                                                    } else {
+                                                        // For PDFs, open the first one
+                                                        onOpenFile(uris.first())
+                                                    }
                                                 }
                                             }
                                         } catch (e: Exception) {
@@ -487,11 +493,13 @@ private fun HistoryItem(
                                             val uris = entry.outputFileUris.mapNotNull {
                                                 runCatching { Uri.parse(it) }.getOrNull()
                                             }
-                                            if (uris.isNotEmpty()) {
-                                                FileOpener.openMultipleImages(context, uris)
-                                            } else {
-                                                val fallbackUri = Uri.parse(entry.outputFileUri)
-                                                FileOpener.openImage(context, fallbackUri)
+                                            scope.launch(Dispatchers.IO) {
+                                                if (uris.isNotEmpty()) {
+                                                    FileOpener.openMultipleImages(context, uris)
+                                                } else {
+                                                    val fallbackUri = Uri.parse(entry.outputFileUri)
+                                                    FileOpener.openImage(context, fallbackUri)
+                                                }
                                             }
                                         } else {
                                             val uri = Uri.parse(entry.outputFileUri)

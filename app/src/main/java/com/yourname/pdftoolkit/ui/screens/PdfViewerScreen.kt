@@ -11,6 +11,9 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -1096,13 +1099,53 @@ private fun PdfPagesContent(
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     
-    // Transformable state for pinch zoom - only tracks scale
-    val transformableState = rememberTransformableState { zoomChange, _, _ ->
+    // Track pan position for smooth gesture handling
+    var panX by remember { mutableFloatStateOf(pagePanX) }
+    var panY by remember { mutableFloatStateOf(0f) }
+    
+    // Animate scale changes for smooth zooming
+    val animatedScale by animateFloatAsState(
+        targetValue = scale,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "zoom_scale"
+    )
+    
+    // Animate pan changes
+    val animatedPanX by animateFloatAsState(
+        targetValue = pagePanX,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "pan_x"
+    )
+    
+    // Improved transformable state with pan and focal point support
+    val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
         val newScale = (scale * zoomChange).coerceIn(1f, 5f)
+        
+        // Update scale
         onScaleChange(newScale)
-        if (newScale <= 1f) {
+        
+        // Handle panning when zoomed in
+        if (newScale > 1f) {
+            // Calculate max pan bounds based on container size and scale
+            val maxPanX = (containerSize.width * (newScale - 1f)) / 2f
+            val maxPanY = (containerSize.height * (newScale - 1f)) / 2f
+            
+            // Update pan with boundary constraints
+            val newPanX = (pagePanX + panChange.x).coerceIn(-maxPanX, maxPanX)
+            val newPanY = (panY + panChange.y).coerceIn(-maxPanY, maxPanY)
+            
+            onPagePanXChange(newPanX)
+            panY = newPanY
+        } else {
+            // Reset pan when zoomed out
             onPagePanXChange(0f)
+            panY = 0f
         }
+    }
+    
+    // Sync local pan state with external state
+    LaunchedEffect(pagePanX) {
+        panX = pagePanX
     }
     
     Box(
@@ -1112,12 +1155,15 @@ private fun PdfPagesContent(
                 containerSize = it
                 onViewportSizeChange(it)
             }
-            // Apply transformable for pinch zoom detection when not drawing
+            // Apply transformable for pinch zoom and pan detection when not drawing
             .then(
                 if (isEditMode && selectedTool != AnnotationTool.NONE) {
                     Modifier // No zoom gestures when drawing
                 } else {
-                    Modifier.transformable(state = transformableState)
+                    Modifier.transformable(
+                        state = transformableState,
+                        lockRotationOnZoomPan = false
+                    )
                 }
             )
     ) {

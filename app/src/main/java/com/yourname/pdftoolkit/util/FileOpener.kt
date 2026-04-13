@@ -6,6 +6,8 @@ import android.content.ClipData
 import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
@@ -27,13 +29,15 @@ object FileOpener {
      * This is used for "Open PDF" after operations. We explicitly exclude our own app
      * to prevent circular intent issues where permission is lost.
      * 
+     * NOTE: This is a suspend function that performs I/O on Dispatchers.IO to prevent ANR.
+     * 
      * @param context Android context
      * @param uri URI of the PDF file
      * @return true if intent was launched successfully
      */
-    fun openPdf(context: Context, uri: Uri): Boolean {
+    suspend fun openPdf(context: Context, uri: Uri): Boolean {
         return try {
-            // First, try to get an accessible URI (copy to cache if needed)
+            // First, try to get an accessible URI (copy to cache if needed) - runs on IO dispatcher
             val accessibleUri = getAccessibleUri(context, uri, "pdf")
             
             val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -56,11 +60,13 @@ object FileOpener {
     /**
      * Open an image file with the default image viewer.
      * 
+     * NOTE: This is a suspend function that performs I/O on Dispatchers.IO to prevent ANR.
+     * 
      * @param context Android context
      * @param uri URI of the image file
      * @return true if intent was launched successfully
      */
-    fun openImage(context: Context, uri: Uri): Boolean {
+    suspend fun openImage(context: Context, uri: Uri): Boolean {
         return try {
             val accessibleUri = getAccessibleUri(context, uri, "image")
             
@@ -80,11 +86,13 @@ object FileOpener {
      * Open multiple images using ACTION_SEND_MULTIPLE for gallery/viewer.
      * Falls back to opening first image if multi-send is not supported.
      *
+     * NOTE: This is a suspend function that performs I/O on Dispatchers.IO to prevent ANR.
+     *
      * @param context Android context
      * @param uris List of image URIs to open
      * @return true if intent was launched successfully
      */
-    fun openMultipleImages(context: Context, uris: List<Uri>): Boolean {
+    suspend fun openMultipleImages(context: Context, uris: List<Uri>): Boolean {
         if (uris.isEmpty()) return false
         if (uris.size == 1) return openImage(context, uris.first())
         
@@ -129,11 +137,13 @@ object FileOpener {
     /**
      * Open a text file with the default text viewer.
      * 
+     * NOTE: This is a suspend function that performs I/O on Dispatchers.IO to prevent ANR.
+     * 
      * @param context Android context
      * @param uri URI of the text file
      * @return true if intent was launched successfully
      */
-    fun openTextFile(context: Context, uri: Uri): Boolean {
+    suspend fun openTextFile(context: Context, uri: Uri): Boolean {
         return try {
             val accessibleUri = getAccessibleUri(context, uri, "txt")
             
@@ -152,12 +162,14 @@ object FileOpener {
     /**
      * Share a file using the system share dialog.
      * 
+     * NOTE: This is a suspend function that performs I/O on Dispatchers.IO to prevent ANR.
+     * 
      * @param context Android context
      * @param uri URI of the file
      * @param mimeType MIME type of the file
      * @param title Title for the share dialog
      */
-    fun shareFile(context: Context, uri: Uri, mimeType: String, title: String = "Share") {
+    suspend fun shareFile(context: Context, uri: Uri, mimeType: String, title: String = "Share") {
         try {
             val accessibleUri = getAccessibleUri(context, uri, getExtensionFromMimeType(mimeType))
             
@@ -181,17 +193,19 @@ object FileOpener {
      * For content URIs (especially DownloadsProvider), copies to cache and returns
      * a FileProvider URI. For file:// URIs, converts to FileProvider URI.
      * For already accessible URIs, returns as-is.
+     * 
+     * NOTE: This is a suspend function that performs I/O on Dispatchers.IO to prevent ANR.
      */
-    private fun getAccessibleUri(context: Context, uri: Uri, extension: String): Uri {
+    private suspend fun getAccessibleUri(context: Context, uri: Uri, extension: String): Uri = withContext(Dispatchers.IO) {
         // If it's already a FileProvider URI from our app, return as-is
         if (uri.authority == "${context.packageName}.provider") {
-            return uri
+            return@withContext uri
         }
         
         // If it's a file:// URI, convert to FileProvider
         if (uri.scheme == "file") {
-            val file = File(uri.path ?: return uri)
-            return if (file.exists()) {
+            val file = File(uri.path ?: return@withContext uri)
+            return@withContext if (file.exists()) {
                 FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
             } else {
                 uri
@@ -203,16 +217,19 @@ object FileOpener {
         if (uri.scheme == "content") {
             val cachedFile = copyToCache(context, uri, extension)
             if (cachedFile != null) {
-                return FileProvider.getUriForFile(context, "${context.packageName}.provider", cachedFile)
+                return@withContext FileProvider.getUriForFile(context, "${context.packageName}.provider", cachedFile)
             }
         }
         
         // Fallback: return original URI
-        return uri
+        return@withContext uri
     }
     
     /**
      * Copy a content URI to the app's cache directory.
+     * 
+     * NOTE: This function is called from within a withContext(Dispatchers.IO) block,
+     * so it runs on the IO dispatcher.
      */
     private fun copyToCache(context: Context, uri: Uri, extension: String): File? {
         return try {
@@ -278,11 +295,13 @@ object FileOpener {
     /**
      * Open a file with the system's default app chooser.
      * 
+     * NOTE: This is a suspend function that performs I/O on Dispatchers.IO to prevent ANR.
+     * 
      * @param context Android context
      * @param uri URI of the file to open
      * @return true if intent was launched successfully
      */
-    fun openWithSystemPicker(context: Context, uri: Uri): Boolean {
+    suspend fun openWithSystemPicker(context: Context, uri: Uri): Boolean {
         return try {
             // Determine MIME type from URI
             val mimeType = context.contentResolver.getType(uri) ?: "*/*"

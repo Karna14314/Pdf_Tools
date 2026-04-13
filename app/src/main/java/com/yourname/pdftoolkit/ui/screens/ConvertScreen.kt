@@ -532,7 +532,7 @@ fun ConvertScreen(
                 resultUri = null
             },
             onAction = resultUri?.let { uri ->
-                { FileOpener.openPdf(context, uri) }
+                { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
             actionText = "Open PDF"
         )

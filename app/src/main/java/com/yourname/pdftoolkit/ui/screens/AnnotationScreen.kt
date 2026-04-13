@@ -32,6 +32,7 @@ import com.yourname.pdftoolkit.domain.operations.*
 import com.yourname.pdftoolkit.util.FileOpener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -271,6 +272,7 @@ fun AnnotationScreen(
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    val scope = rememberCoroutineScope()
     
     val colorOptions = listOf(
         Color.YELLOW to "Yellow",
@@ -683,7 +685,7 @@ fun AnnotationScreen(
                         }
                         state.resultUri?.let { uri ->
                             FilledTonalButton(
-                                onClick = { FileOpener.openPdf(context, uri) }
+                                onClick = { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
                             ) {
                                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))

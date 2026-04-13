@@ -35,27 +35,79 @@ object FileManager {
     
     /**
      * Get file information from a content URI.
+     * Falls back to calculating actual file size if ContentResolver returns invalid size.
      */
     fun getFileInfo(context: Context, uri: Uri): PdfFileInfo? {
         return try {
+            var name = "Unknown.pdf"
+            var size = 0L
+
+            // Try ContentResolver first
             context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
                 if (cursor.moveToFirst()) {
                     val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                     val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-                    
-                    val name = if (nameIndex >= 0) cursor.getString(nameIndex) else "Unknown.pdf"
-                    val size = if (sizeIndex >= 0) cursor.getLong(sizeIndex) else 0L
-                    
-                    PdfFileInfo(
-                        uri = uri,
-                        name = name,
-                        size = size,
-                        formattedSize = formatFileSize(size)
-                    )
-                } else null
+
+                    if (nameIndex >= 0) {
+                        name = cursor.getString(nameIndex) ?: name
+                    }
+                    if (sizeIndex >= 0) {
+                        size = cursor.getLong(sizeIndex)
+                    }
+                }
             }
+
+            // Fallback: calculate actual file size if ContentResolver returned 0 or -1
+            // This happens with cloud providers, network files, and some file:// URIs
+            if (size <= 0) {
+                size = calculateActualFileSize(context, uri)
+            }
+
+            PdfFileInfo(
+                uri = uri,
+                name = name,
+                size = size,
+                formattedSize = formatFileSize(size)
+            )
         } catch (e: Exception) {
             null
+        }
+    }
+
+    /**
+     * Calculate actual file size by reading the file.
+     * Used as fallback when ContentResolver doesn't provide size.
+     */
+    private fun calculateActualFileSize(context: Context, uri: Uri): Long {
+        return try {
+            when (uri.scheme) {
+                "file" -> {
+                    uri.path?.let { File(it).length() } ?: 0L
+                }
+                else -> {
+                    // For content URIs, open stream and measure
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        // Fast path: try to get available bytes
+                        val available = input.available().toLong()
+                        if (available > 0) available else {
+                            // Slow path: count bytes (for large files, limit to avoid OOM)
+                            var totalBytes = 0L
+                            val buffer = ByteArray(8192)
+                            var read: Int
+                            while (input.read(buffer).also { read = it } != -1) {
+                                totalBytes += read
+                                // Safety limit: if over 500MB, return estimated size
+                                if (totalBytes > 500 * 1024 * 1024) {
+                                    return totalBytes
+                                }
+                            }
+                            totalBytes
+                        }
+                    } ?: 0L
+                }
+            }
+        } catch (e: Exception) {
+            0L
         }
     }
     
