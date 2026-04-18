@@ -16,8 +16,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.yourname.pdftoolkit.R
 import com.yourname.pdftoolkit.data.FileManager
 import com.yourname.pdftoolkit.data.HistoryManager
 import com.yourname.pdftoolkit.data.OperationType
@@ -165,7 +167,7 @@ fun MergeScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Merge PDFs",
+                title = stringResource(R.string.merge_title),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -185,8 +187,8 @@ fun MergeScreen(
                     // Empty state
                     EmptyState(
                         icon = Icons.Default.MergeType,
-                        title = "No PDFs Selected",
-                        subtitle = "Add 2 or more PDF files to merge them into a single document",
+                        title = stringResource(R.string.merge_empty_title),
+                        subtitle = stringResource(R.string.merge_empty_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -200,7 +202,7 @@ fun MergeScreen(
                     ) {
                         item {
                             Text(
-                                text = "Selected Files (${selectedFiles.size})",
+                                text = stringResource(R.string.merge_selected_files, selectedFiles.size),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -251,7 +253,7 @@ fun MergeScreen(
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Add More PDFs")
+                                Text(stringResource(R.string.action_add_more_pdfs))
                             }
                         }
                         
@@ -267,13 +269,13 @@ fun MergeScreen(
                                     onCheckedChange = { useCustomLocation = it }
                                 )
                                 Text(
-                                    text = "Choose custom save location",
+                                    text = stringResource(R.string.merge_custom_location),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                             if (!useCustomLocation) {
                                 Text(
-                                    text = "Default: ${OutputFolderManager.getOutputFolderPath(context)}",
+                                    text = stringResource(R.string.merge_default_path, OutputFolderManager.getOutputFolderPath(context)),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(start = 48.dp)
@@ -304,7 +306,7 @@ fun MergeScreen(
                             ) {
                                 OperationProgress(
                                     progress = progress,
-                                    message = "Merging PDFs..."
+                                    message = stringResource(R.string.merge_progress)
                                 )
                             }
                         }
@@ -325,7 +327,7 @@ fun MergeScreen(
                 ) {
                     if (selectedFiles.isEmpty()) {
                         ActionButton(
-                            text = "Add PDFs",
+                            text = stringResource(R.string.merge_add_pdfs),
                             onClick = {
                                 pickPdfsLauncher.launch(arrayOf("application/pdf"))
                             },
@@ -333,7 +335,7 @@ fun MergeScreen(
                         )
                     } else {
                         ActionButton(
-                            text = "Merge ${selectedFiles.size} PDFs",
+                            text = stringResource(R.string.merge_n_pdfs, selectedFiles.size),
                             onClick = {
                                 if (useCustomLocation) {
                                     val fileName = FileManager.generateOutputFileName("merged")
@@ -356,7 +358,7 @@ fun MergeScreen(
     if (showResult) {
         ResultDialog(
             isSuccess = resultSuccess,
-            title = if (resultSuccess) "Merge Complete" else "Merge Failed",
+            title = if (resultSuccess) stringResource(R.string.merge_complete) else stringResource(R.string.merge_failed),
             message = resultMessage,
             onDismiss = { 
                 showResult = false 
@@ -365,7 +367,7 @@ fun MergeScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }
@@ -479,7 +481,7 @@ private fun FileItemCardWithOrder(
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = "Move up",
+                        contentDescription = stringResource(R.string.action_move_up),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -490,7 +492,7 @@ private fun FileItemCardWithOrder(
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Move down",
+                        contentDescription = stringResource(R.string.action_move_down),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -499,7 +501,7 @@ private fun FileItemCardWithOrder(
             IconButton(onClick = onRemove) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Remove",
+                    contentDescription = stringResource(R.string.action_remove),
                     tint = MaterialTheme.colorScheme.error
                 )
             }

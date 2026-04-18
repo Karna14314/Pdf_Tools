@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,8 @@ import com.yourname.pdftoolkit.util.CacheManager
 import com.yourname.pdftoolkit.util.ThemeManager
 import com.yourname.pdftoolkit.util.ThemeMode
 import com.yourname.pdftoolkit.util.PdfTools
+import com.yourname.pdftoolkit.util.LanguageManager
+import com.yourname.pdftoolkit.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -99,6 +102,7 @@ fun SettingsScreen(
     var showImageFormatDialog by remember { mutableStateOf(false) }
     var showLicensesDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
     
     // Settings state
     var compressionQuality by remember { mutableStateOf(SettingsPreferences.getCompressionQuality(context)) }
@@ -106,6 +110,9 @@ fun SettingsScreen(
     
     // Theme state
     val currentTheme by ThemeManager.getThemeMode(context).collectAsState(initial = ThemeMode.SYSTEM)
+    
+    // Language state
+    val currentLanguage by LanguageManager.getLanguageFlow(context).collectAsState(initial = LanguageManager.getCurrentLanguage())
     
     // Calculate cache size on screen load
     LaunchedEffect(Unit) {
@@ -235,16 +242,31 @@ fun SettingsScreen(
             
             // Appearance Section
             item {
-                SettingsSectionHeader(title = "Appearance")
+                SettingsSectionHeader(title = stringResource(R.string.settings_section_appearance))
             }
             
             // Theme Mode
             item {
                 SettingsItem(
-                    title = "Theme Mode",
+                    title = stringResource(R.string.settings_theme_mode),
                     subtitle = currentTheme.displayName,
                     icon = Icons.Default.Palette,
                     onClick = { showThemeDialog = true }
+                )
+            }
+            
+            // Language Section
+            item {
+                SettingsSectionHeader(title = stringResource(R.string.settings_section_language))
+            }
+            
+            // Language Selector
+            item {
+                SettingsItem(
+                    title = stringResource(R.string.settings_select_language),
+                    subtitle = LanguageManager.getLanguageDisplayName(currentLanguage),
+                    icon = Icons.Default.Language,
+                    onClick = { showLanguageDialog = true }
                 )
             }
             
@@ -458,7 +480,67 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showThemeDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
+    }
+    
+    // Language Selection Dialog
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            icon = { Icon(Icons.Default.Language, contentDescription = null) },
+            title = { Text(stringResource(R.string.settings_select_language)) },
+            text = {
+                Column {
+                    LanguageManager.supportedLanguages.forEach { language ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    scope.launch {
+                                        LanguageManager.changeLanguage(context, language.code)
+                                        showLanguageDialog = false
+                                        // Recreate activity to apply language change
+                                        Toast.makeText(
+                                            context,
+                                            R.string.settings_language_changed,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        (context as? android.app.Activity)?.recreate()
+                                    }
+                                }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = currentLanguage == language.code,
+                                onClick = {
+                                    scope.launch {
+                                        LanguageManager.changeLanguage(context, language.code)
+                                        showLanguageDialog = false
+                                        Toast.makeText(
+                                            context,
+                                            R.string.settings_language_changed,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        (context as? android.app.Activity)?.recreate()
+                                    }
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = language.displayName,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )

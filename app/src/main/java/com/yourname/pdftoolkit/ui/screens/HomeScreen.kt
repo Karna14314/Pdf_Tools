@@ -17,13 +17,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.ui.navigation.Screen
+import com.yourname.pdftoolkit.R
 
 /**
  * Category tabs for organizing PDF tools.
  */
+@Composable
+fun getToolCategories(): List<ToolCategoryData> {
+    return listOf(
+        ToolCategoryData(stringResource(R.string.category_organize), Icons.Default.Folder),
+        ToolCategoryData(stringResource(R.string.category_convert), Icons.Default.Transform),
+        ToolCategoryData(stringResource(R.string.category_markup), Icons.Default.Draw),
+        ToolCategoryData(stringResource(R.string.category_security), Icons.Default.Lock),
+        ToolCategoryData(stringResource(R.string.category_optimize), Icons.Default.Speed)
+    )
+}
+
+data class ToolCategoryData(val title: String, val icon: ImageVector)
+
+// Keep for backwards compatibility - will be removed in future refactor
 enum class ToolCategory(val title: String, val icon: ImageVector) {
     ORGANIZE("Organize", Icons.Default.Folder),
     CONVERT("Convert", Icons.Default.Transform),
@@ -76,7 +92,7 @@ fun HomeScreen(
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = "PDF Toolkit",
+                        text = stringResource(R.string.home_title),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -89,14 +105,14 @@ fun HomeScreen(
                     ) {
                         Icon(
                             Icons.Default.FolderOpen,
-                            contentDescription = "Open PDF"
+                            contentDescription = stringResource(R.string.cd_open_pdf)
                         )
                     }
                     // Settings button
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             Icons.Default.Settings,
-                            contentDescription = "Settings"
+                            contentDescription = stringResource(R.string.action_settings)
                         )
                     }
                 },
@@ -111,7 +127,7 @@ fun HomeScreen(
                     pdfPickerLauncher.launch(pdfMimeTypes)
                 },
                 icon = { Icon(Icons.Default.FileOpen, contentDescription = null) },
-                text = { Text("Open PDF") },
+                text = { Text(stringResource(R.string.fab_open_pdf)) },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -247,7 +263,7 @@ private fun FeatureCard(
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
-                contentDescription = "Navigate",
+                contentDescription = stringResource(R.string.action_navigate),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

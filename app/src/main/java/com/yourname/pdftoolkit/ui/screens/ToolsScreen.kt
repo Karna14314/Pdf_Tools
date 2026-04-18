@@ -18,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.BuildConfig
+import com.yourname.pdftoolkit.R
 import com.yourname.pdftoolkit.data.SafUriManager
 import com.yourname.pdftoolkit.ui.navigation.Screen
 import kotlinx.coroutines.launch
@@ -30,6 +32,21 @@ import kotlinx.coroutines.launch
 /**
  * Tool section enumeration for categorization.
  */
+@Composable
+fun getToolSections(): List<ToolSectionData> {
+    return listOf(
+        ToolSectionData(stringResource(R.string.category_quick_actions)),
+        ToolSectionData(stringResource(R.string.category_organize)),
+        ToolSectionData(stringResource(R.string.category_convert)),
+        ToolSectionData(stringResource(R.string.category_security)),
+        ToolSectionData(stringResource(R.string.category_image_tools)),
+        ToolSectionData(stringResource(R.string.category_view_export))
+    )
+}
+
+data class ToolSectionData(val title: String)
+
+// Keep for backwards compatibility
 enum class ToolSection(val title: String) {
     QUICK_ACTIONS("Quick Actions"),
     ORGANIZE("Organize"),
@@ -44,12 +61,18 @@ enum class ToolSection(val title: String) {
  */
 data class ToolItem(
     val id: String,
-    val title: String,
-    val description: String,
+    val titleResId: Int,
+    val descResId: Int,
     val icon: ImageVector,
     val section: ToolSection,
     val screen: Screen
-)
+) {
+    @Composable
+    fun getTitle(): String = stringResource(titleResId)
+    
+    @Composable
+    fun getDescription(): String = stringResource(descResId)
+}
 
 /**
  * Tools Screen - Primary home screen with sectioned layout.
@@ -110,7 +133,7 @@ fun ToolsScreen(
         // Subtitle
         item {
             Text(
-                text = "All your PDF & image tools in one place",
+                text = stringResource(R.string.home_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -251,7 +274,7 @@ private fun ToolCard(
             ) {
                 Icon(
                     imageVector = tool.icon,
-                    contentDescription = tool.title,
+                    contentDescription = tool.getTitle(),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier
                         .padding(8.dp)
@@ -262,7 +285,7 @@ private fun ToolCard(
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
-                text = tool.title,
+                text = tool.getTitle(),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
@@ -278,44 +301,45 @@ private fun ToolCard(
  * Get all tools organized by section.
  * Total: 25+ tools
  */
+@Composable
 fun getAllTools(): List<ToolItem> = listOf(
     // SECTION 1: QUICK ACTIONS (Top, Always Visible)
     ToolItem(
         id = "merge",
-        title = "Merge PDF",
-        description = "Combine multiple PDFs into one",
+        titleResId = R.string.tool_merge_pdf,
+        descResId = R.string.desc_merge_pdfs,
         icon = Icons.Default.MergeType,
         section = ToolSection.QUICK_ACTIONS,
         screen = Screen.Merge
     ),
     ToolItem(
         id = "split",
-        title = "Split PDF",
-        description = "Split PDF into multiple files",
+        titleResId = R.string.tool_split_pdf,
+        descResId = R.string.desc_split_pdf,
         icon = Icons.Default.CallSplit,
         section = ToolSection.QUICK_ACTIONS,
         screen = Screen.Split
     ),
     ToolItem(
         id = "compress",
-        title = "Compress PDF",
-        description = "Reduce PDF file size",
+        titleResId = R.string.tool_compress_pdf,
+        descResId = R.string.desc_compress_pdf,
         icon = Icons.Default.Compress,
         section = ToolSection.QUICK_ACTIONS,
         screen = Screen.Compress
     ),
     ToolItem(
         id = "pdf_to_image",
-        title = "PDF → Image",
-        description = "Convert PDF pages to images",
+        titleResId = R.string.tool_pdf_to_images,
+        descResId = R.string.desc_pdf_to_images,
         icon = Icons.Default.PhotoLibrary,
         section = ToolSection.QUICK_ACTIONS,
         screen = Screen.PdfToImage
     ),
     ToolItem(
         id = "image_to_pdf",
-        title = "Image → PDF",
-        description = "Convert images to PDF",
+        titleResId = R.string.tool_images_to_pdf,
+        descResId = R.string.desc_images_to_pdf,
         icon = Icons.Default.Image,
         section = ToolSection.QUICK_ACTIONS,
         screen = Screen.Convert
@@ -324,32 +348,32 @@ fun getAllTools(): List<ToolItem> = listOf(
     // SECTION 2: ORGANIZE
     ToolItem(
         id = "reorder",
-        title = "Reorder Pages",
-        description = "Reorder PDF pages",
+        titleResId = R.string.tool_reorder_pages,
+        descResId = R.string.desc_reorder_pages,
         icon = Icons.Default.SwapVert,
         section = ToolSection.ORGANIZE,
         screen = Screen.Reorder
     ),
     ToolItem(
         id = "rotate",
-        title = "Rotate Pages",
-        description = "Rotate PDF pages",
+        titleResId = R.string.tool_rotate_pages,
+        descResId = R.string.desc_rotate_pages,
         icon = Icons.Default.RotateRight,
         section = ToolSection.ORGANIZE,
         screen = Screen.Rotate
     ),
     ToolItem(
         id = "delete_pages",
-        title = "Delete Pages",
-        description = "Remove pages from PDF",
+        titleResId = R.string.tool_delete_pages,
+        descResId = R.string.desc_delete_pages,
         icon = Icons.Default.Delete,
         section = ToolSection.ORGANIZE,
         screen = Screen.Organize
     ),
     ToolItem(
         id = "extract",
-        title = "Extract Pages",
-        description = "Extract specific pages",
+        titleResId = R.string.tool_extract_pages,
+        descResId = R.string.desc_extract_pages,
         icon = Icons.Default.ContentCopy,
         section = ToolSection.ORGANIZE,
         screen = Screen.Extract
@@ -358,32 +382,32 @@ fun getAllTools(): List<ToolItem> = listOf(
     // SECTION 3: CONVERT (PDF-CENTRIC)
     ToolItem(
         id = "html_to_pdf",
-        title = "HTML → PDF",
-        description = "Convert webpage to PDF",
+        titleResId = R.string.tool_html_to_pdf,
+        descResId = R.string.desc_html_to_pdf,
         icon = Icons.Default.Language,
         section = ToolSection.CONVERT,
         screen = Screen.HtmlToPdf
     ),
     ToolItem(
         id = "scan_to_pdf",
-        title = "Scan to PDF",
-        description = "Scan documents with camera",
+        titleResId = R.string.tool_scan_to_pdf,
+        descResId = R.string.desc_scan_to_pdf,
         icon = Icons.Default.CameraAlt,
         section = ToolSection.CONVERT,
         screen = Screen.ScanToPdf
     ),
     ToolItem(
         id = "ocr",
-        title = "OCR",
-        description = "Make scanned PDFs searchable",
+        titleResId = R.string.tool_ocr,
+        descResId = R.string.desc_ocr,
         icon = Icons.Default.DocumentScanner,
         section = ToolSection.CONVERT,
         screen = Screen.Ocr
     ),
     ToolItem(
         id = "extract_text",
-        title = "Extract Text",
-        description = "Extract text from PDF",
+        titleResId = R.string.tool_extract_text,
+        descResId = R.string.desc_extract_text,
         icon = Icons.Default.TextFields,
         section = ToolSection.CONVERT,
         screen = Screen.ExtractText
@@ -392,40 +416,40 @@ fun getAllTools(): List<ToolItem> = listOf(
     // SECTION 4: SECURITY
     ToolItem(
         id = "lock",
-        title = "Lock PDF",
-        description = "Password protect your PDF",
+        titleResId = R.string.tool_lock_pdf,
+        descResId = R.string.desc_lock_pdf,
         icon = Icons.Default.Lock,
         section = ToolSection.SECURITY,
         screen = Screen.Security
     ),
     ToolItem(
         id = "unlock",
-        title = "Unlock PDF",
-        description = "Remove password from PDF",
+        titleResId = R.string.tool_unlock_pdf,
+        descResId = R.string.desc_unlock_pdf,
         icon = Icons.Default.LockOpen,
         section = ToolSection.SECURITY,
         screen = Screen.Unlock
     ),
     ToolItem(
         id = "watermark",
-        title = "Add Watermark",
-        description = "Add text or image watermark",
+        titleResId = R.string.tool_add_watermark,
+        descResId = R.string.desc_add_watermark,
         icon = Icons.Default.WaterDrop,
         section = ToolSection.SECURITY,
         screen = Screen.Watermark
     ),
     ToolItem(
         id = "sign",
-        title = "Sign PDF",
-        description = "Add your signature",
+        titleResId = R.string.tool_sign_pdf,
+        descResId = R.string.desc_sign,
         icon = Icons.Default.Draw,
         section = ToolSection.SECURITY,
         screen = Screen.SignPdf
     ),
     ToolItem(
         id = "flatten",
-        title = "Flatten PDF",
-        description = "Convert forms to static content",
+        titleResId = R.string.tool_flatten_pdf,
+        descResId = R.string.desc_flatten_pdf,
         icon = Icons.Default.Layers,
         section = ToolSection.SECURITY,
         screen = Screen.Flatten
@@ -434,32 +458,32 @@ fun getAllTools(): List<ToolItem> = listOf(
     // SECTION 5: IMAGE TOOLS (LOW-BLOAT ONLY)
     ToolItem(
         id = "image_compress",
-        title = "Compress Image",
-        description = "Reduce image file size",
+        titleResId = R.string.tool_image_tools,
+        descResId = R.string.desc_compress_image,
         icon = Icons.Default.Compress,
         section = ToolSection.IMAGE_TOOLS,
         screen = Screen.ImageTools
     ),
     ToolItem(
         id = "image_resize",
-        title = "Resize Image",
-        description = "Change image dimensions",
+        titleResId = R.string.tool_image_tools,
+        descResId = R.string.desc_resize_image,
         icon = Icons.Default.AspectRatio,
         section = ToolSection.IMAGE_TOOLS,
         screen = Screen.ImageTools
     ),
     ToolItem(
         id = "image_convert",
-        title = "Convert Format",
-        description = "JPEG ↔ WebP",
+        titleResId = R.string.tool_image_tools,
+        descResId = R.string.desc_convert_format,
         icon = Icons.Default.Transform,
         section = ToolSection.IMAGE_TOOLS,
         screen = Screen.ImageTools
     ),
     ToolItem(
         id = "image_metadata",
-        title = "Strip Metadata",
-        description = "Remove EXIF data",
+        titleResId = R.string.tool_image_tools,
+        descResId = R.string.desc_strip_metadata,
         icon = Icons.Default.DeleteSweep,
         section = ToolSection.IMAGE_TOOLS,
         screen = Screen.ImageTools
@@ -468,24 +492,24 @@ fun getAllTools(): List<ToolItem> = listOf(
     // SECTION 6: VIEW & EXPORT
     ToolItem(
         id = "view_pdf",
-        title = "View PDF",
-        description = "Open and view PDF",
+        titleResId = R.string.tool_view_metadata,
+        descResId = R.string.desc_view_pdf,
         icon = Icons.Default.PictureAsPdf,
         section = ToolSection.VIEW_EXPORT,
         screen = Screen.Home // Special handling
     ),
     ToolItem(
         id = "page_numbers",
-        title = "Page Numbers",
-        description = "Add page numbers to PDF",
+        titleResId = R.string.tool_page_numbers,
+        descResId = R.string.desc_page_numbers,
         icon = Icons.Default.FormatListNumbered,
         section = ToolSection.VIEW_EXPORT,
         screen = Screen.PageNumber
     ),
     ToolItem(
         id = "metadata",
-        title = "View Metadata",
-        description = "View PDF properties",
+        titleResId = R.string.tool_view_metadata,
+        descResId = R.string.desc_view_metadata,
         icon = Icons.Default.Info,
         section = ToolSection.VIEW_EXPORT,
         screen = Screen.Metadata

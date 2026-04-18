@@ -6,6 +6,7 @@ import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.yourname.pdftoolkit.review.ReviewIntegration
 import com.yourname.pdftoolkit.util.CacheManager
 import com.yourname.pdftoolkit.util.ThemeManager
+import com.yourname.pdftoolkit.util.LanguageManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -36,6 +37,10 @@ class PdfToolkitApplication : Application() {
             ThemeManager.applyTheme(themeMode)
             Log.d("PdfToolkit", "Theme initialized: $themeMode")
         }
+        
+        // Initialize language (uses AppCompatDelegate for per-app locale)
+        LanguageManager.initializeLanguage(applicationContext)
+        Log.d("PdfToolkit", "Language initialized: ${LanguageManager.getCurrentLanguage()}")
         
         // Auto-clean cache on startup (runs in background)
         applicationScope.launch {

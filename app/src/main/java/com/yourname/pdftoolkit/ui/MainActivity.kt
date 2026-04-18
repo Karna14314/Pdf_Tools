@@ -25,6 +25,7 @@ import com.yourname.pdftoolkit.ui.theme.PDFToolkitTheme
 import com.yourname.pdftoolkit.util.CacheManager
 import com.yourname.pdftoolkit.util.RatingManager
 import com.yourname.pdftoolkit.util.ReviewHelper
+import com.yourname.pdftoolkit.util.LanguageManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -64,6 +65,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        
+        // Initialize language before UI is rendered
+        // This ensures the app displays in the user's selected language
+        LanguageManager.initializeLanguage(this)
         
         // Handle intent if app is opened with a PDF
         // This MUST happen before setContent so pendingPdfUri is set
