@@ -58,6 +58,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -1190,8 +1191,8 @@ private fun PdfPagesContent(
                 PdfPageWithAnnotations(
                     pageIndex = index,
                     loadPage = loadPage,
-                    scale = scale,
-                    pagePanX = pagePanX,
+                    scale = animatedScale,
+                    pagePanX = animatedPanX,
                     isEditMode = isEditMode,
                     selectedTool = selectedTool,
                     selectedColor = selectedColor,
@@ -1236,7 +1237,8 @@ private fun PdfPageWithAnnotations(
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
     val haptic = LocalHapticFeedback.current
-    
+    val density = LocalDensity.current
+
     // Load bitmap lazily
     val bitmap by produceState<Bitmap?>(initialValue = null, key1 = pageIndex) {
         value = loadPage(pageIndex)
@@ -1263,19 +1265,38 @@ private fun PdfPageWithAnnotations(
                 // PDF page image - validate before use to prevent race conditions
                 val bitmapSnapshot = bitmap
                 if (bitmapSnapshot != null && !bitmapSnapshot.isRecycled && bitmapSnapshot.width > 0 && bitmapSnapshot.height > 0) {
+                    // Calculate scaled dimensions to prevent clipping
+                    val scaledWidth = size.width * scale
+                    val scaledHeight = size.height * scale
+                    val needsOverflow = scale > 1f
+
+                    // Convert pixels to dp
+                    val scaledWidthDp = with(density) { scaledWidth.toDp() }
+                    val scaledHeightDp = with(density) { scaledHeight.toDp() }
+
                     Image(
                         bitmap = bitmapSnapshot.asImageBitmap(),
                         contentDescription = "Page ${pageIndex + 1}",
                         modifier = Modifier
-                            .fillMaxWidth()
-                            // Per-page zoom: apply scale and horizontal pan to each Image
+                            .then(
+                                if (needsOverflow) {
+                                    // When zoomed, use exact size to prevent clipping
+                                    Modifier.size(
+                                        width = scaledWidthDp,
+                                        height = scaledHeightDp
+                                    )
+                                } else {
+                                    Modifier.fillMaxWidth()
+                                }
+                            )
+                            // Per-page zoom: apply scale and pan to each Image
                             .graphicsLayer {
                                 scaleX = scale
                                 scaleY = scale
                                 translationX = pagePanX
                                 transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
                             },
-                        contentScale = ContentScale.FillWidth
+                        contentScale = if (needsOverflow) ContentScale.Fit else ContentScale.FillWidth
                     )
                 } else {
                     // Invalid bitmap - show placeholder
