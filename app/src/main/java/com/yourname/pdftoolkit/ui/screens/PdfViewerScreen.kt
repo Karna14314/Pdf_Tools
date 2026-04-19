@@ -563,32 +563,29 @@ fun PdfViewerScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
-                .pointerInput(toolState, selectedAnnotationTool, scale, currentPagePanX, viewportSize, currentPage) {
-                    // Enable controls toggle and double-tap zoom
-                    // Disable gestures only when actively drawing (Edit + Tool)
-                    val isDrawing = toolState is PdfTool.Edit && selectedAnnotationTool != AnnotationTool.NONE
+                .then(
+                    if (toolState is PdfTool.Edit && selectedAnnotationTool != AnnotationTool.NONE) {
+                        Modifier
+                    } else {
+                        Modifier.pointerInput(toolState, selectedAnnotationTool, scale, currentPagePanX, viewportSize, currentPage) {
+                            detectTapGestures(
+                                onTap = { showControls = !showControls },
+                                onDoubleTap = { tapOffset ->
+                                    val newScale = if (scale >= 2f) 1f else 2.5f
 
-                    if (!isDrawing) {
-                        detectTapGestures(
-                            onTap = { showControls = !showControls },
-                            onDoubleTap = { tapOffset ->
-                                // Double-tap zooms smoothly
-                                val newScale = if (scale >= 2f) 1f else 2.5f
-                                
-                                if (newScale > 1f) {
-                                    // Zoom in towards tap point - adjust horizontal pan
-                                    val centerX = viewportSize.width / 2f
-                                    val focusX = tapOffset.x - centerX
-                                    pagePanMap[currentPage] = -focusX * (newScale - 1f)
-                                } else {
-                                    // Zoom out - reset pan
-                                    pagePanMap[currentPage] = 0f
+                                    if (newScale > 1f) {
+                                        val centerX = viewportSize.width / 2f
+                                        val focusX = tapOffset.x - centerX
+                                        pagePanMap[currentPage] = -focusX * (newScale - 1f)
+                                    } else {
+                                        pagePanMap[currentPage] = 0f
+                                    }
+                                    scale = newScale
                                 }
-                                scale = newScale
-                            }
-                        )
+                            )
+                        }
                     }
-                }
+                )
         ) {
             when (uiState) {
                 is PdfViewerUiState.Loading -> {
@@ -615,8 +612,9 @@ fun PdfViewerScreen(
                         loadPage = { viewModel.loadPage(it) },
                         scale = scale,
                         onScaleChange = { scale = it },
-                        pagePanX = currentPagePanX,
-                        onPagePanXChange = { pagePanMap[currentPage] = it },
+                        currentPagePanX = currentPagePanX,
+                        getPagePanX = { page -> pagePanMap[page] ?: 0f },
+                        onPagePanXChange = { page, panX -> pagePanMap[page] = panX },
                         currentPage = currentPage,
                         listState = listState,
                         isEditMode = isEditMode,
@@ -1080,8 +1078,9 @@ private fun PdfPagesContent(
     loadPage: suspend (Int) -> Bitmap?,
     scale: Float,
     onScaleChange: (Float) -> Unit,
-    pagePanX: Float,
-    onPagePanXChange: (Float) -> Unit,
+    currentPagePanX: Float,
+    getPagePanX: (Int) -> Float,
+    onPagePanXChange: (Int, Float) -> Unit,
     currentPage: Int,
     listState: LazyListState,
     isEditMode: Boolean,
@@ -1098,9 +1097,6 @@ private fun PdfPagesContent(
     onViewportSizeChange: (IntSize) -> Unit
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
-    
-    // Track pan position for smooth gesture handling
-    var panX by remember { mutableFloatStateOf(pagePanX) }
     var panY by remember { mutableFloatStateOf(0f) }
     
     // Animate scale changes for smooth zooming
@@ -1108,13 +1104,6 @@ private fun PdfPagesContent(
         targetValue = scale,
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "zoom_scale"
-    )
-    
-    // Animate pan changes
-    val animatedPanX by animateFloatAsState(
-        targetValue = pagePanX,
-        animationSpec = spring(stiffness = Spring.StiffnessMedium),
-        label = "pan_x"
     )
     
     // Improved transformable state with pan and focal point support
@@ -1131,21 +1120,16 @@ private fun PdfPagesContent(
             val maxPanY = (containerSize.height * (newScale - 1f)) / 2f
             
             // Update pan with boundary constraints
-            val newPanX = (pagePanX + panChange.x).coerceIn(-maxPanX, maxPanX)
+            val newPanX = (currentPagePanX + panChange.x).coerceIn(-maxPanX, maxPanX)
             val newPanY = (panY + panChange.y).coerceIn(-maxPanY, maxPanY)
             
-            onPagePanXChange(newPanX)
+            onPagePanXChange(currentPage - 1, newPanX)
             panY = newPanY
         } else {
             // Reset pan when zoomed out
-            onPagePanXChange(0f)
+            onPagePanXChange(currentPage - 1, 0f)
             panY = 0f
         }
-    }
-    
-    // Sync local pan state with external state
-    LaunchedEffect(pagePanX) {
-        panX = pagePanX
     }
     
     Box(
@@ -1190,8 +1174,8 @@ private fun PdfPagesContent(
                 PdfPageWithAnnotations(
                     pageIndex = index,
                     loadPage = loadPage,
-                    scale = scale,
-                    pagePanX = pagePanX,
+                    scale = animatedScale,
+                    pagePanX = getPagePanX(index),
                     isEditMode = isEditMode,
                     selectedTool = selectedTool,
                     selectedColor = selectedColor,
@@ -1258,6 +1242,13 @@ private fun PdfPageWithAnnotations(
                 .fillMaxWidth()
                 .onSizeChanged { size = it }
                 .heightIn(min = 200.dp)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                    translationX = pagePanX
+                    transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
+                    clip = false
+                }
         ) {
             if (bitmap != null) {
                 // PDF page image - validate before use to prevent race conditions
@@ -1266,15 +1257,7 @@ private fun PdfPageWithAnnotations(
                     Image(
                         bitmap = bitmapSnapshot.asImageBitmap(),
                         contentDescription = "Page ${pageIndex + 1}",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            // Per-page zoom: apply scale and horizontal pan to each Image
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                                translationX = pagePanX
-                                transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
-                            },
+                        modifier = Modifier.fillMaxWidth(),
                         contentScale = ContentScale.FillWidth
                     )
                 } else {
