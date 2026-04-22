@@ -117,11 +117,13 @@ class MuPdfViewerEngine(
                     )
                 } else {
                     // Render on demand
-                    scope.launch(Dispatchers.IO) {
-                        val bitmap = renderPage(index)
-                        if (bitmap != null) {
-                            withContext(Dispatchers.Main) {
-                                pageCache[index] = bitmap
+                    androidx.compose.runtime.LaunchedEffect(index) {
+                        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            val bitmap = renderPage(index)
+                            if (bitmap != null) {
+                                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                    pageCache[index] = bitmap
+                                }
                             }
                         }
                     }
