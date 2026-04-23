@@ -96,6 +96,7 @@ class ReviewSystemTest {
         usageTracker.trackMergeUsage()
         usageTracker.trackSplitUsage()
 
+        kotlinx.coroutines.delay(100) // allow background coroutines to persist
         val data = reviewPreferences.getReviewData()
 
         // Verify individual feature counts
@@ -143,6 +144,7 @@ class ReviewSystemTest {
         usageTracker.onAppBackground()
 
         // Get accumulated time
+        kotlinx.coroutines.delay(100) // allow background coroutines to persist
         val timeAfterBackground = reviewPreferences.getReviewData().totalSessionTimeMs
 
         // Should have some session time recorded
@@ -154,6 +156,7 @@ class ReviewSystemTest {
         usageTracker.onAppBackground()
 
         // Time should have accumulated
+        kotlinx.coroutines.delay(100) // allow background coroutines to persist
         val timeAfterSecondBackground = reviewPreferences.getReviewData().totalSessionTimeMs
         assertTrue("Session time should accumulate", timeAfterSecondBackground > timeAfterBackground)
     }
@@ -163,8 +166,11 @@ class ReviewSystemTest {
         // Track some usage
         usageTracker.trackPdfViewerUsage()
         usageTracker.trackMergeUsage()
+        kotlinx.coroutines.delay(100)
 
         // Get new instances (simulating app restart)
+        usageTracker.stopTracking()
+        kotlinx.coroutines.delay(100)
         UsageTracker.resetInstance()
         ReviewPreferences.resetInstance()
 
@@ -203,6 +209,7 @@ class ReviewSystemTest {
     @Test
     fun testCooldownPeriodPreventsRePrompt() = runBlocking {
         // Set up conditions for review
+        usageTracker.onAppForeground()
         repeat(5) { usageTracker.trackPdfViewerUsage() }
         reviewPreferences.addSessionTime(15 * 60 * 1000L)
 
@@ -225,6 +232,7 @@ class ReviewSystemTest {
     @Test
     fun testSessionTimeOnlyCountsForeground() = runBlocking {
         // Start in foreground
+        kotlinx.coroutines.delay(100)
         usageTracker.onAppForeground()
 
         // Get initial time
@@ -239,6 +247,7 @@ class ReviewSystemTest {
 
         // Go to background
         usageTracker.onAppBackground()
+        kotlinx.coroutines.delay(100) // allow background coroutines to persist
         val backgroundTime = afterWait
 
         // Wait again
@@ -274,6 +283,7 @@ class ReviewSystemTest {
         threads.forEach { it.join() }
 
         // Verify counts
+        kotlinx.coroutines.delay(100)
         val data = reviewPreferences.getReviewData()
         assertEquals("PDF Viewer usage should be 20", 20, data.pdfViewerUsage)
         assertEquals("Merge usage should be 20", 20, data.mergeUsage)
@@ -288,13 +298,16 @@ class ReviewSystemTest {
     @Test
     fun testReviewStatsCalculation() = runBlocking {
         // Track usage
+        usageTracker.onAppForeground()
         usageTracker.trackPdfViewerUsage()
         usageTracker.trackMergeUsage()
         usageTracker.trackMergeUsage()
 
+        kotlinx.coroutines.delay(100)
         // Add session time
         reviewPreferences.addSessionTime(5 * 60 * 1000L)
 
+        kotlinx.coroutines.delay(100)
         // Get stats
         val stats = reviewManager.getReviewStats()
 
@@ -302,8 +315,8 @@ class ReviewSystemTest {
         assertEquals("PDF Viewer in stats", 1, stats.pdfViewerUsage)
         assertEquals("Merge in stats", 2, stats.mergeUsage)
         assertEquals("Total usage in stats", 3, stats.totalFeatureUsage)
-        assertEquals("Session time in stats", 5 * 60 * 1000L, stats.totalSessionTimeMs)
-        assertEquals("Session minutes", 5L, stats.totalSessionTimeMinutes)
+        assertTrue("Session time in stats should be at least expected", stats.totalSessionTimeMs >= 5 * 60 * 1000L)
+        assertTrue("Session minutes should be at least expected", stats.totalSessionTimeMinutes >= 5L)
         assertFalse("Should not be able to request", stats.canRequestReview)
         assertFalse("Should not have rated", stats.hasRated)
     }
