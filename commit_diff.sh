@@ -1,0 +1,9 @@
+git add app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfWatermarker.kt
+git add app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfSplitter.kt
+git add app/src/main/java/com/yourname/pdftoolkit/domain/operations/ImageConverter.kt
+git add app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfRotator.kt
+git add app/src/main/java/com/yourname/pdftoolkit/ui/MainActivity.kt
+git add app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerViewModel.kt
+git add app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerScreen.kt
+git add app/src/main/java/com/yourname/pdftoolkit/ui/screens/ScanToPdfScreen.kt
+git add app/src/main/java/com/yourname/pdftoolkit/ui/navigation/AppNavigation.kt
