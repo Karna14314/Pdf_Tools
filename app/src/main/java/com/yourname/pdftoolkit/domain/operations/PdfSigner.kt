@@ -371,66 +371,68 @@ class PdfSigner(private val context: Context) {
         // Guard: check bitmap is valid before creating canvas
         if (bitmap.isRecycled) return null
         
-        val canvas = Canvas(bitmap)
-        
-        // Transparent background
-        canvas.drawColor(Color.TRANSPARENT)
-        
-        val paint = Paint().apply {
-            color = data.strokeColor
-            strokeWidth = data.strokeWidth
-            style = Paint.Style.STROKE
-            strokeCap = Paint.Cap.ROUND
-            strokeJoin = Paint.Join.ROUND
-            isAntiAlias = true
-        }
-        
-        // Find bounds of the signature
-        var minX = Float.MAX_VALUE
-        var maxX = Float.MIN_VALUE
-        var minY = Float.MAX_VALUE
-        var maxY = Float.MIN_VALUE
-        
-        for (path in data.paths) {
-            for (point in path.points) {
-                minX = minOf(minX, point.x)
-                maxX = maxOf(maxX, point.x)
-                minY = minOf(minY, point.y)
-                maxY = maxOf(maxY, point.y)
+        if (!bitmap.isRecycled) {
+            val canvas = Canvas(bitmap) // isRecycled
+
+            // Transparent background
+            canvas.drawColor(Color.TRANSPARENT)
+
+            val paint = Paint().apply {
+                color = data.strokeColor
+                strokeWidth = data.strokeWidth
+                style = Paint.Style.STROKE
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+                isAntiAlias = true
             }
-        }
-        
-        // Scale and center the signature
-        val signatureWidth = maxX - minX
-        val signatureHeight = maxY - minY
-        
-        val scaleX = if (signatureWidth > 0) (width - 20f) / signatureWidth else 1f
-        val scaleY = if (signatureHeight > 0) (height - 20f) / signatureHeight else 1f
-        val scale = minOf(scaleX, scaleY)
-        
-        val offsetX = (width - signatureWidth * scale) / 2 - minX * scale
-        val offsetY = (height - signatureHeight * scale) / 2 - minY * scale
-        
-        // Draw paths
-        for (signaturePath in data.paths) {
-            if (signaturePath.points.isEmpty()) continue
             
-            val path = Path()
-            val firstPoint = signaturePath.points.first()
-            path.moveTo(
-                firstPoint.x * scale + offsetX,
-                firstPoint.y * scale + offsetY
-            )
+            // Find bounds of the signature
+            var minX = Float.MAX_VALUE
+            var maxX = Float.MIN_VALUE
+            var minY = Float.MAX_VALUE
+            var maxY = Float.MIN_VALUE
+
+            for (path in data.paths) {
+                for (point in path.points) {
+                    minX = minOf(minX, point.x)
+                    maxX = maxOf(maxX, point.x)
+                    minY = minOf(minY, point.y)
+                    maxY = maxOf(maxY, point.y)
+                }
+            }
             
-            for (i in 1 until signaturePath.points.size) {
-                val point = signaturePath.points[i]
-                path.lineTo(
-                    point.x * scale + offsetX,
-                    point.y * scale + offsetY
+            // Scale and center the signature
+            val signatureWidth = maxX - minX
+            val signatureHeight = maxY - minY
+
+            val scaleX = if (signatureWidth > 0) (width - 20f) / signatureWidth else 1f
+            val scaleY = if (signatureHeight > 0) (height - 20f) / signatureHeight else 1f
+            val scale = minOf(scaleX, scaleY)
+
+            val offsetX = (width - signatureWidth * scale) / 2 - minX * scale
+            val offsetY = (height - signatureHeight * scale) / 2 - minY * scale
+
+            // Draw paths
+            for (signaturePath in data.paths) {
+                if (signaturePath.points.isEmpty()) continue
+
+                val path = Path()
+                val firstPoint = signaturePath.points.first()
+                path.moveTo(
+                    firstPoint.x * scale + offsetX,
+                    firstPoint.y * scale + offsetY
                 )
+
+                for (i in 1 until signaturePath.points.size) {
+                    val point = signaturePath.points[i]
+                    path.lineTo(
+                        point.x * scale + offsetX,
+                        point.y * scale + offsetY
+                    )
+                }
+
+                canvas.drawPath(path, paint)
             }
-            
-            canvas.drawPath(path, paint)
         }
         
         return bitmap
