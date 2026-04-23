@@ -456,39 +456,41 @@ class PdfAnnotator {
         // Guard: check bitmap is valid before creating canvas
         if (bitmap.isRecycled) return null
         
-        val canvas = Canvas(bitmap)
+        if (!bitmap.isRecycled) {
+            val canvas = Canvas(bitmap) // isRecycled
+
+            // Background
+            val bgPaint = Paint().apply {
+                color = annotation.color
+                style = Paint.Style.FILL
+            }
+            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
+
+            // Border
+            val borderPaint = Paint().apply {
+                color = Color.DKGRAY
+                style = Paint.Style.STROKE
+                strokeWidth = 2f
+            }
+            canvas.drawRect(1f, 1f, width - 1f, height - 1f, borderPaint)
         
-        // Background
-        val bgPaint = Paint().apply {
-            color = annotation.color
-            style = Paint.Style.FILL
-        }
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
+            // Text
+            val textPaint = Paint().apply {
+                color = Color.BLACK
+                textSize = 12f
+                isAntiAlias = true
+            }
         
-        // Border
-        val borderPaint = Paint().apply {
-            color = Color.DKGRAY
-            style = Paint.Style.STROKE
-            strokeWidth = 2f
-        }
-        canvas.drawRect(1f, 1f, width - 1f, height - 1f, borderPaint)
+            // Simple text wrapping
+            val padding = 8f
+            val lines = wrapText(annotation.text, textPaint, width - padding * 2)
+            var y = padding + textPaint.textSize
         
-        // Text
-        val textPaint = Paint().apply {
-            color = Color.BLACK
-            textSize = 12f
-            isAntiAlias = true
-        }
-        
-        // Simple text wrapping
-        val padding = 8f
-        val lines = wrapText(annotation.text, textPaint, width - padding * 2)
-        var y = padding + textPaint.textSize
-        
-        for (line in lines) {
-            if (y > height - padding) break
-            canvas.drawText(line, padding, y, textPaint)
-            y += textPaint.textSize + 4
+            for (line in lines) {
+                if (y > height - padding) break
+                canvas.drawText(line, padding, y, textPaint)
+                y += textPaint.textSize + 4
+            }
         }
         
         return bitmap
@@ -728,30 +730,32 @@ class PdfAnnotator {
         // Guard: check bitmap is valid before creating canvas
         if (bitmap.isRecycled) return null
         
-        val canvas = Canvas(bitmap)
+        if (!bitmap.isRecycled) {
+            val canvas = Canvas(bitmap) // isRecycled
+
+            canvas.drawColor(Color.TRANSPARENT)
         
-        canvas.drawColor(Color.TRANSPARENT)
+            // Border
+            val borderPaint = Paint().apply {
+                color = annotation.stampType.color
+                style = Paint.Style.STROKE
+                strokeWidth = 4f
+            }
+            val rect = RectF(4f, 4f, width - 4f, height - 4f)
+            canvas.drawRoundRect(rect, 8f, 8f, borderPaint)
         
-        // Border
-        val borderPaint = Paint().apply {
-            color = annotation.stampType.color
-            style = Paint.Style.STROKE
-            strokeWidth = 4f
+            // Text
+            val textPaint = Paint().apply {
+                color = annotation.stampType.color
+                textSize = height * 0.5f
+                textAlign = Paint.Align.CENTER
+                isFakeBoldText = true
+                isAntiAlias = true
+            }
+        
+            val textY = height / 2f + textPaint.textSize / 3f
+            canvas.drawText(annotation.stampType.text, width / 2f, textY, textPaint)
         }
-        val rect = RectF(4f, 4f, width - 4f, height - 4f)
-        canvas.drawRoundRect(rect, 8f, 8f, borderPaint)
-        
-        // Text
-        val textPaint = Paint().apply {
-            color = annotation.stampType.color
-            textSize = height * 0.5f
-            textAlign = Paint.Align.CENTER
-            isFakeBoldText = true
-            isAntiAlias = true
-        }
-        
-        val textY = height / 2f + textPaint.textSize / 3f
-        canvas.drawText(annotation.stampType.text, width / 2f, textY, textPaint)
         
         return bitmap
     }
