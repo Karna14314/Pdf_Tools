@@ -394,8 +394,7 @@ class PdfViewerViewModel : ViewModel() {
             val height = (page.height * scale).toInt()
             
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            if (bitmap.isRecycled) return null
-            val canvas = Canvas(bitmap)
+            val canvas = if (!bitmap.isRecycled) Canvas(bitmap) else return null
             canvas.drawColor(android.graphics.Color.WHITE) // White background
             
             page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
