@@ -395,8 +395,6 @@ class PdfViewerViewModel : ViewModel() {
             
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             if (bitmap.isRecycled) return@withLock null
-            if (bitmap.isRecycled) return@withLock null
-            if (bitmap.isRecycled) return null
             val canvas = Canvas(bitmap)
             canvas.drawColor(android.graphics.Color.WHITE) // White background
             

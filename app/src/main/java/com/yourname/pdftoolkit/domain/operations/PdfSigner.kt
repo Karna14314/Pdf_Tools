@@ -370,10 +370,6 @@ class PdfSigner(private val context: Context) {
         
         // Guard: check bitmap is valid before creating canvas
         if (bitmap.isRecycled) return null
-        
-        if (bitmap.isRecycled) return null
-        if (bitmap.isRecycled) return null
-        if (bitmap.isRecycled) return null
         val canvas = Canvas(bitmap)
         
         // Transparent background
