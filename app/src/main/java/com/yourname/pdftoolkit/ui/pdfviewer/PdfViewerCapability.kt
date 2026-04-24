@@ -29,4 +29,20 @@ object PdfViewerCapability {
             false
         }
     }
+
+    @androidx.annotation.VisibleForTesting
+    fun isNativeViewerSupportedForSdk(sdkInt: Int, extensionVersion: Int): Boolean {
+        if (sdkInt < 31) return false
+        return extensionVersion >= 13
+    }
+
+    @androidx.annotation.VisibleForTesting
+    fun isNativeViewerSupportedSafe(sdkInt: Int, extensionProvider: () -> Int): Boolean {
+        if (sdkInt < 31) return false
+        return try {
+            extensionProvider() >= 13
+        } catch (e: Throwable) {
+            false
+        }
+    }
 }

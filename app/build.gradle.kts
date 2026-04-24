@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace = "com.yourname.pdftoolkit"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "28.0.12433510"
 
     defaultConfig {
@@ -115,7 +115,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             // Only use signing config if it exists (not available in F-Droid builds)
-            if (signingConfigs.findByName("release") != null) {
+            if (false) {
                 signingConfig = signingConfigs.getByName("release")
             }
             proguardFiles(
@@ -294,7 +294,8 @@ dependencies {
 
     // PDF Viewer (Jetpack PDF)
     // Using alpha04 for compatibility with compileSdk 35 and existing AGP
-    implementation("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha04")
+    "playstoreImplementation"("androidx.pdf:pdf-viewer-fragment:1.0.0-alpha12")
+    "playstoreImplementation"("androidx.pdf:pdf-ink:1.0.0-alpha12")
     implementation("androidx.fragment:fragment-ktx:1.8.5")
 
     // Ink Library (for annotations)

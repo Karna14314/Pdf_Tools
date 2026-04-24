@@ -50,8 +50,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.viewinterop.AndroidView
+import android.widget.FrameLayout
+import android.view.View
+import com.yourname.pdftoolkit.ui.pdfviewer.PdfEngineCallbacks
 import androidx.compose.ui.unit.dp
-import com.yourname.pdftoolkit.ui.pdfviewer.engine.PdfEngineCallbacks
+
 import com.yourname.pdftoolkit.ui.pdfviewer.engine.PdfEngineFactory
 import com.yourname.pdftoolkit.ui.pdfviewer.engine.PdfViewerEngine
 import com.yourname.pdftoolkit.util.PrintUtils
@@ -149,7 +154,9 @@ fun PdfViewerScreen(
                                 nativeSupportsPageNav = true
                             }
                         }
-                        PdfEngineFactory.createWithCallbacks(
+                        PdfEngineFactory.createWithFragmentManager(
+                            fragmentManager = (context as AppCompatActivity).supportFragmentManager,
+                            containerId = 1234567,
                             context = context,
                             uri = pdfUri,
                             callbacks = callbacks
@@ -342,7 +349,18 @@ fun PdfViewerScreen(
                             // Engine handles all rendering
                             // - AndroidXPdfViewerEngine: PdfViewerFragment via AndroidView
                             // - PdfBoxFallbackEngine/MuPdfViewerEngine: LazyColumn with bitmaps
-                            currentEngine.render()
+                            if (currentEngine.javaClass.simpleName == "AndroidXPdfViewerEngine") {
+                                AndroidView(
+                                    factory = { ctx ->
+                                        FrameLayout(ctx).apply {
+                                            id = 1234567
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                currentEngine.render()
+                            }
                         }
                     }
                 }

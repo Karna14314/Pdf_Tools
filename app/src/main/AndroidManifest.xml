@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Override PDF viewer library minSdk requirement -->
-    <uses-sdk tools:overrideLibrary="androidx.pdf,androidx.pdf.viewer.fragment,androidx.pdf.document.service" />
+    <uses-sdk tools:overrideLibrary="androidx.pdf,androidx.pdf.viewer.fragment,androidx.pdf.document.service,androidx.pdf.ink" />
 
     <!-- Permissions with API level conditions for Play Store compliance -->
     <uses-permission
