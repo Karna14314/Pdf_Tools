@@ -1256,30 +1256,11 @@ private fun PdfPageWithAnnotations(
                 // PDF page image - validate before use to prevent race conditions
                 val bitmapSnapshot = bitmap
                 if (bitmapSnapshot != null && !bitmapSnapshot.isRecycled && bitmapSnapshot.width > 0 && bitmapSnapshot.height > 0) {
-                    // Calculate scaled dimensions to prevent clipping
-                    val scaledWidth = size.width * scale
-                    val scaledHeight = size.height * scale
-                    val needsOverflow = scale > 1f
-
-                    // Convert pixels to dp
-                    val scaledWidthDp = with(density) { scaledWidth.toDp() }
-                    val scaledHeightDp = with(density) { scaledHeight.toDp() }
-
                     Image(
                         bitmap = bitmapSnapshot.asImageBitmap(),
                         contentDescription = "Page ${pageIndex + 1}",
                         modifier = Modifier
-                            .then(
-                                if (needsOverflow) {
-                                    // When zoomed, use exact size to prevent clipping
-                                    Modifier.size(
-                                        width = scaledWidthDp,
-                                        height = scaledHeightDp
-                                    )
-                                } else {
-                                    Modifier.fillMaxWidth()
-                                }
-                            )
+                            .fillMaxWidth()
                             // Per-page zoom: apply scale and pan to each Image
                             .graphicsLayer {
                                 scaleX = scale
@@ -1287,7 +1268,7 @@ private fun PdfPageWithAnnotations(
                                 translationX = pagePanX
                                 transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
                             },
-                        contentScale = if (needsOverflow) ContentScale.Fit else ContentScale.FillWidth
+                        contentScale = ContentScale.FillWidth
                     )
                 } else {
                     // Invalid bitmap - show placeholder
