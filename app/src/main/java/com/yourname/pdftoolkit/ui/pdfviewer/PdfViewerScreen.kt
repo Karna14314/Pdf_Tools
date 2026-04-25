@@ -50,7 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.compose.ui.viewinterop.AndroidView
 import android.widget.FrameLayout
 import android.view.View
@@ -156,7 +156,7 @@ fun PdfViewerScreen(
                             }
                         }
                         PdfEngineFactory.createWithFragmentManager(
-                            fragmentManager = (context as AppCompatActivity).supportFragmentManager,
+                            fragmentManager = (context as FragmentActivity).supportFragmentManager,
                             containerId = View.generateViewId(),
                             context = context,
                             uri = pdfUri,
