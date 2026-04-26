@@ -158,9 +158,8 @@ class PdfViewerViewModel : ViewModel() {
                     PDFBoxResourceLoader.init(context.applicationContext)
                 }
 
-                closeDocument() // Close existing if any
-
                 withContext(Dispatchers.IO) {
+                    closeDocument() // Must run on IO — acquires documentMutex and does file IO
                     // Use a temp file to load the PDF to avoid OOM with large files
                     // PDDocument.load(File, MemoryUsageSetting) allows using disk instead of RAM
                     val fileToLoad: File

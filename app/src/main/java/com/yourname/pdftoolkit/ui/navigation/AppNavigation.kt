@@ -94,11 +94,7 @@ private suspend fun normalizeUriToCache(context: android.content.Context, uri: U
                 }
             }
 
-            androidx.core.content.FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.provider",
-                tempFile
-            )
+            Uri.fromFile(tempFile)
         } catch (e: Exception) {
             android.util.Log.e("AppNavigation", "Failed to normalize URI: $uri", e)
             withContext(kotlinx.coroutines.Dispatchers.Main) {

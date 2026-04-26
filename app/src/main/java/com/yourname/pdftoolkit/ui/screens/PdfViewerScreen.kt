@@ -1271,6 +1271,16 @@ private fun PdfPageWithAnnotations(
                     }
                 )
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        translationX = pagePanX
+                        clip = true
+                    }
+            ) {
             if (!shouldLoad) {
                 Box(
                     modifier = Modifier
@@ -1288,14 +1298,7 @@ private fun PdfPageWithAnnotations(
                     Image(
                         bitmap = bitmapSnapshot.asImageBitmap(),
                         contentDescription = "Page ${pageIndex + 1}",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                                translationX = pagePanX
-                                clip = true
-                            },
+                        modifier = Modifier.fillMaxWidth(),
                         contentScale = ContentScale.FillWidth
                     )
                 } else {
@@ -1388,13 +1391,19 @@ private fun PdfPageWithAnnotations(
                                                     localStroke.toList()
                                                 }
                                                 
+                                                val normalizedPoints = finalPoints.map { offset ->
+                                                    Offset(
+                                                        x = (offset.x / size.width).coerceIn(0f, 1f),
+                                                        y = (offset.y / size.height).coerceIn(0f, 1f)
+                                                    )
+                                                }
                                                 onAddAnnotation(
                                                     AnnotationStroke(
                                                         pageIndex = pageIndex,
                                                         tool = selectedTool,
                                                         color = selectedColor,
-                                                        points = finalPoints,
-                                                        strokeWidth = strokeWidth
+                                                        points = normalizedPoints,
+                                                        strokeWidth = strokeWidth / size.width.toFloat()
                                                     )
                                                 )
                                                 localStroke = mutableListOf()
@@ -1409,9 +1418,13 @@ private fun PdfPageWithAnnotations(
                     annotations.forEach { stroke ->
                         if (stroke.points.isNotEmpty()) {
                             val path = androidx.compose.ui.graphics.Path().apply {
-                                moveTo(stroke.points.first().x, stroke.points.first().y)
+                                val first = stroke.points.first()
+                                moveTo(first.x * size.width, first.y * size.height)
                                 for (i in 1 until stroke.points.size) {
-                                    lineTo(stroke.points[i].x, stroke.points[i].y)
+                                    lineTo(
+                                        stroke.points[i].x * size.width,
+                                        stroke.points[i].y * size.height
+                                    )
                                 }
                             }
                             // Highlighter uses semi-transparent Multiply blend so text shows through
@@ -1426,7 +1439,7 @@ private fun PdfPageWithAnnotations(
                                 path = path,
                                 color = drawColor,
                                 style = androidx.compose.ui.graphics.drawscope.Stroke(
-                                    width = stroke.strokeWidth,
+                                    width = stroke.strokeWidth * size.width,
                                     cap = StrokeCap.Round,
                                     join = androidx.compose.ui.graphics.StrokeJoin.Round
                                 ),
@@ -1436,9 +1449,10 @@ private fun PdfPageWithAnnotations(
                     }
                     if (currentStroke.isNotEmpty()) {
                         val path = androidx.compose.ui.graphics.Path().apply {
-                            moveTo(currentStroke.first().x, currentStroke.first().y)
+                            val first = currentStroke.first()
+                            moveTo((first.x / size.width).coerceIn(0f, 1f) * size.width, (first.y / size.height).coerceIn(0f, 1f) * size.height)
                             for (i in 1 until currentStroke.size) {
-                                lineTo(currentStroke[i].x, currentStroke[i].y)
+                                lineTo((currentStroke[i].x / size.width).coerceIn(0f, 1f) * size.width, (currentStroke[i].y / size.height).coerceIn(0f, 1f) * size.height)
                             }
                         }
                         val strokeWidth = when (selectedTool) {
@@ -1465,6 +1479,7 @@ private fun PdfPageWithAnnotations(
                     }
                 }
             }
+        }
         }
     }
 }
