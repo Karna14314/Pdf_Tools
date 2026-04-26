@@ -35,9 +35,79 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.yourname.pdftoolkit.BuildConfig
 import com.yourname.pdftoolkit.ui.components.HistorySidebar
-import com.yourname.pdftoolkit.ui.pdfviewer.PdfViewerScreen as NativePdfViewerScreen
-import com.yourname.pdftoolkit.ui.screens.PdfViewerScreen as LegacyPdfViewerScreen
+import com.yourname.pdftoolkit.ui.screens.PdfViewerScreen
 import com.yourname.pdftoolkit.ui.screens.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+
+/**
+ * URI normalization helper: copies content URIs from external providers to cache for reliable access.
+ * Returns FileProvider URI for external content URIs, original URI for FileProvider URIs or file:// URIs.
+ */
+private suspend fun normalizeUriToCache(context: android.content.Context, uri: Uri, snackbarHostState: SnackbarHostState): Uri? {
+    // Only process content:// URIs that aren't from our FileProvider
+    if (uri.scheme != "content") return uri
+    if (uri.authority?.contains(context.packageName) == true) return uri
+
+    return withContext(Dispatchers.IO) {
+        try {
+            val cacheDir = File(context.cacheDir, "viewer_cache")
+            if (!cacheDir.exists()) cacheDir.mkdirs()
+
+            val tempFile = File(cacheDir, "pdf_${System.currentTimeMillis()}.pdf")
+
+            // CRITICAL: For Downloads provider, we need to handle it specially
+            // The permission may have expired, so we try multiple approaches
+            var inputStream: java.io.InputStream? = null
+
+            try {
+                // First attempt: direct open
+                inputStream = context.contentResolver.openInputStream(uri)
+            } catch (e: SecurityException) {
+                android.util.Log.w("AppNavigation", "Direct open failed for $uri: ${e.message}")
+
+                // For Downloads provider, try to get a file descriptor via alternative methods
+                if (uri.authority?.contains("downloads") == true || uri.toString().contains("downloads")) {
+                    try {
+                        // Try using the document contract to get a file descriptor
+                        val parcelFileDescriptor = context.contentResolver.openFileDescriptor(uri, "r")
+                        if (parcelFileDescriptor != null) {
+                            inputStream = java.io.FileInputStream(parcelFileDescriptor.fileDescriptor)
+                        }
+                    } catch (e2: Exception) {
+                        android.util.Log.w("AppNavigation", "File descriptor approach failed: ${e2.message}")
+                    }
+                }
+            }
+
+            if (inputStream == null) {
+                throw IllegalStateException("Cannot open input stream for URI: $uri - Permission may have expired")
+            }
+
+            inputStream.use { input ->
+                FileOutputStream(tempFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            androidx.core.content.FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                tempFile
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("AppNavigation", "Failed to normalize URI: $uri", e)
+            withContext(kotlinx.coroutines.Dispatchers.Main) {
+                snackbarHostState.showSnackbar("Failed to access PDF: ${e.message}")
+            }
+            null
+        }
+    }
+}
 
 /**
  * Main navigation component with Bottom Navigation (2 tabs: Tools, Files)
@@ -88,10 +158,14 @@ fun AppNavigation(
     
     // History sidebar state
     var isHistorySidebarOpen by remember { mutableStateOf(false) }
-    
+
+    // Snackbar for URI errors
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Box(modifier = modifier.fillMaxSize()) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             if (showTopBar) {
                 TopAppBar(
@@ -202,7 +276,7 @@ fun AppNavigation(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
-            // PDF Viewer with URI parameters
+            // PDF Viewer with URI parameters - Always uses Legacy viewer for full annotation support
             composable(
                 route = Screen.PdfViewer.route,
                 arguments = listOf(
@@ -218,77 +292,39 @@ fun AppNavigation(
             ) { backStackEntry ->
                 val uriString = backStackEntry.arguments?.getString("uri") ?: ""
                 val name = backStackEntry.arguments?.getString("name") ?: "PDF Document"
-                val uri = if (uriString.isNotEmpty()) Uri.parse(Uri.decode(uriString)) else null
+                val rawUri = if (uriString.isNotEmpty()) Uri.parse(Uri.decode(uriString)) else null
 
-                val isNativeSupported = com.yourname.pdftoolkit.ui.pdfviewer.engine.PdfEngineFactory.isNativeViewerAvailable() && (com.yourname.pdftoolkit.BuildConfig.FLAVOR == "playstore")
+                // URI normalization state
+                var normalizedUri by remember(rawUri) { mutableStateOf<Uri?>(null) }
+                var isNormalizing by remember { mutableStateOf(rawUri != null) }
 
-                if (isNativeSupported) {
-                    NativePdfViewerScreen(
-                        pdfUri = uri,
-                        pdfName = Uri.decode(name),
-                        onNavigateBack = { navController.popBackStack() },
-                        onNavigateToTool = { tool, toolUri, toolName ->
-                            val encodedUri = toolUri?.let { Uri.encode(it.toString()) } ?: ""
-                            val encodedName = Uri.encode(toolName ?: "PDF Document")
-                            when (tool) {
-                                "compress" -> navController.navigate("compress?uri=$encodedUri&name=$encodedName")
-                                "watermark" -> navController.navigate("watermark?uri=$encodedUri&name=$encodedName")
-                                else -> {}
-                            }
-                        },
-                        onAnnotateRequested = { annotateUri ->
-                            try {
-                                context.grantUriPermission(
-                                    context.packageName,
-                                    annotateUri,
-                                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                )
-                            } catch (e: SecurityException) {
-                                // Ignore
-                            }
-                            val encodedUri = Uri.encode(annotateUri.toString())
-                            navController.navigate(Screen.PdfViewerLegacy.createRoute(encodedUri, name))
-                        }
-                    )
-                } else {
-                    LegacyPdfViewerScreen(
-                        pdfUri = uri,
-                        pdfName = Uri.decode(name),
-                        onNavigateBack = { navController.popBackStack() },
-                        onNavigateToTool = { tool, toolUri, toolName ->
-                            val encodedUri = toolUri?.let { Uri.encode(it.toString()) } ?: ""
-                            val encodedName = Uri.encode(toolName ?: "PDF Document")
-                            when (tool) {
-                                "compress" -> navController.navigate("compress?uri=$encodedUri&name=$encodedName")
-                                "watermark" -> navController.navigate("watermark?uri=$encodedUri&name=$encodedName")
-                                else -> {}
-                            }
-                        }
-                    )
-                }
-            }
-
-
-            // PDF Viewer Legacy (full-featured viewer with annotations)
-            composable(
-                route = Screen.PdfViewerLegacy.route,
-                arguments = listOf(
-                    navArgument("uri") {
-                        type = NavType.StringType
-                        defaultValue = ""
-                    },
-                    navArgument("name") {
-                        type = NavType.StringType
-                        defaultValue = "PDF Document"
+                LaunchedEffect(rawUri) {
+                    if (rawUri != null) {
+                        isNormalizing = true
+                        normalizedUri = normalizeUriToCache(context, rawUri, snackbarHostState)
+                        isNormalizing = false
+                    } else {
+                        normalizedUri = null
                     }
-                )
-            ) { backStackEntry ->
-                val uriString = backStackEntry.arguments?.getString("uri") ?: ""
-                val name = backStackEntry.arguments?.getString("name") ?: "PDF Document"
-                val uri = if (uriString.isNotEmpty()) Uri.parse(uriString) else null
+                }
 
-                LegacyPdfViewerScreen(
-                    pdfUri = uri,
+                // Show loading while normalizing
+                if (isNormalizing) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                    return@composable
+                }
+
+                if (rawUri != null && normalizedUri == null) {
+                    LaunchedEffect(rawUri) {
+                        navController.popBackStack()
+                    }
+                    return@composable
+                }
+
+                PdfViewerScreen(
+                    pdfUri = normalizedUri,
                     pdfName = Uri.decode(name),
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToTool = { tool, toolUri, toolName ->
@@ -302,63 +338,58 @@ fun AppNavigation(
                     }
                 )
             }
-            // Direct PDF viewer for intent handling
-            composable("pdf_viewer_direct") {
-                val isNativeSupported = com.yourname.pdftoolkit.ui.pdfviewer.engine.PdfEngineFactory.isNativeViewerAvailable() && (com.yourname.pdftoolkit.BuildConfig.FLAVOR == "playstore")
 
-                if (isNativeSupported) {
-                    NativePdfViewerScreen(
-                        pdfUri = initialPdfUri,
-                        pdfName = initialPdfName ?: "PDF Document",
-                        onNavigateBack = {
-                            navController.navigate(Screen.Tools.route) {
-                                popUpTo("pdf_viewer_direct") { inclusive = true }
-                            }
-                        },
-                        onNavigateToTool = { tool, toolUri, toolName ->
-                            val encodedUri = toolUri?.let { Uri.encode(it.toString()) } ?: ""
-                            val encodedName = Uri.encode(toolName ?: "PDF Document")
-                            when (tool) {
-                                "compress" -> navController.navigate("compress?uri=$encodedUri&name=$encodedName")
-                                "watermark" -> navController.navigate("watermark?uri=$encodedUri&name=$encodedName")
-                                else -> {}
-                            }
-                        },
-                        onAnnotateRequested = { annotateUri ->
-                            try {
-                                context.grantUriPermission(
-                                    context.packageName,
-                                    annotateUri,
-                                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                )
-                            } catch (e: SecurityException) {
-                                // Ignore
-                            }
-                            val encodedUri = Uri.encode(annotateUri.toString())
-                            val encodedName = Uri.encode(initialPdfName ?: "PDF Document")
-                            navController.navigate(Screen.PdfViewerLegacy.createRoute(encodedUri, encodedName))
-                        }
-                    )
-                } else {
-                    LegacyPdfViewerScreen(
-                        pdfUri = initialPdfUri,
-                        pdfName = initialPdfName ?: "PDF Document",
-                        onNavigateBack = {
-                            navController.navigate(Screen.Tools.route) {
-                                popUpTo("pdf_viewer_direct") { inclusive = true }
-                            }
-                        },
-                        onNavigateToTool = { tool, toolUri, toolName ->
-                            val encodedUri = toolUri?.let { Uri.encode(it.toString()) } ?: ""
-                            val encodedName = Uri.encode(toolName ?: "PDF Document")
-                            when (tool) {
-                                "compress" -> navController.navigate("compress?uri=$encodedUri&name=$encodedName")
-                                "watermark" -> navController.navigate("watermark?uri=$encodedUri&name=$encodedName")
-                                else -> {}
-                            }
-                        }
-                    )
+            // Direct PDF viewer for intent handling - Always uses Legacy viewer
+            composable("pdf_viewer_direct") {
+                // URI normalization state for initialPdfUri
+                var normalizedUri by remember(initialPdfUri) { mutableStateOf<Uri?>(null) }
+                var isNormalizing by remember { mutableStateOf(initialPdfUri != null) }
+
+                LaunchedEffect(initialPdfUri) {
+                    if (initialPdfUri != null) {
+                        isNormalizing = true
+                        normalizedUri = normalizeUriToCache(context, initialPdfUri, snackbarHostState)
+                        isNormalizing = false
+                    } else {
+                        normalizedUri = null
+                    }
                 }
+
+                // Show loading while normalizing
+                if (isNormalizing) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                    return@composable
+                }
+
+                if (initialPdfUri != null && normalizedUri == null) {
+                    LaunchedEffect(initialPdfUri) {
+                        navController.navigate(Screen.Tools.route) {
+                            popUpTo("pdf_viewer_direct") { inclusive = true }
+                        }
+                    }
+                    return@composable
+                }
+
+                PdfViewerScreen(
+                    pdfUri = normalizedUri,
+                    pdfName = initialPdfName ?: "PDF Document",
+                    onNavigateBack = {
+                        navController.navigate(Screen.Tools.route) {
+                            popUpTo("pdf_viewer_direct") { inclusive = true }
+                        }
+                    },
+                    onNavigateToTool = { tool, toolUri, toolName ->
+                        val encodedUri = toolUri?.let { Uri.encode(it.toString()) } ?: ""
+                        val encodedName = Uri.encode(toolName ?: "PDF Document")
+                        when (tool) {
+                            "compress" -> navController.navigate("compress?uri=$encodedUri&name=$encodedName")
+                            "watermark" -> navController.navigate("watermark?uri=$encodedUri&name=$encodedName")
+                            else -> {}
+                        }
+                    }
+                )
             }
 
 

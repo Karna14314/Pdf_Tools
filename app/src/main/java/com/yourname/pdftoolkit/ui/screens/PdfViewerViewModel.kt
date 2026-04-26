@@ -1,6 +1,7 @@
 package com.yourname.pdftoolkit.ui.screens
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BlendMode
 import android.graphics.Canvas
@@ -34,6 +35,7 @@ import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,7 +45,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import kotlinx.coroutines.yield
+import kotlin.math.roundToInt
 
 data class PageTextData(val text: String, val positions: List<TextPosition>)
 
@@ -139,6 +141,14 @@ class PdfViewerViewModel : ViewModel() {
 
     // Search Job Control
     private var searchJob: Job? = null
+    @Volatile
+    private var renderTargetWidthPx: Int = 0
+
+    fun setRenderTargetWidth(widthPx: Int) {
+        if (widthPx <= 0 || widthPx == renderTargetWidthPx) return
+        renderTargetWidthPx = widthPx
+        bitmapCache.evictAll()
+    }
 
     fun loadPdf(context: Context, uri: Uri, password: String = "") {
         viewModelScope.launch {
@@ -207,6 +217,14 @@ class PdfViewerViewModel : ViewModel() {
                             document = doc
                             pdfRenderer = PDFRenderer(doc)
                             tempFile = createdTempFile // Transfer ownership to instance
+                        }
+
+                        // CRITICAL: Pre-render first page BEFORE setting state to Loaded
+                        // This ensures the bitmap is ready when the UI first displays,
+                        // preventing blank page issues on initial load
+                        val firstPageBitmap = loadPage(0)
+                        if (firstPageBitmap == null && doc.numberOfPages > 0) {
+                            Log.w("PdfViewerVM", "Failed to pre-render first page, but continuing anyway")
                         }
 
                         _uiState.value = PdfViewerUiState.Loaded(doc.numberOfPages)
@@ -388,11 +406,10 @@ class PdfViewerViewModel : ViewModel() {
             }
             
             page = renderer.openPage(pageIndex)
-            
-            // Calculate dimensions based on scale (72 DPI base * scale)
-            val width = (page.width * scale).toInt()
-            val height = (page.height * scale).toInt()
-            
+
+            val width = (page.width * scale).roundToInt().coerceAtLeast(1)
+            val height = (page.height * scale).roundToInt().coerceAtLeast(1)
+
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvas = if (!bitmap.isRecycled) Canvas(bitmap) else return null
             canvas.drawColor(android.graphics.Color.WHITE) // White background
@@ -411,14 +428,19 @@ class PdfViewerViewModel : ViewModel() {
         }
     }
 
+    // Track bitmaps awaiting delayed recycle to prevent returning them during fast scroll
+    private val pendingRecycleBitmaps = java.util.HashSet<Bitmap>()
+
     /**
      * Validates a bitmap for safe drawing operations.
-     * @return true if bitmap is safe to use (non-null, not recycled, has dimensions)
+     * @return true if bitmap is safe to use (non-null, not recycled, has dimensions, not pending recycle)
      */
     private fun isBitmapValid(bitmap: Bitmap?): Boolean {
         if (bitmap == null) return false
         if (bitmap.isRecycled) return false
         if (bitmap.width <= 0 || bitmap.height <= 0) return false
+        // CRITICAL: Check if bitmap is pending recycle (Fix D - fast scroll issue)
+        if (pendingRecycleBitmaps.contains(bitmap)) return false
         return true
     }
 
@@ -449,8 +471,19 @@ class PdfViewerViewModel : ViewModel() {
 
         override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap?, newValue: Bitmap?) {
             super.entryRemoved(evicted, key, oldValue, newValue)
-            // Do NOT recycle here - bitmap may still be in use by Canvas draw operations.
-            // Let the garbage collector handle bitmap cleanup to avoid race conditions.
+            // Fix D: Track bitmap as pending recycle before delayed recycle
+            // This prevents returning recycled bitmaps during fast scroll
+            oldValue?.let { bitmap ->
+                pendingRecycleBitmaps.add(bitmap)
+                viewModelScope.launch(Dispatchers.IO) {
+                    delay(500)
+                    // Remove from pending set before recycling
+                    pendingRecycleBitmaps.remove(bitmap)
+                    if (!bitmap.isRecycled) {
+                        bitmap.recycle()
+                    }
+                }
+            }
         }
     }
 
@@ -470,6 +503,20 @@ class PdfViewerViewModel : ViewModel() {
         val requiredMemory = fileSize * 4
 
         return availableMemory > requiredMemory
+    }
+
+    private fun getRenderTargetWidthPx(): Int {
+        return renderTargetWidthPx.takeIf { it > 0 }
+            ?: Resources.getSystem().displayMetrics.widthPixels.coerceAtLeast(1)
+    }
+
+    private fun getPageRenderScale(page: PDPage): Float {
+        val pageBox = page.cropBox ?: page.mediaBox
+        val pageWidthPt = (pageBox.width.takeIf { it > 0f }
+            ?: page.mediaBox.width.takeIf { it > 0f }
+            ?: 595f)
+        val targetWidthPx = getRenderTargetWidthPx().toFloat()
+        return (targetWidthPx / pageWidthPt).coerceIn(0.1f, 4.0f)
     }
 
     /**
@@ -516,7 +563,8 @@ class PdfViewerViewModel : ViewModel() {
                     }
 
                     val renderer = pdfRenderer ?: return@withLock null
-                    val scale = RENDER_SCALE
+                    val doc = document ?: return@withLock null
+                    val scale = getPageRenderScale(doc.getPage(pageIndex))
 
                     ensureActive()
 
@@ -586,7 +634,9 @@ class PdfViewerViewModel : ViewModel() {
                             }
 
                             try {
-                                pdfRenderer?.renderImageWithFallback(page, RENDER_SCALE, tempFile)?.let { bitmap ->
+                                val doc = document ?: return@withLock
+                                val scale = getPageRenderScale(doc.getPage(page))
+                                pdfRenderer?.renderImageWithFallback(page, scale, tempFile)?.let { bitmap ->
                                     if (isBitmapValid(bitmap)) {
                                         bitmapCache.put(page, bitmap)
                                     } else {
@@ -691,7 +741,7 @@ class PdfViewerViewModel : ViewModel() {
                                     val tp = pageData.positions[tpIndex]
 
                                     // Scale 1.5f (Matches render scale)
-                                    val scale = RENDER_SCALE
+                                    val scale = getPageRenderScale(doc.getPage(pageIndex))
                                     val x = tp.xDirAdj * scale
                                     val y = tp.yDirAdj * scale
                                     val w = tp.widthDirAdj * scale

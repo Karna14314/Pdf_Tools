@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yourname.pdftoolkit.data.SafUriManager
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 /**
@@ -612,6 +613,11 @@ fun PdfViewerScreen(
                 
                 is PdfViewerUiState.Loaded -> {
                     val isEditMode = toolState is PdfTool.Edit
+                    LaunchedEffect(viewportSize.width) {
+                        if (viewportSize.width > 0) {
+                            viewModel.setRenderTargetWidth(viewportSize.width)
+                        }
+                    }
                     PdfPagesContent(
                         totalPages = totalPages,
                         loadPage = { viewModel.loadPage(it) },
@@ -1102,8 +1108,6 @@ private fun PdfPagesContent(
     searchState: SearchState,
     onViewportSizeChange: (IntSize) -> Unit
 ) {
-    var containerSize by remember { mutableStateOf(IntSize.Zero) }
-
     // Animate scale changes for smooth zooming
     val animatedScale by animateFloatAsState(
         targetValue = scale,
@@ -1124,40 +1128,19 @@ private fun PdfPagesContent(
         animationSpec = spring(stiffness = Spring.StiffnessMedium),
         label = "pan_y"
     )
-
+    val visiblePages by remember(totalPages, listState) {
+        derivedStateOf {
+            val first = listState.firstVisibleItemIndex
+            val last = first + listState.layoutInfo.visibleItemsInfo.size
+            (first - 1).coerceAtLeast(0)..(last + 1).coerceAtMost(totalPages - 1)
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .onSizeChanged {
-                containerSize = it
                 onViewportSizeChange(it)
             }
-            // Apply zoom/pan gestures when not drawing
-            // Uses custom pointerInput to only capture horizontal pan + zoom
-            // Vertical pan passes through to LazyColumn for scrolling
-            .then(
-                if (isEditMode && selectedTool != AnnotationTool.NONE) {
-                    Modifier // No zoom gestures when drawing
-                } else {
-                    Modifier.pointerInput(Unit) {
-                        detectTransformGestures { centroid, pan, zoom, _ ->
-                            val newScale = (scale * zoom).coerceIn(1f, 5f)
-                            onScaleChange(newScale)
-
-                            if (newScale > 1f) {
-                                // Only apply horizontal pan (x component)
-                                // Vertical pan (y) is ignored - let LazyColumn handle it
-                                val maxPanX = (containerSize.width * (newScale - 1f)) / 2f
-                                val newPanX = (pagePanX + pan.x).coerceIn(-maxPanX, maxPanX)
-                                onPagePanXChange(newPanX)
-                            } else {
-                                onPagePanXChange(0f)
-                                onPanYChange(0f)
-                            }
-                        }
-                    }
-                }
-            )
     ) {
         LazyColumn(
             state = listState,
@@ -1190,8 +1173,11 @@ private fun PdfPagesContent(
                 PdfPageWithAnnotations(
                     pageIndex = index,
                     loadPage = loadPage,
+                    shouldLoad = index in visiblePages,
                     scale = animatedScale,
                     pagePanX = animatedPanX,
+                    onScaleChange = onScaleChange,
+                    onPagePanXChange = onPagePanXChange,
                     isEditMode = isEditMode,
                     selectedTool = selectedTool,
                     selectedColor = selectedColor,
@@ -1221,8 +1207,11 @@ private fun PdfPagesContent(
 private fun PdfPageWithAnnotations(
     pageIndex: Int,
     loadPage: suspend (Int) -> Bitmap?,
+    shouldLoad: Boolean,
     scale: Float,
     pagePanX: Float,
+    onScaleChange: (Float) -> Unit,
+    onPagePanXChange: (Float) -> Unit,
     isEditMode: Boolean,
     selectedTool: AnnotationTool,
     selectedColor: Color,
@@ -1236,11 +1225,15 @@ private fun PdfPageWithAnnotations(
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
     val haptic = LocalHapticFeedback.current
-    val density = LocalDensity.current
 
-    // Load bitmap lazily
-    val bitmap by produceState<Bitmap?>(initialValue = null, key1 = pageIndex) {
-        value = loadPage(pageIndex)
+    val bitmap by produceState<Bitmap?>(initialValue = null, key1 = pageIndex, key2 = shouldLoad) {
+        value = if (shouldLoad) {
+            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                loadPage(pageIndex)
+            }
+        } else {
+            null
+        }
     }
 
     Box(
@@ -1258,9 +1251,37 @@ private fun PdfPageWithAnnotations(
             modifier = Modifier
                 .fillMaxWidth()
                 .onSizeChanged { size = it }
-                .heightIn(min = 200.dp)
+                .then(
+                    if (isEditMode && selectedTool != AnnotationTool.NONE) {
+                        Modifier
+                    } else {
+                        Modifier.pointerInput(scale, pagePanX) {
+                            detectTransformGestures { _, pan, zoom, _ ->
+                                val newScale = (scale * zoom).coerceIn(1f, 5f)
+                                onScaleChange(newScale)
+
+                                if (newScale > 1f) {
+                                    val maxPanX = (size.width * (newScale - 1f)) / 2f
+                                    onPagePanXChange((pagePanX + pan.x).coerceIn(-maxPanX, maxPanX))
+                                } else {
+                                    onPagePanXChange(0f)
+                                }
+                            }
+                        }
+                    }
+                )
         ) {
-            if (bitmap != null) {
+            if (!shouldLoad) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f / 1.414f)
+                        .background(Color.LightGray.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                }
+            } else if (bitmap != null) {
                 // PDF page image - validate before use to prevent race conditions
                 val bitmapSnapshot = bitmap
                 if (bitmapSnapshot != null && !bitmapSnapshot.isRecycled && bitmapSnapshot.width > 0 && bitmapSnapshot.height > 0) {
@@ -1269,12 +1290,11 @@ private fun PdfPageWithAnnotations(
                         contentDescription = "Page ${pageIndex + 1}",
                         modifier = Modifier
                             .fillMaxWidth()
-                            // Per-page zoom: apply scale and pan to each Image
                             .graphicsLayer {
                                 scaleX = scale
                                 scaleY = scale
                                 translationX = pagePanX
-                                transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
+                                clip = true
                             },
                         contentScale = ContentScale.FillWidth
                     )
@@ -1576,3 +1596,4 @@ private fun openWithExternalApp(context: Context, pdfUri: Uri) {
         Toast.makeText(context, "No app found to open PDF", Toast.LENGTH_SHORT).show()
     }
 }
+

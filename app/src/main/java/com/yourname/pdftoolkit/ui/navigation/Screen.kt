@@ -34,7 +34,7 @@ sealed class Screen(val route: String) {
     }
 
     // PDF Viewer Legacy (full-featured viewer with annotations)
-    // Used when native viewer doesn't support annotations or user explicitly requests annotation mode
+    // unused - routes merged into PdfViewer
     object PdfViewerLegacy : Screen("pdf_viewer_legacy?uri={uri}&name={name}") {
         fun createRoute(uri: String, name: String = "PDF Document"): String {
             return "pdf_viewer_legacy?uri=$uri&name=$name"

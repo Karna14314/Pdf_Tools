@@ -20,12 +20,10 @@ object PdfViewerCapability {
      * Requires API 31+ AND SDK Extension level 13.
      * Safe to call on any API level.
      */
-    fun isNativeViewerSupported(): Boolean {
-        if (Build.VERSION.SDK_INT < 31) return false
-        return try {
+    fun isSupported(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13
-        } catch (e: Exception) {
-            // Device lied about SDK extension or OEM implementation is broken
+        } else {
             false
         }
     }
