@@ -70,7 +70,7 @@ object PdfEngineFactory {
         }
 
         // Play Store flavor: try native first if supported
-        return if (PdfViewerCapability.isNativeViewerSupported()) {
+        return if (PdfViewerCapability.isSupported()) {
             try {
                 withContext(Dispatchers.Default) {
                     createAndroidXEngineViaReflection(context, fragmentManager, containerId, callbacks)
@@ -92,7 +92,7 @@ object PdfEngineFactory {
      * Convenience method wrapping PdfViewerCapability.
      */
     fun isNativeViewerAvailable(): Boolean {
-        return PdfViewerCapability.isNativeViewerSupported()
+        return PdfViewerCapability.isSupported()
     }
 
     @RequiresApi(Build.VERSION_CODES.S)

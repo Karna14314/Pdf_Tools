@@ -1,15 +1,7 @@
-💡 **What:**
-Extracted `document.getPage(pageIndex)` to a local variable `page` inside the loop in `PdfOcrProcessor.kt`'s `extractTextWithOcr` method before accessing its dimensions via `mediaBox`.
+Fixes for:
+1. Problem 1: ANR fix by wrapping PDF operations in `Dispatchers.IO`.
+2. Problem 2: Zoom transform fix by wrapping `Image` and `Canvas` in a common `Box` with `graphicsLayer`.
+3. Problem 3: Render scale fix using dynamically calculated scale instead of hardcoded 1.0f.
+4. Problem 4: Large file loading performance fix using dynamic `LruCache` sizing and LazyColumn `visibleRange` placeholder handling.
 
-🎯 **Why:**
-`getPage()` in PDFBox is an expensive operation that can involve tree traversal and potentially file I/O depending on how the document is loaded. The original code called `document.getPage(pageIndex)` twice on the same line to get the width and height, resulting in redundant performance overhead during the OCR extraction process.
-
-📊 **Measured Improvement:**
-A benchmark on a generated 2000-page PDF document showed a significant performance improvement when eliminating the double `getPage` call:
-- **Baseline (double `getPage`):** 539 ms
-- **Optimized (single `getPage`):** 127 ms
-- **Improvement:** ~76% reduction in execution time for this block of code.
-
-**Checks performed:**
-- Tested to ensure both `playstore` and `fdroid` builds compile successfully (`./gradlew assemblePlaystoreDebug assembleFdroidDebug`).
-- Ran relevant unit tests and verified no regressions.
+Build passes for `playstore`, `fdroid`, and `opensource` flavors. F-Droid stays 100% FOSS. Tests pass as well.
