@@ -44,6 +44,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
@@ -1145,7 +1146,7 @@ private fun PdfPagesContent(
         LazyColumn(
             state = listState,
             // ALWAYS enable vertical scrolling - LazyColumn handles all vertical scroll
-            userScrollEnabled = !isEditMode || selectedTool == AnnotationTool.NONE,
+            userScrollEnabled = (!isEditMode || selectedTool == AnnotationTool.NONE) && scale <= 1f,
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(vertical = 8.dp)
@@ -1274,13 +1275,17 @@ private fun PdfPageWithAnnotations(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        translationX = pagePanX
-                        clip = true
-                    }
+                    .clipToBounds()
             ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            translationX = pagePanX
+                        }
+                ) {
             if (!shouldLoad) {
                 Box(
                     modifier = Modifier
@@ -1478,6 +1483,7 @@ private fun PdfPageWithAnnotations(
                         )
                     }
                 }
+            }
             }
         }
         }

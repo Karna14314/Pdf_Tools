@@ -133,6 +133,8 @@ class PdfViewerViewModel : ViewModel() {
     // Document management
     private var document: PDDocument? = null
     private var pdfRenderer: PDFRenderer? = null
+    private var nativePdfRenderer: PdfRenderer? = null
+    private var nativePdfRendererPfd: ParcelFileDescriptor? = null
     private val documentMutex = Mutex()
     private var tempFile: File? = null
 
@@ -170,6 +172,19 @@ class PdfViewerViewModel : ViewModel() {
                             fileToLoad = File(uri.path!!)
                         } else {
                             // For content URIs, copy to a temp file
+
+                            // Actively scan and delete orphaned temp files
+                            try {
+                                val cacheFiles = context.cacheDir.listFiles()
+                                cacheFiles?.forEach { file ->
+                                    if (file.name.startsWith("pdf_view_")) {
+                                        file.delete()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e("PdfViewerVM", "Error cleaning up orphaned temp files", e)
+                            }
+
                             // Create a unique temp file in cache dir
                             val temp = File.createTempFile("pdf_view_", ".pdf", context.cacheDir)
 
@@ -216,6 +231,14 @@ class PdfViewerViewModel : ViewModel() {
                             document = doc
                             pdfRenderer = PDFRenderer(doc)
                             tempFile = createdTempFile // Transfer ownership to instance
+
+                            try {
+                                val pfd = ParcelFileDescriptor.open(fileToLoad, ParcelFileDescriptor.MODE_READ_ONLY)
+                                nativePdfRendererPfd = pfd
+                                nativePdfRenderer = PdfRenderer(pfd)
+                            } catch (e: Exception) {
+                                Log.e("PdfViewerVM", "Failed to initialize native PdfRenderer", e)
+                            }
                         }
 
                         // CRITICAL: Pre-render first page BEFORE setting state to Loaded
@@ -357,18 +380,22 @@ class PdfViewerViewModel : ViewModel() {
     private fun isBitmapCorrupt(bitmap: Bitmap): Boolean {
         if (bitmap.width <= 0 || bitmap.height <= 0) return true
         
-        // Sample pixels to check for uniformity
         val width = bitmap.width
         val height = bitmap.height
-        val sampleSize = 10 // Check every 10th pixel
+        val pixels = IntArray(width * height)
         
+        // Pull all pixels into memory at once to avoid constant JNI boundary crossing
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        val sampleSize = 10
         var firstPixel: Int? = null
         var uniformCount = 0
         var totalSamples = 0
         
         for (y in 0 until height step sampleSize) {
             for (x in 0 until width step sampleSize) {
-                val pixel = bitmap.getPixel(x, y)
+                val index = y * width + x
+                val pixel = pixels[index]
                 if (firstPixel == null) {
                     firstPixel = pixel
                 } else if (pixel == firstPixel) {
@@ -386,19 +413,15 @@ class PdfViewerViewModel : ViewModel() {
      * Renders a PDF page using Android's native PdfRenderer.
      */
     private fun renderWithNativePdfRenderer(pageIndex: Int, scale: Float, pdfFile: File?): Bitmap? {
-        if (pdfFile == null || !pdfFile.exists()) {
-            Log.e("PdfViewerVM", "Cannot use native renderer: PDF file not available")
+        val renderer = nativePdfRenderer
+        if (renderer == null) {
+            Log.e("PdfViewerVM", "Cannot use native renderer: not initialized")
             return null
         }
         
-        var pfd: ParcelFileDescriptor? = null
-        var renderer: PdfRenderer? = null
         var page: PdfRenderer.Page? = null
         
         return try {
-            pfd = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY)
-            renderer = PdfRenderer(pfd)
-            
             if (pageIndex >= renderer.pageCount) {
                 Log.e("PdfViewerVM", "Page index $pageIndex out of bounds for native renderer")
                 return null
@@ -422,13 +445,8 @@ class PdfViewerViewModel : ViewModel() {
             null
         } finally {
             page?.close()
-            renderer?.close()
-            pfd?.close()
         }
     }
-
-    // Track bitmaps awaiting delayed recycle to prevent returning them during fast scroll
-    private val pendingRecycleBitmaps = java.util.HashSet<Bitmap>()
 
     /**
      * Validates a bitmap for safe drawing operations.
@@ -438,8 +456,6 @@ class PdfViewerViewModel : ViewModel() {
         if (bitmap == null) return false
         if (bitmap.isRecycled) return false
         if (bitmap.width <= 0 || bitmap.height <= 0) return false
-        // CRITICAL: Check if bitmap is pending recycle (Fix D - fast scroll issue)
-        if (pendingRecycleBitmaps.contains(bitmap)) return false
         return true
     }
 
@@ -470,19 +486,8 @@ class PdfViewerViewModel : ViewModel() {
 
         override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap?, newValue: Bitmap?) {
             super.entryRemoved(evicted, key, oldValue, newValue)
-            // Fix D: Track bitmap as pending recycle before delayed recycle
-            // This prevents returning recycled bitmaps during fast scroll
-            oldValue?.let { bitmap ->
-                pendingRecycleBitmaps.add(bitmap)
-                viewModelScope.launch(Dispatchers.IO) {
-                    delay(500)
-                    // Remove from pending set before recycling
-                    pendingRecycleBitmaps.remove(bitmap)
-                    if (!bitmap.isRecycled) {
-                        bitmap.recycle()
-                    }
-                }
-            }
+            // Removed manual bitmap.recycle() and pendingRecycleBitmaps completely
+            // Let the GC handle it to prevent black boxes and scrambled pixels bugs
         }
     }
 
@@ -994,12 +999,20 @@ class PdfViewerViewModel : ViewModel() {
     private suspend fun closeDocument() {
         documentMutex.withLock {
             try {
+                nativePdfRenderer?.close()
+                nativePdfRendererPfd?.close()
+            } catch (e: Exception) {
+                Log.e("PdfViewerVM", "Error closing native renderer", e)
+            }
+            try {
                 document?.close()
             } catch (e: Exception) {
                 Log.e("PdfViewerVM", "Error closing document", e)
             } finally {
                 document = null
                 pdfRenderer = null
+                nativePdfRenderer = null
+                nativePdfRendererPfd = null
                 extractedTextCache.clear()
                 bitmapCache.evictAll()
 
