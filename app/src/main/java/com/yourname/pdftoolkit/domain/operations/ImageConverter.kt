@@ -70,7 +70,7 @@ class ImageConverter {
         val document = PDDocument()
         
         try {
-            imageUris.forEachIndexed { index, uri ->
+                        imageUris.forEachIndexed { index, uri ->
                 val bitmap = loadBitmap(context, uri)
                     ?: return@withContext Result.failure(
                         IllegalStateException("Cannot load image: $uri")
@@ -78,11 +78,20 @@ class ImageConverter {
                 
                 try {
                     addImageAsPage(document, bitmap, pageSize)
+                } catch (e: OutOfMemoryError) {
+                    System.gc()
+                    return@withContext Result.failure(
+                        IllegalStateException("Not enough memory to add image. Try fewer images or smaller ones.")
+                    )
                 } finally {
-                    bitmap.recycle()
+                    if (!bitmap.isRecycled) {
+                        bitmap.recycle()
+                    }
+                    System.gc()
                 }
                 
                 onProgress((index + 1).toFloat() / imageUris.size)
+                yield()
             }
             
             document.save(outputStream)

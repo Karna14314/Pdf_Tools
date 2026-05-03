@@ -9,3 +9,7 @@ Build flavor implementation for dual-store deployment
 • Added "Print" feature to PDF viewer menu.
 • Improved memory handling for large PDFs and background operations.
 • Improved memory and resource handling during app minimization for rotation and page numbering operations.
+• Fixed critical Out of Memory crashes when opening large PDFs.
+• Fixed App crashing when rapidly converting large images to PDF or heavily watermarking.
+• Resolved infinite loading states when loading files over 50MB.
+• Optimized storage management by limiting cache bloat from opening multiple files.

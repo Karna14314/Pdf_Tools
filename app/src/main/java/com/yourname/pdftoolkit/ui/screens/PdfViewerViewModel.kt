@@ -212,6 +212,20 @@ class PdfViewerViewModel : ViewModel() {
                 withContext(Dispatchers.IO) {
                     // Use a temp file to load the PDF to avoid OOM with large files
                     // PDDocument.load(File, MemoryUsageSetting) allows using disk instead of RAM
+
+                    val fileSize = if (uri.scheme == "file") File(uri.path!!).length() else {
+                        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                            val sizeIndex = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                            if (cursor.moveToFirst() && sizeIndex != -1) cursor.getLong(sizeIndex) else 0L
+                        } ?: 0L
+                    }
+
+                    if (fileSize > 50 * 1024 * 1024) {
+                        withContext(Dispatchers.Main) {
+                            android.widget.Toast.makeText(context, "This file is large and may take a moment to open", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
+
                     val fileToLoad: File
                     var createdTempFile: File? = null
 
@@ -240,7 +254,7 @@ class PdfViewerViewModel : ViewModel() {
                             } else {
                                 PDDocument.load(fileToLoad, MemoryUsageSetting.setupTempFileOnly())
                             }
-                        } ?: throw Exception("PDF too large to open - timed out after 30 seconds")
+                        } ?: throw Exception("PDF too large to open - timed out after 30 seconds. Try a smaller file.")
 
                         val pageCount = doc.numberOfPages
                         Log.d("PdfViewerVM", "Loaded PDF with $pageCount pages")
@@ -471,11 +485,16 @@ class PdfViewerViewModel : ViewModel() {
                     val renderer = pdfRenderer ?: return@withLock null
                     
                     // Use higher scale for scanned/image-heavy pages
+                    // Scale rendered bitmaps based on available heap
+                    val runtime = Runtime.getRuntime()
+                    val availableMemMb = (runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory()) / 1048576
+                    val dynamicRenderScale = if (availableMemMb < 100) 0.5f else if (availableMemMb < 250) 0.75f else RENDER_SCALE
+
                     val scale = if (isScannedPage(pageIndex)) {
                         Log.d("PdfViewerVM", "Page $pageIndex has images, using higher render scale: $RENDER_SCALE_SCANNED")
-                        RENDER_SCALE_SCANNED
+                        if (availableMemMb < 150) RENDER_SCALE else RENDER_SCALE_SCANNED
                     } else {
-                        RENDER_SCALE
+                        dynamicRenderScale
                     }
                     
                     ensureActive()
@@ -831,7 +850,7 @@ class PdfViewerViewModel : ViewModel() {
 
                             if (workingBitmap != null) {
                                 try {
-                                    val canvas = Canvas(workingBitmap)
+                                    val canvas = if (!workingBitmap.isRecycled) Canvas(workingBitmap) else continue
                                     val paint = Paint().apply {
                                         style = Paint.Style.STROKE
                                         strokeCap = Paint.Cap.ROUND

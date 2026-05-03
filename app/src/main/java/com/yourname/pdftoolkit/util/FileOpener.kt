@@ -241,7 +241,12 @@ object FileOpener {
             // Clean old cached files (older than 1 hour)
             cleanOldCachedFiles(cacheDir)
             
-            val cachedFile = File(cacheDir, "open_${System.currentTimeMillis()}.$extension")
+            val uriHash = uri.toString().hashCode().toString(16)
+            val cachedFile = File(cacheDir, "open_${uriHash}.$extension")
+
+            if (cachedFile.exists() && cachedFile.length() > 0) {
+                return cachedFile
+            }
             
             context.contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(cachedFile).use { output ->

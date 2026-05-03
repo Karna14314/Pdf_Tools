@@ -241,14 +241,25 @@ class PdfSplitter {
         context: Context,
         uri: Uri
     ): Int = withContext(Dispatchers.IO) {
+        var tempFile: java.io.File? = null
+        var pfd: android.os.ParcelFileDescriptor? = null
+        var renderer: android.graphics.pdf.PdfRenderer? = null
         try {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly()).use { document ->
-                    document.numberOfPages
+            tempFile = java.io.File.createTempFile("pdf_count_", ".pdf", context.cacheDir)
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
                 }
-            } ?: 0
+            }
+            pfd = android.os.ParcelFileDescriptor.open(tempFile, android.os.ParcelFileDescriptor.MODE_READ_ONLY)
+            renderer = android.graphics.pdf.PdfRenderer(pfd)
+            renderer.pageCount
         } catch (e: Exception) {
             0
+        } finally {
+            try { renderer?.close() } catch (e: Exception) {}
+            try { pfd?.close() } catch (e: Exception) {}
+            try { tempFile?.delete() } catch (e: Exception) {}
         }
     }
     

@@ -239,7 +239,8 @@ fun AppNavigation(
     }
     
     // Handle dynamic URI changes (e.g., from onNewIntent)
-    LaunchedEffect(initialPdfUri) {
+    // We add a random key or use initialPdfUri.toString() to ensure it triggers
+    LaunchedEffect(initialPdfUri?.toString()) {
         if (initialPdfUri != null) {
             // Navigate to PDF viewer when URI changes
             // Use pdf_viewer_direct route which already has access to initialPdfUri/initialPdfName
@@ -367,8 +368,8 @@ fun AppNavigation(
                         navController.navigate(route)
                     },
                     onOpenPdfViewer = { uri, name ->
-                        val encodedUri = Uri.encode(uri.toString())
-                        val encodedName = Uri.encode(name)
+                        val encodedUri = try { Uri.encode(uri.toString()) } catch (e: Exception) { "" }
+                        val encodedName = try { Uri.encode(name) } catch (e: Exception) { "" }
                         navController.navigate(Screen.PdfViewer.createRoute(encodedUri, encodedName))
                     }
                 )
@@ -377,8 +378,8 @@ fun AppNavigation(
             composable(Screen.Files.route) {
                 FilesScreen(
                     onOpenPdfViewer = { uri, name ->
-                        val encodedUri = Uri.encode(uri.toString())
-                        val encodedName = Uri.encode(name)
+                        val encodedUri = try { Uri.encode(uri.toString()) } catch (e: Exception) { "" }
+                        val encodedName = try { Uri.encode(name) } catch (e: Exception) { "" }
                         navController.navigate(Screen.PdfViewer.createRoute(encodedUri, encodedName))
                     }
                 )
@@ -454,8 +455,8 @@ fun AppNavigation(
                     pdfName = Uri.decode(name),
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToTool = { tool, toolUri, toolName ->
-                        val encodedUri = toolUri?.let { Uri.encode(it.toString()) } ?: ""
-                        val encodedName = Uri.encode(toolName ?: "PDF Document")
+                        val encodedUri = try { toolUri?.let { Uri.encode(it.toString()) } ?: "" } catch (e: Exception) { "" }
+                        val encodedName = try { Uri.encode(toolName ?: "PDF Document") } catch (e: Exception) { "" }
                         when (tool) {
                             "compress" -> navController.navigate("compress?uri=$encodedUri&name=$encodedName")
                             "watermark" -> navController.navigate("watermark?uri=$encodedUri&name=$encodedName")
@@ -523,8 +524,8 @@ fun AppNavigation(
                         }
                     },
                     onNavigateToTool = { tool, toolUri, toolName ->
-                        val encodedUri = toolUri?.let { Uri.encode(it.toString()) } ?: ""
-                        val encodedName = Uri.encode(toolName ?: "PDF Document")
+                        val encodedUri = try { toolUri?.let { Uri.encode(it.toString()) } ?: "" } catch (e: Exception) { "" }
+                        val encodedName = try { Uri.encode(toolName ?: "PDF Document") } catch (e: Exception) { "" }
                         when (tool) {
                             "compress" -> navController.navigate("compress?uri=$encodedUri&name=$encodedName")
                             "watermark" -> navController.navigate("watermark?uri=$encodedUri&name=$encodedName")
@@ -696,7 +697,7 @@ fun AppNavigation(
         onOpenFile = { uri ->
             isHistorySidebarOpen = false
             // Navigate to PDF viewer with the file
-            val encodedUri = Uri.encode(uri.toString())
+            val encodedUri = try { Uri.encode(uri.toString()) } catch (e: Exception) { "" }
             navController.navigate(Screen.PdfViewer.createRoute(encodedUri, "PDF Document"))
         }
     )

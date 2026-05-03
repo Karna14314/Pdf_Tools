@@ -350,7 +350,7 @@ class PdfScanner(private val context: Context) {
         }
         
         val result = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(result)
+        val canvas = if (!result.isRecycled) Canvas(result) else return source
         
         val colorMatrix = ColorMatrix().apply {
             setSaturation(0f)
@@ -415,7 +415,7 @@ class PdfScanner(private val context: Context) {
         }
         
         val result = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(result)
+        val canvas = if (!result.isRecycled) Canvas(result) else return source
         
         // Increase contrast by adjusting color matrix
         val contrast = 1.2f

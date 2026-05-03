@@ -346,13 +346,28 @@ class MainActivity : FragmentActivity() {
                 Log.d(TAG, "Cache directory created: $created at ${cacheDir.absolutePath}")
             }
             
-            // Clean old cached files (older than 1 hour)
-            cleanOldCachedFiles(cacheDir)
+            // Clean old cached files (older than 24 hours) to prevent bloat
+            val oneDayAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000)
+            cacheDir.listFiles()?.forEach { file ->
+                if (file.lastModified() < oneDayAgo) {
+                    file.delete()
+                }
+            }
             
             val extension = getFileExtension(fileName)
-            val safeFileName = "shared_${System.currentTimeMillis()}.$extension"
+            val uriHash = sourceUri.toString().hashCode().toString(16)
+            val safeFileName = "shared_${uriHash}.$extension"
             val targetFile = File(cacheDir, safeFileName)
             
+            // Re-use cached file if it exists and has content
+            if (targetFile.exists() && targetFile.length() > 0) {
+                return@withContext FileProvider.getUriForFile(
+                    this@MainActivity,
+                    "$packageName.provider",
+                    targetFile
+                )
+            }
+
             Log.d(TAG, "Starting copy: $sourceUri -> ${targetFile.absolutePath}")
             
             // Open input stream - this MUST work while we still have permission

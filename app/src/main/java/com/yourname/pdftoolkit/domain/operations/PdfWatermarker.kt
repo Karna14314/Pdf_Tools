@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
 import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
@@ -105,12 +106,13 @@ class PdfWatermarker {
                     errorMessage = "Cannot open source PDF"
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             inputStream.close()
             
-            val totalPages = document.numberOfPages
+            val doc = document ?: return@withContext WatermarkResult(success = false, pagesProcessed = 0, errorMessage = "Cannot parse PDF")
+            val totalPages = doc.numberOfPages
             if (totalPages == 0) {
-                document.close()
+                document?.close()
                 return@withContext WatermarkResult(
                     success = false,
                     pagesProcessed = 0,
@@ -137,21 +139,23 @@ class PdfWatermarker {
             
             // Apply watermark to each page
             pagesToProcess.forEachIndexed { index, pageIndex ->
-                val page = document.getPage(pageIndex)
+                val page = doc.getPage(pageIndex)
                 
                 when (config.type) {
                     is WatermarkType.Text -> {
-                        addTextWatermark(document, page, config.type, config.position, config.opacity)
+                        addTextWatermark(doc, page, config.type, config.position, config.opacity)
                     }
                     is WatermarkType.Image -> {
                         watermarkBitmap?.let {
-                            addImageWatermark(document, page, it, config.type, config.position, config.opacity)
+                            addImageWatermark(doc, page, it, config.type, config.position, config.opacity)
                         }
                     }
                 }
                 
                 val progress = 10 + ((index + 1) * 80 / pagesToProcess.size)
                 progressCallback(progress)
+                System.gc()
+                kotlinx.coroutines.yield()
             }
             
             // Recycle bitmap
@@ -161,10 +165,10 @@ class PdfWatermarker {
             
             // Save the document
             context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
-                document.save(outputStream)
+                doc.save(outputStream)
             }
             
-            document.close()
+            document?.close()
             progressCallback(100)
             
             WatermarkResult(

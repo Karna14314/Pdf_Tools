@@ -47,3 +47,18 @@ Each entry represents one week's focused improvement to the PDF viewer and edito
 **Branch:** auto/weekly-20250515-performance-remember-keys
 **Notes:**
 - `LazyColumn` items in `PdfPagesContent` were running `filter` operations on potentially large lists (`annotations` and `searchState.matches`) on every recomposition. Wrapping these in `remember` with appropriate keys improves scroll performance significantly.
+
+## 2026-05-02
+**Status:** SUCCESS ✅
+**Category:** B — Performance
+**Task:** Reduce unnecessary page re-renders by wrapping inline list filtering in remember blocks.
+**Files Changed:**
+- app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerScreen.kt: Wrapped searchState.matches.filter and annotations.filter in remember blocks to prevent O(N) filtering on every scroll recomposition.
+**Verification:**
+- Build: PASS
+- Tests: N/A (pre-existing failures unrelated to changes)
+- Emulator: SKIPPED
+**Performance Impact:**
+- Allocations/Recompositions: Significantly reduced allocations during fast scrolling when searching or viewing annotations in large documents.
+**Branch:** auto/weekly-20260502-optimize-compose-filtering
+**Notes:** O(N) operations inside LazyColumn items block can severely impact scroll performance. Adding `remember` with proper keys solves this.

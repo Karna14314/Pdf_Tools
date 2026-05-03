@@ -1250,12 +1250,18 @@ private fun PdfPagesContent(
                     count = totalPages,
                     key = { it }
                 ) { index ->
-                    val pageMatches = searchState.matches.filter { it.pageIndex == index }
+                    val pageMatches = remember(searchState.matches, index) {
+                        searchState.matches.filter { it.pageIndex == index }
+                    }
                     val currentGlobalResult = searchState.matches.getOrNull(searchState.currentMatchIndex)
                     val currentMatchIndexOnPage = if (currentGlobalResult != null && currentGlobalResult.pageIndex == index) {
                         pageMatches.indexOf(currentGlobalResult)
                     } else {
                         -1
+                    }
+
+                    val pageAnnotations = remember(annotations, index) {
+                        annotations.filter { it.pageIndex == index }
                     }
 
                     PdfPageWithAnnotations(
@@ -1264,7 +1270,7 @@ private fun PdfPagesContent(
                         isEditMode = isEditMode,
                         selectedTool = selectedTool,
                         selectedColor = selectedColor,
-                        annotations = annotations.filter { it.pageIndex == index },
+                        annotations = pageAnnotations,
                         currentStroke = if (currentDrawingPageIndex == index) currentStroke else emptyList(),
                         onCurrentStrokeChange = { stroke ->
                             onDrawingPageIndexChange(index)
