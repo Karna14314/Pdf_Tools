@@ -670,6 +670,7 @@ fun PdfViewerScreen(
                         loadPage = { viewModel.loadPage(it) },
                         getPageState = { viewModel.getPageState(it) },
                         onRetryPage = { viewModel.retryPage(it) },
+                        onDisposePage = { viewModel.cancelPageLoad(it) },
                         scale = scale,
                         onScaleChange = { scale = it },
                         offsetX = offsetX,
@@ -1109,6 +1110,7 @@ private fun PdfPagesContent(
     loadPage: suspend (Int) -> Bitmap?,
     getPageState: (Int) -> PdfViewerViewModel.PageRenderState,
     onRetryPage: (Int) -> Unit,
+    onDisposePage: (Int) -> Unit = {},
     scale: Float,
     onScaleChange: (Float) -> Unit,
     offsetX: Float,
@@ -1289,7 +1291,7 @@ private fun PdfPagesContent(
                         },
                         pageState = getPageState(index),
                         onRetry = onRetryPage,
-                        onDisposePage = { viewModel.cancelPageLoad(it) }
+                        onDisposePage = onDisposePage
                     )
 
                     Text(
