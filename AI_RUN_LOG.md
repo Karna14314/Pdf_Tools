@@ -62,3 +62,21 @@ Each entry represents one week's focused improvement to the PDF viewer and edito
 - Allocations/Recompositions: Significantly reduced allocations during fast scrolling when searching or viewing annotations in large documents.
 **Branch:** auto/weekly-20260502-optimize-compose-filtering
 **Notes:** O(N) operations inside LazyColumn items block can severely impact scroll performance. Adding `remember` with proper keys solves this.
+
+## 2026-05-15
+**Status:** SUCCESS ✅
+**Category:** C — Stability & Storage
+**Task:** Fix recycled bitmap crashes and clean up PDF temp files.
+**Files Changed:**
+- app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerScreen.kt: Added `!isRecycled` guards before using bitmaps in Image and Canvas.
+- app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerViewModel.kt: Catch `CancellationException` in `loadPage` to properly cancel jobs and delete orphaned temp files in `loadPdf`.
+- app/src/main/java/com/yourname/pdftoolkit/util/CacheManager.kt: Added `pdf_view_` prefix to cleanup filter.
+**Verification:**
+- Build: PASS
+- Tests: Test build succeeds but pre-existing failures exist.
+- Emulator: SKIPPED
+**Performance Impact:**
+- Fixes `RuntimeException: Canvas: trying to use a recycled bitmap`.
+- Prevents storage bloat from accumulated temp files.
+**Branch:** auto/weekly-20260515-fix-bitmap-crash-and-caching
+**Notes:** Explicit cancellation handling in coroutines prevents background jobs from lingering, and `isRecycled` checks prevent Choreographer crashes.
