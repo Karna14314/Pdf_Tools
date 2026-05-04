@@ -88,7 +88,7 @@ object CacheManager {
         
         // Clear temp PDF files
         context.cacheDir.listFiles()?.filter {
-            it.name.endsWith(".pdf") || it.name.startsWith("temp_")
+            it.name.endsWith(".pdf") || it.name.startsWith("temp_") || it.name.startsWith("pdf_view_")
         }?.forEach { file ->
             clearedSize += file.length()
             file.delete()

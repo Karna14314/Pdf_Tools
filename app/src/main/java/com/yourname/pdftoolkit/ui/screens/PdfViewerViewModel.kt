@@ -234,6 +234,13 @@ class PdfViewerViewModel : ViewModel() {
                             fileToLoad = File(uri.path!!)
                         } else {
                             // For content URIs, copy to a temp file
+                            // Clean up orphaned pdf_view_ temp files before creating a new one
+                            try {
+                                context.cacheDir.listFiles()?.filter { it.name.startsWith("pdf_view_") }?.forEach { it.delete() }
+                            } catch (e: Exception) {
+                                Log.w("PdfViewerVM", "Error cleaning old temp files", e)
+                            }
+
                             // Create a unique temp file in cache dir
                             val temp = File.createTempFile("pdf_view_", ".pdf", context.cacheDir)
 
@@ -416,6 +423,12 @@ class PdfViewerViewModel : ViewModel() {
         }
     }
     
+    fun cancelPageLoad(pageIndex: Int) {
+        renderJobs[pageIndex]?.cancel()
+        renderJobs.remove(pageIndex)
+        unregisterBitmap(pageIndex)
+    }
+
     suspend fun loadPage(pageIndex: Int): Bitmap? {
         // Page bounds check
         val totalPages = (_uiState.value as? PdfViewerUiState.Loaded)?.totalPages ?: return null
@@ -463,7 +476,12 @@ class PdfViewerViewModel : ViewModel() {
         renderJobs[pageIndex] = job
         
         // Wait for the render job to complete
-        job.join()
+        try {
+            job.join()
+        } catch (e: CancellationException) {
+            job.cancel()
+            throw e
+        }
         
         // Trigger prefetch for adjacent pages
         prefetchPages(pageIndex)

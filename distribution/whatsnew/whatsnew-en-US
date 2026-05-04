@@ -13,3 +13,5 @@ Build flavor implementation for dual-store deployment
 • Fixed App crashing when rapidly converting large images to PDF or heavily watermarking.
 • Resolved infinite loading states when loading files over 50MB.
 • Optimized storage management by limiting cache bloat from opening multiple files.
+• Fixed a crash when repeatedly opening and closing large PDFs.
+• Fixed file cache accumulation over time.
