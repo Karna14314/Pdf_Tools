@@ -36,6 +36,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -1287,7 +1288,8 @@ private fun PdfPagesContent(
                             }
                         },
                         pageState = getPageState(index),
-                        onRetry = onRetryPage
+                        onRetry = onRetryPage,
+                        onDisposePage = { viewModel.cancelPageLoad(it) }
                     )
 
                     Text(
@@ -1320,7 +1322,8 @@ private fun PdfPageWithAnnotations(
     onPageSizeChanged: ((IntSize) -> Unit)? = null,
     // Page state for error handling
     pageState: PdfViewerViewModel.PageRenderState = PdfViewerViewModel.PageRenderState.Idle,
-    onRetry: (Int) -> Unit = {}
+    onRetry: (Int) -> Unit = {},
+    onDisposePage: (Int) -> Unit = {}
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
     val haptic = LocalHapticFeedback.current
@@ -1328,6 +1331,12 @@ private fun PdfPageWithAnnotations(
     // Load bitmap lazily
     val bitmap by produceState<Bitmap?>(initialValue = null, key1 = pageIndex) {
         value = loadPage(pageIndex)
+    }
+
+    DisposableEffect(pageIndex) {
+        onDispose {
+            onDisposePage(pageIndex)
+        }
     }
 
     // Shimmer animation for loading state
@@ -1368,7 +1377,7 @@ private fun PdfPageWithAnnotations(
                 .heightIn(min = 200.dp)
         ) {
             when {
-                bitmap != null -> {
+                bitmap != null && !bitmap!!.isRecycled -> {
                     // PDF page image
                     Image(
                         bitmap = bitmap!!.asImageBitmap(),
@@ -1435,7 +1444,7 @@ private fun PdfPageWithAnnotations(
             }
             
             // Search Highlights Overlay
-            if (pageMatches.isNotEmpty() && bitmap != null) {
+            if (pageMatches.isNotEmpty() && bitmap != null && !bitmap!!.isRecycled) {
                 Canvas(modifier = Modifier.matchParentSize()) {
                     pageMatches.forEachIndexed { index, match ->
                         val color = if (index == currentMatchIndexOnPage) {
@@ -1468,7 +1477,7 @@ private fun PdfPageWithAnnotations(
             }
             
             // Annotation overlay (kept same)
-            if ((isEditMode || annotations.isNotEmpty()) && bitmap != null) {
+            if ((isEditMode || annotations.isNotEmpty()) && bitmap != null && !bitmap!!.isRecycled) {
                 Canvas(
                     modifier = Modifier
                         .matchParentSize()
