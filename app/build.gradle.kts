@@ -200,7 +200,7 @@ android {
         val variant = this
         variant.outputs.all {
             val outputImpl = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            if (variant.buildType.name == "release") {
+            if (variant.buildType.name == "release" && variant.flavorName != "fdroid") {
                 val flavorName = variant.flavorName
                 outputImpl.outputFileName = "pdftoolkit-${flavorName}-v${variant.versionName}.apk"
             }
