@@ -196,8 +196,6 @@ class PdfViewerViewModel : ViewModel() {
                     PDFBoxResourceLoader.init(context.applicationContext)
                 }
 
-                closeDocument() // Close existing if any
-                
                 // Pre-open memory check
                 val runtime = Runtime.getRuntime()
                 val availableMemMb = (runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory()) / 1048576
@@ -208,6 +206,8 @@ class PdfViewerViewModel : ViewModel() {
                 }
 
                 withContext(Dispatchers.IO) {
+                    closeDocument() // Close existing if any, MUST be in IO dispatcher
+
                     // Use a temp file to load the PDF to avoid OOM with large files
                     // PDDocument.load(File, MemoryUsageSetting) allows using disk instead of RAM
                     val fileToLoad: File

@@ -1172,7 +1172,7 @@ private fun PdfPagesContent(
             LazyColumn(
                 state = listState,
                 // Keep vertical scrolling owned by LazyColumn so zoomed pages never pan into blank viewport space.
-                userScrollEnabled = !isEditMode || selectedTool == AnnotationTool.NONE,
+                userScrollEnabled = (!isEditMode || selectedTool == AnnotationTool.NONE) && scale <= 1f,
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 contentPadding = PaddingValues(vertical = 8.dp)
