@@ -138,7 +138,7 @@
     <string name="merge_progress">Fusionando PDFs...</string>
     <string name="merge_complete">Fusión Completada</string>
     <string name="merge_failed">Fusión Fallida</string>
-    <string name="merge_success_message">Fusionados exitosamente %d PDFs\n\nGuardado en: %s/%s</string>
+    <string name="merge_success_message">Fusionados exitosamente %1$d PDFs\n\nGuardado en: %2$s/%3$s</string>
     <string name="merge_custom_location">Elegir ubicación de guardado personalizada</string>
     <string name="merge_default_path">Predeterminado: %s</string>
 
@@ -160,7 +160,7 @@
     <string name="compress_saved">PDF comprimido guardado.</string>
     <string name="compress_before">Antes: %s</string>
     <string name="compress_after">Después: %s</string>
-    <string name="compress_saved_bytes">Ahorrado: %s (%d%%)</string>
+    <string name="compress_saved_bytes">Ahorrado: %1$s (%2$d%%)</string>
     <string name="compress_note_optimized">Nota: Este PDF ya puede estar optimizado o contener principalmente texto.</string>
     <string name="compress_select_pdf">Seleccionar PDF</string>
 
@@ -180,10 +180,10 @@
     <!-- PDF Viewer -->
     <string name="pdf_viewer_title">Visor de PDF</string>
     <string name="pdf_document_default_name">Documento PDF</string>
-    <string name="pdf_page_indicator">Página %d de %d (%d%%)</string>
+    <string name="pdf_page_indicator">Página %1$d de %2$d (%3$d%%)</string>
     <string name="pdf_search_placeholder">Buscar en PDF...</string>
     <string name="pdf_search_no_matches">Sin coincidencias</string>
-    <string name="pdf_search_results">%d/%d</string>
+    <string name="pdf_search_results">%1$d/%2$d</string>
     <string name="pdf_zoom_in">Acercar</string>
     <string name="pdf_zoom_out">Alejar</string>
     <string name="pdf_fit_to_width">Ajustar al ancho</string>
@@ -213,7 +213,7 @@
     <string name="settings_section_about">Acerca de</string>
     <string name="settings_section_language">Idioma</string>
     <string name="settings_compression_quality">Calidad de Compresión Predeterminada</string>
-    <string name="settings_compression_quality_value">%d%% - %s</string>
+    <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
     <string name="settings_image_format">Formato de Imagen Predeterminado</string>
     <string name="settings_theme_mode">Modo de Tema</string>
     <string name="settings_cache_size">Tamaño de Caché</string>
@@ -247,7 +247,7 @@
     <string name="settings_made_with_love">Hecho con ❤️ para la productividad</string>
     <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">Seleccionar Idioma</string>
-    <string name="settings_language_changed">Idioma cambiado. Reiniciando app...</string>
+    <string name="settings_language_changed">Idioma cambiado</string>
 
     <!-- Language Names -->
     <string name="language_english">English</string>

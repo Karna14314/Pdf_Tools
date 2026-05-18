@@ -439,8 +439,6 @@ fun SettingsScreen(
                                 .clickable {
                                     scope.launch {
                                         ThemeManager.setThemeMode(context, theme)
-                                        // Recreate activity to apply theme immediately
-                                        (context as? android.app.Activity)?.recreate()
                                     }
                                     showThemeDialog = false
                                 }
@@ -452,8 +450,6 @@ fun SettingsScreen(
                                 onClick = {
                                     scope.launch {
                                         ThemeManager.setThemeMode(context, theme)
-                                        // Recreate activity to apply theme immediately
-                                        (context as? android.app.Activity)?.recreate()
                                     }
                                     showThemeDialog = false
                                 }
@@ -502,13 +498,11 @@ fun SettingsScreen(
                                     scope.launch {
                                         LanguageManager.changeLanguage(context, language.code)
                                         showLanguageDialog = false
-                                        // Recreate activity to apply language change
                                         Toast.makeText(
                                             context,
                                             R.string.settings_language_changed,
                                             Toast.LENGTH_SHORT
                                         ).show()
-                                        (context as? android.app.Activity)?.recreate()
                                     }
                                 }
                                 .padding(12.dp),
@@ -525,7 +519,6 @@ fun SettingsScreen(
                                             R.string.settings_language_changed,
                                             Toast.LENGTH_SHORT
                                         ).show()
-                                        (context as? android.app.Activity)?.recreate()
                                     }
                                 }
                             )

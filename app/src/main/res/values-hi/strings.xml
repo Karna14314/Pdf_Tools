@@ -138,7 +138,7 @@
     <string name="merge_progress">PDFs मर्ज हो रहे हैं...</string>
     <string name="merge_complete">मर्ज पूरा हुआ</string>
     <string name="merge_failed">मर्ज विफल</string>
-    <string name="merge_success_message">%d PDFs सफलतापूर्वक मर्ज किए गए\n\nसेव किया गया: %s/%s</string>
+    <string name="merge_success_message">%1$d PDFs सफलतापूर्वक मर्ज किए गए\n\nसेव किया गया: %2$s/%3$s</string>
     <string name="merge_custom_location">कस्टम सेव लोकेशन चुनें</string>
     <string name="merge_default_path">डिफ़ॉल्ट: %s</string>
 
@@ -160,7 +160,7 @@
     <string name="compress_saved">संपीड़ित PDF सेव किया गया।</string>
     <string name="compress_before">पहले: %s</string>
     <string name="compress_after">बाद में: %s</string>
-    <string name="compress_saved_bytes">बचाया गया: %s (%d%%)</string>
+    <string name="compress_saved_bytes">बचाया गया: %1$s (%2$d%%)</string>
     <string name="compress_note_optimized">नोट: यह PDF पहले से ऑप्टिमाइज़ हो सकता है या ज्यादातर टेक्स्ट हो सकता है।</string>
     <string name="compress_select_pdf">PDF चुनें</string>
 
@@ -180,10 +180,10 @@
     <!-- PDF Viewer -->
     <string name="pdf_viewer_title">PDF व्यूअर</string>
     <string name="pdf_document_default_name">PDF दस्तावेज़</string>
-    <string name="pdf_page_indicator">पेज %d का %d (%d%%)</string>
+    <string name="pdf_page_indicator">पेज %1$d का %2$d (%3$d%%)</string>
     <string name="pdf_search_placeholder">PDF में सर्च करें...</string>
     <string name="pdf_search_no_matches">कोई मैच नहीं</string>
-    <string name="pdf_search_results">%d/%d</string>
+    <string name="pdf_search_results">%1$d/%2$d</string>
     <string name="pdf_zoom_in">ज़ूम इन</string>
     <string name="pdf_zoom_out">ज़ूम आउट</string>
     <string name="pdf_fit_to_width">चौड़ाई में फिट करें</string>
@@ -213,7 +213,7 @@
     <string name="settings_section_about">एप के बारे में</string>
     <string name="settings_section_language">भाषा</string>
     <string name="settings_compression_quality">डिफ़ॉल्ट संपीड़न क्वालिटी</string>
-    <string name="settings_compression_quality_value">%d%% - %s</string>
+    <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
     <string name="settings_image_format">डिफ़ॉल्ट इमेज फॉर्मेट</string>
     <string name="settings_theme_mode">थीम मोड</string>
     <string name="settings_cache_size">कैश साइज़</string>
@@ -247,13 +247,15 @@
     <string name="settings_made_with_love">प्रोडक्टिविटी के लिए ❤️ से बनाया गया</string>
     <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">भाषा चुनें</string>
-    <string name="settings_language_changed">भाषा बदल गई। ऐप रीस्टार्ट हो रहा है...</string>
+    <string name="settings_language_changed">भाषा बदल गई</string>
 
     <!-- Language Names -->
     <string name="language_english">English</string>
     <string name="language_spanish">Español</string>
     <string name="language_hindi">हिन्दी</string>
     <string name="language_chinese">中文</string>
+    <string name="language_portuguese">TODO: Português (Brasil)</string>
+    <string name="language_german">TODO: Deutsch</string>
 
     <!-- Image Format Options -->
     <string name="image_format_webp">WebP (सुझाया गया)</string>

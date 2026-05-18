@@ -63,12 +63,10 @@ class MainActivity : FragmentActivity() {
     private var isLoadingState: androidx.compose.runtime.MutableState<Boolean>? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Initialize language before Activity.onCreate so AppCompatDelegate applies locales immediately.
+        LanguageManager.initializeLanguage(this)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        
-        // Initialize language before UI is rendered
-        // This ensures the app displays in the user's selected language
-        LanguageManager.initializeLanguage(this)
         
         // Handle intent if app is opened with a PDF
         // This MUST happen before setContent so pendingPdfUri is set

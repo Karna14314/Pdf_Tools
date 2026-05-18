@@ -33,6 +33,7 @@
         android:theme="@style/Theme.PDFToolkit"
         android:hardwareAccelerated="true"
         android:requestLegacyExternalStorage="true"
+        android:localeConfig="@xml/locale_config"
         tools:targetApi="31">
 
         <activity

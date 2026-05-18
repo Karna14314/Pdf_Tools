@@ -122,7 +122,7 @@
     <string name="desc_delete_pages">Remove pages from PDF</string>
     <string name="desc_compress_image">Reduce image file size</string>
     <string name="desc_resize_image">Change image dimensions</string>
-    <string name="desc_convert_format">JPEG ↔ WebP</string>
+    <string name="desc_convert_format">JPEG �?? WebP</string>
     <string name="desc_strip_metadata">Remove EXIF data</string>
     <string name="desc_lock_pdf">Password protect your PDF</string>
     <string name="desc_sign">Add your signature</string>
@@ -138,7 +138,7 @@
     <string name="merge_progress">Merging PDFs...</string>
     <string name="merge_complete">Merge Complete</string>
     <string name="merge_failed">Merge Failed</string>
-    <string name="merge_success_message">Successfully merged %d PDFs\n\nSaved to: %s/%s</string>
+    <string name="merge_success_message">Successfully merged %1$d PDFs\n\nSaved to: %2$s/%3$s</string>
     <string name="merge_custom_location">Choose custom save location</string>
     <string name="merge_default_path">Default: %s</string>
 
@@ -160,7 +160,7 @@
     <string name="compress_saved">Compressed PDF saved.</string>
     <string name="compress_before">Before: %s</string>
     <string name="compress_after">After: %s</string>
-    <string name="compress_saved_bytes">Saved: %s (%d%%)</string>
+    <string name="compress_saved_bytes">Saved: %1$s (%2$d%%)</string>
     <string name="compress_note_optimized">Note: This PDF may already be optimized or contain mostly text.</string>
     <string name="compress_select_pdf">Select PDF</string>
 
@@ -180,10 +180,10 @@
     <!-- PDF Viewer -->
     <string name="pdf_viewer_title">PDF Viewer</string>
     <string name="pdf_document_default_name">PDF Document</string>
-    <string name="pdf_page_indicator">Page %d of %d (%d%%)</string>
+    <string name="pdf_page_indicator">Page %1$d of %2$d (%3$d%%)</string>
     <string name="pdf_search_placeholder">Search in PDF...</string>
     <string name="pdf_search_no_matches">No matches</string>
-    <string name="pdf_search_results">%d/%d</string>
+    <string name="pdf_search_results">%1$d/%2$d</string>
     <string name="pdf_zoom_in">Zoom in</string>
     <string name="pdf_zoom_out">Zoom out</string>
     <string name="pdf_fit_to_width">Fit to width</string>
@@ -213,7 +213,7 @@
     <string name="settings_section_about">About</string>
     <string name="settings_section_language">Language</string>
     <string name="settings_compression_quality">Default Compression Quality</string>
-    <string name="settings_compression_quality_value">%d%% - %s</string>
+    <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
     <string name="settings_image_format">Default Image Format</string>
     <string name="settings_theme_mode">Theme Mode</string>
     <string name="settings_cache_size">Cache Size</string>
@@ -247,13 +247,15 @@
     <string name="settings_made_with_love">Made with ❤️ for productivity</string>
     <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">Select Language</string>
-    <string name="settings_language_changed">Language changed. Restarting app...</string>
+    <string name="settings_language_changed">Language changed</string>
 
     <!-- Language Names -->
     <string name="language_english">English</string>
     <string name="language_spanish">Español</string>
     <string name="language_hindi">हिन्दी</string>
     <string name="language_chinese">中文</string>
+    <string name="language_portuguese">Português (Brasil)</string>
+    <string name="language_german">Deutsch</string>
 
     <!-- Image Format Options -->
     <string name="image_format_webp">WebP (Recommended)</string>
@@ -329,3 +331,4 @@
     <string name="result_error">Error</string>
 
 </resources>
+

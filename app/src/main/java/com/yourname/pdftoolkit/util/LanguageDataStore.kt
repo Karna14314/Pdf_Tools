@@ -17,14 +17,14 @@ object LanguageDataStore {
     
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_preferences")
     
-    private val SELECTED_LANGUAGE_KEY = stringPreferencesKey("selected_language")
+    private val SELECTED_LANGUAGE_KEY = stringPreferencesKey("app_language")
     private const val DEFAULT_LANGUAGE = LanguageCodes.ENGLISH
     
     /**
      * Save the selected language to DataStore.
      *
      * @param context Application context
-     * @param languageCode Language code to save (en, es, hi, zh)
+     * @param languageCode Language code to save (en, hi, zh, pt-BR, de)
      */
     suspend fun saveSelectedLanguage(context: Context, languageCode: String) {
         context.dataStore.edit { preferences ->
