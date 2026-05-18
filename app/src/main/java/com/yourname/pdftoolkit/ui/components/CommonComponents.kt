@@ -13,7 +13,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.yourname.pdftoolkit.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -84,7 +86,7 @@ fun ActionButton(
             Spacer(modifier = Modifier.width(8.dp))
         }
         Text(
-            text = if (isLoading) "Processing..." else text,
+            text = if (isLoading) stringResource(R.string.action_processing) else text,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
@@ -237,7 +239,7 @@ fun ResultDialog(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Close")
+                        Text(stringResource(R.string.action_close))
                     }
                     
                     if (onAction != null && isSuccess) {
@@ -245,7 +247,7 @@ fun ResultDialog(
                             onClick = onAction,
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text(actionText)
+                            Text(text = actionText)
                         }
                     }
                 }
@@ -286,7 +288,7 @@ fun FileItemCard(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Text(
-                        text = "PDF",
+                        text = stringResource(R.string.label_pdf),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer

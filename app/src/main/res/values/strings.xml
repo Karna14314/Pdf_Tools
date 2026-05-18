@@ -1,4 +1,331 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App Name -->
     <string name="app_name">PDF Toolkit</string>
+
+    <!-- Common Actions -->
+    <string name="action_add">Add</string>
+    <string name="action_add_more">Add More</string>
+    <string name="action_add_more_pdfs">Add More PDFs</string>
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_close">Close</string>
+    <string name="action_compress">Compress</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_done">Done</string>
+    <string name="action_merge">Merge</string>
+    <string name="action_next">Next</string>
+    <string name="action_open">Open</string>
+    <string name="action_open_pdf">Open PDF</string>
+    <string name="action_previous">Previous</string>
+    <string name="action_processing">Processing...</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_save">Save</string>
+    <string name="action_save_as">Save As</string>
+    <string name="action_select">Select</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_split">Split</string>
+    <string name="action_submit">Submit</string>
+    <string name="action_view">View</string>
+    <string name="action_navigate">Navigate</string>
+    <string name="action_move_up">Move up</string>
+    <string name="action_move_down">Move down</string>
+
+    <!-- Navigation & Content Descriptions -->
+    <string name="cd_open_pdf">Open PDF</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_close_search">Close search</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="cd_stop_search">Stop Search</string>
+    <string name="cd_previous_result">Previous</string>
+    <string name="cd_next_result">Next</string>
+    <string name="cd_compression_quality">Compression Quality</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">PDF Toolkit</string>
+    <string name="home_subtitle">All your PDF &amp; image tools in one place</string>
+    <string name="fab_open_pdf">Open PDF</string>
+
+    <!-- Tool Categories -->
+    <string name="category_organize">Organize</string>
+    <string name="category_convert">Convert</string>
+    <string name="category_markup">Markup</string>
+    <string name="category_security">Security</string>
+    <string name="category_optimize">Optimize</string>
+    <string name="category_quick_actions">Quick Actions</string>
+    <string name="category_image_tools">Image Tools</string>
+    <string name="category_view_export">View &amp; Export</string>
+
+    <!-- Tool Names - Organize -->
+    <string name="tool_merge_pdfs">Merge PDFs</string>
+    <string name="tool_merge_pdf">Merge PDF</string>
+    <string name="tool_split_pdf">Split PDF</string>
+    <string name="tool_organize_pages">Organize Pages</string>
+    <string name="tool_rotate_pages">Rotate Pages</string>
+    <string name="tool_extract_pages">Extract Pages</string>
+    <string name="tool_reorder_pages">Reorder Pages</string>
+    <string name="tool_delete_pages">Delete Pages</string>
+
+    <!-- Tool Names - Convert -->
+    <string name="tool_images_to_pdf">Images to PDF</string>
+    <string name="tool_pdf_to_images">PDF to Images</string>
+    <string name="tool_html_to_pdf">HTML to PDF</string>
+    <string name="tool_extract_text">Extract Text</string>
+    <string name="tool_scan_to_pdf">Scan to PDF</string>
+    <string name="tool_ocr">OCR</string>
+    <string name="tool_image_tools">Image Tools</string>
+
+    <!-- Tool Names - Markup -->
+    <string name="tool_sign_pdf">Sign PDF</string>
+    <string name="tool_fill_forms">Fill Forms</string>
+    <string name="tool_annotate_pdf">Annotate PDF</string>
+
+    <!-- Tool Names - Security -->
+    <string name="tool_add_security">Add Security</string>
+    <string name="tool_lock_pdf">Lock PDF</string>
+    <string name="tool_unlock_pdf">Unlock PDF</string>
+    <string name="tool_add_watermark">Add Watermark</string>
+    <string name="tool_flatten_pdf">Flatten PDF</string>
+
+    <!-- Tool Names - Optimize -->
+    <string name="tool_compress_pdf">Compress PDF</string>
+    <string name="tool_repair_pdf">Repair PDF</string>
+    <string name="tool_page_numbers">Page Numbers</string>
+    <string name="tool_view_metadata">View Metadata</string>
+
+    <!-- Tool Descriptions -->
+    <string name="desc_merge_pdfs">Combine multiple PDF files into one</string>
+    <string name="desc_split_pdf">Split a PDF into multiple files</string>
+    <string name="desc_organize_pages">Remove or reorder PDF pages</string>
+    <string name="desc_rotate_pages">Rotate PDF pages</string>
+    <string name="desc_extract_pages">Extract specific pages from PDF</string>
+    <string name="desc_images_to_pdf">Convert images to PDF</string>
+    <string name="desc_pdf_to_images">Convert PDF pages to images</string>
+    <string name="desc_html_to_pdf">Convert webpage or HTML to PDF</string>
+    <string name="desc_extract_text">Extract text content to TXT file</string>
+    <string name="desc_scan_to_pdf">Scan documents with camera</string>
+    <string name="desc_ocr">Make scanned PDFs searchable</string>
+    <string name="desc_image_tools">Resize, compress, convert images</string>
+    <string name="desc_sign_pdf">Add your signature to PDF</string>
+    <string name="desc_fill_forms">Fill PDF form fields</string>
+    <string name="desc_annotate_pdf">Add highlights, notes, stamps</string>
+    <string name="desc_add_security">Password protect your PDFs</string>
+    <string name="desc_unlock_pdf">Remove password from PDFs</string>
+    <string name="desc_add_watermark">Add text or image watermark</string>
+    <string name="desc_flatten_pdf">Merge annotations to content</string>
+    <string name="desc_compress_pdf">Reduce PDF file size</string>
+    <string name="desc_repair_pdf">Fix corrupted PDF files</string>
+    <string name="desc_page_numbers">Add page numbers to your PDF</string>
+    <string name="desc_view_metadata">View and edit PDF properties</string>
+    <string name="desc_reorder_pages">Reorder PDF pages</string>
+    <string name="desc_delete_pages">Remove pages from PDF</string>
+    <string name="desc_compress_image">Reduce image file size</string>
+    <string name="desc_resize_image">Change image dimensions</string>
+    <string name="desc_convert_format">JPEG ↔ WebP</string>
+    <string name="desc_strip_metadata">Remove EXIF data</string>
+    <string name="desc_lock_pdf">Password protect your PDF</string>
+    <string name="desc_sign">Add your signature</string>
+    <string name="desc_view_pdf">Open and view PDF</string>
+
+    <!-- Merge Screen -->
+    <string name="merge_title">Merge PDFs</string>
+    <string name="merge_empty_title">No PDFs Selected</string>
+    <string name="merge_empty_subtitle">Add 2 or more PDF files to merge them into a single document</string>
+    <string name="merge_selected_files">Selected Files (%d)</string>
+    <string name="merge_add_pdfs">Add PDFs</string>
+    <string name="merge_n_pdfs">Merge %d PDFs</string>
+    <string name="merge_progress">Merging PDFs...</string>
+    <string name="merge_complete">Merge Complete</string>
+    <string name="merge_failed">Merge Failed</string>
+    <string name="merge_success_message">Successfully merged %d PDFs\n\nSaved to: %s/%s</string>
+    <string name="merge_custom_location">Choose custom save location</string>
+    <string name="merge_default_path">Default: %s</string>
+
+    <!-- Compress Screen -->
+    <string name="compress_title">Compress PDF</string>
+    <string name="compress_empty_title">No PDF Selected</string>
+    <string name="compress_empty_subtitle">Select a PDF file to compress</string>
+    <string name="compress_quality_maximum">Maximum quality</string>
+    <string name="compress_quality_high">High quality</string>
+    <string name="compress_quality_balanced">Balanced</string>
+    <string name="compress_quality_compressed">Compressed</string>
+    <string name="compress_quality_maximum_compression">Maximum compression</string>
+    <string name="compress_smaller_file">Smaller file</string>
+    <string name="compress_better_quality">Better quality</string>
+    <string name="compress_progress">Compressing PDF...</string>
+    <string name="compress_complete">Compression Complete</string>
+    <string name="compress_failed">Compression Failed</string>
+    <string name="compress_success">Compression successful!</string>
+    <string name="compress_saved">Compressed PDF saved.</string>
+    <string name="compress_before">Before: %s</string>
+    <string name="compress_after">After: %s</string>
+    <string name="compress_saved_bytes">Saved: %s (%d%%)</string>
+    <string name="compress_note_optimized">Note: This PDF may already be optimized or contain mostly text.</string>
+    <string name="compress_select_pdf">Select PDF</string>
+
+    <!-- Split Screen -->
+    <string name="split_title">Split PDF</string>
+    <string name="split_empty_title">No PDF Selected</string>
+    <string name="split_empty_subtitle">Select a PDF file to split into multiple documents</string>
+    <string name="split_select_pdf">Select PDF to Split</string>
+    <string name="split_progress">Splitting PDF...</string>
+    <string name="split_complete">Split Complete</string>
+    <string name="split_failed">Split Failed</string>
+    <string name="split_all_pages">All Pages</string>
+    <string name="split_every_n_pages">Every N pages</string>
+    <string name="split_custom_range">Custom range</string>
+    <string name="split_n_files_created">%d files created</string>
+
+    <!-- PDF Viewer -->
+    <string name="pdf_viewer_title">PDF Viewer</string>
+    <string name="pdf_document_default_name">PDF Document</string>
+    <string name="pdf_page_indicator">Page %d of %d (%d%%)</string>
+    <string name="pdf_search_placeholder">Search in PDF...</string>
+    <string name="pdf_search_no_matches">No matches</string>
+    <string name="pdf_search_results">%d/%d</string>
+    <string name="pdf_zoom_in">Zoom in</string>
+    <string name="pdf_zoom_out">Zoom out</string>
+    <string name="pdf_fit_to_width">Fit to width</string>
+    <string name="pdf_tools">Tools</string>
+    <string name="pdf_annotations">Annotations</string>
+    <string name="pdf_search">Search</string>
+    <string name="pdf_share">Share</string>
+    <string name="pdf_save">Save</string>
+    <string name="pdf_highlighter">Highlighter</string>
+    <string name="pdf_marker">Marker</string>
+    <string name="pdf_underline">Underline</string>
+    <string name="pdf_clear_annotations">Clear annotations?</string>
+    <string name="pdf_clear_annotations_confirm">This will remove all annotations. This action cannot be undone.</string>
+    <string name="pdf_annotations_saved">Annotations saved successfully!</string>
+    <string name="pdf_enter_password">Enter Password</string>
+    <string name="pdf_password_hint">This PDF is password protected</string>
+    <string name="pdf_password_error">Incorrect password</string>
+    <string name="pdf_go_to_page">Go to page</string>
+    <string name="pdf_page_number">Page number</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_quality">Quality Settings</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_storage">Storage</string>
+    <string name="settings_section_support">Support</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_compression_quality">Default Compression Quality</string>
+    <string name="settings_compression_quality_value">%d%% - %s</string>
+    <string name="settings_image_format">Default Image Format</string>
+    <string name="settings_theme_mode">Theme Mode</string>
+    <string name="settings_cache_size">Cache Size</string>
+    <string name="settings_request_feature">Request a Feature</string>
+    <string name="settings_request_feature_subtitle">Share your ideas to improve the app</string>
+    <string name="settings_report_bug">Report a Bug</string>
+    <string name="settings_report_bug_subtitle">Help us fix issues</string>
+    <string name="settings_rate_app">Rate the App</string>
+    <string name="settings_rate_app_subtitle">Love the app? Rate us on Play Store</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_privacy_policy">Privacy Policy</string>
+    <string name="settings_privacy_policy_subtitle">View our privacy policy</string>
+    <string name="settings_licenses">Open Source Licenses</string>
+    <string name="settings_licenses_subtitle">View third-party licenses</string>
+    <string name="settings_clear_cache">Clear Cache?</string>
+    <string name="settings_clear_cache_message">This will delete temporary files and cached data. Your saved PDFs will not be affected.</string>
+    <string name="settings_cache_cleared">Cache cleared successfully</string>
+    <string name="settings_about_title">About PDF Toolkit</string>
+    <string name="settings_about_description">PDF Toolkit is a powerful, offline PDF tool that helps you manage PDF documents quickly and efficiently.</string>
+    <string name="settings_about_features">Features:</string>
+    <string name="settings_about_feature_1">Merge, Split, Compress PDFs</string>
+    <string name="settings_about_feature_2">Convert to/from images</string>
+    <string name="settings_about_feature_3">Add watermarks &amp; signatures</string>
+    <string name="settings_about_feature_4">OCR &amp; Scan to PDF</string>
+    <string name="settings_about_feature_5">Secure &amp; encrypt PDFs</string>
+    <string name="settings_about_version">Version</string>
+    <string name="settings_about_build">Build</string>
+    <string name="settings_about_made_with">Made with</string>
+    <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack Compose</string>
+    <string name="settings_app_name">PDF Toolkit</string>
+    <string name="settings_made_with_love">Made with ❤️ for productivity</string>
+    <string name="settings_copyright">© 2026 PDF Toolkit</string>
+    <string name="settings_select_language">Select Language</string>
+    <string name="settings_language_changed">Language changed. Restarting app...</string>
+
+    <!-- Language Names -->
+    <string name="language_english">English</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_hindi">हिन्दी</string>
+    <string name="language_chinese">中文</string>
+
+    <!-- Image Format Options -->
+    <string name="image_format_webp">WebP (Recommended)</string>
+    <string name="image_format_jpeg">JPEG</string>
+    <string name="image_format_webp_desc">Best compression, smaller files</string>
+    <string name="image_format_jpeg_desc">Universal compatibility</string>
+
+    <!-- Theme Modes -->
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System Default</string>
+    <string name="theme_light_desc">Always use light theme</string>
+    <string name="theme_dark_desc">Always use dark theme</string>
+    <string name="theme_system_desc">Follow system settings</string>
+
+    <!-- Feature Request -->
+    <string name="feature_request_title">Request a Feature</string>
+    <string name="feature_request_description">Share your idea to help us improve PDF Toolkit!</string>
+    <string name="feature_request_category">Category</string>
+    <string name="feature_request_category_feature">Feature</string>
+    <string name="feature_request_category_improvement">Improvement</string>
+    <string name="feature_request_category_ui">UI/UX</string>
+    <string name="feature_request_category_other">Other</string>
+    <string name="feature_request_idea">Describe your idea</string>
+    <string name="feature_request_placeholder">What feature would you like to see?</string>
+
+    <!-- Bug Report -->
+    <string name="bug_report_subject">[Bug Report] PDF Toolkit</string>
+    <string name="bug_report_template">Bug Description:\n[Please describe the issue you encountered]\n\nSteps to Reproduce:\n1. \n2. \n3. \n\nExpected Behavior:\n[What did you expect to happen?]\n\nActual Behavior:\n[What actually happened?]</string>
+
+    <!-- Error Messages -->
+    <string name="error_gmail_required">Gmail app is required. Please install Gmail or send feedback to %s</string>
+    <string name="error_generic">An error occurred</string>
+    <string name="error_file_not_found">File not found</string>
+    <string name="error_invalid_pdf">Invalid PDF file</string>
+    <string name="error_password_required">Password required</string>
+    <string name="error_cannot_create_output">Cannot create output file</string>
+    <string name="error_merge_failed">Merge failed</string>
+    <string name="error_compress_failed">Compression failed</string>
+    <string name="error_split_failed">Split failed</string>
+
+    <!-- Success Messages -->
+    <string name="success_operation_complete">Operation completed successfully</string>
+    <string name="success_file_saved">File saved successfully</string>
+
+    <!-- File Picker -->
+    <string name="file_picker_select_pdf">Select PDF</string>
+    <string name="file_picker_select_pdfs">Select PDFs</string>
+    <string name="file_picker_select_image">Select Image</string>
+    <string name="file_picker_select_images">Select Images</string>
+
+    <!-- Common Labels -->
+    <string name="label_pdf">PDF</string>
+    <string name="label_page">Page</string>
+    <string name="label_pages">Pages</string>
+    <string name="label_file">File</string>
+    <string name="label_files">Files</string>
+    <string name="label_size">Size</string>
+    <string name="label_quality">Quality</string>
+    <string name="label_format">Format</string>
+    <string name="label_password">Password</string>
+    <string name="label_loading">Loading...</string>
+    <string name="label_calculating">Calculating...</string>
+
+    <!-- Empty States -->
+    <string name="empty_no_files">No files selected</string>
+    <string name="empty_no_pdfs">No PDFs selected</string>
+    <string name="empty_no_images">No images selected</string>
+    <string name="empty_add_files">Add files to get started</string>
+
+    <!-- Result Dialog -->
+    <string name="result_success">Success</string>
+    <string name="result_error">Error</string>
+
 </resources>
