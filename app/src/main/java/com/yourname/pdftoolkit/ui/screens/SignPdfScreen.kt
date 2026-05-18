@@ -1,17 +1,19 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -23,11 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,6 +47,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * ViewModel for Sign PDF Screen.
@@ -54,7 +63,6 @@ class SignPdfViewModel : ViewModel() {
     }
     
     fun addPathPoint(x: Float, y: Float) {
-        val currentPaths = _state.value.signaturePaths.toMutableList()
         val currentPath = _state.value.currentPath.toMutableList()
         currentPath.add(SignaturePoint(x, y))
         _state.value = _state.value.copy(currentPath = currentPath)
@@ -88,6 +96,15 @@ class SignPdfViewModel : ViewModel() {
     
     fun setSignatureSize(width: Float, height: Float) {
         _state.value = _state.value.copy(signatureWidth = width, signatureHeight = height)
+    }
+
+    fun setSignaturePlacement(x: Float, y: Float, width: Float, height: Float) {
+        _state.value = _state.value.copy(
+            signatureX = x,
+            signatureY = y,
+            signatureWidth = width,
+            signatureHeight = height
+        )
     }
     
     fun toggleAddDate() {
@@ -181,6 +198,111 @@ data class SignPdfUiState(
     val resultUri: Uri? = null
 )
 
+private data class SignaturePagePreview(
+    val bitmap: Bitmap,
+    val pageWidth: Float,
+    val pageHeight: Float
+)
+
+private data class SignaturePlacementRect(
+    val left: Float,
+    val top: Float,
+    val width: Float,
+    val height: Float
+)
+
+private suspend fun renderSignaturePagePreview(
+    context: android.content.Context,
+    uri: Uri,
+    pageIndex: Int
+): SignaturePagePreview? = withContext(Dispatchers.IO) {
+    var tempFile: File? = null
+    var pfd: ParcelFileDescriptor? = null
+    var renderer: PdfRenderer? = null
+    var page: PdfRenderer.Page? = null
+
+    try {
+        val temp = File.createTempFile("sign_preview_", ".pdf", context.cacheDir)
+        tempFile = temp
+
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(temp).use { output ->
+                input.copyTo(output)
+            }
+        } ?: return@withContext null
+
+        pfd = ParcelFileDescriptor.open(temp, ParcelFileDescriptor.MODE_READ_ONLY)
+        renderer = PdfRenderer(pfd)
+
+        if (renderer.pageCount == 0) return@withContext null
+
+        val safePageIndex = pageIndex.coerceIn(0, renderer.pageCount - 1)
+        page = renderer.openPage(safePageIndex)
+
+        val pageWidth = page.width.toFloat()
+        val pageHeight = page.height.toFloat()
+        val maxPreviewWidth = 1600
+        val scale = minOf(2f, maxPreviewWidth / pageWidth).coerceAtLeast(1f)
+        val bitmapWidth = (page.width * scale).toInt().coerceAtLeast(1)
+        val bitmapHeight = (page.height * scale).toInt().coerceAtLeast(1)
+        val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(Color.WHITE)
+
+        page.render(
+            bitmap,
+            null,
+            null,
+            PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+        )
+
+        SignaturePagePreview(
+            bitmap = bitmap,
+            pageWidth = pageWidth,
+            pageHeight = pageHeight
+        )
+    } catch (e: Exception) {
+        null
+    } finally {
+        try {
+            page?.close()
+        } catch (_: Exception) {
+        }
+        try {
+            renderer?.close()
+        } catch (_: Exception) {
+        }
+        try {
+            pfd?.close()
+        } catch (_: Exception) {
+        }
+        try {
+            tempFile?.delete()
+        } catch (_: Exception) {
+        }
+    }
+}
+
+private fun pdfRectToImageRect(
+    x: Float,
+    y: Float,
+    width: Float,
+    height: Float,
+    pageWidth: Float,
+    pageHeight: Float,
+    imageSize: Size
+): SignaturePlacementRect {
+    if (pageWidth <= 0f || pageHeight <= 0f || imageSize.width <= 0f || imageSize.height <= 0f) {
+        return SignaturePlacementRect(0f, 0f, 0f, 0f)
+    }
+
+    val left = (x / pageWidth) * imageSize.width
+    val rectWidth = (width / pageWidth) * imageSize.width
+    val rectHeight = (height / pageHeight) * imageSize.height
+    val top = imageSize.height - (((y + height) / pageHeight) * imageSize.height)
+
+    return SignaturePlacementRect(left, top, rectWidth, rectHeight)
+}
+
 /**
  * Sign PDF Screen - Add handwritten signatures to PDF documents.
  */
@@ -193,6 +315,11 @@ fun SignPdfScreen(
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
+    var pagePreview by remember { mutableStateOf<SignaturePagePreview?>(null) }
+    var previewError by remember { mutableStateOf<String?>(null) }
+    var dragStart by remember { mutableStateOf<Offset?>(null) }
+    var dragEnd by remember { mutableStateOf<Offset?>(null) }
+    val latestPagePreview by rememberUpdatedState(pagePreview)
     
     val pdfPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -211,6 +338,32 @@ fun SignPdfScreen(
         contract = ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
         uri?.let { viewModel.signPdf(context, it) }
+    }
+
+    LaunchedEffect(state.sourceUri, state.pageIndex) {
+        pagePreview?.bitmap?.let { bitmap ->
+            if (!bitmap.isRecycled) bitmap.recycle()
+        }
+        pagePreview = null
+        previewError = null
+        dragStart = null
+        dragEnd = null
+
+        val sourceUri = state.sourceUri ?: return@LaunchedEffect
+        val preview = renderSignaturePagePreview(context, sourceUri, state.pageIndex)
+        if (preview != null) {
+            pagePreview = preview
+        } else {
+            previewError = "Unable to render page preview"
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            latestPagePreview?.bitmap?.let { bitmap ->
+                if (!bitmap.isRecycled) bitmap.recycle()
+            }
+        }
     }
     
     Scaffold(
@@ -428,55 +581,165 @@ fun SignPdfScreen(
                         singleLine = true,
                         leadingIcon = { Icon(Icons.Default.Description, contentDescription = null) }
                     )
-                    
-                    // Position
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = state.signatureX.toInt().toString(),
-                            onValueChange = { value ->
-                                value.toFloatOrNull()?.let { viewModel.setSignaturePosition(it, state.signatureY) }
-                            },
-                            label = { Text("X Position") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
-                        OutlinedTextField(
-                            value = state.signatureY.toInt().toString(),
-                            onValueChange = { value ->
-                                value.toFloatOrNull()?.let { viewModel.setSignaturePosition(state.signatureX, it) }
-                            },
-                            label = { Text("Y Position") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
-                    }
-                    
-                    // Size
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = state.signatureWidth.toInt().toString(),
-                            onValueChange = { value ->
-                                value.toFloatOrNull()?.let { viewModel.setSignatureSize(it, state.signatureHeight) }
-                            },
-                            label = { Text("Width") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
-                        OutlinedTextField(
-                            value = state.signatureHeight.toInt().toString(),
-                            onValueChange = { value ->
-                                value.toFloatOrNull()?.let { viewModel.setSignatureSize(state.signatureWidth, it) }
-                            },
-                            label = { Text("Height") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true
-                        )
+
+                    val preview = pagePreview
+                    when {
+                        state.sourceUri == null -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surface),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Select a PDF to place the signature",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        preview == null && previewError == null -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surface),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                        previewError != null -> {
+                            Text(
+                                text = previewError.orEmpty(),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                        preview != null -> {
+                            BoxWithConstraints(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surface)
+                                    .border(
+                                        1.dp,
+                                        MaterialTheme.colorScheme.outline,
+                                        RoundedCornerShape(8.dp)
+                                    )
+                            ) {
+                                val aspectRatio = preview.bitmap.width.toFloat() / preview.bitmap.height.toFloat()
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(aspectRatio)
+                                ) {
+                                    Image(
+                                        bitmap = preview.bitmap.asImageBitmap(),
+                                        contentDescription = "Page ${state.pageIndex + 1}",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.FillBounds
+                                    )
+
+                                    Canvas(
+                                        modifier = Modifier
+                                            .matchParentSize()
+                                            .pointerInput(preview.pageWidth, preview.pageHeight) {
+                                                detectDragGestures(
+                                                    onDragStart = { offset ->
+                                                        dragStart = offset
+                                                        dragEnd = offset
+                                                    },
+                                                    onDrag = { change, _ ->
+                                                        change.consume()
+                                                        dragEnd = change.position
+                                                    },
+                                                    onDragEnd = {
+                                                        val start = dragStart
+                                                        val end = dragEnd
+                                                        if (start != null && end != null && size.width > 0 && size.height > 0) {
+                                                            val left = minOf(start.x, end.x).coerceIn(0f, size.width.toFloat())
+                                                            val right = maxOf(start.x, end.x).coerceIn(0f, size.width.toFloat())
+                                                            val top = minOf(start.y, end.y).coerceIn(0f, size.height.toFloat())
+                                                            val bottom = maxOf(start.y, end.y).coerceIn(0f, size.height.toFloat())
+                                                            val rectWidth = right - left
+                                                            val rectHeight = bottom - top
+
+                                                            if (rectWidth > 0f && rectHeight > 0f) {
+                                                                val pdfX = (left / size.width.toFloat()) * preview.pageWidth
+                                                                val pdfWidth = (rectWidth / size.width.toFloat()) * preview.pageWidth
+                                                                val pdfHeight = (rectHeight / size.height.toFloat()) * preview.pageHeight
+                                                                val pdfY = preview.pageHeight - ((bottom / size.height.toFloat()) * preview.pageHeight)
+
+                                                                viewModel.setSignaturePlacement(pdfX, pdfY, pdfWidth, pdfHeight)
+                                                            }
+                                                        }
+                                                        dragStart = null
+                                                        dragEnd = null
+                                                    }
+                                                )
+                                            }
+                                    ) {
+                                        val activeStart = dragStart
+                                        val activeEnd = dragEnd
+                                        val rect = if (activeStart != null && activeEnd != null) {
+                                            SignaturePlacementRect(
+                                                left = minOf(activeStart.x, activeEnd.x),
+                                                top = minOf(activeStart.y, activeEnd.y),
+                                                width = kotlin.math.abs(activeEnd.x - activeStart.x),
+                                                height = kotlin.math.abs(activeEnd.y - activeStart.y)
+                                            )
+                                        } else {
+                                            pdfRectToImageRect(
+                                                x = state.signatureX,
+                                                y = state.signatureY,
+                                                width = state.signatureWidth,
+                                                height = state.signatureHeight,
+                                                pageWidth = preview.pageWidth,
+                                                pageHeight = preview.pageHeight,
+                                                imageSize = size
+                                            )
+                                        }
+
+                                        if (rect.width > 0f && rect.height > 0f) {
+                                            drawRect(
+                                                color = androidx.compose.ui.graphics.Color(0xFF1E88E5).copy(alpha = 0.12f),
+                                                topLeft = Offset(rect.left, rect.top),
+                                                size = Size(rect.width, rect.height)
+                                            )
+                                            drawRect(
+                                                color = androidx.compose.ui.graphics.Color(0xFF1E88E5),
+                                                topLeft = Offset(rect.left, rect.top),
+                                                size = Size(rect.width, rect.height),
+                                                style = Stroke(
+                                                    width = 3f,
+                                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(16f, 10f), 0f)
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.TouchApp,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Page ${state.pageIndex + 1} • tap and drag to reposition",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                     }
                 }
             }

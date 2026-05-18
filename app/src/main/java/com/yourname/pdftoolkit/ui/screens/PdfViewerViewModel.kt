@@ -102,6 +102,7 @@ class PdfViewerViewModel : ViewModel() {
 
     companion object {
         const val RENDER_SCALE = 1.5f  // ~108 DPI for text-based PDFs
+        private const val MAX_RENDER_DIMENSION_PX = 2048
     }
 
     private val _uiState = MutableStateFlow<PdfViewerUiState>(PdfViewerUiState.Idle)
@@ -163,11 +164,19 @@ class PdfViewerViewModel : ViewModel() {
     }
     
     private fun registerActiveBitmap(pageIndex: Int, bitmap: Bitmap) {
+        if (bitmap.isRecycled) {
+            Log.w("PdfViewerVM", "Skipping active registration for recycled bitmap on page $pageIndex")
+            bitmapCache.remove(pageIndex)
+            return
+        }
+
         synchronized(activeBitmaps) {
             // Remove old bitmap from active set if exists
             uiBitmapRefs[pageIndex]?.let { oldBitmap ->
-                activeBitmaps.remove(oldBitmap)
-                safeRecycle(oldBitmap)
+                if (oldBitmap !== bitmap) {
+                    activeBitmaps.remove(oldBitmap)
+                    safeRecycle(oldBitmap)
+                }
             }
             // Register new bitmap
             activeBitmaps.add(bitmap)
@@ -345,13 +354,27 @@ class PdfViewerViewModel : ViewModel() {
         }
         
         override fun entryRemoved(evicted: Boolean, key: Int, oldValue: Bitmap, newValue: Bitmap?) {
-            if (evicted) {
+            if (oldValue !== newValue && !activeBitmaps.contains(oldValue)) {
                 safeRecycle(oldValue)
             }
         }
     }
     
     private var loadJob: Job? = null
+
+    private fun calculateCappedRenderScale(pageIndex: Int): Float {
+        val page = document?.getPage(pageIndex) ?: return RENDER_SCALE
+        val box = page.cropBox ?: page.mediaBox ?: return RENDER_SCALE
+        val targetWidth = box.width * RENDER_SCALE
+        val targetHeight = box.height * RENDER_SCALE
+        val largestDimension = maxOf(targetWidth, targetHeight)
+
+        return if (largestDimension > MAX_RENDER_DIMENSION_PX) {
+            RENDER_SCALE * (MAX_RENDER_DIMENSION_PX / largestDimension)
+        } else {
+            RENDER_SCALE
+        }
+    }
     
     suspend fun loadPage(pageIndex: Int): Bitmap? {
         val totalPages = (_uiState.value as? PdfViewerUiState.Loaded)?.totalPages ?: return null
@@ -361,7 +384,7 @@ class PdfViewerViewModel : ViewModel() {
         bitmapCache.get(pageIndex)?.let { cached ->
             if (!cached.isRecycled) {
                 registerActiveBitmap(pageIndex, cached)
-                return cached
+                return if (!cached.isRecycled) cached else null
             }
             bitmapCache.remove(pageIndex)
         }
@@ -371,12 +394,20 @@ class PdfViewerViewModel : ViewModel() {
             val bitmap = withContext(Dispatchers.IO) {
                 documentMutex.withLock {
                     // Double-check cache inside lock
-                    bitmapCache.get(pageIndex)?.takeIf { !it.isRecycled }?.let { return@withLock it }
+                    bitmapCache.get(pageIndex)?.let { cached ->
+                        if (!cached.isRecycled) {
+                            return@withLock cached
+                        }
+                        bitmapCache.remove(pageIndex)
+                    }
 
                     val renderer = pdfRenderer ?: return@withLock null
                     try {
-                        renderer.renderImage(pageIndex, RENDER_SCALE)?.also { bm ->
-                            bitmapCache.put(pageIndex, bm)
+                        val renderScale = calculateCappedRenderScale(pageIndex)
+                        renderer.renderImage(pageIndex, renderScale)?.also { bm ->
+                            if (!bm.isRecycled) {
+                                bitmapCache.put(pageIndex, bm)
+                            }
                         }
                     } catch (e: Exception) {
                         Log.e("PdfViewerVM", "Render failed page $pageIndex: ${e.message}")
@@ -384,8 +415,14 @@ class PdfViewerViewModel : ViewModel() {
                     }
                 }
             }
-            if (bitmap != null) registerActiveBitmap(pageIndex, bitmap)
-            bitmap
+            if (bitmap == null || bitmap.isRecycled) {
+                if (bitmap?.isRecycled == true) {
+                    bitmapCache.remove(pageIndex)
+                }
+                return null
+            }
+            registerActiveBitmap(pageIndex, bitmap)
+            if (!bitmap.isRecycled) bitmap else null
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

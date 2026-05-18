@@ -2,9 +2,12 @@ package com.yourname.pdftoolkit.domain.operations
 
 import android.content.Context
 import android.net.Uri
+import android.graphics.pdf.PdfRenderer
+import android.os.ParcelFileDescriptor
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.OutputStream
 
 /**
@@ -338,14 +341,38 @@ class PdfOrganizer {
         context: Context,
         uri: Uri
     ): Int = withContext(Dispatchers.IO) {
+        var tempFile: File? = null
+        var pfd: ParcelFileDescriptor? = null
+        var renderer: PdfRenderer? = null
+
         try {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                PDDocument.load(inputStream).use { document ->
-                    document.numberOfPages
+            val temp = File.createTempFile("page_count_", ".pdf", context.cacheDir)
+            tempFile = temp
+
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                temp.outputStream().use { output ->
+                    input.copyTo(output)
                 }
-            } ?: 0
+            } ?: return@withContext 0
+
+            pfd = ParcelFileDescriptor.open(temp, ParcelFileDescriptor.MODE_READ_ONLY)
+            renderer = PdfRenderer(pfd)
+            renderer.pageCount
         } catch (e: Exception) {
             0
+        } finally {
+            try {
+                renderer?.close()
+            } catch (_: Exception) {
+            }
+            try {
+                pfd?.close()
+            } catch (_: Exception) {
+            }
+            try {
+                tempFile?.delete()
+            } catch (_: Exception) {
+            }
         }
     }
     

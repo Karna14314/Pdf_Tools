@@ -9,7 +9,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import java.io.InputStream
 import java.io.OutputStream
 
 /**
@@ -40,32 +39,31 @@ class PdfMerger {
         }
         
         val merger = PDFMergerUtility()
-        val inputStreams = mutableListOf<InputStream>()
+        var destinationDocument: PDDocument? = null
         
         try {
             ensureActive()
+            destinationDocument = PDDocument()
+            val destination = destinationDocument
 
-            // Load all input documents
+            // Load and append one source at a time so source documents do not accumulate.
             inputUris.forEachIndexed { index, uri ->
                 ensureActive()
 
-                val inputStream = context.contentResolver.openInputStream(uri)
-                    ?: return@withContext Result.failure(
-                        IllegalStateException("Cannot open file: $uri")
-                    )
-                
-                inputStreams.add(inputStream)
-                merger.addSource(inputStream)
+                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly()).use { sourceDocument ->
+                        merger.appendDocument(destination, sourceDocument)
+                    }
+                } ?: return@withContext Result.failure(
+                    IllegalStateException("Cannot open file: $uri")
+                )
                 
                 onProgress((index + 1).toFloat() / (inputUris.size + 1))
             }
             
             ensureActive()
 
-            // Perform merge
-            merger.destinationStream = outputStream
-            // Use temp file memory setting to prevent OOM during merge of large files
-            merger.mergeDocuments(MemoryUsageSetting.setupTempFileOnly())
+            destination.save(outputStream)
             
             onProgress(1.0f)
             Result.success(Unit)
@@ -75,13 +73,10 @@ class PdfMerger {
         } catch (e: Exception) {
             Result.failure(e)
         } finally {
-            // Clean up all loaded streams
-            inputStreams.forEach { stream ->
-                try {
-                    stream.close()
-                } catch (e: Exception) {
-                    // Ignore cleanup errors
-                }
+            try {
+                destinationDocument?.close()
+            } catch (e: Exception) {
+                // Ignore cleanup errors
             }
         }
     }
