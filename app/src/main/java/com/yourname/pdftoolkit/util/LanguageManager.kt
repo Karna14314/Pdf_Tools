@@ -111,15 +111,10 @@ object LanguageManager {
      * @param context Application context
      */
     fun initializeLanguage(context: Context) {
-        val currentLocales = AppCompatDelegate.getApplicationLocales()
-
-        if (currentLocales.isEmpty) {
-            val savedLanguage = runBlocking {
-                LanguageDataStore.getSelectedLanguage(context).first()
-            }
-
-            setLanguage(context, savedLanguage)
+        val savedLanguage = runBlocking {
+            LanguageDataStore.getSelectedLanguage(context).first()
         }
+        setLanguage(context, savedLanguage)
     }
 
     /**

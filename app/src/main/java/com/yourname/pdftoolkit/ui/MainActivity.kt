@@ -45,7 +45,7 @@ import java.io.IOException
  * 1. Accessed directly if persistable permission can be taken
  * 2. Copied to cache and accessed via FileProvider if direct access fails
  */
-class MainActivity : FragmentActivity() {
+class MainActivity : AppCompatActivity() {
     
     companion object {
         private const val TAG = "MainActivity"

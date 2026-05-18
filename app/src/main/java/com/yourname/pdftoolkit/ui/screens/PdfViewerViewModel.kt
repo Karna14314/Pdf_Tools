@@ -820,11 +820,13 @@ class PdfViewerViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("PdfViewerVM", "Error closing document", e)
             } finally {
-                document = null
-                pdfRenderer = null
-                extractedTextCache.clear()
-
-                // Clean up temp file
+                 document = null
+                 pdfRenderer = null
+                 extractedTextCache.clear()
+                 // When navigating away from a PDF, trim cache to 0 immediately
+                 bitmapCache.trimToSize(0)
+                 
+                 // Clean up temp file
                 try {
                     if (tempFile?.exists() == true) {
                         tempFile?.delete()
