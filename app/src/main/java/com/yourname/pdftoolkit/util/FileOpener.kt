@@ -66,9 +66,10 @@ object FileOpener {
      * @param uri URI of the image file
      * @return true if intent was launched successfully
      */
-    suspend fun openImage(context: Context, uri: Uri): Boolean {
+    suspend fun openImage(context: Context, uri: Uri?): Boolean {
         return try {
-            val accessibleUri = getAccessibleUri(context, uri, "image")
+            val imageUri = requireOpenableImageUri(context, uri)
+            val accessibleUri = getAccessibleUri(context, imageUri, "image")
             
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(accessibleUri, "image/*")
@@ -77,9 +78,37 @@ object FileOpener {
             context.startActivity(intent)
             true
         } catch (e: Exception) {
+            android.util.Log.e("FileOpener", "Unable to open image: ${e.message}", e)
             Toast.makeText(context, "No image viewer available", Toast.LENGTH_SHORT).show()
             false
         }
+    }
+
+    private suspend fun requireOpenableImageUri(context: Context, uri: Uri?): Uri = withContext(Dispatchers.IO) {
+        val imageUri = uri ?: throw IllegalArgumentException("Image URI must not be null")
+
+        when (imageUri.scheme) {
+            "file" -> {
+                val path = imageUri.path
+                    ?: throw IllegalArgumentException("Image file URI has no resolved path: $imageUri")
+                if (path.isBlank()) {
+                    throw IllegalArgumentException("Image file URI has an empty resolved path: $imageUri")
+                }
+                if (!File(path).exists()) {
+                    throw IllegalArgumentException("Image file does not exist: $path")
+                }
+            }
+            "content" -> {
+                val inputStream = context.contentResolver.openInputStream(imageUri)
+                    ?: throw IllegalArgumentException("Unable to open input stream for image URI: $imageUri")
+                inputStream.use {
+                    // Opening the stream is enough to validate provider access.
+                }
+            }
+            null, "" -> throw IllegalArgumentException("Image URI has no scheme: $imageUri")
+        }
+
+        imageUri
     }
     
     /**
@@ -243,7 +272,10 @@ object FileOpener {
             
             val cachedFile = File(cacheDir, "open_${System.currentTimeMillis()}.$extension")
             
-            context.contentResolver.openInputStream(uri)?.use { input ->
+            val inputStream = context.contentResolver.openInputStream(uri)
+                ?: throw IllegalArgumentException("Unable to open input stream for URI: $uri")
+
+            inputStream.use { input ->
                 FileOutputStream(cachedFile).use { output ->
                     input.copyTo(output)
                 }

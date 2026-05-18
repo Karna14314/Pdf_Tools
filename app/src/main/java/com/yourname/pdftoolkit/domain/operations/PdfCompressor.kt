@@ -424,12 +424,22 @@ class PdfCompressor {
                 
                 // Render page to bitmap at compression DPI
                 val bitmap = renderer.renderImageWithDPI(pageIndex, profile.dpi)
+                if (bitmap.isRecycled) {
+                    android.util.Log.w("PdfCompressor", "Skipping recycled rendered bitmap for page $pageIndex")
+                    continue
+                }
                 
                 // Create white-backed bitmap to handle transparent PDFs
                 val whiteBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
                 val canvas = android.graphics.Canvas(whiteBitmap)
                 canvas.drawColor(android.graphics.Color.WHITE)
-                canvas.drawBitmap(bitmap, 0f, 0f, null)
+                if (!bitmap.isRecycled) {
+                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+                } else {
+                    android.util.Log.w("PdfCompressor", "Skipping draw for recycled bitmap on page $pageIndex")
+                    whiteBitmap.recycle()
+                    continue
+                }
                 
                 try {
                     // Create new page matching original dimensions
@@ -454,8 +464,12 @@ class PdfCompressor {
                         contentStream.drawImage(pdImage, 0f, 0f, pageRect.width, pageRect.height)
                     }
                 } finally {
-                    bitmap.recycle()
-                    whiteBitmap.recycle()
+                    if (!bitmap.isRecycled) {
+                        bitmap.recycle()
+                    }
+                    if (!whiteBitmap.isRecycled) {
+                        whiteBitmap.recycle()
+                    }
                 }
                 
                 onProgress((pageIndex + 1).toFloat() / totalPages)

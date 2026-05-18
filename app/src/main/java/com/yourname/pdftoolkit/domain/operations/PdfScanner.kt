@@ -321,7 +321,12 @@ class PdfScanner(private val context: Context) {
         }
 
         return try {
-            canvas.drawBitmap(bitmap!!, left, top, paint)
+            val drawableBitmap = bitmap ?: return false
+            if (drawableBitmap.isRecycled) {
+                Log.w(logTag, "Skipping drawBitmap for recycled bitmap")
+                return false
+            }
+            canvas.drawBitmap(drawableBitmap, left, top, paint)
             true
         } catch (e: Exception) {
             Log.e(logTag, "Failed to draw bitmap: ${e.message}", e)
