@@ -42,7 +42,7 @@
             android:launchMode="singleTask"
             android:theme="@style/Theme.PDFToolkit"
             android:enableOnBackInvokedCallback="true"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|locale|layoutDirection">
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|layoutDirection">
             
             <!-- Main Launcher Intent -->
             <intent-filter>

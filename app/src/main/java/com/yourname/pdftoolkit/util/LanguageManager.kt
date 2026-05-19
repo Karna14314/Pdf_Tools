@@ -1,6 +1,7 @@
 package com.yourname.pdftoolkit.util
 
 import android.content.Context
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import kotlinx.coroutines.flow.Flow
@@ -95,13 +96,21 @@ object LanguageManager {
     /**
      * Change the application language and persist the choice.
      * This should be called when user selects a new language.
+     * 
+     * IMPORTANT: This is a suspend function to ensure DataStore write completes
+     * before locale is applied, preventing race conditions.
      *
      * @param context Application context
      * @param langCode New language code to apply
      */
     suspend fun changeLanguage(context: Context, langCode: String) {
+        // Save to DataStore FIRST to ensure persistence (await completion)
         LanguageDataStore.saveSelectedLanguage(context, langCode)
+        
+        // THEN apply the locale change immediately
         setLanguage(context, langCode)
+        
+        Log.d("LanguageManager", "Language changed to: $langCode")
     }
 
     /**

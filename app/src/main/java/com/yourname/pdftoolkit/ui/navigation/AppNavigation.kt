@@ -46,12 +46,16 @@ import java.io.IOException
 /**
  * Cache management: Clean up old PDF cache files to prevent unbounded growth.
  * Keeps cache under maxCacheSizeMb by deleting oldest files first.
+ * NOTE: Cache limit is 20MB (not 50MB) to prevent single large PDFs from dominating cache.
+ * This prevents 50MB cache for a single 50MB PDF.
  */
 private fun cleanPdfCache(context: android.content.Context) {
     val cacheDir = File(context.cacheDir, "pdf_cache")
     if (!cacheDir.exists()) return
     
-    val maxCacheSizeMb = 50L
+    // Reduced from 50MB to 20MB to prevent large PDFs from filling entire cache
+    // and to encourage cleanup of older cached files
+    val maxCacheSizeMb = 20L
     val maxCacheSizeBytes = maxCacheSizeMb * 1024 * 1024
     
     val files = cacheDir.listFiles()
@@ -61,11 +65,19 @@ private fun cleanPdfCache(context: android.content.Context) {
     
     var totalSize = files.sumOf { it.length() }
     
+    // Aggressively delete old files if over limit
     for (file in files) {
         if (totalSize <= maxCacheSizeBytes) break
         totalSize -= file.length()
         file.delete()
-        android.util.Log.d("AppNavigation", "Deleted old cache file: ${file.name}")
+        android.util.Log.d("AppNavigation", "Deleted old cache file: ${file.name} (totalCacheSize: ${totalSize / 1024 / 1024}MB)")
+    }
+    
+    // Also clean up any cache files older than 12 hours for additional cleanup
+    val cutoffTime = System.currentTimeMillis() - (12 * 60 * 60 * 1000) // 12 hours
+    files.filter { it.lastModified() < cutoffTime }.forEach { oldFile ->
+        oldFile.delete()
+        android.util.Log.d("AppNavigation", "Auto-deleted aged cache file: ${oldFile.name}")
     }
 }
 
