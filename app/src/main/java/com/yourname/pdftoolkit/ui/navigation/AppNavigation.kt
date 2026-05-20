@@ -23,6 +23,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -365,7 +367,7 @@ fun AppNavigation(
                         IconButton(onClick = { isHistorySidebarOpen = true }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Open History"
+                                contentDescription = stringResource(R.string.nav_open_history)
                             )
                         }
                     },
@@ -389,9 +391,9 @@ fun AppNavigation(
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = when (currentRoute) {
-                                    Screen.Tools.route -> "PDF Toolkit"
-                                    Screen.Files.route -> "Files"
-                                    else -> "PDF Toolkit"
+                                    Screen.Tools.route -> stringResource(R.string.app_name)
+                                    Screen.Files.route -> stringResource(R.string.nav_tab_files)
+                                    else -> stringResource(R.string.app_name)
                                 },
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
@@ -406,7 +408,7 @@ fun AppNavigation(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
-                                contentDescription = "Settings"
+                                contentDescription = stringResource(R.string.settings_title)
                             )
                         }
                     },
@@ -787,14 +789,16 @@ private fun BottomNavigationBar(
                 BottomNavTab.FILES -> currentRoute == Screen.Files.route
             }
             
+            val tabTitle = getTabTitle(tab)
+            
             NavigationBarItem(
                 icon = { 
                     Icon(
                         imageVector = tab.icon,
-                        contentDescription = tab.title
+                        contentDescription = tabTitle
                     )
                 },
-                label = { Text(tab.title) },
+                label = { Text(tabTitle) },
                 selected = selected,
                 onClick = {
                     val targetRoute = when (tab) {
@@ -815,5 +819,13 @@ private fun BottomNavigationBar(
                 }
             )
         }
+    }
+}
+
+@Composable
+private fun getTabTitle(tab: BottomNavTab): String {
+    return when (tab) {
+        BottomNavTab.TOOLS -> stringResource(R.string.nav_tab_tools)
+        BottomNavTab.FILES -> stringResource(R.string.nav_tab_files)
     }
 }

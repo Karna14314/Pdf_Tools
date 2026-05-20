@@ -47,6 +47,11 @@
     <string name="home_subtitle">आपके सभी PDF और इमेज टूल्स एक ही जगह पर</string>
     <string name="fab_open_pdf">PDF खोलें</string>
 
+    <!-- Navigation -->
+    <string name="nav_tab_tools">टूल्स</string>
+    <string name="nav_tab_files">फाइलें</string>
+    <string name="nav_open_history">हिस्ट्री खोलें</string>
+
     <!-- Tool Categories -->
     <string name="category_organize">व्यवस्थित करें</string>
     <string name="category_convert">कनवर्ट करें</string>

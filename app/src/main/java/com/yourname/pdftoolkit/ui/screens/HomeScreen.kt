@@ -163,14 +163,15 @@ fun HomeScreen(
                 divider = {}
             ) {
                 ToolCategory.entries.forEach { category ->
+                    val categoryTitle = getCategoryTitle(category)
                     Tab(
                         selected = selectedCategory == category,
                         onClick = { selectedCategory = category },
-                        text = { Text(category.title) },
+                        text = { Text(categoryTitle) },
                         icon = {
                             Icon(
                                 imageVector = category.icon,
-                                contentDescription = category.title,
+                                contentDescription = categoryTitle,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -209,7 +210,7 @@ fun HomeScreen(
                     FeatureCard(
                         feature = feature,
                         onClick = {
-                            val screen = Screen.fromFeatureTitle(feature.title)
+                            val screen = Screen.fromToolId(feature.toolId)
                             onNavigateToFeature(screen)
                         },
                         modifier = Modifier.scale(scale)
@@ -291,6 +292,7 @@ private fun FeatureCard(
  * Data class representing a PDF tool feature.
  */
 data class PdfFeature(
+    val toolId: String,
     val title: String,
     val description: String,
     val icon: ImageVector,
@@ -298,160 +300,199 @@ data class PdfFeature(
 )
 
 /**
+ * Returns the localized title for a ToolCategory.
+ */
+@Composable
+private fun getCategoryTitle(category: ToolCategory): String {
+    return when (category) {
+        ToolCategory.ORGANIZE -> stringResource(R.string.category_organize)
+        ToolCategory.CONVERT -> stringResource(R.string.category_convert)
+        ToolCategory.MARKUP -> stringResource(R.string.category_markup)
+        ToolCategory.SECURITY -> stringResource(R.string.category_security)
+        ToolCategory.OPTIMIZE -> stringResource(R.string.category_optimize)
+    }
+}
+
+/**
  * Get features filtered by category.
  */
+@Composable
 private fun getFeaturesByCategory(category: ToolCategory): List<PdfFeature> {
-    return pdfFeatures.filter { it.category == category }
+    return getPdfFeatures().filter { it.category == category }
 }
 
 /**
  * List of all available PDF tools organized by category.
  */
-val pdfFeatures = listOf(
+@Composable
+fun getPdfFeatures(): List<PdfFeature> = listOf(
     // ORGANIZE category
     PdfFeature(
-        title = "Merge PDFs",
-        description = "Combine multiple PDF files into one",
+        toolId = "merge",
+        title = stringResource(R.string.tool_merge_pdfs),
+        description = stringResource(R.string.desc_merge_pdfs),
         icon = Icons.Default.MergeType,
         category = ToolCategory.ORGANIZE
     ),
     PdfFeature(
-        title = "Split PDF",
-        description = "Split a PDF into multiple files",
+        toolId = "split",
+        title = stringResource(R.string.tool_split_pdf),
+        description = stringResource(R.string.desc_split_pdf),
         icon = Icons.Default.CallSplit,
         category = ToolCategory.ORGANIZE
     ),
     PdfFeature(
-        title = "Organize Pages",
-        description = "Remove or reorder PDF pages",
+        toolId = "delete_pages",
+        title = stringResource(R.string.tool_organize_pages),
+        description = stringResource(R.string.desc_organize_pages),
         icon = Icons.Default.SwapVert,
         category = ToolCategory.ORGANIZE
     ),
     PdfFeature(
-        title = "Rotate Pages",
-        description = "Rotate PDF pages",
+        toolId = "rotate",
+        title = stringResource(R.string.tool_rotate_pages),
+        description = stringResource(R.string.desc_rotate_pages),
         icon = Icons.Default.RotateRight,
         category = ToolCategory.ORGANIZE
     ),
     PdfFeature(
-        title = "Extract Pages",
-        description = "Extract specific pages from PDF",
+        toolId = "extract",
+        title = stringResource(R.string.tool_extract_pages),
+        description = stringResource(R.string.desc_extract_pages),
         icon = Icons.Default.ContentCopy,
         category = ToolCategory.ORGANIZE
     ),
-    
+
     // CONVERT category
     PdfFeature(
-        title = "Images to PDF",
-        description = "Convert images to PDF",
+        toolId = "image_to_pdf",
+        title = stringResource(R.string.tool_images_to_pdf),
+        description = stringResource(R.string.desc_images_to_pdf),
         icon = Icons.Default.Image,
         category = ToolCategory.CONVERT
     ),
     PdfFeature(
-        title = "PDF to Images",
-        description = "Convert PDF pages to images",
+        toolId = "pdf_to_image",
+        title = stringResource(R.string.tool_pdf_to_images),
+        description = stringResource(R.string.desc_pdf_to_images),
         icon = Icons.Default.PhotoLibrary,
         category = ToolCategory.CONVERT
     ),
     PdfFeature(
-        title = "HTML to PDF",
-        description = "Convert webpage or HTML to PDF",
+        toolId = "html_to_pdf",
+        title = stringResource(R.string.tool_html_to_pdf),
+        description = stringResource(R.string.desc_html_to_pdf),
         icon = Icons.Default.Language,
         category = ToolCategory.CONVERT
     ),
     PdfFeature(
-        title = "Extract Text",
-        description = "Extract text content to TXT file",
+        toolId = "extract_text",
+        title = stringResource(R.string.tool_extract_text),
+        description = stringResource(R.string.desc_extract_text),
         icon = Icons.Default.TextFields,
         category = ToolCategory.CONVERT
     ),
     PdfFeature(
-        title = "Scan to PDF",
-        description = "Scan documents with camera",
+        toolId = "scan_to_pdf",
+        title = stringResource(R.string.tool_scan_to_pdf),
+        description = stringResource(R.string.desc_scan_to_pdf),
         icon = Icons.Default.CameraAlt,
         category = ToolCategory.CONVERT
     ),
     PdfFeature(
-        title = "OCR",
-        description = "Make scanned PDFs searchable",
+        toolId = "ocr",
+        title = stringResource(R.string.tool_ocr),
+        description = stringResource(R.string.desc_ocr),
         icon = Icons.Default.DocumentScanner,
         category = ToolCategory.CONVERT
     ),
     PdfFeature(
-        title = "Image Tools",
-        description = "Resize, compress, convert images",
+        toolId = "image_resize",
+        title = stringResource(R.string.tool_image_tools),
+        description = stringResource(R.string.desc_image_tools),
         icon = Icons.Default.Photo,
         category = ToolCategory.CONVERT
     ),
-    
+
     // MARKUP category (Sign, Annotate, Fill Forms)
     PdfFeature(
-        title = "Sign PDF",
-        description = "Add your signature to PDF",
+        toolId = "sign",
+        title = stringResource(R.string.tool_sign_pdf),
+        description = stringResource(R.string.desc_sign_pdf),
         icon = Icons.Default.Draw,
         category = ToolCategory.MARKUP
     ),
     PdfFeature(
-        title = "Fill Forms",
-        description = "Fill PDF form fields",
+        toolId = "fill_forms",
+        title = stringResource(R.string.tool_fill_forms),
+        description = stringResource(R.string.desc_fill_forms),
         icon = Icons.Default.EditNote,
         category = ToolCategory.MARKUP
     ),
     PdfFeature(
-        title = "Annotate PDF",
-        description = "Add highlights, notes, stamps",
+        toolId = "annotate",
+        title = stringResource(R.string.tool_annotate_pdf),
+        description = stringResource(R.string.desc_annotate_pdf),
         icon = Icons.Default.Edit,
         category = ToolCategory.MARKUP
     ),
-    
+
     // SECURITY category (focused on Lock/Unlock)
     PdfFeature(
-        title = "Add Security",
-        description = "Password protect your PDFs",
+        toolId = "lock",
+        title = stringResource(R.string.tool_add_security),
+        description = stringResource(R.string.desc_add_security),
         icon = Icons.Default.Lock,
         category = ToolCategory.SECURITY
     ),
     PdfFeature(
-        title = "Unlock PDF",
-        description = "Remove password from PDFs",
+        toolId = "unlock",
+        title = stringResource(R.string.tool_unlock_pdf),
+        description = stringResource(R.string.desc_unlock_pdf),
         icon = Icons.Default.LockOpen,
         category = ToolCategory.SECURITY
     ),
-    
+
     // OPTIMIZE category (includes compression, repair, metadata, watermark, flatten)
     PdfFeature(
-        title = "Compress PDF",
-        description = "Reduce PDF file size",
+        toolId = "compress",
+        title = stringResource(R.string.tool_compress_pdf),
+        description = stringResource(R.string.desc_compress_pdf),
         icon = Icons.Default.Compress,
         category = ToolCategory.OPTIMIZE
     ),
     PdfFeature(
-        title = "Repair PDF",
-        description = "Fix corrupted PDF files",
+        toolId = "repair",
+        title = stringResource(R.string.tool_repair_pdf),
+        description = stringResource(R.string.desc_repair_pdf),
         icon = Icons.Default.Build,
         category = ToolCategory.OPTIMIZE
     ),
     PdfFeature(
-        title = "Page Numbers",
-        description = "Add page numbers to your PDF",
+        toolId = "page_numbers",
+        title = stringResource(R.string.tool_page_numbers),
+        description = stringResource(R.string.desc_page_numbers),
         icon = Icons.Default.FormatListNumbered,
         category = ToolCategory.OPTIMIZE
     ),
     PdfFeature(
-        title = "View Metadata",
-        description = "View and edit PDF properties",
+        toolId = "metadata",
+        title = stringResource(R.string.tool_view_metadata),
+        description = stringResource(R.string.desc_view_metadata),
         icon = Icons.Default.Info,
         category = ToolCategory.OPTIMIZE
     ),
     PdfFeature(
-        title = "Add Watermark",
-        description = "Add text or image watermark",
+        toolId = "watermark",
+        title = stringResource(R.string.tool_add_watermark),
+        description = stringResource(R.string.desc_add_watermark),
         icon = Icons.Default.WaterDrop,
         category = ToolCategory.OPTIMIZE
     ),
     PdfFeature(
-        title = "Flatten PDF",
-        description = "Merge annotations to content",
+        toolId = "flatten",
+        title = stringResource(R.string.tool_flatten_pdf),
+        description = stringResource(R.string.desc_flatten_pdf),
         icon = Icons.Default.Layers,
         category = ToolCategory.OPTIMIZE
     )

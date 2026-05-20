@@ -178,7 +178,7 @@ fun ToolsScreen(
             val sectionTools = allTools.filter { it.section == section }
             if (sectionTools.isNotEmpty()) {
                 item {
-                    SectionHeader(title = section.title)
+                    SectionHeader(title = getSectionTitle(section))
                 }
                 
                 item {
@@ -210,6 +210,21 @@ fun ToolsScreen(
         item {
             Spacer(modifier = Modifier.height(80.dp))
         }
+    }
+}
+
+/**
+ * Get localized title for a ToolSection.
+ */
+@Composable
+private fun getSectionTitle(section: ToolSection): String {
+    return when (section) {
+        ToolSection.QUICK_ACTIONS -> stringResource(R.string.category_quick_actions)
+        ToolSection.ORGANIZE -> stringResource(R.string.category_organize)
+        ToolSection.CONVERT -> stringResource(R.string.category_convert)
+        ToolSection.SECURITY -> stringResource(R.string.category_security)
+        ToolSection.IMAGE_TOOLS -> stringResource(R.string.category_image_tools)
+        ToolSection.VIEW_EXPORT -> stringResource(R.string.category_view_export)
     }
 }
 

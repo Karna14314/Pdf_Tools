@@ -104,13 +104,12 @@ object LanguageManager {
      * @param langCode New language code to apply
      */
     suspend fun changeLanguage(context: Context, langCode: String) {
-        // Apply the locale change immediately on the main thread to avoid lag/race condition
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-            setLanguage(context, langCode)
-        }
-        
-        // Save to DataStore to ensure persistence (await completion)
+        // Save to DataStore first to ensure persistence (await completion)
         LanguageDataStore.saveSelectedLanguage(context, langCode)
+        
+        // Apply the locale change via AppCompatDelegate
+        // This will trigger activity recreation (since layoutDirection is not in configChanges)
+        setLanguage(context, langCode)
         
         Log.d("LanguageManager", "Language changed to: $langCode")
     }

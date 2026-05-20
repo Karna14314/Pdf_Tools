@@ -47,6 +47,11 @@
     <string name="home_subtitle">Alle Ihre PDF- und Bildwerkzeuge an einem Ort</string>
     <string name="fab_open_pdf">PDF öffnen</string>
 
+    <!-- Navigation -->
+    <string name="nav_tab_tools">Werkzeuge</string>
+    <string name="nav_tab_files">Dateien</string>
+    <string name="nav_open_history">Verlauf öffnen</string>
+
     <!-- Tool Categories -->
     <string name="category_organize">Organisieren</string>
     <string name="category_convert">Konvertieren</string>

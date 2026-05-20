@@ -47,6 +47,11 @@
     <string name="home_subtitle">所有PDF和图像工具尽在一处</string>
     <string name="fab_open_pdf">打开PDF</string>
 
+    <!-- Navigation -->
+    <string name="nav_tab_tools">工具</string>
+    <string name="nav_tab_files">文件</string>
+    <string name="nav_open_history">打开历史</string>
+
     <!-- Tool Categories -->
     <string name="category_organize">整理</string>
     <string name="category_convert">转换</string>

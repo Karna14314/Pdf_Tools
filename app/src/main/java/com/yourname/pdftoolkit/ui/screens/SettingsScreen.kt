@@ -126,7 +126,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Settings",
+                        text = stringResource(R.string.settings_title),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -134,7 +134,7 @@ fun SettingsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.action_back)
                         )
                     }
                 },
@@ -152,7 +152,7 @@ fun SettingsScreen(
         ) {
             // Quality Settings Section
             item {
-                SettingsSectionHeader(title = "Quality Settings")
+                SettingsSectionHeader(title = stringResource(R.string.settings_section_quality))
             }
             
             // Default Compression Quality
@@ -173,7 +173,7 @@ fun SettingsScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.HighQuality,
-                                contentDescription = "Compression Quality",
+                                contentDescription = stringResource(R.string.cd_compression_quality),
                                 modifier = Modifier
                                     .padding(8.dp)
                                     .size(24.dp),
@@ -183,7 +183,7 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Default Compression Quality",
+                                text = stringResource(R.string.settings_compression_quality),
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Medium
                             )
@@ -217,12 +217,12 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Smaller file",
+                            text = stringResource(R.string.compress_smaller_file),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "Better quality",
+                            text = stringResource(R.string.compress_better_quality),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -233,7 +233,7 @@ fun SettingsScreen(
             // Default Image Format
             item {
                 SettingsItem(
-                    title = "Default Image Format",
+                    title = stringResource(R.string.settings_image_format),
                     subtitle = defaultImageFormat.displayName,
                     icon = Icons.Default.Image,
                     onClick = { showImageFormatDialog = true }
@@ -272,12 +272,12 @@ fun SettingsScreen(
             
             // Storage Section
             item {
-                SettingsSectionHeader(title = "Storage")
+                SettingsSectionHeader(title = stringResource(R.string.settings_section_storage))
             }
             
             item {
                 SettingsItem(
-                    title = "Cache Size",
+                    title = stringResource(R.string.settings_cache_size),
                     subtitle = cacheSize,
                     icon = Icons.Default.Storage,
                     onClick = { showClearCacheDialog = true }
@@ -289,7 +289,7 @@ fun SettingsScreen(
                         )
                     } else {
                         TextButton(onClick = { showClearCacheDialog = true }) {
-                            Text("Clear")
+                            Text(stringResource(R.string.action_clear))
                         }
                     }
                 }
@@ -297,13 +297,13 @@ fun SettingsScreen(
             
             // Support Section
             item {
-                SettingsSectionHeader(title = "Support")
+                SettingsSectionHeader(title = stringResource(R.string.settings_section_support))
             }
             
             item {
                 SettingsItem(
-                    title = "Request a Feature",
-                    subtitle = "Share your ideas to improve the app",
+                    title = stringResource(R.string.settings_request_feature),
+                    subtitle = stringResource(R.string.settings_request_feature_subtitle),
                     icon = Icons.Default.Lightbulb,
                     onClick = { showFeatureRequestDialog = true }
                 )
@@ -311,8 +311,8 @@ fun SettingsScreen(
             
             item {
                 SettingsItem(
-                    title = "Report a Bug",
-                    subtitle = "Help us fix issues",
+                    title = stringResource(R.string.settings_report_bug),
+                    subtitle = stringResource(R.string.settings_report_bug_subtitle),
                     icon = Icons.Default.BugReport,
                     onClick = {
                         sendBugReport(context)
@@ -322,8 +322,8 @@ fun SettingsScreen(
             
             item {
                 SettingsItem(
-                    title = "Rate the App",
-                    subtitle = "Love the app? Rate us on Play Store",
+                    title = stringResource(R.string.settings_rate_app),
+                    subtitle = stringResource(R.string.settings_rate_app_subtitle),
                     icon = Icons.Default.Star,
                     onClick = {
                         openPlayStore(context)
@@ -333,12 +333,12 @@ fun SettingsScreen(
             
             // About Section
             item {
-                SettingsSectionHeader(title = "About")
+                SettingsSectionHeader(title = stringResource(R.string.settings_section_about))
             }
             
             item {
                 SettingsItem(
-                    title = "Version",
+                    title = stringResource(R.string.settings_version),
                     subtitle = "${BuildConfig.VERSION_NAME} (Build ${BuildConfig.VERSION_CODE})",
                     icon = Icons.Default.Info,
                     onClick = { showAboutDialog = true }
@@ -347,8 +347,8 @@ fun SettingsScreen(
             
             item {
                 SettingsItem(
-                    title = "Privacy Policy",
-                    subtitle = "View our privacy policy",
+                    title = stringResource(R.string.settings_privacy_policy),
+                    subtitle = stringResource(R.string.settings_privacy_policy_subtitle),
                     icon = Icons.Default.PrivacyTip,
                     onClick = {
                         openPrivacyPolicy(context)
@@ -358,8 +358,8 @@ fun SettingsScreen(
             
             item {
                 SettingsItem(
-                    title = "Open Source Licenses",
-                    subtitle = "View third-party licenses",
+                    title = stringResource(R.string.settings_licenses),
+                    subtitle = stringResource(R.string.settings_licenses_subtitle),
                     icon = Icons.Default.Description,
                     onClick = {
                         showLicensesDialog = true
@@ -392,18 +392,18 @@ fun SettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "PDF Toolkit",
+                        text = stringResource(R.string.settings_app_name),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        text = "Made with ❤️ for productivity",
+                        text = stringResource(R.string.settings_made_with_love),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "© 2026 PDF Toolkit",
+                        text = stringResource(R.string.settings_copyright),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -429,7 +429,7 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showThemeDialog = false },
             icon = { Icon(Icons.Default.Palette, contentDescription = null) },
-            title = { Text("Theme Mode") },
+            title = { Text(stringResource(R.string.settings_theme_mode)) },
             text = {
                 Column {
                     ThemeMode.entries.forEach { theme ->
@@ -544,7 +544,7 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showImageFormatDialog = false },
             icon = { Icon(Icons.Default.Image, contentDescription = null) },
-            title = { Text("Default Image Format") },
+            title = { Text(stringResource(R.string.settings_image_format)) },
             text = {
                 Column {
                     DefaultImageFormat.entries.forEach { format ->
@@ -593,7 +593,7 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showImageFormatDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -604,9 +604,9 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showClearCacheDialog = false },
             icon = { Icon(Icons.Default.DeleteSweep, contentDescription = null) },
-            title = { Text("Clear Cache?") },
+            title = { Text(stringResource(R.string.settings_clear_cache)) },
             text = {
-                Text("This will delete temporary files and cached data. Your saved PDFs will not be affected.")
+                Text(stringResource(R.string.settings_clear_cache_message))
             },
             confirmButton = {
                 Button(
@@ -619,16 +619,16 @@ fun SettingsScreen(
                             }
                             cacheSize = CacheManager.getFormattedCacheSize(context)
                             isClearing = false
-                            Toast.makeText(context, "Cache cleared successfully", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.settings_cache_cleared), Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {
-                    Text("Clear")
+                    Text(stringResource(R.string.action_clear))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearCacheDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -639,24 +639,24 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },
             icon = { Icon(Icons.Default.Info, contentDescription = null) },
-            title = { Text("About PDF Toolkit") },
+            title = { Text(stringResource(R.string.settings_about_title)) },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("PDF Toolkit is a powerful, offline PDF tool that helps you manage PDF documents quickly and efficiently.")
+                    Text(stringResource(R.string.settings_about_description))
                     
                     Divider()
                     
                     Text(
-                        text = "Features:",
+                        text = stringResource(R.string.settings_about_features),
                         fontWeight = FontWeight.SemiBold
                     )
-                    Text("• Merge, Split, Compress PDFs")
-                    Text("• Convert to/from images")
-                    Text("• Add watermarks & signatures")
-                    Text("• OCR & Scan to PDF")
-                    Text("• Secure & encrypt PDFs")
+                    Text(stringResource(R.string.settings_about_feature_1))
+                    Text(stringResource(R.string.settings_about_feature_2))
+                    Text(stringResource(R.string.settings_about_feature_3))
+                    Text(stringResource(R.string.settings_about_feature_4))
+                    Text(stringResource(R.string.settings_about_feature_5))
                     
                     Divider()
                     
@@ -664,28 +664,28 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Version", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.settings_about_version), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(BuildConfig.VERSION_NAME)
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Build", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.settings_about_build), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(BuildConfig.VERSION_CODE.toString())
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Made with", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("Kotlin & Jetpack Compose")
+                        Text(stringResource(R.string.settings_about_made_with), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.settings_about_kotlin_compose))
                     }
                 }
             },
             confirmButton = {
                 TextButton(onClick = { showAboutDialog = false }) {
-                    Text("Close")
+                    Text(stringResource(R.string.action_close))
                 }
             }
         )
@@ -703,13 +703,14 @@ fun SettingsScreen(
     }
 }
 
+@Composable
 private fun getQualityDescription(quality: Int): String {
     return when {
-        quality >= 90 -> "Maximum quality"
-        quality >= 75 -> "High quality"
-        quality >= 60 -> "Balanced"
-        quality >= 45 -> "Compressed"
-        else -> "Maximum compression"
+        quality >= 90 -> stringResource(R.string.compress_quality_maximum)
+        quality >= 75 -> stringResource(R.string.compress_quality_high)
+        quality >= 60 -> stringResource(R.string.compress_quality_balanced)
+        quality >= 45 -> stringResource(R.string.compress_quality_compressed)
+        else -> stringResource(R.string.compress_quality_maximum_compression)
     }
 }
 
@@ -802,12 +803,12 @@ private fun FeatureRequestDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Default.Lightbulb, contentDescription = null) },
-        title = { Text("Request a Feature") },
+        title = { Text(stringResource(R.string.feature_request_title)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Share your idea to help us improve PDF Toolkit!")
+                Text(stringResource(R.string.feature_request_description))
                 
                 // Category selector
                 ExposedDropdownMenuBox(
@@ -818,7 +819,7 @@ private fun FeatureRequestDialog(
                         value = category,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Category") },
+                        label = { Text(stringResource(R.string.feature_request_category)) },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = showCategoryMenu)
                         },
@@ -845,8 +846,8 @@ private fun FeatureRequestDialog(
                 OutlinedTextField(
                     value = featureText,
                     onValueChange = { featureText = it },
-                    label = { Text("Describe your idea") },
-                    placeholder = { Text("What feature would you like to see?") },
+                    label = { Text(stringResource(R.string.feature_request_idea)) },
+                    placeholder = { Text(stringResource(R.string.feature_request_placeholder)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(150.dp),
@@ -861,12 +862,12 @@ private fun FeatureRequestDialog(
             ) {
                 Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Submit")
+                Text(stringResource(R.string.action_submit))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
