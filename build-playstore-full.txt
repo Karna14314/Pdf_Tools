@@ -1,0 +1,72 @@
+﻿
+> Configure project :app
+No keystore found or F-Droid build - skipping signing
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:prePlaystoreReleaseBuild UP-TO-DATE
+> Task :app:mergePlaystoreReleaseJniLibFolders
+> Task :app:buildKotlinToolingMetadata
+> Task :app:generatePlaystoreReleaseBuildConfig UP-TO-DATE
+> Task :app:checkPlaystoreReleaseAarMetadata UP-TO-DATE
+> Task :app:generatePlaystoreReleaseResValues UP-TO-DATE
+> Task :app:mapPlaystoreReleaseSourceSetPaths UP-TO-DATE
+> Task :app:generatePlaystoreReleaseResources UP-TO-DATE
+> Task :app:mergePlaystoreReleaseResources UP-TO-DATE
+> Task :app:packagePlaystoreReleaseResources UP-TO-DATE
+> Task :app:parsePlaystoreReleaseLocalResources UP-TO-DATE
+> Task :app:createPlaystoreReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksPlaystoreRelease UP-TO-DATE
+> Task :app:processPlaystoreReleaseMainManifest UP-TO-DATE
+> Task :app:processPlaystoreReleaseManifest UP-TO-DATE
+> Task :app:processPlaystoreReleaseManifestForPackage UP-TO-DATE
+> Task :app:processPlaystoreReleaseResources UP-TO-DATE
+> Task :app:checkPlaystoreReleaseDuplicateClasses
+> Task :app:mergePlaystoreReleaseNativeLibs
+> Task :app:kspPlaystoreReleaseKotlin UP-TO-DATE
+> Task :app:compilePlaystoreReleaseKotlin UP-TO-DATE
+> Task :app:javaPreCompilePlaystoreRelease
+> Task :app:mergePlaystoreReleaseArtProfile
+
+> Task :app:stripPlaystoreReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libimage_processing_util_jni.so, libmlkit_google_ocr_pipeline.so, libsurface_util_jni.so.
+
+> Task :app:compilePlaystoreReleaseJavaWithJavac
+> Task :app:extractPlaystoreReleaseNativeDebugMetadata
+> Task :app:mergePlaystoreReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:extractProguardFiles
+> Task :app:mergePlaystoreReleaseGeneratedProguardFiles
+> Task :app:processPlaystoreReleaseJavaRes
+> Task :app:mergePlaystoreReleaseStartupProfile UP-TO-DATE
+> Task :app:mergePlaystoreReleaseShaders
+> Task :app:compilePlaystoreReleaseShaders NO-SOURCE
+> Task :app:generatePlaystoreReleaseAssets UP-TO-DATE
+> Task :app:mergePlaystoreReleaseAssets
+> Task :app:extractPlaystoreReleaseVersionControlInfo
+> Task :app:compressPlaystoreReleaseAssets
+> Task :app:generatePlaystoreReleaseLintVitalReportModel
+> Task :app:collectPlaystoreReleaseDependencies
+> Task :app:sdkPlaystoreReleaseDependencyData
+> Task :app:writePlaystoreReleaseAppMetadata
+> Task :app:writePlaystoreReleaseSigningConfigVersions
+> Task :app:expandPlaystoreReleaseArtProfileWildcards
+> Task :app:mergePlaystoreReleaseJavaResource
+> Task :app:lintVitalAnalyzePlaystoreRelease
+> Task :app:minifyPlaystoreReleaseWithR8
+> Task :app:lintVitalReportPlaystoreRelease
+> Task :app:lintVitalPlaystoreRelease
+> Task :app:convertShrunkResourcesToBinaryPlaystoreRelease
+> Task :app:compilePlaystoreReleaseArtProfile
+> Task :app:optimizePlaystoreReleaseResources
+> Task :app:packagePlaystoreRelease
+> Task :app:createPlaystoreReleaseApkListingFileRedirect
+> Task :app:assemblePlaystoreRelease
+[Incubating] Problems report is available at: file:///C:/Users/chait/Projects/pdf_tools/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 7m 28s
+49 actionable tasks: 32 executed, 17 up-to-date

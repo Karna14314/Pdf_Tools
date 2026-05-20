@@ -126,6 +126,28 @@ class PdfViewerViewModel : ViewModel() {
     private val _annotations = MutableStateFlow<List<AnnotationStroke>>(emptyList())
     val annotations: StateFlow<List<AnnotationStroke>> = _annotations.asStateFlow()
 
+    // Stroke width configurations for each drawing tool
+    private val _highlighterWidth = MutableStateFlow(20f)
+    val highlighterWidth: StateFlow<Float> = _highlighterWidth.asStateFlow()
+
+    private val _markerWidth = MutableStateFlow(8f)
+    val markerWidth: StateFlow<Float> = _markerWidth.asStateFlow()
+
+    private val _underlineWidth = MutableStateFlow(4f)
+    val underlineWidth: StateFlow<Float> = _underlineWidth.asStateFlow()
+
+    fun setHighlighterWidth(width: Float) {
+        _highlighterWidth.value = width
+    }
+
+    fun setMarkerWidth(width: Float) {
+        _markerWidth.value = width
+    }
+
+    fun setUnderlineWidth(width: Float) {
+        _underlineWidth.value = width
+    }
+
     // Document management
     private var document: PDDocument? = null
     private var pdfRenderer: PDFRenderer? = null
@@ -457,6 +479,51 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     /**
+     * Internal text extraction helper. Assumes documentMutex lock is already held.
+     */
+    private suspend fun getPageTextInternal(doc: PDDocument, pageIndex: Int): PageTextData? {
+        var pageData = extractedTextCache[pageIndex]
+        if (pageData == null) {
+            pageData = withTimeoutOrNull(5000) {
+                val textPositions = mutableListOf<TextPosition>()
+                val stripper = object : PDFTextStripper() {
+                    override fun processTextPosition(text: TextPosition) {
+                        super.processTextPosition(text)
+                        textPositions.add(text)
+                    }
+                }
+                stripper.sortByPosition = true
+                stripper.startPage = pageIndex + 1
+                stripper.endPage = pageIndex + 1
+
+                val pageText = stripper.getText(doc)
+                val cleanedText = pageText.lines()
+                    .map { it.trim() }
+                    .filter { it.isNotBlank() }
+                    .joinToString("\n")
+                
+                PageTextData(cleanedText, textPositions)
+            }
+            if (pageData != null) {
+                extractedTextCache[pageIndex] = pageData
+            }
+        }
+        return pageData
+    }
+
+    /**
+     * Exposes page text data in a thread-safe way. Lock-safe for external selection.
+     */
+    suspend fun getPageText(pageIndex: Int): PageTextData? {
+        return withContext(Dispatchers.IO) {
+            documentMutex.withLock {
+                val doc = document ?: return@withLock null
+                getPageTextInternal(doc, pageIndex)
+            }
+        }
+    }
+
+    /**
      * Check if a page has extractable text (not a scanned/image PDF)
      */
     private fun hasExtractableText(doc: PDDocument, pageIndex: Int): Boolean {
@@ -501,42 +568,13 @@ class PdfViewerViewModel : ViewModel() {
                             continue // Skip pages that can't be searched
                         }
 
-                        // Check cache first
-                        var pageData = extractedTextCache[pageIndex]
-
+                        val pageData = getPageTextInternal(doc, pageIndex)
                         if (pageData == null) {
-                            // Extract with timeout to prevent hanging on large/complex pages
-                            pageData = withTimeoutOrNull(5000) {
-                                val textPositions = mutableListOf<TextPosition>()
-                                val stripper = object : PDFTextStripper() {
-                                    override fun processTextPosition(text: TextPosition) {
-                                        super.processTextPosition(text)
-                                        textPositions.add(text)
-                                    }
-                                }
-                                stripper.sortByPosition = true
-                                stripper.startPage = pageIndex + 1
-                                stripper.endPage = pageIndex + 1
-
-                                val pageText = stripper.getText(doc)
-                                // Clean up extracted text
-                                val cleanedText = pageText.lines()
-                                    .map { it.trim() }
-                                    .filter { it.isNotBlank() }
-                                    .joinToString("\n")
-                                
-                                PageTextData(cleanedText.lowercase(), textPositions)
-                            }
-                            
-                            if (pageData != null) {
-                                extractedTextCache[pageIndex] = pageData
-                            } else {
-                                Log.w("PdfViewerVM", "Text extraction timed out for page $pageIndex")
-                                continue
-                            }
+                            Log.w("PdfViewerVM", "Text extraction timed out for page $pageIndex")
+                            continue
                         }
 
-                        if (!pageData.text.contains(lowerQuery)) {
+                        if (!pageData.text.lowercase().contains(lowerQuery)) {
                             continue
                         }
 

@@ -1,0 +1,74 @@
+﻿
+> Configure project :app
+No keystore found or F-Droid build - skipping signing
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:prePlaystoreReleaseBuild UP-TO-DATE
+> Task :app:generatePlaystoreReleaseBuildConfig UP-TO-DATE
+> Task :app:checkPlaystoreReleaseAarMetadata UP-TO-DATE
+> Task :app:generatePlaystoreReleaseResValues UP-TO-DATE
+> Task :app:mapPlaystoreReleaseSourceSetPaths UP-TO-DATE
+> Task :app:generatePlaystoreReleaseResources UP-TO-DATE
+> Task :app:mergePlaystoreReleaseResources UP-TO-DATE
+> Task :app:packagePlaystoreReleaseResources UP-TO-DATE
+> Task :app:parsePlaystoreReleaseLocalResources UP-TO-DATE
+> Task :app:createPlaystoreReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksPlaystoreRelease UP-TO-DATE
+> Task :app:processPlaystoreReleaseMainManifest UP-TO-DATE
+> Task :app:processPlaystoreReleaseManifest UP-TO-DATE
+> Task :app:processPlaystoreReleaseManifestForPackage UP-TO-DATE
+> Task :app:processPlaystoreReleaseResources UP-TO-DATE
+> Task :app:kspPlaystoreReleaseKotlin
+> Task :app:compilePlaystoreReleaseKotlin
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/HtmlToPdfConverter.kt:82:34 This declaration overrides deprecated member but not marked as deprecated itself. Please add @Deprecated annotation or suppress. See https://youtrack.jetbrains.com/issue/KT-47902 for details
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/ImageConverter.kt:61:9 Parameter 'quality' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/ImageConverter.kt:114:9 Parameter 'format' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/ImageConverter.kt:121:38 Variable 'renderer' initializer is redundant
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:320:27 'setNonStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:348:27 'setStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:372:27 'setStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:396:27 'setStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:539:31 'setNonStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:549:31 'setStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:560:27 'setNonStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:589:27 'setStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfAnnotator.kt:597:31 'setNonStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfOcrProcessor.kt:411:9 Parameter 'imageWidth' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfOcrProcessor.kt:412:9 Parameter 'imageHeight' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfOcrProcessor.kt:413:9 Parameter 'dpi' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfOcrProcessor.kt:416:13 Variable 'pageWidth' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfRedactor.kt:212:9 Parameter 'context' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfRedactor.kt:213:9 Parameter 'inputUri' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfRedactor.kt:214:9 Parameter 'outputStream' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfRedactor.kt:215:9 Parameter 'textToRedact' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfRedactor.kt:216:9 Parameter 'color' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfRedactor.kt:217:9 Parameter 'onProgress' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfSigner.kt:492:27 'setNonStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfWatermarker.kt:224:27 'setNonStrokingColor(Int, Int, Int): Unit' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/review/ReviewLifecycleTracker.kt:87:33 Parameter 'application' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/MainActivity.kt:381:35 Variable 'bytesCopied' initializer is redundant
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/screens/AnnotationScreen.kt:492:63 Destructured parameter 'name' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/screens/CompressScreen.kt:42:5 Parameter 'initialName' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/screens/CompressScreen.kt:184:43 Parameter 'cResult' is never used, could be renamed to _
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerViewModel.kt:644:33 Variable 'importedPage' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/screens/ScanToPdfScreen.kt:194:9 Variable 'lifecycleOwner' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/screens/SplitScreen.kt:134:21 Variable 'result' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/screens/ToolsScreen.kt:247:31 Parameter 'rowIndex' is never used, could be renamed to _
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/ui/theme/Theme.kt:57:20 'setter for statusBarColor: Int' is deprecated. Deprecated in Java
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/util/ImageProcessor.kt:126:17 Variable 'inputStream' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/util/ImageProcessor.kt:369:9 Parameter 'context' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/util/LanguageDataStore.kt:57:17 Variable 'prefs' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/util/LanguageManager.kt:55:21 Parameter 'context' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/util/OutputFolderManager.kt:56:9 Parameter 'mimeType' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/util/PdfTools.kt:61:17 Variable 'printManager' is never used
+w: file:///C:/Users/chait/Projects/pdf_tools/app/src/main/java/com/yourname/pdftoolkit/util/PdfTools.kt:170:26 Parameter 'attributes' is never used
+[Incubating] Problems report is available at: file:///C:/Users/chait/Projects/pdf_tools/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 3m 34s
+16 actionable tasks: 2 executed, 14 up-to-date
