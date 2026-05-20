@@ -33,7 +33,7 @@
         android:theme="@style/Theme.PDFToolkit"
         android:hardwareAccelerated="true"
         android:requestLegacyExternalStorage="true"
-        android:localeConfig="@xml/locale_config"
+        android:localeConfig="@xml/locales_config"
         tools:targetApi="31">
 
         <activity
@@ -113,6 +113,16 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <!-- AppCompat per-app language tracking service -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
 
         <!-- UCrop Activity for image cropping -->
         <activity

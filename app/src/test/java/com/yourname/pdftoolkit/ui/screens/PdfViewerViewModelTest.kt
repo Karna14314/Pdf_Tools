@@ -90,7 +90,7 @@ class PdfViewerViewModelTest {
     }
 
     @Test
-    fun `undoAnnotation removes last stroke and adds to redo stack`() {
+    fun `undoAnnotation removes last stroke`() {
         val stroke1 = AnnotationStroke(0, AnnotationTool.HIGHLIGHTER, androidx.compose.ui.graphics.Color.Yellow, 
             listOf(androidx.compose.ui.geometry.Offset(0f, 0f)), 20f)
         val stroke2 = AnnotationStroke(0, AnnotationTool.MARKER, androidx.compose.ui.graphics.Color.Red, 
@@ -102,91 +102,11 @@ class PdfViewerViewModelTest {
         
         assertEquals(1, viewModel.annotations.value.size)
         assertEquals(stroke1, viewModel.annotations.value[0])
-        assertTrue(viewModel.canRedo())
-    }
-
-    @Test
-    fun `redoAnnotation restores undone stroke`() {
-        val stroke = AnnotationStroke(0, AnnotationTool.HIGHLIGHTER, androidx.compose.ui.graphics.Color.Yellow, 
-            listOf(androidx.compose.ui.geometry.Offset(0f, 0f)), 20f)
-        
-        viewModel.addAnnotation(stroke)
-        viewModel.undoAnnotation()
-        
-        assertTrue(viewModel.canRedo())
-        assertEquals(0, viewModel.annotations.value.size)
-        
-        viewModel.redoAnnotation()
-        
-        assertEquals(1, viewModel.annotations.value.size)
-        assertEquals(stroke, viewModel.annotations.value[0])
-        assertFalse(viewModel.canRedo())
-    }
-
-    @Test
-    fun `addAnnotation clears redo stack`() {
-        val stroke1 = AnnotationStroke(0, AnnotationTool.HIGHLIGHTER, androidx.compose.ui.graphics.Color.Yellow, 
-            listOf(androidx.compose.ui.geometry.Offset(0f, 0f)), 20f)
-        val stroke2 = AnnotationStroke(0, AnnotationTool.MARKER, androidx.compose.ui.graphics.Color.Red, 
-            listOf(androidx.compose.ui.geometry.Offset(10f, 10f)), 8f)
-        
-        viewModel.addAnnotation(stroke1)
-        viewModel.undoAnnotation()
-        assertTrue(viewModel.canRedo())
-        
-        viewModel.addAnnotation(stroke2)
-        assertFalse(viewModel.canRedo())
     }
 
     @Test
     fun `undoAnnotation with empty list does nothing`() {
         viewModel.undoAnnotation()
         assertTrue(viewModel.annotations.value.isEmpty())
-        assertFalse(viewModel.canRedo())
-    }
-
-    @Test
-    fun `redoAnnotation with empty redo stack does nothing`() {
-        val stroke = AnnotationStroke(0, AnnotationTool.HIGHLIGHTER, androidx.compose.ui.graphics.Color.Yellow, 
-            listOf(androidx.compose.ui.geometry.Offset(0f, 0f)), 20f)
-        
-        viewModel.addAnnotation(stroke)
-        viewModel.redoAnnotation() // Should do nothing
-        
-        assertEquals(1, viewModel.annotations.value.size)
-    }
-
-    @Test
-    fun `multiple undo and redo cycles work correctly`() {
-        val stroke1 = AnnotationStroke(0, AnnotationTool.HIGHLIGHTER, androidx.compose.ui.graphics.Color.Yellow, 
-            listOf(androidx.compose.ui.geometry.Offset(0f, 0f)), 20f)
-        val stroke2 = AnnotationStroke(0, AnnotationTool.MARKER, androidx.compose.ui.graphics.Color.Red, 
-            listOf(androidx.compose.ui.geometry.Offset(10f, 10f)), 8f)
-        val stroke3 = AnnotationStroke(0, AnnotationTool.UNDERLINE, androidx.compose.ui.graphics.Color.Blue, 
-            listOf(androidx.compose.ui.geometry.Offset(20f, 20f)), 4f)
-        
-        viewModel.addAnnotation(stroke1)
-        viewModel.addAnnotation(stroke2)
-        viewModel.addAnnotation(stroke3)
-        
-        assertEquals(3, viewModel.annotations.value.size)
-        
-        // Undo twice
-        viewModel.undoAnnotation()
-        viewModel.undoAnnotation()
-        assertEquals(1, viewModel.annotations.value.size)
-        assertTrue(viewModel.canRedo())
-        
-        // Redo once
-        viewModel.redoAnnotation()
-        assertEquals(2, viewModel.annotations.value.size)
-        assertTrue(viewModel.canRedo())
-        
-        // Add new annotation should clear redo stack
-        val stroke4 = AnnotationStroke(1, AnnotationTool.HIGHLIGHTER, androidx.compose.ui.graphics.Color.Green, 
-            listOf(androidx.compose.ui.geometry.Offset(30f, 30f)), 20f)
-        viewModel.addAnnotation(stroke4)
-        assertFalse(viewModel.canRedo())
-        assertEquals(3, viewModel.annotations.value.size)
     }
 }

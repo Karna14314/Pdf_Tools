@@ -104,11 +104,13 @@ object LanguageManager {
      * @param langCode New language code to apply
      */
     suspend fun changeLanguage(context: Context, langCode: String) {
-        // Save to DataStore FIRST to ensure persistence (await completion)
-        LanguageDataStore.saveSelectedLanguage(context, langCode)
+        // Apply the locale change immediately on the main thread to avoid lag/race condition
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+            setLanguage(context, langCode)
+        }
         
-        // THEN apply the locale change immediately
-        setLanguage(context, langCode)
+        // Save to DataStore to ensure persistence (await completion)
+        LanguageDataStore.saveSelectedLanguage(context, langCode)
         
         Log.d("LanguageManager", "Language changed to: $langCode")
     }
