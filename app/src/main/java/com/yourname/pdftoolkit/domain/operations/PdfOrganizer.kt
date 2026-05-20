@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -53,7 +54,7 @@ class PdfOrganizer {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val originalPageCount = document.numberOfPages
             
             if (originalPageCount == 0) {
@@ -141,7 +142,7 @@ class PdfOrganizer {
                     IllegalStateException("Cannot open input file")
                 )
             
-            sourceDocument = PDDocument.load(inputStream)
+            sourceDocument = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val originalPageCount = sourceDocument.numberOfPages
             
             if (originalPageCount == 0) {
@@ -251,7 +252,7 @@ class PdfOrganizer {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val pageCount = document.numberOfPages
             
             if (pageCount == 0) {
@@ -303,7 +304,7 @@ class PdfOrganizer {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val originalPageCount = document.numberOfPages
             
             if (originalPageCount == 0) {
@@ -346,6 +347,23 @@ class PdfOrganizer {
         var renderer: PdfRenderer? = null
 
         try {
+            // Attempt to open direct ParcelFileDescriptor from ContentResolver (avoid copying)
+            try {
+                pfd = context.contentResolver.openFileDescriptor(uri, "r")
+                if (pfd != null) {
+                    renderer = PdfRenderer(pfd)
+                    return@withContext renderer.pageCount
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("PdfOrganizer", "Direct file descriptor read failed, falling back to temp file", e)
+            } finally {
+                try { renderer?.close() } catch (_: Exception) {}
+                try { pfd?.close() } catch (_: Exception) {}
+                renderer = null
+                pfd = null
+            }
+
+            // Fallback: Copy to temp file
             val temp = File.createTempFile("page_count_", ".pdf", context.cacheDir)
             tempFile = temp
 
@@ -392,61 +410,72 @@ class PdfOrganizer {
         height: Int,
         callback: (Int, android.graphics.Bitmap) -> Unit
     ) = withContext(Dispatchers.IO) {
+        var tempFile: File? = null
+        var pfd: ParcelFileDescriptor? = null
+        var renderer: PdfRenderer? = null
+
         try {
-            // Copy to temp file for PdfRenderer
-            val tempFile = java.io.File(context.cacheDir, "temp_thumbnail_${System.currentTimeMillis()}.pdf")
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                tempFile.outputStream().use { output ->
-                    input.copyTo(output)
+            // Attempt to open direct ParcelFileDescriptor from ContentResolver (avoid copying)
+            try {
+                pfd = context.contentResolver.openFileDescriptor(uri, "r")
+            } catch (e: Exception) {
+                android.util.Log.w("PdfOrganizer", "Direct file descriptor read failed for thumbnails, falling back to temp file", e)
+            }
+
+            // Fallback: Copy to temp file if direct opening failed
+            if (pfd == null) {
+                val temp = File.createTempFile("temp_thumbnail_", ".pdf", context.cacheDir)
+                tempFile = temp
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    temp.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                pfd = ParcelFileDescriptor.open(temp, ParcelFileDescriptor.MODE_READ_ONLY)
+            }
+
+            if (pfd != null) {
+                renderer = PdfRenderer(pfd)
+                val pageCount = renderer.pageCount
+                
+                for (i in 0 until pageCount) {
+                    val page = renderer.openPage(i)
+                    
+                    // Calculate scaled dimensions maintaining aspect ratio
+                    val pageWidth = page.width
+                    val pageHeight = page.height
+                    val scale = minOf(width.toFloat() / pageWidth, height.toFloat() / pageHeight)
+                    val scaledWidth = (pageWidth * scale).toInt()
+                    val scaledHeight = (pageHeight * scale).toInt()
+                    
+                    val bitmap = android.graphics.Bitmap.createBitmap(
+                        scaledWidth,
+                        scaledHeight,
+                        android.graphics.Bitmap.Config.ARGB_8888
+                    )
+                    
+                    // Fill with white background
+                    bitmap.eraseColor(android.graphics.Color.WHITE)
+                    
+                    page.render(
+                        bitmap,
+                        null,
+                        null,
+                        PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                    )
+                    
+                    page.close()
+                    
+                    // Send thumbnail via callback (1-indexed page number)
+                    callback(i + 1, bitmap)
                 }
             }
-            
-            val pfd = android.os.ParcelFileDescriptor.open(
-                tempFile,
-                android.os.ParcelFileDescriptor.MODE_READ_ONLY
-            )
-            
-            val renderer = android.graphics.pdf.PdfRenderer(pfd)
-            val pageCount = renderer.pageCount
-            
-            for (i in 0 until pageCount) {
-                val page = renderer.openPage(i)
-                
-                // Calculate scaled dimensions maintaining aspect ratio
-                val pageWidth = page.width
-                val pageHeight = page.height
-                val scale = minOf(width.toFloat() / pageWidth, height.toFloat() / pageHeight)
-                val scaledWidth = (pageWidth * scale).toInt()
-                val scaledHeight = (pageHeight * scale).toInt()
-                
-                val bitmap = android.graphics.Bitmap.createBitmap(
-                    scaledWidth,
-                    scaledHeight,
-                    android.graphics.Bitmap.Config.ARGB_8888
-                )
-                
-                // Fill with white background
-                bitmap.eraseColor(android.graphics.Color.WHITE)
-                
-                page.render(
-                    bitmap,
-                    null,
-                    null,
-                    android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
-                )
-                
-                page.close()
-                
-                // Send thumbnail via callback (1-indexed page number)
-                callback(i + 1, bitmap)
-            }
-            
-            renderer.close()
-            pfd.close()
-            tempFile.delete()
-            
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            try { renderer?.close() } catch (_: Exception) {}
+            try { pfd?.close() } catch (_: Exception) {}
+            try { tempFile?.delete() } catch (_: Exception) {}
         }
     }
 }

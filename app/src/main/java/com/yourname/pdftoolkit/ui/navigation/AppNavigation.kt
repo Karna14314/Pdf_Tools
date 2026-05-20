@@ -403,7 +403,7 @@ fun AppNavigation(
                     actions = {
                         IconButton(
                             onClick = {
-                                navController.navigate(Screen.Settings.route)
+                                safeNavigate(navController, Screen.Settings.route)
                             }
                         ) {
                             Icon(

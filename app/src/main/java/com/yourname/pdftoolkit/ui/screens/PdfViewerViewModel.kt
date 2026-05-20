@@ -175,7 +175,9 @@ class PdfViewerViewModel : ViewModel() {
             uiBitmapRefs[pageIndex]?.let { oldBitmap ->
                 if (oldBitmap !== bitmap) {
                     activeBitmaps.remove(oldBitmap)
-                    safeRecycle(oldBitmap)
+                    // Do not call safeRecycle(oldBitmap) here to prevent throwIfCannotDraw crashes,
+                    // as Compose may still be drawing the old bitmap asynchronously.
+                    // GC will naturally reclaim it once Compose drops its reference.
                 }
             }
             // Register new bitmap
@@ -407,6 +409,21 @@ class PdfViewerViewModel : ViewModel() {
                             if (!bm.isRecycled) {
                                 bitmapCache.put(pageIndex, bm)
                             }
+                        }
+                    } catch (oom: OutOfMemoryError) {
+                        Log.e("PdfViewerVM", "OOM rendering page $pageIndex, clearing cache and retrying at lower scale", oom)
+                        bitmapCache.evictAll()
+                        System.gc()
+                        try {
+                            val renderScale = calculateCappedRenderScale(pageIndex) * 0.5f
+                            renderer.renderImage(pageIndex, renderScale)?.also { bm ->
+                                if (!bm.isRecycled) {
+                                    bitmapCache.put(pageIndex, bm)
+                                }
+                            }
+                        } catch (t: Throwable) {
+                            Log.e("PdfViewerVM", "Failed to render page $pageIndex even at lower scale", t)
+                            null
                         }
                     } catch (e: Exception) {
                         Log.e("PdfViewerVM", "Render failed page $pageIndex: ${e.message}")
