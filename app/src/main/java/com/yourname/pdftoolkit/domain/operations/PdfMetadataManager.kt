@@ -124,11 +124,11 @@ class PdfMetadataManager {
             
             onProgress(0.4f)
             
-            // Update only provided fields
-            metadata.title?.let { info.title = it }
-            metadata.author?.let { info.author = it }
-            metadata.subject?.let { info.subject = it }
-            metadata.keywords?.let { info.keywords = it }
+            // Update fields (null or blank values clear/remove the field)
+            info.title = if (metadata.title.isNullOrBlank()) null else metadata.title
+            info.author = if (metadata.author.isNullOrBlank()) null else metadata.author
+            info.subject = if (metadata.subject.isNullOrBlank()) null else metadata.subject
+            info.keywords = if (metadata.keywords.isNullOrBlank()) null else metadata.keywords
             
             // Update modification date
             info.modificationDate = Calendar.getInstance()

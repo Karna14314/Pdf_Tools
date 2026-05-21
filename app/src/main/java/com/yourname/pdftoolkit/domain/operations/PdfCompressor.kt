@@ -14,6 +14,7 @@ import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
 import com.tom_roush.pdfbox.pdmodel.PDResources
 import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
 import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
+import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory
 import com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject
 import com.tom_roush.pdfbox.rendering.PDFRenderer
 import kotlinx.coroutines.CancellationException
@@ -162,38 +163,47 @@ class PdfCompressor {
 
             onProgress(0.10f)
 
-            // Detect whether PDF has embedded images to choose strategy
-            val hasImages = pdfHasImages(tempFile)
+            // Try lossless structural and image optimization first
+            var resultFile: File? = null
+            var strategyUsed = CompressionStrategy.IMAGE_OPTIMIZATION
 
-            val resultFile: File?
-            val strategyUsed: CompressionStrategy
-
-            if (hasImages) {
-                // Image-heavy: try image optimization first, fall back to rerender
-                val opt = tryImageOptimization(context, tempFile, profile, onProgress)
-                resultFile = if (opt != null && opt.length() < originalSize) {
-                    strategyUsed = CompressionStrategy.IMAGE_OPTIMIZATION
-                    opt
-                } else {
-                    opt?.delete()
-                    onProgress(0.55f)
-                    val rerender = tryFullRerender(context, tempFile, profile) { p ->
-                        onProgress(0.55f + p * 0.40f)
-                    }
-                    strategyUsed = CompressionStrategy.FULL_RERENDER
-                    if (rerender != null && rerender.length() < originalSize) rerender
-                    else { rerender?.delete(); null }
-                }
+            val opt = tryImageOptimization(context, tempFile, profile, onProgress)
+            
+            // Smart threshold logic: if it saved less than 15%, we also consider tryFullRerender
+            val isOptInefficient = opt != null && opt.length() > originalSize * 0.85f
+            
+            if (opt != null && opt.length() < originalSize) {
+                resultFile = opt
+                strategyUsed = CompressionStrategy.IMAGE_OPTIMIZATION
             } else {
-                // Text/vector only: rerender is the only option that can reduce size
-                // (image optimization does nothing with no images)
-                onProgress(0.30f)
+                opt?.delete()
+            }
+
+            // Fall back to re-rendering if image optimization failed or was highly inefficient
+            val shouldTryRerender = level == CompressionLevel.HIGH || level == CompressionLevel.MAXIMUM || (qualityPercent ?: 50) > 60
+            if (shouldTryRerender && (resultFile == null || isOptInefficient)) {
+                onProgress(0.55f)
                 val rerender = tryFullRerender(context, tempFile, profile) { p ->
-                    onProgress(0.30f + p * 0.60f)
+                    onProgress(0.55f + p * 0.40f)
                 }
-                strategyUsed = CompressionStrategy.FULL_RERENDER
-                resultFile = if (rerender != null && rerender.length() < originalSize) rerender
-                else { rerender?.delete(); null }
+                
+                if (rerender != null && rerender.length() < originalSize) {
+                    // If we have both, compare sizes and choose the smaller one!
+                    if (resultFile != null) {
+                        if (rerender.length() < resultFile.length()) {
+                            resultFile.delete() // clean up optimized file
+                            resultFile = rerender
+                            strategyUsed = CompressionStrategy.FULL_RERENDER
+                        } else {
+                            rerender.delete() // clean up rerendered file
+                        }
+                    } else {
+                        resultFile = rerender
+                        strategyUsed = CompressionStrategy.FULL_RERENDER
+                    }
+                } else {
+                    rerender?.delete()
+                }
             }
 
             onProgress(0.95f)
@@ -241,6 +251,62 @@ class PdfCompressor {
      * Try to compress by optimizing embedded images only.
      * This preserves text quality and searchability.
      */
+    /**
+     * Prune document metadata, private application data, and unused XML schemas.
+     */
+    private fun pruneMetadata(document: PDDocument) {
+        try {
+            // Remove catalog-level metadata stream
+            val catalog = document.documentCatalog
+            catalog.metadata = null
+            
+            // Clean Document Information properties
+            val info = document.documentInformation
+            info.creator = null
+            info.producer = "PDF Toolkit"
+            info.author = null
+            info.title = null
+            info.subject = null
+            info.keywords = null
+            
+            // Remove PieceInfo (private vendor-specific schemas, e.g. Adobe Illustrator layers)
+            catalog.cosObject.removeItem(COSName.getPDFName("PieceInfo"))
+            
+            // Clean individual pages PieceInfo and Metadata
+            for (i in 0 until document.numberOfPages) {
+                val page = document.getPage(i)
+                page.cosObject.removeItem(COSName.getPDFName("PieceInfo"))
+                page.cosObject.removeItem(COSName.METADATA)
+            }
+        } catch (e: Exception) {
+            // Safe fallback if metadata operations fail
+        }
+    }
+
+    data class ImageContentKey(val length: Long, val md5: String)
+
+    private fun computeImageHash(image: PDImageXObject): ImageContentKey? {
+        return try {
+            val length = image.cosObject.getLength().toLong()
+            if (length <= 0) return null
+            
+            val digest = java.security.MessageDigest.getInstance("MD5")
+            image.createInputStream().use { input ->
+                val buffer = ByteArray(8192)
+                var bytesRead = input.read(buffer)
+                while (bytesRead != -1) {
+                    digest.update(buffer, 0, bytesRead)
+                    bytesRead = input.read(buffer)
+                }
+            }
+            val hashBytes = digest.digest()
+            val md5String = hashBytes.joinToString("") { "%02x".format(it) }
+            ImageContentKey(length, md5String)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     private suspend fun tryImageOptimization(
         context: Context,
         inputFile: File,
@@ -257,8 +323,12 @@ class PdfCompressor {
             
             if (totalPages == 0) return null
             
+            // Prune metadata first
+            pruneMetadata(document)
+            
             var imagesOptimized = 0
             val optimizedImages = mutableMapOf<COSObjectKey, PDImageXObject>()
+            val hashCache = mutableMapOf<ImageContentKey, PDImageXObject>()
             
             // Process each page
             for (pageIndex in 0 until totalPages) {
@@ -267,20 +337,14 @@ class PdfCompressor {
                 val resources = page.resources ?: continue
                 
                 // Optimize images in this page
-                imagesOptimized += optimizePageImages(document, resources, profile, optimizedImages)
+                imagesOptimized += optimizePageImages(document, resources, profile, optimizedImages, hashCache)
                 
                 val pageProgress = 0.10f + (0.45f * (pageIndex + 1).toFloat() / totalPages)
                 onProgress(pageProgress)
             }
             
-            // Don't save if nothing was actually optimized - output would be same size or larger
-            if (imagesOptimized == 0) {
-                outputFile.delete()
-                null
-            } else {
-                document.save(outputFile)
-                outputFile
-            }
+            document.save(outputFile)
+            outputFile
             
         } catch (e: CancellationException) {
             outputFile.delete()
@@ -301,7 +365,8 @@ class PdfCompressor {
         document: PDDocument,
         resources: PDResources,
         profile: CompressionProfile,
-        optimizedCache: MutableMap<COSObjectKey, PDImageXObject>
+        optimizedCache: MutableMap<COSObjectKey, PDImageXObject>,
+        hashCache: MutableMap<ImageContentKey, PDImageXObject>
     ): Int {
         var optimizedCount = 0
         
@@ -329,6 +394,20 @@ class PdfCompressor {
                     val xObject = resources.getXObject(name)
                     
                     if (xObject is PDImageXObject) {
+                        // First check hash cache for identical image content
+                        val hashKey = computeImageHash(xObject)
+                        if (hashKey != null) {
+                            val cachedByHash = hashCache[hashKey]
+                            if (cachedByHash != null) {
+                                resources.put(name, cachedByHash)
+                                optimizedCount++
+                                if (cacheKey != null) {
+                                    optimizedCache[cacheKey] = cachedByHash
+                                }
+                                continue
+                            }
+                        }
+
                         val optimized = optimizeImage(document, xObject, profile)
                         if (optimized != null) {
                             resources.put(name, optimized)
@@ -336,6 +415,9 @@ class PdfCompressor {
 
                             if (cacheKey != null) {
                                 optimizedCache[cacheKey] = optimized
+                            }
+                            if (hashKey != null) {
+                                hashCache[hashKey] = optimized
                             }
                         }
                     }
@@ -364,12 +446,28 @@ class PdfCompressor {
         profile: CompressionProfile
     ): PDImageXObject? {
         return try {
-            // Get the image as bitmap
+            // Check filters/colorspace to skip monochrome (1-bit) images
+            val isMonochrome = image.bitsPerComponent == 1
+            val hasSMask = image.cosObject.containsKey(COSName.SMASK)
+            val hasMask = image.cosObject.containsKey(COSName.MASK)
+            
+            // Skip to prevent massive bloat on 1-bit
+            if (isMonochrome) {
+                return null
+            }
+            
+            // Get original stream length to compare later
+            val originalLength = image.cosObject.getLength()
+            
             val originalImage = image.image ?: return null
+            
+            // Skip small logos/icons (width or height < 128px) as compression saves nothing and causes blur
+            if (originalImage.width < 128 || originalImage.height < 128) {
+                return null
+            }
             
             // Calculate target dimensions based on compression level
             val scaleFactor = profile.scaleFactor
-            
             val targetWidth = (originalImage.width * scaleFactor).toInt().coerceAtLeast(32)
             val targetHeight = (originalImage.height * scaleFactor).toInt().coerceAtLeast(32)
             
@@ -381,13 +479,55 @@ class PdfCompressor {
             }
             
             try {
-                // Create JPEG with specified quality
-                JPEGFactory.createFromImage(document, scaledBitmap, profile.jpegQuality)
+                val optimizedImage = if (hasSMask || hasMask || scaledBitmap.hasAlpha()) {
+                    // Extract alpha mask and RGB channels separately
+                    val width = scaledBitmap.width
+                    val height = scaledBitmap.height
+                    
+                    // Create white-backed RGB bitmap
+                    val rgbBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    val canvas = android.graphics.Canvas(rgbBitmap)
+                    canvas.drawColor(android.graphics.Color.WHITE)
+                    canvas.drawBitmap(scaledBitmap, 0f, 0f, null)
+                    
+                    // Extract alpha channel
+                    val alphaBitmap = scaledBitmap.extractAlpha()
+                    
+                    var colorImage: PDImageXObject? = null
+                    var alphaImage: PDImageXObject? = null
+                    
+                    try {
+                        colorImage = JPEGFactory.createFromImage(document, rgbBitmap, profile.jpegQuality)
+                        alphaImage = LosslessFactory.createFromImage(document, alphaBitmap)
+                        
+                        // Associate alpha mask as the SMask of the color image dictionary
+                        colorImage.cosObject.setItem(COSName.SMASK, alphaImage.cosObject)
+                        colorImage
+                    } catch (e: Exception) {
+                        null
+                    } finally {
+                        rgbBitmap.recycle()
+                        alphaBitmap.recycle()
+                    }
+                } else {
+                    JPEGFactory.createFromImage(document, scaledBitmap, profile.jpegQuality)
+                }
+                
+                if (optimizedImage != null) {
+                    // Compare compressed stream length with original
+                    val newLength = optimizedImage.cosObject.getLength()
+                    if (newLength > 0 && newLength < originalLength) {
+                        optimizedImage
+                    } else {
+                        null // Reject if the compressed stream is actually larger!
+                    }
+                } else {
+                    null
+                }
             } finally {
                 if (scaledBitmap !== originalImage) {
                     scaledBitmap.recycle()
                 }
-                // Don't recycle originalImage - it's managed by PDImageXObject
             }
         } catch (e: Exception) {
             null

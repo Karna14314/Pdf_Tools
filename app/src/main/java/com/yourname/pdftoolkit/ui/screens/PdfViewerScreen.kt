@@ -1538,6 +1538,8 @@ private fun PdfPageWithAnnotations(
                 }
             }
 
+
+
             // Text Selection Overlay
             val currentPositions = pageTextData?.positions
             if (selectPageIndex == pageIndex && selectStartCharIndex >= 0 && currentPositions != null && 
@@ -1646,16 +1648,17 @@ private fun PdfPageWithAnnotations(
                     
                     // Render glassmorphic floating action menu
                     val context = LocalContext.current
+                    val density = androidx.compose.ui.platform.LocalDensity.current
                     val menuWidth = 180.dp
                     val menuHeight = 44.dp
-                    val menuLeft = (handleStartX + handleEndX) / 2f - menuWidth.value.dp.toPx() / 2f
-                    val menuTop = (rects.minOf { it.top } - 60.dp.toPx())
+                    val menuLeft = with(density) { (handleStartX + handleEndX) / 2f - menuWidth.toPx() / 2f }
+                    val menuTop = with(density) { (rects.minOfOrNull { it.top } ?: 0f) - 60.dp.toPx() }
                     
                     Box(
                         modifier = Modifier
                             .offset {
                                 IntOffset(
-                                    x = menuLeft.roundToInt().coerceIn(8.dp.toPx().toInt(), size.width - menuWidth.value.dp.toPx().toInt() - 8.dp.toPx().toInt()),
+                                    x = menuLeft.roundToInt().coerceIn(8.dp.toPx().toInt(), size.width - menuWidth.toPx().toInt() - 8.dp.toPx().toInt()),
                                     y = menuTop.roundToInt().coerceAtLeast(8.dp.toPx().toInt())
                                 )
                             }
@@ -1691,12 +1694,17 @@ private fun PdfPageWithAnnotations(
                                 Text("Copy", style = MaterialTheme.typography.bodySmall)
                             }
                             
-                            VerticalDivider(modifier = Modifier.height(20.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(20.dp)
+                                    .background(MaterialTheme.colorScheme.outlineVariant)
+                            )
                             
                             TextButton(
                                 onClick = {
-                                    val pdfPageWidth = bitmap!!.width.toFloat() / RENDER_SCALE
-                                    val pdfPageHeight = bitmap!!.height.toFloat() / RENDER_SCALE
+                                    val pdfPageWidth = bitmap!!.width.toFloat() / PdfViewerViewModel.RENDER_SCALE
+                                    val pdfPageHeight = bitmap!!.height.toFloat() / PdfViewerViewModel.RENDER_SCALE
                                     
                                     lines.forEach { line ->
                                         val minLeft = line.minOf { it.xDirAdj }

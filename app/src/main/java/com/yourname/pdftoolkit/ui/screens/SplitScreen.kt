@@ -360,7 +360,6 @@ fun SplitScreen(
                         subtitle = "Select a PDF file to split or extract pages",
                         modifier = Modifier.align(Alignment.Center)
                     )
-                } else {
                 } else if (selectedMode == SplitMode.VISUAL_SELECT) {
                     Column(
                         modifier = Modifier

@@ -103,10 +103,10 @@ fun MetadataScreen(
                     val outputStream = context.contentResolver.openOutputStream(outputUri)
                     if (outputStream != null) {
                         val editedMetadata = EditableMetadata(
-                            title = editTitle.takeIf { it.isNotBlank() },
-                            author = editAuthor.takeIf { it.isNotBlank() },
-                            subject = editSubject.takeIf { it.isNotBlank() },
-                            keywords = editKeywords.takeIf { it.isNotBlank() }
+                            title = editTitle.trim(),
+                            author = editAuthor.trim(),
+                            subject = editSubject.trim(),
+                            keywords = editKeywords.trim()
                         )
                         
                         val result = metadataManager.updateMetadata(
@@ -157,10 +157,10 @@ fun MetadataScreen(
                     
                     if (outputResult != null) {
                         val editedMetadata = EditableMetadata(
-                            title = editTitle.takeIf { it.isNotBlank() },
-                            author = editAuthor.takeIf { it.isNotBlank() },
-                            subject = editSubject.takeIf { it.isNotBlank() },
-                            keywords = editKeywords.takeIf { it.isNotBlank() }
+                            title = editTitle.trim(),
+                            author = editAuthor.trim(),
+                            subject = editSubject.trim(),
+                            keywords = editKeywords.trim()
                         )
                         
                         val updateResult = metadataManager.updateMetadata(
@@ -196,6 +196,53 @@ fun MetadataScreen(
             if (resultSuccess) {
                 isEditing = false
             }
+            isProcessing = false
+            showResult = true
+        }
+    }
+    
+    // Function to strip all metadata
+    fun stripMetadata() {
+        scope.launch {
+            isProcessing = true
+            progress = 0f
+            
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    val file = selectedFile!!
+                    val fileName = FileManager.generateOutputFileName("stripped")
+                    val outputResult = OutputFolderManager.createOutputStream(context, fileName)
+                    
+                    if (outputResult != null) {
+                        val stripResult = metadataManager.removeMetadata(
+                            context = context,
+                            inputUri = file.uri,
+                            outputStream = outputResult.outputStream,
+                            onProgress = { progress = it }
+                        )
+                        
+                        outputResult.outputStream.close()
+                        
+                        stripResult.fold(
+                            onSuccess = {
+                                Triple(true, "All metadata successfully stripped for privacy.\n\nSaved to: ${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}", outputResult.outputFile.contentUri)
+                            },
+                            onFailure = { error ->
+                                outputResult.outputFile.file.delete()
+                                Triple(false, error.message ?: "Stripping failed", null)
+                            }
+                        )
+                    } else {
+                        Triple(false, "Cannot create output file", null)
+                    }
+                } catch (e: Exception) {
+                    Triple(false, e.message ?: "Stripping failed", null)
+                }
+            }
+            
+            resultSuccess = result.first
+            resultMessage = result.second
+            resultUri = result.third
             isProcessing = false
             showResult = true
         }
@@ -386,6 +433,74 @@ fun MetadataScreen(
                                 }
                             }
                             
+                            // Privacy Warning Card
+                            if (!isEditing) {
+                                item {
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)
+                                        ),
+                                        border = androidx.compose.foundation.BorderStroke(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
+                                        )
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp)
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Lock,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.error
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = "Privacy Recommendation",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.error
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = "This PDF may contain hidden metadata (such as software tools used, author name, or creation date) that could compromise your privacy. Strip this metadata to sanitize the document before sharing it publicly.",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            OutlinedButton(
+                                                onClick = { stripMetadata() },
+                                                colors = ButtonDefaults.outlinedButtonColors(
+                                                    contentColor = MaterialTheme.colorScheme.error
+                                                ),
+                                                border = androidx.compose.foundation.BorderStroke(
+                                                    1.dp,
+                                                    MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+                                                ),
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = "Strip All Metadata",
+                                                    fontWeight = FontWeight.SemiBold
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
                             // Read-only properties section
                             item {
                                 Text(
@@ -513,6 +628,26 @@ fun MetadataScreen(
                             )
                         }
                         else -> {
+                            OutlinedButton(
+                                onClick = { stripMetadata() },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    width = 1.dp,
+                                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+                                ),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp)
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Strip All Metadata")
+                            }
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
                             OutlinedButton(
                                 onClick = {
                                     pickPdfLauncher.launch(arrayOf("application/pdf"))
