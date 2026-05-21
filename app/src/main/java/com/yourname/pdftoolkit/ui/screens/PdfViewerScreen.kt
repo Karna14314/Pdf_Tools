@@ -1563,8 +1563,8 @@ private fun PdfPageWithAnnotations(
                 val rects = lines.map { line ->
                     val minLeft = line.minOf { it.xDirAdj }
                     val maxRight = line.maxOf { it.xDirAdj + it.widthDirAdj }
-                    val minTop = line.minOf { it.yDirAdj }
-                    val maxBottom = line.maxOf { it.yDirAdj + it.heightDir }
+                    val minTop = line.minOf { it.yDirAdj - it.heightDir }
+                    val maxBottom = line.maxOf { it.yDirAdj + it.heightDir * 0.2f }
                     RectF(
                         minLeft * PdfViewerViewModel.RENDER_SCALE * scaleX,
                         minTop * PdfViewerViewModel.RENDER_SCALE * scaleY,
@@ -1576,20 +1576,38 @@ private fun PdfPageWithAnnotations(
                 val firstChar = currentPositions[selectStartCharIndex]
                 val lastChar = currentPositions[selectEndCharIndex - 1]
                 val handleStartX = firstChar.xDirAdj * PdfViewerViewModel.RENDER_SCALE * scaleX
-                val handleStartY = (firstChar.yDirAdj + firstChar.heightDir) * PdfViewerViewModel.RENDER_SCALE * scaleY
+                val handleStartY = firstChar.yDirAdj * PdfViewerViewModel.RENDER_SCALE * scaleY
                 val handleEndX = (lastChar.xDirAdj + lastChar.widthDirAdj) * PdfViewerViewModel.RENDER_SCALE * scaleX
-                val handleEndY = (lastChar.yDirAdj + lastChar.heightDir) * PdfViewerViewModel.RENDER_SCALE * scaleY
+                val handleEndY = lastChar.yDirAdj * PdfViewerViewModel.RENDER_SCALE * scaleY
                 
                 var draggingHandle by remember { mutableStateOf<String?>(null) }
                 
+                // Remember updated states for drag callbacks to avoid restarting pointerInput
+                val currentStart by rememberUpdatedState(selectStartCharIndex)
+                val currentEnd by rememberUpdatedState(selectEndCharIndex)
+                val currentScaleX by rememberUpdatedState(scaleX)
+                val currentScaleY by rememberUpdatedState(scaleY)
+                val currentPositionsState by rememberUpdatedState(currentPositions)
+                val currentHandleStartX by rememberUpdatedState(handleStartX)
+                val currentHandleStartY by rememberUpdatedState(handleStartY)
+                val currentHandleEndX by rememberUpdatedState(handleEndX)
+                val currentHandleEndY by rememberUpdatedState(handleEndY)
+
                 Box(
                     modifier = Modifier
                         .matchParentSize()
-                        .pointerInput(currentPositions, scaleX, scaleY, selectStartCharIndex, selectEndCharIndex) {
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    onSelectionChange(-1, -1, -1)
+                                }
+                            )
+                        }
+                        .pointerInput(pageIndex) {
                             detectDragGestures(
                                 onDragStart = { offset ->
-                                    val startDist = (offset - Offset(handleStartX, handleStartY)).getDistance()
-                                    val endDist = (offset - Offset(handleEndX, handleEndY)).getDistance()
+                                    val startDist = (offset - Offset(currentHandleStartX, currentHandleStartY)).getDistance()
+                                    val endDist = (offset - Offset(currentHandleEndX, currentHandleEndY)).getDistance()
                                     val threshold = 40.dp.toPx()
                                     if (startDist < threshold && startDist < endDist) {
                                         draggingHandle = "start"
@@ -1604,15 +1622,16 @@ private fun PdfPageWithAnnotations(
                                 onDrag = { change, _ ->
                                     val handle = draggingHandle ?: return@detectDragGestures
                                     change.consume()
-                                    val closestIndex = findClosestCharIndex(change.position.x, change.position.y, currentPositions, scaleX, scaleY)
+                                    val positions = currentPositionsState
+                                    val closestIndex = findClosestCharIndex(change.position.x, change.position.y, positions, currentScaleX, currentScaleY)
                                     if (closestIndex != -1) {
                                         if (handle == "start") {
-                                            if (closestIndex < selectEndCharIndex) {
-                                                onSelectionChange(pageIndex, closestIndex, selectEndCharIndex)
+                                            if (closestIndex < currentEnd) {
+                                                onSelectionChange(pageIndex, closestIndex, currentEnd)
                                             }
                                         } else {
-                                            if (closestIndex > selectStartCharIndex) {
-                                                onSelectionChange(pageIndex, selectStartCharIndex, closestIndex + 1)
+                                            if (closestIndex > currentStart) {
+                                                onSelectionChange(pageIndex, currentStart, closestIndex + 1)
                                             }
                                         }
                                     }

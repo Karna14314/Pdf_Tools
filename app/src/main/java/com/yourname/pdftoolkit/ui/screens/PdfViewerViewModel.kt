@@ -608,7 +608,7 @@ class PdfViewerViewModel : ViewModel() {
                                     val w = tp.widthDirAdj * scale
                                     val h = tp.heightDir * scale
 
-                                    matchRects.add(RectF(x, y, x + w, y + h))
+                                    matchRects.add(RectF(x, y - h, x + w, y + h * 0.2f))
                                 }
                             }
 

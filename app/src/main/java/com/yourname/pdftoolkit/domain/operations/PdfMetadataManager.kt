@@ -36,7 +36,9 @@ data class EditableMetadata(
     val title: String? = null,
     val author: String? = null,
     val subject: String? = null,
-    val keywords: String? = null
+    val keywords: String? = null,
+    val creator: String? = null,
+    val producer: String? = null
 )
 
 /**
@@ -129,6 +131,8 @@ class PdfMetadataManager {
             info.author = if (metadata.author.isNullOrBlank()) null else metadata.author
             info.subject = if (metadata.subject.isNullOrBlank()) null else metadata.subject
             info.keywords = if (metadata.keywords.isNullOrBlank()) null else metadata.keywords
+            info.creator = if (metadata.creator.isNullOrBlank()) null else metadata.creator
+            info.producer = if (metadata.producer.isNullOrBlank()) null else metadata.producer
             
             // Update modification date
             info.modificationDate = Calendar.getInstance()

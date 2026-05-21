@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -52,6 +53,9 @@ fun MetadataScreen(
     var editAuthor by remember { mutableStateOf("") }
     var editSubject by remember { mutableStateOf("") }
     var editKeywords by remember { mutableStateOf("") }
+    var editCreator by remember { mutableStateOf("") }
+    var editProducer by remember { mutableStateOf("") }
+    var showAdvanced by remember { mutableStateOf(false) }
     
     var isProcessing by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
@@ -80,6 +84,8 @@ fun MetadataScreen(
                         editAuthor = meta.author ?: ""
                         editSubject = meta.subject ?: ""
                         editKeywords = meta.keywords ?: ""
+                        editCreator = meta.creator ?: ""
+                        editProducer = meta.producer ?: ""
                     },
                     onFailure = {
                         metadata = null
@@ -106,7 +112,9 @@ fun MetadataScreen(
                             title = editTitle.trim(),
                             author = editAuthor.trim(),
                             subject = editSubject.trim(),
-                            keywords = editKeywords.trim()
+                            keywords = editKeywords.trim(),
+                            creator = editCreator.trim(),
+                            producer = editProducer.trim()
                         )
                         
                         val result = metadataManager.updateMetadata(
@@ -160,7 +168,9 @@ fun MetadataScreen(
                             title = editTitle.trim(),
                             author = editAuthor.trim(),
                             subject = editSubject.trim(),
-                            keywords = editKeywords.trim()
+                            keywords = editKeywords.trim(),
+                            creator = editCreator.trim(),
+                            producer = editProducer.trim()
                         )
                         
                         val updateResult = metadataManager.updateMetadata(
@@ -336,7 +346,57 @@ fun MetadataScreen(
                                 }
                             }
                             
-                            // Document Info section
+                            // Top Privacy Warning Banner (only when not editing)
+                            if (!isEditing) {
+                                item {
+                                    Card(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                        ),
+                                        border = androidx.compose.foundation.BorderStroke(
+                                            width = 1.dp,
+                                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                        )
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.PrivacyTip,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(
+                                                    text = "Strip Document Metadata",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    fontWeight = FontWeight.SemiBold
+                                                )
+                                                Text(
+                                                    text = "Remove all hidden tracking details before sharing.",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                            TextButton(
+                                                onClick = { stripMetadata() },
+                                                colors = ButtonDefaults.textButtonColors(
+                                                    contentColor = MaterialTheme.colorScheme.error
+                                                )
+                                            ) {
+                                                Text("Strip All")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Document Info section / Basic Metadata
                             item {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -344,7 +404,7 @@ fun MetadataScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Document Information",
+                                        text = "Basic Metadata",
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -364,7 +424,7 @@ fun MetadataScreen(
                                 }
                             }
                             
-                            // Editable metadata fields
+                            // Basic Metadata fields card
                             item {
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
@@ -433,84 +493,7 @@ fun MetadataScreen(
                                 }
                             }
                             
-                            // Privacy Warning Card
-                            if (!isEditing) {
-                                item {
-                                    Card(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.15f)
-                                        ),
-                                        border = androidx.compose.foundation.BorderStroke(
-                                            width = 1.dp,
-                                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
-                                        )
-                                    ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(16.dp)
-                                        ) {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Lock,
-                                                    contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.error
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Text(
-                                                    text = "Privacy Recommendation",
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = MaterialTheme.colorScheme.error
-                                                )
-                                            }
-                                            Spacer(modifier = Modifier.height(8.dp))
-                                            Text(
-                                                text = "This PDF may contain hidden metadata (such as software tools used, author name, or creation date) that could compromise your privacy. Strip this metadata to sanitize the document before sharing it publicly.",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                            Spacer(modifier = Modifier.height(12.dp))
-                                            OutlinedButton(
-                                                onClick = { stripMetadata() },
-                                                colors = ButtonDefaults.outlinedButtonColors(
-                                                    contentColor = MaterialTheme.colorScheme.error
-                                                ),
-                                                border = androidx.compose.foundation.BorderStroke(
-                                                    1.dp,
-                                                    MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
-                                                ),
-                                                modifier = Modifier.fillMaxWidth()
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Delete,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(18.dp)
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Text(
-                                                    text = "Strip All Metadata",
-                                                    fontWeight = FontWeight.SemiBold
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // Read-only properties section
-                            item {
-                                Text(
-                                    text = "Document Properties",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            
+                            // Collapsible Advanced Properties Card
                             item {
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
@@ -519,35 +502,94 @@ fun MetadataScreen(
                                     )
                                 ) {
                                     Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                                        modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        MetadataRow(
-                                            label = "Creator",
-                                            value = metadata!!.creator ?: "Unknown"
-                                        )
-                                        MetadataRow(
-                                            label = "Producer",
-                                            value = metadata!!.producer ?: "Unknown"
-                                        )
-                                        MetadataRow(
-                                            label = "Created",
-                                            value = metadata!!.creationDate ?: "Unknown"
-                                        )
-                                        MetadataRow(
-                                            label = "Modified",
-                                            value = metadata!!.modificationDate ?: "Unknown"
-                                        )
-                                        MetadataRow(
-                                            label = "PDF Version",
-                                            value = metadata!!.pdfVersion ?: "Unknown"
-                                        )
-                                        MetadataRow(
-                                            label = "Encrypted",
-                                            value = if (metadata!!.isEncrypted) "Yes" else "No"
-                                        )
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { showAdvanced = !showAdvanced }
+                                                .padding(16.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Settings,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    text = "Advanced Properties",
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                            Icon(
+                                                imageVector = if (showAdvanced) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                                contentDescription = if (showAdvanced) "Collapse" else "Expand",
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                        
+                                        AnimatedVisibility(visible = showAdvanced) {
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                            ) {
+                                                Divider(
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f),
+                                                    modifier = Modifier.padding(bottom = 4.dp)
+                                                )
+                                                
+                                                if (isEditing) {
+                                                    OutlinedTextField(
+                                                        value = editCreator,
+                                                        onValueChange = { editCreator = it },
+                                                        label = { Text("Creator") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        singleLine = true
+                                                    )
+                                                    
+                                                    OutlinedTextField(
+                                                        value = editProducer,
+                                                        onValueChange = { editProducer = it },
+                                                        label = { Text("Producer") },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        singleLine = true
+                                                    )
+                                                } else {
+                                                    MetadataRow(
+                                                        label = "Creator",
+                                                        value = metadata!!.creator ?: "Unknown"
+                                                    )
+                                                    MetadataRow(
+                                                        label = "Producer",
+                                                        value = metadata!!.producer ?: "Unknown"
+                                                    )
+                                                }
+                                                
+                                                MetadataRow(
+                                                    label = "Created",
+                                                    value = metadata!!.creationDate ?: "Unknown"
+                                                )
+                                                MetadataRow(
+                                                    label = "Modified",
+                                                    value = metadata!!.modificationDate ?: "Unknown"
+                                                )
+                                                MetadataRow(
+                                                    label = "PDF Version",
+                                                    value = metadata!!.pdfVersion ?: "Unknown"
+                                                )
+                                                MetadataRow(
+                                                    label = "Encrypted",
+                                                    value = if (metadata!!.isEncrypted) "Yes" else "No"
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -628,38 +670,13 @@ fun MetadataScreen(
                             )
                         }
                         else -> {
-                            OutlinedButton(
-                                onClick = { stripMetadata() },
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.error
-                                ),
-                                border = androidx.compose.foundation.BorderStroke(
-                                    width = 1.dp,
-                                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                            ) {
-                                Icon(Icons.Default.Delete, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Strip All Metadata")
-                            }
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            OutlinedButton(
+                            ActionButton(
+                                text = "Select Another PDF",
                                 onClick = {
                                     pickPdfLauncher.launch(arrayOf("application/pdf"))
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                            ) {
-                                Icon(Icons.Default.FolderOpen, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Select Another PDF")
-                            }
+                                icon = Icons.Default.FolderOpen
+                            )
                         }
                     }
                 }

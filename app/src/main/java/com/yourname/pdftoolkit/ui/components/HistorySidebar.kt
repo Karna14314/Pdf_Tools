@@ -501,11 +501,13 @@ private fun HistoryItem(
                                                         // For PDFs, copy to cache first to avoid permission issues
                                                         val firstUri = uris.first()
                                                         val cachedUri = copyUriToCache(context, firstUri)
-                                                        if (cachedUri != null) {
-                                                            onOpenFile(cachedUri)
-                                                        } else {
-                                                            // Fallback: try original URI
-                                                            onOpenFile(firstUri)
+                                                        withContext(Dispatchers.Main) {
+                                                            if (cachedUri != null) {
+                                                                onOpenFile(cachedUri)
+                                                            } else {
+                                                                // Fallback: try original URI
+                                                                onOpenFile(firstUri)
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -545,11 +547,13 @@ private fun HistoryItem(
                                             val uri = Uri.parse(entry.outputFileUri)
                                             scope.launch(Dispatchers.IO) {
                                                 val cachedUri = copyUriToCache(context, uri)
-                                                if (cachedUri != null) {
-                                                    onOpenFile(cachedUri)
-                                                } else {
-                                                    // Fallback: try original URI
-                                                    onOpenFile(uri)
+                                                withContext(Dispatchers.Main) {
+                                                    if (cachedUri != null) {
+                                                        onOpenFile(cachedUri)
+                                                    } else {
+                                                        // Fallback: try original URI
+                                                        onOpenFile(uri)
+                                                    }
                                                 }
                                             }
                                         }
