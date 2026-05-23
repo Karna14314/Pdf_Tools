@@ -369,8 +369,14 @@ class PdfViewerViewModel : ViewModel() {
         _annotations.value = emptyList()
     }
 
-    // Bitmap cache for rendered pages (capped at 30 MB / 30 * 1024 * 1024 bytes)
-    private val cacheSize = 30 * 1024 * 1024
+    // Bitmap cache for rendered pages (dynamically capped at 1/8th of available max memory, fallback to 30 MB)
+    private val cacheSize = try {
+        val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt() // KB
+        (maxMemory / 8) * 1024 // 1/8th of memory in bytes
+    } catch (e: Exception) {
+        30 * 1024 * 1024 // Fallback to 30MB
+    }
+
     private val bitmapCache = object : LruCache<Int, Bitmap>(cacheSize) {
         override fun sizeOf(key: Int, bitmap: Bitmap): Int {
             return bitmap.byteCount

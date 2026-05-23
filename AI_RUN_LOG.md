@@ -65,3 +65,20 @@ Each entry represents one week's focused improvement to the PDF viewer and edito
 **Branch:** auto/weekly-20260516-document-close-scroll-fix
 **Notes:**
 - closeDocument requires documentMutex.withLock which contains heavy synchronous file deletion logic.
+
+## 2026-05-23
+**Status:** SUCCESS ✅
+**Category:** B — Performance
+**Task:** Dynamically set PdfViewerViewModel LruCache size based on device memory to prevent OOM
+**Files Changed:**
+- app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerViewModel.kt: Updated `cacheSize` to dynamically use 1/8th of `Runtime.getRuntime().maxMemory()` (with a 30 MB fallback) instead of a hardcoded 30 MB.
+**Verification:**
+- Build: PASS
+- Tests: PASS
+- Emulator: SKIPPED
+**Performance Impact:**
+- Reduced OOM risk on low-end devices by limiting the cache relative to the device's actual maximum available heap size. Improves caching potential on high-end devices with more heap space.
+**Commit:** Auto-generated PR will handle this
+**Branch:** auto/weekly-20260523-dynamic-bitmap-cache-size
+**Notes:**
+- A hardcoded 30 MB size for the bitmap cache risks OutOfMemoryError on devices with low VM heap limits. By dynamically using 1/8th of `maxMemory`, the cache respects device capabilities as per Android caching recommendations.
