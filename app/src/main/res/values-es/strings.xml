@@ -328,4 +328,9 @@
     <string name="result_success">Éxito</string>
     <string name="result_error">Error</string>
 
+    <string name="nav_tab_tools">Herramientas</string>
+    <string name="nav_tab_files">Archivos</string>
+    <string name="nav_open_history">Historial abierto</string>
+    <string name="language_portuguese">Portugués (Brasil)</string>
+    <string name="language_german">Alemán</string>
 </resources>
