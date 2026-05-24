@@ -80,6 +80,10 @@
     <string name="tool_scan_to_pdf">Scan to PDF</string>
     <string name="tool_ocr">OCR</string>
     <string name="tool_image_tools">Image Tools</string>
+    <string name="tool_image_compress">Compress Image</string>
+    <string name="tool_image_resize">Resize Image</string>
+    <string name="tool_image_convert">Convert Format</string>
+    <string name="tool_image_metadata">Strip Metadata</string>
 
     <!-- Tool Names - Markup -->
     <string name="tool_sign_pdf">Sign PDF</string>

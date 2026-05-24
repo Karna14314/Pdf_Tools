@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import androidx.exifinterface.media.ExifInterface
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
 import android.net.Uri
@@ -264,10 +266,49 @@ class PdfScanner(private val context: Context) {
                 inPreferredConfig = Bitmap.Config.ARGB_8888
             }
             
-            context.contentResolver.openInputStream(uri)?.use { input ->
+            val bitmap = context.contentResolver.openInputStream(uri)?.use { input ->
                 BitmapFactory.decodeStream(input, null, loadOptions)
+            } ?: return null
+
+            // Read EXIF to apply rotation
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return bitmap
+            val exif = ExifInterface(inputStream)
+            inputStream.close()
+
+            val orientation = exif.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )
+
+            val matrix = Matrix()
+            when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.postScale(-1f, 1f)
+                ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.postScale(1f, -1f)
+                ExifInterface.ORIENTATION_TRANSPOSE -> {
+                    matrix.postRotate(90f)
+                    matrix.postScale(-1f, 1f)
+                }
+                ExifInterface.ORIENTATION_TRANSVERSE -> {
+                    matrix.postRotate(-90f)
+                    matrix.postScale(-1f, 1f)
+                }
+                else -> return bitmap
             }
+
+            val rotatedBitmap = Bitmap.createBitmap(
+                bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
+            )
+
+            if (rotatedBitmap != bitmap) {
+                bitmap.recycle()
+            }
+
+            rotatedBitmap
         } catch (e: Exception) {
+            Log.e("PdfScanner", "Failed to load bitmap", e)
             null
         }
     }

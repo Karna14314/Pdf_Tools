@@ -507,7 +507,7 @@ fun getAllTools(): List<ToolItem> = listOf(
     // SECTION 5: IMAGE TOOLS (LOW-BLOAT ONLY)
     ToolItem(
         id = "image_compress",
-        titleResId = R.string.tool_image_tools,
+        titleResId = R.string.tool_image_compress,
         descResId = R.string.desc_compress_image,
         icon = Icons.Default.Compress,
         section = ToolSection.IMAGE_TOOLS,
@@ -515,7 +515,7 @@ fun getAllTools(): List<ToolItem> = listOf(
     ),
     ToolItem(
         id = "image_resize",
-        titleResId = R.string.tool_image_tools,
+        titleResId = R.string.tool_image_resize,
         descResId = R.string.desc_resize_image,
         icon = Icons.Default.AspectRatio,
         section = ToolSection.IMAGE_TOOLS,
@@ -523,7 +523,7 @@ fun getAllTools(): List<ToolItem> = listOf(
     ),
     ToolItem(
         id = "image_convert",
-        titleResId = R.string.tool_image_tools,
+        titleResId = R.string.tool_image_convert,
         descResId = R.string.desc_convert_format,
         icon = Icons.Default.Transform,
         section = ToolSection.IMAGE_TOOLS,
@@ -531,7 +531,7 @@ fun getAllTools(): List<ToolItem> = listOf(
     ),
     ToolItem(
         id = "image_metadata",
-        titleResId = R.string.tool_image_tools,
+        titleResId = R.string.tool_image_metadata,
         descResId = R.string.desc_strip_metadata,
         icon = Icons.Default.DeleteSweep,
         section = ToolSection.IMAGE_TOOLS,
