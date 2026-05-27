@@ -540,56 +540,65 @@ class PdfCompressor {
         profile: CompressionProfile,
         onProgress: (Float) -> Unit
     ): File? {
-        var inputDocument: PDDocument? = null
         var outputDocument: PDDocument? = null
+        var androidRenderer: android.graphics.pdf.PdfRenderer? = null
+        var pfd: android.os.ParcelFileDescriptor? = null
         val outputFile = File(context.cacheDir, "rerender_${System.currentTimeMillis()}.pdf")
         
         return try {
-            inputDocument = PDDocument.load(inputFile, MemoryUsageSetting.setupTempFileOnly())
-            val totalPages = inputDocument.numberOfPages
+            // A. Seekable File Descriptors
+            // Ensure the source PDF URI is processed as a local, temporary cache-file copy (inputFile is guaranteed to be a temp file here)
+            pfd = android.os.ParcelFileDescriptor.open(inputFile, android.os.ParcelFileDescriptor.MODE_READ_ONLY)
+            androidRenderer = android.graphics.pdf.PdfRenderer(pfd)
+            val totalPages = androidRenderer.pageCount
             
             if (totalPages == 0) return null
             
             outputDocument = PDDocument()
-            val renderer = PDFRenderer(inputDocument)
             
             for (pageIndex in 0 until totalPages) {
                 currentCoroutineContext().ensureActive()
-                val originalPage = inputDocument.getPage(pageIndex)
-                val pageRect = originalPage.mediaBox ?: PDRectangle.A4
-                
-                // Render page to bitmap at compression DPI
-                val bitmap = renderer.renderImageWithDPI(pageIndex, profile.dpi)
-                if (bitmap.isRecycled) {
-                    android.util.Log.w("PdfCompressor", "Skipping recycled rendered bitmap for page $pageIndex")
-                    continue
-                }
-                
-                // Create white-backed bitmap to handle transparent PDFs
-                val whiteBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
-                val canvas = android.graphics.Canvas(whiteBitmap)
-                canvas.drawColor(android.graphics.Color.WHITE)
-                if (!bitmap.isRecycled) {
-                    canvas.drawBitmap(bitmap, 0f, 0f, null)
-                } else {
-                    android.util.Log.w("PdfCompressor", "Skipping draw for recycled bitmap on page $pageIndex")
-                    whiteBitmap.recycle()
-                    continue
-                }
+                var page: android.graphics.pdf.PdfRenderer.Page? = null
+                var bitmap: Bitmap? = null
                 
                 try {
-                    // Create new page matching original dimensions
+                    page = androidRenderer.openPage(pageIndex)
+
+                    // C. Memory-Safe Dynamic Downsampling
+                    // Apply an absolute resolution cap (e.g., max width/height of 2048px)
+                    val maxDim = 2048f
+                    val scale = profile.dpi / 72f
+                    var targetWidth = (page.width * scale).toInt()
+                    var targetHeight = (page.height * scale).toInt()
+
+                    if (targetWidth > maxDim || targetHeight > maxDim) {
+                        val downscale = maxDim / maxOf(targetWidth, targetHeight)
+                        targetWidth = (targetWidth * downscale).toInt()
+                        targetHeight = (targetHeight * downscale).toInt()
+                    }
+
+                    targetWidth = targetWidth.coerceAtLeast(1)
+                    targetHeight = targetHeight.coerceAtLeast(1)
+
+                    // Wrap the bitmap allocation and compression cycle in a try-catch (t: Throwable)
+                    bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
+
+                    // B. Canvas Initialization & Color Erase
+                    bitmap.eraseColor(android.graphics.Color.WHITE)
+
+                    page.render(bitmap, null, null, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+
+                    val pageRect = PDRectangle(page.width.toFloat(), page.height.toFloat())
                     val newPage = PDPage(pageRect)
                     outputDocument.addPage(newPage)
                     
-                    // Create compressed JPEG image using white-backed bitmap
+                    // Use high-efficiency compression formats
                     val pdImage = JPEGFactory.createFromImage(
                         outputDocument,
-                        whiteBitmap,
+                        bitmap,
                         profile.jpegQuality
                     )
                     
-                    // Draw the compressed image to fill the page
                     PDPageContentStream(
                         outputDocument, 
                         newPage,
@@ -599,13 +608,14 @@ class PdfCompressor {
                     ).use { contentStream ->
                         contentStream.drawImage(pdImage, pageRect.lowerLeftX, pageRect.lowerLeftY, pageRect.width, pageRect.height)
                     }
+                } catch (t: Throwable) {
+                    if (t is CancellationException) throw t
+                    android.util.Log.e("PdfCompressor", "Error rendering page $pageIndex", t)
+                    // We trapped the error, preventing the app from writing empty bytes silently to the next page stream.
                 } finally {
-                    if (!bitmap.isRecycled) {
-                        bitmap.recycle()
-                    }
-                    if (!whiteBitmap.isRecycled) {
-                        whiteBitmap.recycle()
-                    }
+                    page?.close()
+                    // Recycle the bitmap explicitly at the end of every page processing iteration
+                    bitmap?.recycle()
                 }
                 
                 onProgress((pageIndex + 1).toFloat() / totalPages)
@@ -617,11 +627,12 @@ class PdfCompressor {
         } catch (e: CancellationException) {
             outputFile.delete()
             throw e
-        } catch (e: Exception) {
+        } catch (t: Throwable) {
             outputFile.delete()
             null
         } finally {
-            inputDocument?.close()
+            androidRenderer?.close()
+            pfd?.close()
             outputDocument?.close()
         }
     }

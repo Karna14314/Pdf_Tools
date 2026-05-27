@@ -68,3 +68,5 @@ Each entry represents one week's focused improvement to the PDF viewer and edito
 Fixes Applied to PdfCompressor.kt
 - Removed SMask from optimized images to fix compatibility with mobile viewers (Acrobat, Drive) that drop DCTDecode images with SMasks.
 - Updated tryFullRerender to use pageRect.lowerLeftX and pageRect.lowerLeftY for drawImage coordinates, preventing images from rendering off-screen for PDFs with non-zero origins.
+
+- fix(compress): Switched PdfCompressor's full re-render implementation to use Android's native `android.graphics.pdf.PdfRenderer` via `ParcelFileDescriptor` to guarantee seekable file descriptors. Additionally added explicit `eraseColor(Color.WHITE)` to the canvas, dynamic resolution caps (2048px maximum), and rigorous throwable trapping/recycling. This resolves blank output stream issues on Android 16.

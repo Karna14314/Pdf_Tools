@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- App Name -->
+
     <string name="app_name">PDF Toolkit</string>
 
-    <!-- Common Actions -->
+
     <string name="action_add">添加</string>
     <string name="action_add_more">添加更多</string>
     <string name="action_add_more_pdfs">添加更多PDF</string>
@@ -32,7 +32,7 @@
     <string name="action_move_up">上移</string>
     <string name="action_move_down">下移</string>
 
-    <!-- Navigation & Content Descriptions -->
+
     <string name="cd_open_pdf">打开PDF</string>
     <string name="cd_back">返回</string>
     <string name="cd_close_search">关闭搜索</string>
@@ -42,17 +42,17 @@
     <string name="cd_next_result">下一个</string>
     <string name="cd_compression_quality">压缩质量</string>
 
-    <!-- Home Screen -->
+
     <string name="home_title">PDF Toolkit</string>
     <string name="home_subtitle">所有PDF和图像工具尽在一处</string>
     <string name="fab_open_pdf">打开PDF</string>
 
-    <!-- Navigation -->
+
     <string name="nav_tab_tools">工具</string>
     <string name="nav_tab_files">文件</string>
     <string name="nav_open_history">打开历史</string>
 
-    <!-- Tool Categories -->
+
     <string name="category_organize">整理</string>
     <string name="category_convert">转换</string>
     <string name="category_markup">标记</string>
@@ -62,7 +62,7 @@
     <string name="category_image_tools">图像工具</string>
     <string name="category_view_export">查看与导出</string>
 
-    <!-- Tool Names - Organize -->
+
     <string name="tool_merge_pdfs">合并PDF</string>
     <string name="tool_merge_pdf">合并PDF</string>
     <string name="tool_split_pdf">拆分PDF</string>
@@ -72,7 +72,7 @@
     <string name="tool_reorder_pages">重新排序页面</string>
     <string name="tool_delete_pages">删除页面</string>
 
-    <!-- Tool Names - Convert -->
+
     <string name="tool_images_to_pdf">图片转PDF</string>
     <string name="tool_pdf_to_images">PDF转图片</string>
     <string name="tool_html_to_pdf">HTML转PDF</string>
@@ -81,25 +81,25 @@
     <string name="tool_ocr">OCR识别</string>
     <string name="tool_image_tools">图像工具</string>
 
-    <!-- Tool Names - Markup -->
+
     <string name="tool_sign_pdf">PDF签名</string>
     <string name="tool_fill_forms">填写表单</string>
     <string name="tool_annotate_pdf">PDF注释</string>
 
-    <!-- Tool Names - Security -->
+
     <string name="tool_add_security">添加安全保护</string>
     <string name="tool_lock_pdf">锁定PDF</string>
     <string name="tool_unlock_pdf">解锁PDF</string>
     <string name="tool_add_watermark">添加水印</string>
     <string name="tool_flatten_pdf">扁平化PDF</string>
 
-    <!-- Tool Names - Optimize -->
+
     <string name="tool_compress_pdf">压缩PDF</string>
     <string name="tool_repair_pdf">修复PDF</string>
     <string name="tool_page_numbers">页码</string>
     <string name="tool_view_metadata">查看元数据</string>
 
-    <!-- Tool Descriptions -->
+
     <string name="desc_merge_pdfs">将多个PDF文件合并为一个</string>
     <string name="desc_split_pdf">将PDF拆分为多个文件</string>
     <string name="desc_organize_pages">删除或重新排序PDF页面</string>
@@ -133,7 +133,7 @@
     <string name="desc_sign">添加您的签名</string>
     <string name="desc_view_pdf">打开并查看PDF</string>
 
-    <!-- Merge Screen -->
+
     <string name="merge_title">合并PDF</string>
     <string name="merge_empty_title">未选择PDF</string>
     <string name="merge_empty_subtitle">添加2个或更多PDF文件以合并为单个文档</string>
@@ -147,7 +147,7 @@
     <string name="merge_custom_location">选择自定义保存位置</string>
     <string name="merge_default_path">默认: %s</string>
 
-    <!-- Compress Screen -->
+
     <string name="compress_title">压缩PDF</string>
     <string name="compress_empty_title">未选择PDF</string>
     <string name="compress_empty_subtitle">选择一个PDF文件进行压缩</string>
@@ -169,7 +169,7 @@
     <string name="compress_note_optimized">注意: 此PDF可能已优化或主要包含文本。</string>
     <string name="compress_select_pdf">选择PDF</string>
 
-    <!-- Split Screen -->
+
     <string name="split_title">拆分PDF</string>
     <string name="split_empty_title">未选择PDF</string>
     <string name="split_empty_subtitle">选择一个PDF文件拆分为多个文档</string>
@@ -182,7 +182,7 @@
     <string name="split_custom_range">自定义范围</string>
     <string name="split_n_files_created">已创建 %d 个文件</string>
 
-    <!-- PDF Viewer -->
+
     <string name="pdf_viewer_title">PDF阅读器</string>
     <string name="pdf_document_default_name">PDF文档</string>
     <string name="pdf_page_indicator">第 %1$d 页，共 %2$d 页 (%3$d%%)</string>
@@ -209,7 +209,7 @@
     <string name="pdf_go_to_page">跳转到页面</string>
     <string name="pdf_page_number">页码</string>
 
-    <!-- Settings Screen -->
+
     <string name="settings_title">设置</string>
     <string name="settings_section_quality">质量设置</string>
     <string name="settings_section_appearance">外观</string>
@@ -254,7 +254,7 @@
     <string name="settings_select_language">选择语言</string>
     <string name="settings_language_changed">语言已更改</string>
 
-    <!-- Language Names -->
+
     <string name="language_english">English</string>
     <string name="language_spanish">Español</string>
     <string name="language_hindi">हिन्दी</string>
@@ -262,13 +262,13 @@
     <string name="language_portuguese">TODO: Português (Brasil)</string>
     <string name="language_german">TODO: Deutsch</string>
 
-    <!-- Image Format Options -->
+
     <string name="image_format_webp">WebP (推荐)</string>
     <string name="image_format_jpeg">JPEG</string>
     <string name="image_format_webp_desc">最佳压缩，更小的文件</string>
     <string name="image_format_jpeg_desc">通用兼容性</string>
 
-    <!-- Theme Modes -->
+
     <string name="theme_light">浅色</string>
     <string name="theme_dark">深色</string>
     <string name="theme_system">系统默认</string>
@@ -276,7 +276,7 @@
     <string name="theme_dark_desc">始终使用深色主题</string>
     <string name="theme_system_desc">跟随系统设置</string>
 
-    <!-- Feature Request -->
+
     <string name="feature_request_title">功能请求</string>
     <string name="feature_request_description">分享您的想法，帮助我们改进PDF Toolkit！</string>
     <string name="feature_request_category">类别</string>
@@ -287,11 +287,11 @@
     <string name="feature_request_idea">描述您的想法</string>
     <string name="feature_request_placeholder">您希望看到什么功能？</string>
 
-    <!-- Bug Report -->
+
     <string name="bug_report_subject">[错误报告] PDF Toolkit</string>
     <string name="bug_report_template">错误描述：\n[请描述您遇到的问题]\n\n重现步骤：\n1. \n2. \n3. \n\n预期行为：\n[您期望发生什么？]\n\n实际行为：\n[实际发生了什么？]</string>
 
-    <!-- Error Messages -->
+
     <string name="error_gmail_required">需要使用Gmail应用。请安装Gmail或发送反馈至 %s</string>
     <string name="error_generic">发生错误</string>
     <string name="error_file_not_found">未找到文件</string>
@@ -302,17 +302,17 @@
     <string name="error_compress_failed">压缩失败</string>
     <string name="error_split_failed">拆分失败</string>
 
-    <!-- Success Messages -->
+
     <string name="success_operation_complete">操作成功完成</string>
     <string name="success_file_saved">文件保存成功</string>
 
-    <!-- File Picker -->
+
     <string name="file_picker_select_pdf">选择PDF</string>
     <string name="file_picker_select_pdfs">选择PDF</string>
     <string name="file_picker_select_image">选择图片</string>
     <string name="file_picker_select_images">选择图片</string>
 
-    <!-- Common Labels -->
+
     <string name="label_pdf">PDF</string>
     <string name="label_page">页</string>
     <string name="label_pages">页</string>
@@ -325,14 +325,14 @@
     <string name="label_loading">加载中...</string>
     <string name="label_calculating">计算中...</string>
 
-    <!-- Empty States -->
+
     <string name="empty_no_files">未选择文件</string>
     <string name="empty_no_pdfs">未选择PDF</string>
     <string name="empty_no_images">未选择图片</string>
     <string name="empty_add_files">添加文件开始</string>
 
-    <!-- Result Dialog -->
+
     <string name="result_success">成功</string>
     <string name="result_error">错误</string>
 
-</resources>
+<string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string></resources>
