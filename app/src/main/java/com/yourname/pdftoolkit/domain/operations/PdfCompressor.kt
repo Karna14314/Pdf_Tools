@@ -490,24 +490,20 @@ class PdfCompressor {
                     canvas.drawColor(android.graphics.Color.WHITE)
                     canvas.drawBitmap(scaledBitmap, 0f, 0f, null)
                     
-                    // Extract alpha channel
-                    val alphaBitmap = scaledBitmap.extractAlpha()
-                    
-                    var colorImage: PDImageXObject? = null
-                    var alphaImage: PDImageXObject? = null
-                    
                     try {
-                        colorImage = JPEGFactory.createFromImage(document, rgbBitmap, profile.jpegQuality)
-                        alphaImage = LosslessFactory.createFromImage(document, alphaBitmap)
+                        // Create white-backed RGB bitmap (flatten transparency)
+                        // This is necessary because many mobile PDF viewers (Drive, Acrobat)
+                        // fail to render DCTDecode (JPEG) images that have an SMask attached.
+                        val colorImage = JPEGFactory.createFromImage(document, rgbBitmap, profile.jpegQuality)
                         
-                        // Associate alpha mask as the SMask of the color image dictionary
-                        colorImage.cosObject.setItem(COSName.SMASK, alphaImage.cosObject)
+                        // Explicitly remove SMASK and MASK to ensure viewers don't expect them
+                        colorImage.cosObject.removeItem(COSName.SMASK)
+                        colorImage.cosObject.removeItem(COSName.MASK)
                         colorImage
                     } catch (e: Exception) {
                         null
                     } finally {
                         rgbBitmap.recycle()
-                        alphaBitmap.recycle()
                     }
                 } else {
                     JPEGFactory.createFromImage(document, scaledBitmap, profile.jpegQuality)
@@ -601,7 +597,7 @@ class PdfCompressor {
                         true,
                         true
                     ).use { contentStream ->
-                        contentStream.drawImage(pdImage, 0f, 0f, pageRect.width, pageRect.height)
+                        contentStream.drawImage(pdImage, pageRect.lowerLeftX, pageRect.lowerLeftY, pageRect.width, pageRect.height)
                     }
                 } finally {
                     if (!bitmap.isRecycled) {

@@ -180,3 +180,6 @@ The app should now:
 **Build Date**: May 7, 2026  
 **Base Stable Commit**: e892e7e (v1.3.169)  
 **Status**: ✅ Ready for Testing
+Fixes Applied to PdfCompressor.kt
+- Removed SMask from optimized images to fix compatibility with mobile viewers (Acrobat, Drive) that drop DCTDecode images with SMasks.
+- Updated tryFullRerender to use pageRect.lowerLeftX and pageRect.lowerLeftY for drawImage coordinates, preventing images from rendering off-screen for PDFs with non-zero origins.

@@ -65,3 +65,6 @@ Each entry represents one week's focused improvement to the PDF viewer and edito
 **Branch:** auto/weekly-20260516-document-close-scroll-fix
 **Notes:**
 - closeDocument requires documentMutex.withLock which contains heavy synchronous file deletion logic.
+Fixes Applied to PdfCompressor.kt
+- Removed SMask from optimized images to fix compatibility with mobile viewers (Acrobat, Drive) that drop DCTDecode images with SMasks.
+- Updated tryFullRerender to use pageRect.lowerLeftX and pageRect.lowerLeftY for drawImage coordinates, preventing images from rendering off-screen for PDFs with non-zero origins.

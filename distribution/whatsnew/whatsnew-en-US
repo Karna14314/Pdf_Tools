@@ -5,4 +5,4 @@ correctly across all pages. Fixed ANR/freeze when changing pages while zoomed.
 Double-tap zoom now focuses on the tapped area accurately.
 
 PDF Compressor: Fixed issue where compressing text-heavy PDFs would return the 
-original file unchanged. Compression now works correctly across all PDF types.
+original file unchanged. Compression now works correctly across all PDF types.- Fix PDF compression blank pages bug in third-party viewers.
