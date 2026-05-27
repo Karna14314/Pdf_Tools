@@ -1,8 +1,1 @@
-Bug fixes in PDF Viewer and PDF Compressor.
-
-PDF Viewer: Fixed infinite loading on some files. Zoomed-in scrolling now works 
-correctly across all pages. Fixed ANR/freeze when changing pages while zoomed. 
-Double-tap zoom now focuses on the tapped area accurately.
-
-PDF Compressor: Fixed issue where compressing text-heavy PDFs would return the 
-original file unchanged. Compression now works correctly across all PDF types.- Fix PDF compression blank pages bug in third-party viewers.
+Fixed an issue where compressing PDFs with scanned images resulted in blank pages on Android 16. The compression pipeline has been significantly upgraded for enhanced memory safety, optimal resolution handling, and improved compatibility on the latest Android versions.
