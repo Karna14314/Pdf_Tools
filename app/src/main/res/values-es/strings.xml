@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- App Name -->
+
     <string name="app_name">PDF Toolkit</string>
 
-    <!-- Common Actions -->
+
     <string name="action_add">Añadir</string>
     <string name="action_add_more">Añadir Más</string>
     <string name="action_add_more_pdfs">Añadir Más PDFs</string>
@@ -32,7 +32,7 @@
     <string name="action_move_up">Mover arriba</string>
     <string name="action_move_down">Mover abajo</string>
 
-    <!-- Navigation & Content Descriptions -->
+
     <string name="cd_open_pdf">Abrir PDF</string>
     <string name="cd_back">Atrás</string>
     <string name="cd_close_search">Cerrar búsqueda</string>
@@ -42,12 +42,12 @@
     <string name="cd_next_result">Siguiente</string>
     <string name="cd_compression_quality">Calidad de compresión</string>
 
-    <!-- Home Screen -->
+
     <string name="home_title">PDF Toolkit</string>
     <string name="home_subtitle">Todas tus herramientas PDF e imágenes en un solo lugar</string>
     <string name="fab_open_pdf">Abrir PDF</string>
 
-    <!-- Tool Categories -->
+
     <string name="category_organize">Organizar</string>
     <string name="category_convert">Convertir</string>
     <string name="category_markup">Marcar</string>
@@ -57,7 +57,7 @@
     <string name="category_image_tools">Herramientas de Imagen</string>
     <string name="category_view_export">Ver y Exportar</string>
 
-    <!-- Tool Names - Organize -->
+
     <string name="tool_merge_pdfs">Fusionar PDFs</string>
     <string name="tool_merge_pdf">Fusionar PDF</string>
     <string name="tool_split_pdf">Dividir PDF</string>
@@ -67,7 +67,7 @@
     <string name="tool_reorder_pages">Reordenar Páginas</string>
     <string name="tool_delete_pages">Eliminar Páginas</string>
 
-    <!-- Tool Names - Convert -->
+
     <string name="tool_images_to_pdf">Imágenes a PDF</string>
     <string name="tool_pdf_to_images">PDF a Imágenes</string>
     <string name="tool_html_to_pdf">HTML a PDF</string>
@@ -76,25 +76,25 @@
     <string name="tool_ocr">OCR</string>
     <string name="tool_image_tools">Herramientas de Imagen</string>
 
-    <!-- Tool Names - Markup -->
+
     <string name="tool_sign_pdf">Firmar PDF</string>
     <string name="tool_fill_forms">Rellenar Formularios</string>
     <string name="tool_annotate_pdf">Anotar PDF</string>
 
-    <!-- Tool Names - Security -->
+
     <string name="tool_add_security">Añadir Seguridad</string>
     <string name="tool_lock_pdf">Bloquear PDF</string>
     <string name="tool_unlock_pdf">Desbloquear PDF</string>
     <string name="tool_add_watermark">Añadir Marca de Agua</string>
     <string name="tool_flatten_pdf">Aplanar PDF</string>
 
-    <!-- Tool Names - Optimize -->
+
     <string name="tool_compress_pdf">Comprimir PDF</string>
     <string name="tool_repair_pdf">Reparar PDF</string>
     <string name="tool_page_numbers">Números de Página</string>
     <string name="tool_view_metadata">Ver Metadatos</string>
 
-    <!-- Tool Descriptions -->
+
     <string name="desc_merge_pdfs">Combina múltiples archivos PDF en uno solo</string>
     <string name="desc_split_pdf">Divide un PDF en múltiples archivos</string>
     <string name="desc_organize_pages">Elimina o reordena páginas PDF</string>
@@ -128,7 +128,7 @@
     <string name="desc_sign">Añade tu firma</string>
     <string name="desc_view_pdf">Abrir y ver PDF</string>
 
-    <!-- Merge Screen -->
+
     <string name="merge_title">Fusionar PDFs</string>
     <string name="merge_empty_title">Ningún PDF Seleccionado</string>
     <string name="merge_empty_subtitle">Añade 2 o más archivos PDF para fusionarlos en un solo documento</string>
@@ -142,7 +142,7 @@
     <string name="merge_custom_location">Elegir ubicación de guardado personalizada</string>
     <string name="merge_default_path">Predeterminado: %s</string>
 
-    <!-- Compress Screen -->
+
     <string name="compress_title">Comprimir PDF</string>
     <string name="compress_empty_title">Ningún PDF Seleccionado</string>
     <string name="compress_empty_subtitle">Selecciona un archivo PDF para comprimir</string>
@@ -164,7 +164,7 @@
     <string name="compress_note_optimized">Nota: Este PDF ya puede estar optimizado o contener principalmente texto.</string>
     <string name="compress_select_pdf">Seleccionar PDF</string>
 
-    <!-- Split Screen -->
+
     <string name="split_title">Dividir PDF</string>
     <string name="split_empty_title">Ningún PDF Seleccionado</string>
     <string name="split_empty_subtitle">Selecciona un archivo PDF para dividirlo en múltiples documentos</string>
@@ -177,7 +177,7 @@
     <string name="split_custom_range">Rango personalizado</string>
     <string name="split_n_files_created">%d archivos creados</string>
 
-    <!-- PDF Viewer -->
+
     <string name="pdf_viewer_title">Visor de PDF</string>
     <string name="pdf_document_default_name">Documento PDF</string>
     <string name="pdf_page_indicator">Página %1$d de %2$d (%3$d%%)</string>
@@ -204,7 +204,7 @@
     <string name="pdf_go_to_page">Ir a página</string>
     <string name="pdf_page_number">Número de página</string>
 
-    <!-- Settings Screen -->
+
     <string name="settings_title">Ajustes</string>
     <string name="settings_section_quality">Ajustes de Calidad</string>
     <string name="settings_section_appearance">Apariencia</string>
@@ -249,19 +249,19 @@
     <string name="settings_select_language">Seleccionar Idioma</string>
     <string name="settings_language_changed">Idioma cambiado</string>
 
-    <!-- Language Names -->
+
     <string name="language_english">English</string>
     <string name="language_spanish">Español</string>
     <string name="language_hindi">हिन्दी</string>
     <string name="language_chinese">中文</string>
 
-    <!-- Image Format Options -->
+
     <string name="image_format_webp">WebP (Recomendado)</string>
     <string name="image_format_jpeg">JPEG</string>
     <string name="image_format_webp_desc">Mejor compresión, archivos más pequeños</string>
     <string name="image_format_jpeg_desc">Compatibilidad universal</string>
 
-    <!-- Theme Modes -->
+
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
     <string name="theme_system">Predeterminado del Sistema</string>
@@ -269,7 +269,7 @@
     <string name="theme_dark_desc">Usar siempre tema oscuro</string>
     <string name="theme_system_desc">Seguir ajustes del sistema</string>
 
-    <!-- Feature Request -->
+
     <string name="feature_request_title">Solicitar una Función</string>
     <string name="feature_request_description">¡Comparte tu idea para ayudarnos a mejorar PDF Toolkit!</string>
     <string name="feature_request_category">Categoría</string>
@@ -280,11 +280,11 @@
     <string name="feature_request_idea">Describe tu idea</string>
     <string name="feature_request_placeholder">¿Qué función te gustaría ver?</string>
 
-    <!-- Bug Report -->
+
     <string name="bug_report_subject">[Reporte de Error] PDF Toolkit</string>
     <string name="bug_report_template">Descripción del Error:\n[Por favor describe el problema que encontraste]\n\nPasos para Reproducir:\n1. \n2. \n3. \n\nComportamiento Esperado:\n[¿Qué esperabas que sucediera?]\n\nComportamiento Actual:\n[¿Qué sucedió realmente?]</string>
 
-    <!-- Error Messages -->
+
     <string name="error_gmail_required">Se requiere la app de Gmail. Por favor instala Gmail o envía comentarios a %s</string>
     <string name="error_generic">Ocurrió un error</string>
     <string name="error_file_not_found">Archivo no encontrado</string>
@@ -295,17 +295,17 @@
     <string name="error_compress_failed">Compresión fallida</string>
     <string name="error_split_failed">División fallida</string>
 
-    <!-- Success Messages -->
+
     <string name="success_operation_complete">Operación completada exitosamente</string>
     <string name="success_file_saved">Archivo guardado exitosamente</string>
 
-    <!-- File Picker -->
+
     <string name="file_picker_select_pdf">Seleccionar PDF</string>
     <string name="file_picker_select_pdfs">Seleccionar PDFs</string>
     <string name="file_picker_select_image">Seleccionar Imagen</string>
     <string name="file_picker_select_images">Seleccionar Imágenes</string>
 
-    <!-- Common Labels -->
+
     <string name="label_pdf">PDF</string>
     <string name="label_page">Página</string>
     <string name="label_pages">Páginas</string>
@@ -318,14 +318,15 @@
     <string name="label_loading">Cargando...</string>
     <string name="label_calculating">Calculando...</string>
 
-    <!-- Empty States -->
+
     <string name="empty_no_files">Ningún archivo seleccionado</string>
     <string name="empty_no_pdfs">Ningún PDF seleccionado</string>
     <string name="empty_no_images">Ninguna imagen seleccionada</string>
     <string name="empty_add_files">Añade archivos para comenzar</string>
 
-    <!-- Result Dialog -->
+
     <string name="result_success">Éxito</string>
     <string name="result_error">Error</string>
 
-</resources>
+    <string name="nav_tab_tools">Herramientas</string>
+<string name="nav_tab_files">Files</string><string name="nav_open_history">Open History</string><string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string><string name="language_portuguese">Português (Brasil)</string><string name="language_german">Deutsch</string></resources>

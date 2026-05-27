@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- App Name -->
+
     <string name="app_name">PDF Toolkit</string>
 
-    <!-- Common Actions -->
+
     <string name="action_add">Hinzufügen</string>
     <string name="action_add_more">Weitere hinzufügen</string>
     <string name="action_add_more_pdfs">Weitere PDFs hinzufügen</string>
@@ -32,7 +32,7 @@
     <string name="action_move_up">Nach oben verschieben</string>
     <string name="action_move_down">Nach unten verschieben</string>
 
-    <!-- Navigation & Content Descriptions -->
+
     <string name="cd_open_pdf">PDF öffnen</string>
     <string name="cd_back">Zurück</string>
     <string name="cd_close_search">Suche schlie�?en</string>
@@ -42,17 +42,17 @@
     <string name="cd_next_result">Nächstes</string>
     <string name="cd_compression_quality">Komprimierungsqualität</string>
 
-    <!-- Home Screen -->
+
     <string name="home_title">PDF Toolkit</string>
     <string name="home_subtitle">Alle Ihre PDF- und Bildwerkzeuge an einem Ort</string>
     <string name="fab_open_pdf">PDF öffnen</string>
 
-    <!-- Navigation -->
+
     <string name="nav_tab_tools">Werkzeuge</string>
     <string name="nav_tab_files">Dateien</string>
     <string name="nav_open_history">Verlauf öffnen</string>
 
-    <!-- Tool Categories -->
+
     <string name="category_organize">Organisieren</string>
     <string name="category_convert">Konvertieren</string>
     <string name="category_markup">Markierung</string>
@@ -62,7 +62,7 @@
     <string name="category_image_tools">Bildwerkzeuge</string>
     <string name="category_view_export">Anzeigen &amp; Exportieren</string>
 
-    <!-- Tool Names - Organize -->
+
     <string name="tool_merge_pdfs">PDFs zusammenführen</string>
     <string name="tool_merge_pdf">PDF zusammenführen</string>
     <string name="tool_split_pdf">PDF aufteilen</string>
@@ -72,7 +72,7 @@
     <string name="tool_reorder_pages">Seiten neu anordnen</string>
     <string name="tool_delete_pages">Seiten löschen</string>
 
-    <!-- Tool Names - Convert -->
+
     <string name="tool_images_to_pdf">Bilder zu PDF</string>
     <string name="tool_pdf_to_images">PDF zu Bildern</string>
     <string name="tool_html_to_pdf">HTML zu PDF</string>
@@ -81,25 +81,25 @@
     <string name="tool_ocr">OCR</string>
     <string name="tool_image_tools">Bildwerkzeuge</string>
 
-    <!-- Tool Names - Markup -->
+
     <string name="tool_sign_pdf">PDF signieren</string>
     <string name="tool_fill_forms">Formulare ausfüllen</string>
     <string name="tool_annotate_pdf">PDF kommentieren</string>
 
-    <!-- Tool Names - Security -->
+
     <string name="tool_add_security">Sicherheit hinzufügen</string>
     <string name="tool_lock_pdf">PDF sperren</string>
     <string name="tool_unlock_pdf">PDF entsperren</string>
     <string name="tool_add_watermark">Wasserzeichen hinzufügen</string>
     <string name="tool_flatten_pdf">PDF vereinfachen</string>
 
-    <!-- Tool Names - Optimize -->
+
     <string name="tool_compress_pdf">PDF komprimieren</string>
     <string name="tool_repair_pdf">PDF reparieren</string>
     <string name="tool_page_numbers">Seitenzahlen</string>
     <string name="tool_view_metadata">Metadaten anzeigen</string>
 
-    <!-- Tool Descriptions -->
+
     <string name="desc_merge_pdfs">Mehrere PDF-Dateien in eine kombinieren</string>
     <string name="desc_split_pdf">Ein PDF in mehrere Dateien aufteilen</string>
     <string name="desc_organize_pages">PDF-Seiten entfernen oder neu anordnen</string>
@@ -133,7 +133,7 @@
     <string name="desc_sign">Ihre Signatur hinzufügen</string>
     <string name="desc_view_pdf">PDF öffnen und anzeigen</string>
 
-    <!-- Merge Screen -->
+
     <string name="merge_title">PDFs zusammenführen</string>
     <string name="merge_empty_title">Keine PDFs ausgewählt</string>
     <string name="merge_empty_subtitle">Fügen Sie 2 oder mehr PDF-Dateien hinzu, um sie in einem Dokument zusammenzuführen</string>
@@ -147,7 +147,7 @@
     <string name="merge_custom_location">Benutzerdefinierten Speicherort wählen</string>
     <string name="merge_default_path">Standard: %s</string>
 
-    <!-- Compress Screen -->
+
     <string name="compress_title">PDF komprimieren</string>
     <string name="compress_empty_title">Keine PDF ausgewählt</string>
     <string name="compress_empty_subtitle">Wählen Sie eine PDF-Datei zum Komprimieren</string>
@@ -169,7 +169,7 @@
     <string name="compress_note_optimized">Hinweis: Diese PDF ist möglicherweise bereits optimiert oder enthält hauptsächlich Text.</string>
     <string name="compress_select_pdf">PDF auswählen</string>
 
-    <!-- Split Screen -->
+
     <string name="split_title">PDF aufteilen</string>
     <string name="split_empty_title">Keine PDF ausgewählt</string>
     <string name="split_empty_subtitle">Wählen Sie eine PDF-Datei, um sie in mehrere Dokumente aufzuteilen</string>
@@ -182,7 +182,7 @@
     <string name="split_custom_range">Benutzerdefinierter Bereich</string>
     <string name="split_n_files_created">%d Dateien erstellt</string>
 
-    <!-- PDF Viewer -->
+
     <string name="pdf_viewer_title">PDF-Anzeige</string>
     <string name="pdf_document_default_name">PDF-Dokument</string>
     <string name="pdf_page_indicator">Seite %1$d von %2$d (%3$d%%)</string>
@@ -209,7 +209,7 @@
     <string name="pdf_go_to_page">Zu Seite gehen</string>
     <string name="pdf_page_number">Seitenzahl</string>
 
-    <!-- Settings Screen -->
+
     <string name="settings_title">Einstellungen</string>
     <string name="settings_section_quality">Qualitätseinstellungen</string>
     <string name="settings_section_appearance">Erscheinungsbild</string>
@@ -254,7 +254,7 @@
     <string name="settings_select_language">Sprache wählen</string>
     <string name="settings_language_changed">Sprache geändert</string>
 
-    <!-- Language Names -->
+
     <string name="language_english">English</string>
     <string name="language_spanish">Español</string>
     <string name="language_hindi">हिन्द�?</string>
@@ -262,13 +262,13 @@
     <string name="language_portuguese">Português (Brasil)</string>
     <string name="language_german">Deutsch</string>
 
-    <!-- Image Format Options -->
+
     <string name="image_format_webp">WebP (Empfohlen)</string>
     <string name="image_format_jpeg">JPEG</string>
     <string name="image_format_webp_desc">Beste Komprimierung, kleinere Dateien</string>
     <string name="image_format_jpeg_desc">Universelle Kompatibilität</string>
 
-    <!-- Theme Modes -->
+
     <string name="theme_light">Hell</string>
     <string name="theme_dark">Dunkel</string>
     <string name="theme_system">Systemstandard</string>
@@ -276,7 +276,7 @@
     <string name="theme_dark_desc">Immer dunkles Design verwenden</string>
     <string name="theme_system_desc">Systemeinstellungen folgen</string>
 
-    <!-- Feature Request -->
+
     <string name="feature_request_title">Funktion anfordern</string>
     <string name="feature_request_description">Teilen Sie Ihre Idee mit, um uns bei der Verbesserung von PDF Toolkit zu helfen!</string>
     <string name="feature_request_category">Kategorie</string>
@@ -287,11 +287,11 @@
     <string name="feature_request_idea">Beschreiben Sie Ihre Idee</string>
     <string name="feature_request_placeholder">Welche Funktion möchten Sie sehen?</string>
 
-    <!-- Bug Report -->
+
     <string name="bug_report_subject">[Fehlerbericht] PDF Toolkit</string>
     <string name="bug_report_template">Fehlerbeschreibung:\n[Bitte beschreiben Sie das Problem, auf das Sie gesto�?en sind]\n\nSchritte zum Reproduzieren:\n1. \n2. \n3. \n\nErwartetes Verhalten:\n[Was hätten Sie erwartet?]\n\nAktuelles Verhalten:\n[Was ist tatsächlich passiert?]</string>
 
-    <!-- Error Messages -->
+
     <string name="error_gmail_required">Gmail-App erforderlich. Bitte installieren Sie Gmail oder senden Sie Feedback an %s</string>
     <string name="error_generic">Ein Fehler ist aufgetreten</string>
     <string name="error_file_not_found">Datei nicht gefunden</string>
@@ -302,17 +302,17 @@
     <string name="error_compress_failed">Komprimierung fehlgeschlagen</string>
     <string name="error_split_failed">Aufteilung fehlgeschlagen</string>
 
-    <!-- Success Messages -->
+
     <string name="success_operation_complete">Operation erfolgreich abgeschlossen</string>
     <string name="success_file_saved">Datei erfolgreich gespeichert</string>
 
-    <!-- File Picker -->
+
     <string name="file_picker_select_pdf">PDF auswählen</string>
     <string name="file_picker_select_pdfs">PDFs auswählen</string>
     <string name="file_picker_select_image">Bild auswählen</string>
     <string name="file_picker_select_images">Bilder auswählen</string>
 
-    <!-- Common Labels -->
+
     <string name="label_pdf">PDF</string>
     <string name="label_page">Seite</string>
     <string name="label_pages">Seiten</string>
@@ -325,16 +325,14 @@
     <string name="label_loading">Wird geladen...</string>
     <string name="label_calculating">Wird berechnet...</string>
 
-    <!-- Empty States -->
+
     <string name="empty_no_files">Keine Dateien ausgewählt</string>
     <string name="empty_no_pdfs">Keine PDFs ausgewählt</string>
     <string name="empty_no_images">Keine Bilder ausgewählt</string>
     <string name="empty_add_files">Fügen Sie Dateien hinzu, um zu beginnen</string>
 
-    <!-- Result Dialog -->
+
     <string name="result_success">Erfolg</string>
     <string name="result_error">Fehler</string>
 
-</resources>
-
-
+<string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string></resources>
