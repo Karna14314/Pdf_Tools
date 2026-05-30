@@ -44,6 +44,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
@@ -1193,6 +1194,8 @@ private fun PdfPagesContent(
     val currentOnOffsetChange by rememberUpdatedState(onOffsetChange)
     val currentContainerSize by rememberUpdatedState(containerSize)
 
+    // Wrapper box to clip the scaled content so it doesn't bleed outside container bounds
+    Box(modifier = Modifier.fillMaxSize().clipToBounds()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -1320,6 +1323,7 @@ private fun PdfPagesContent(
                 }
             }
         }
+    }
     }
 }
 

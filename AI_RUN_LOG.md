@@ -70,3 +70,21 @@ Fixes Applied to PdfCompressor.kt
 - Updated tryFullRerender to use pageRect.lowerLeftX and pageRect.lowerLeftY for drawImage coordinates, preventing images from rendering off-screen for PDFs with non-zero origins.
 
 - fix(compress): Switched PdfCompressor's full re-render implementation to use Android's native `android.graphics.pdf.PdfRenderer` via `ParcelFileDescriptor` to guarantee seekable file descriptors. Additionally added explicit `eraseColor(Color.WHITE)` to the canvas, dynamic resolution caps (2048px maximum), and rigorous throwable trapping/recycling. This resolves blank output stream issues on Android 16.
+
+## 2026-05-30
+**Status:** SUCCESS ✅
+**Category:** B — Performance Optimization
+**Task:** Optimized LruCache bitmap sizing dynamically and fixed out of bound scaled component bleeding
+**Files Changed:**
+- app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerViewModel.kt: Updated hardcoded 30MB cache to use 1/8th of MaxMemory or 30MB, to prevent OOM errors on large cache usage and enhance rendering speed.
+- app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerScreen.kt: Wrapped zoom scale layer in a bounding Box applying clipToBounds to prevent out-of-boundary component bleeding after zoom.
+**Verification:**
+- Build: PASS
+- Tests: SKIPPED
+- Emulator: SKIPPED
+**Performance Impact:**
+- dynamic memory utilization
+**Commit:** Auto-generated PR will handle this
+**Branch:** auto/weekly-20260530-dynamic-cache-clipbounds
+**Notes:**
+- Dynamically size LruCache and added clipToBounds.
