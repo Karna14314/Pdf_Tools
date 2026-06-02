@@ -10,6 +10,17 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -38,7 +49,8 @@ import kotlinx.coroutines.withContext
  */
 private data class ImageInfo(
     val uri: Uri,
-    val name: String
+    val name: String,
+    val originalIndex: Int = 0
 )
 
 /**
@@ -67,6 +79,11 @@ fun ConvertScreen(
     
     // Crop state - track which image index is being cropped
     var cropImageIndex by remember { mutableStateOf(-1) }
+    var selectedItemIndex by remember { mutableStateOf<Int?>(null) }
+
+    val hasOrderChanged = remember(selectedImages) {
+        selectedImages.zipWithNext { a, b -> a.originalIndex > b.originalIndex }.any { it }
+    }
     
     // Crop launcher - handles the result from uCrop activity
     val cropLauncher = rememberLauncherForActivityResult(
@@ -93,10 +110,15 @@ fun ConvertScreen(
         contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris ->
         if (uris.isNotEmpty()) {
-            val newImages = uris.mapNotNull { uri ->
+            val currentSize = selectedImages.size
+            val newImages = uris.mapIndexedNotNull { index, uri ->
                 val info = FileManager.getFileInfo(context, uri)
                 if (info != null) {
-                    ImageInfo(uri = uri, name = info.name)
+                    ImageInfo(
+                        uri = uri,
+                        name = info.name,
+                        originalIndex = currentSize + index
+                    )
                 } else null
             }
             selectedImages = selectedImages + newImages
@@ -252,31 +274,57 @@ fun ConvertScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
-                    LazyColumn(
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(vertical = 16.dp)
                     ) {
                         // Image list header
-                        item {
+                        item(span = { GridItemSpan(3) }) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = "Selected Images (${selectedImages.size})",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Column {
+                                    Text(
+                                        text = "Selected Images (${selectedImages.size})",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    if (hasOrderChanged) {
+                                        Text(
+                                            text = "Order modified",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
                                 
-                                TextButton(
-                                    onClick = { selectedImages = emptyList() }
-                                ) {
-                                    Text("Clear All")
+                                Row {
+                                    if (hasOrderChanged) {
+                                        TextButton(
+                                            onClick = {
+                                                selectedImages = selectedImages.sortedBy { it.originalIndex }
+                                                selectedItemIndex = null
+                                            }
+                                        ) {
+                                            Text("Reset")
+                                        }
+                                    }
+                                    TextButton(
+                                        onClick = {
+                                            selectedImages = emptyList()
+                                            selectedItemIndex = null
+                                        }
+                                    ) {
+                                        Text("Clear All")
+                                    }
                                 }
                             }
                         }
@@ -284,14 +332,22 @@ fun ConvertScreen(
                         // Image list
                         itemsIndexed(
                             items = selectedImages,
-                            key = { index, image -> "${image.uri}-$index" }
+                            key = { index, image -> "${image.uri}-${image.originalIndex}" }
                         ) { index, image ->
-                            ImageItemCard(
-                                index = index + 1,
+                            ImagePreviewCard(
                                 image = image,
+                                currentPosition = index + 1,
+                                isSelected = selectedItemIndex == index,
+                                canMoveUp = index > 0,
+                                canMoveDown = index < selectedImages.lastIndex,
                                 onRemove = {
                                     selectedImages = selectedImages.toMutableList().apply {
                                         removeAt(index)
+                                    }
+                                    if (selectedItemIndex == index) {
+                                        selectedItemIndex = null
+                                    } else if (selectedItemIndex != null && selectedItemIndex!! > index) {
+                                        selectedItemIndex = selectedItemIndex!! - 1
                                     }
                                 },
                                 onCrop = {
@@ -305,27 +361,50 @@ fun ConvertScreen(
                                     )
                                     cropLauncher.launch(cropIntent)
                                 },
-                                onMoveUp = if (index > 0) {
-                                    {
+                                onSelect = {
+                                    selectedItemIndex = if (selectedItemIndex == index) null else index
+                                },
+                                onMoveUp = {
+                                    if (index > 0) {
                                         selectedImages = selectedImages.toMutableList().apply {
                                             val item = removeAt(index)
                                             add(index - 1, item)
                                         }
+                                        selectedItemIndex = index - 1
                                     }
-                                } else null,
-                                onMoveDown = if (index < selectedImages.lastIndex) {
-                                    {
+                                },
+                                onMoveDown = {
+                                    if (index < selectedImages.lastIndex) {
                                         selectedImages = selectedImages.toMutableList().apply {
                                             val item = removeAt(index)
                                             add(index + 1, item)
                                         }
+                                        selectedItemIndex = index + 1
                                     }
-                                } else null
+                                },
+                                onMoveToFirst = {
+                                    if (index > 0) {
+                                        selectedImages = selectedImages.toMutableList().apply {
+                                            val item = removeAt(index)
+                                            add(0, item)
+                                        }
+                                        selectedItemIndex = 0
+                                    }
+                                },
+                                onMoveToLast = {
+                                    if (index < selectedImages.lastIndex) {
+                                        selectedImages = selectedImages.toMutableList().apply {
+                                            val item = removeAt(index)
+                                            add(this.size, item)
+                                        }
+                                        selectedItemIndex = selectedImages.lastIndex
+                                    }
+                                }
                             )
                         }
                         
                         // Add more button
-                        item {
+                        item(span = { GridItemSpan(3) }) {
                             OutlinedButton(
                                 onClick = {
                                     pickImagesLauncher.launch(arrayOf("image/*"))
@@ -339,7 +418,7 @@ fun ConvertScreen(
                         }
                         
                         // Settings section
-                        item {
+                        item(span = { GridItemSpan(3) }) {
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = "Settings",
@@ -350,7 +429,7 @@ fun ConvertScreen(
                         }
                         
                         // Page size selection
-                        item {
+                        item(span = { GridItemSpan(3) }) {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
@@ -387,7 +466,7 @@ fun ConvertScreen(
                         }
                         
                         // Quality slider
-                        item {
+                        item(span = { GridItemSpan(3) }) {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
@@ -539,120 +618,145 @@ fun ConvertScreen(
     }
 }
 
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ImageItemCard(
-    index: Int,
+private fun ImagePreviewCard(
     image: ImageInfo,
+    currentPosition: Int,
+    isSelected: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onSelect: () -> Unit,
     onRemove: () -> Unit,
     onCrop: (() -> Unit)? = null,
-    onMoveUp: (() -> Unit)?,
-    onMoveDown: (() -> Unit)?
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    onMoveToFirst: () -> Unit,
+    onMoveToLast: () -> Unit
 ) {
+    val hasChanged = image.originalIndex + 1 != currentPosition
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        onClick = onSelect,
+        modifier = Modifier
+            .aspectRatio(1f)
+            .then(
+                if (isSelected) {
+                    Modifier.border(
+                        width = 3.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                } else Modifier
+            ),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
         )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Order number
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        text = index.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.width(12.dp))
-            
-            // Image thumbnail (using Coil if available, otherwise just text)
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Image,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(12.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(12.dp))
-            
-            Text(
-                text = image.name,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                modifier = Modifier.weight(1f)
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = image.uri,
+                contentDescription = image.name,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
             )
             
-            // Crop button
-            if (onCrop != null) {
-                IconButton(
-                    onClick = onCrop,
-                    modifier = Modifier.size(40.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Crop,
-                        contentDescription = "Crop image",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+            // Position badge (top-left)
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(6.dp),
+                shape = CircleShape,
+                color = if (hasChanged) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
                 }
-            }
-            
-            // Reorder buttons
-            Column {
-                IconButton(
-                    onClick = { onMoveUp?.invoke() },
-                    enabled = onMoveUp != null,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowUp,
-                        contentDescription = "Move up",
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                IconButton(
-                    onClick = { onMoveDown?.invoke() },
-                    enabled = onMoveDown != null,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Move down",
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-            
-            IconButton(onClick = onRemove) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Remove",
-                    tint = MaterialTheme.colorScheme.error
+            ) {
+                Text(
+                    text = "$currentPosition",
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (hasChanged) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
                 )
+            }
+            
+            // Original page number (if different)
+            if (hasChanged) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.9f)
+                ) {
+                    Text(
+                        text = "was ${image.originalIndex + 1}",
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
+            }
+            
+            // Move controls (when selected)
+            if (isSelected) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .background(
+                            MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+                        )
+                        .padding(2.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Row 1: Actions
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (onCrop != null) {
+                            IconButton(onClick = onCrop, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Default.Crop, contentDescription = "Crop", modifier = Modifier.size(18.dp))
+                            }
+                        }
+                        IconButton(onClick = onRemove, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.Delete, contentDescription = "Remove", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
+                        }
+                    }
+                    // Row 2: Navigation
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IconButton(onClick = onMoveToFirst, enabled = canMoveUp, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.KeyboardDoubleArrowUp, contentDescription = "First", modifier = Modifier.size(18.dp))
+                        }
+                        IconButton(onClick = onMoveUp, enabled = canMoveUp, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Up", modifier = Modifier.size(18.dp))
+                        }
+                        IconButton(onClick = onMoveDown, enabled = canMoveDown, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Down", modifier = Modifier.size(18.dp))
+                        }
+                        IconButton(onClick = onMoveToLast, enabled = canMoveDown, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Default.KeyboardDoubleArrowDown, contentDescription = "Last", modifier = Modifier.size(18.dp))
+                        }
+                    }
+                }
             }
         }
     }
