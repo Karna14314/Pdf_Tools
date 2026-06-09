@@ -3,11 +3,13 @@ package com.yourname.pdftoolkit.domain.operations
 import android.content.Context
 import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.text.PDFTextStripper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
 import java.io.OutputStreamWriter
+import com.yourname.pdftoolkit.util.MemoryGuard
 import java.nio.charset.StandardCharsets
 
 /**
@@ -54,6 +56,7 @@ class TextExtractor {
         options: TextExtractionOptions = TextExtractionOptions(),
         onProgress: (Float) -> Unit = {}
     ): Result<TextExtractionResult> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("extractToTextFile")
         var document: PDDocument? = null
         
         try {
@@ -64,7 +67,7 @@ class TextExtractor {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = document.numberOfPages
             
             if (totalPages == 0) {
@@ -138,9 +141,10 @@ class TextExtractor {
         uri: Uri,
         options: TextExtractionOptions = TextExtractionOptions()
     ): String = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("extractToString")
         try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                PDDocument.load(inputStream).use { document ->
+                PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly()).use { document ->
                     val textStripper = PDFTextStripper().apply {
                         startPage = options.startPage
                         endPage = minOf(options.endPage, document.numberOfPages)
@@ -168,9 +172,10 @@ class TextExtractor {
         uri: Uri,
         pageNumber: Int
     ): String = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("extractFromPage")
         try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                PDDocument.load(inputStream).use { document ->
+                PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly()).use { document ->
                     if (pageNumber < 1 || pageNumber > document.numberOfPages) {
                         return@withContext ""
                     }
@@ -201,12 +206,13 @@ class TextExtractor {
         context: Context,
         uri: Uri
     ): Boolean = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("hasExtractableText")
         try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                PDDocument.load(inputStream).use { document ->
+                PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly()).use { document ->
                     val textStripper = PDFTextStripper().apply {
                         startPage = 1
-                        endPage = minOf(3, document.numberOfPages) // Check first few pages
+                        endPage = minOf(1, document.numberOfPages) // Check first few pages
                     }
                     
                     val text = textStripper.getText(document)
@@ -229,6 +235,7 @@ class TextExtractor {
         context: Context,
         uri: Uri
     ): Int = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("getWordCount")
         val text = extractToString(context, uri)
         text.split("\\s+".toRegex())
             .filter { it.isNotBlank() }
@@ -250,11 +257,12 @@ class TextExtractor {
         searchText: String,
         caseSensitive: Boolean = false
     ): List<Int> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("searchText")
         val pagesWithText = mutableListOf<Int>()
         
         try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                PDDocument.load(inputStream).use { document ->
+                PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly()).use { document ->
                     for (pageNum in 1..document.numberOfPages) {
                         val textStripper = PDFTextStripper().apply {
                             startPage = pageNum

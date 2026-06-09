@@ -4,9 +4,11 @@ import android.content.Context
 import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDDocumentInformation
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
+import com.yourname.pdftoolkit.util.MemoryGuard
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -59,6 +61,7 @@ class PdfMetadataManager {
         context: Context,
         uri: Uri
     ): Result<PdfMetadata> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("Read Metadata")
         var document: PDDocument? = null
         
         try {
@@ -67,7 +70,7 @@ class PdfMetadataManager {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val info = document.documentInformation
             
             val metadata = PdfMetadata(
@@ -111,6 +114,7 @@ class PdfMetadataManager {
         metadata: EditableMetadata,
         onProgress: (Float) -> Unit = {}
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("Update Metadata")
         var document: PDDocument? = null
         
         try {
@@ -121,7 +125,7 @@ class PdfMetadataManager {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val info = document.documentInformation
             
             onProgress(0.4f)
@@ -162,6 +166,7 @@ class PdfMetadataManager {
         outputStream: OutputStream,
         onProgress: (Float) -> Unit = {}
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("Remove Metadata")
         var document: PDDocument? = null
         
         try {
@@ -172,7 +177,7 @@ class PdfMetadataManager {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             
             onProgress(0.4f)
             

@@ -8,6 +8,7 @@ import com.tom_roush.pdfbox.pdmodel.PDPage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
+import com.yourname.pdftoolkit.util.MemoryGuard
 
 /**
  * Defines different split modes for PDF splitting.
@@ -65,6 +66,7 @@ class PdfSplitter {
         outputCallback: suspend (pageNumber: Int, inputStream: java.io.InputStream) -> Unit,
         onProgress: (Float) -> Unit = {}
     ): Result<SplitResult> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("splitAllPages")
         var document: PDDocument? = null
         
         try {
@@ -126,6 +128,7 @@ class PdfSplitter {
         outputCallback: suspend (rangeIndex: Int, inputStream: java.io.InputStream) -> Unit,
         onProgress: (Float) -> Unit = {}
     ): Result<SplitResult> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("splitByRanges")
         var document: PDDocument? = null
         
         try {
@@ -191,6 +194,7 @@ class PdfSplitter {
         outputStream: OutputStream,
         onProgress: (Float) -> Unit = {}
     ): Result<Int> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("extractPages")
         var document: PDDocument? = null
         
         try {
@@ -241,14 +245,17 @@ class PdfSplitter {
         context: Context,
         uri: Uri
     ): Int = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("getPageCount")
+        var document: PDDocument? = null
         try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly()).use { document ->
-                    document.numberOfPages
-                }
+                document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
+                document?.numberOfPages ?: 0
             } ?: 0
         } catch (e: Exception) {
             0
+        } finally {
+            document?.close()
         }
     }
     

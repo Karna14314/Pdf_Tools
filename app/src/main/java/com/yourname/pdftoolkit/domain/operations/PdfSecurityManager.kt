@@ -8,6 +8,8 @@ import com.tom_roush.pdfbox.pdmodel.encryption.StandardProtectionPolicy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
+import java.io.BufferedOutputStream
+import com.yourname.pdftoolkit.util.MemoryGuard
 
 /**
  * Security options for PDF protection.
@@ -49,6 +51,7 @@ class PdfSecurityManager {
         options: PdfSecurityOptions,
         onProgress: (Float) -> Unit = {}
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("Encrypt PDF")
         var document: PDDocument? = null
         
         try {
@@ -88,7 +91,9 @@ class PdfSecurityManager {
             onProgress(0.8f)
             
             // Save encrypted document
-            document.save(outputStream)
+            BufferedOutputStream(outputStream, 8192).use { buffered ->
+                document.save(buffered)
+            }
             
             onProgress(1.0f)
             
@@ -119,6 +124,7 @@ class PdfSecurityManager {
         password: String,
         onProgress: (Float) -> Unit = {}
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("Decrypt PDF")
         var document: PDDocument? = null
         
         try {
@@ -146,7 +152,9 @@ class PdfSecurityManager {
             onProgress(0.7f)
             
             // Save decrypted document
-            document.save(outputStream)
+            BufferedOutputStream(outputStream, 8192).use { buffered ->
+                document.save(buffered)
+            }
             
             onProgress(1.0f)
             
