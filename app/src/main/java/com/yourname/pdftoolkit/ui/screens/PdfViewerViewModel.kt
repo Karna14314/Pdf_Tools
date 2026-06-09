@@ -38,6 +38,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -362,12 +363,14 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     fun addAnnotation(stroke: AnnotationStroke) {
+        if (_annotations.value.size > 500) throw OutOfMemoryError("PDF has too many annotations to process at once")
         val currentList = _annotations.value.toMutableList()
         currentList.add(stroke)
         _annotations.value = currentList
     }
 
     fun undoAnnotation() {
+        if (_annotations.value.size > 500) throw OutOfMemoryError("PDF has too many annotations to process at once")
         val currentList = _annotations.value.toMutableList()
         if (currentList.isNotEmpty()) {
             currentList.removeAt(currentList.lastIndex)
@@ -597,7 +600,14 @@ class PdfViewerViewModel : ViewModel() {
             return
         }
 
-        searchJob = viewModelScope.launch(Dispatchers.IO) {
+        val exceptionHandler = kotlinx.coroutines.CoroutineExceptionHandler { _, e ->
+            if (e is OutOfMemoryError) {
+                _uiState.update {
+                    PdfViewerUiState.Error("Not enough memory. Close other apps and try again.")
+                }
+            } else throw e
+        }
+        searchJob = viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
             _searchState.value = _searchState.value.copy(query = query, isLoading = true)
 
             val matches = mutableListOf<SearchMatch>()
@@ -719,7 +729,14 @@ class PdfViewerViewModel : ViewModel() {
     fun saveAnnotations(context: Context, outputUri: Uri) {
         val currentAnnotations = _annotations.value
 
-        viewModelScope.launch(Dispatchers.IO) {
+        val exceptionHandler = kotlinx.coroutines.CoroutineExceptionHandler { _, e ->
+            if (e is OutOfMemoryError) {
+                _uiState.update {
+                    PdfViewerUiState.Error("Not enough memory. Close other apps and try again.")
+                }
+            } else throw e
+        }
+        viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
             _saveState.value = SaveState.Saving(0f)
 
             documentMutex.withLock {
@@ -940,8 +957,16 @@ class PdfViewerViewModel : ViewModel() {
     private suspend fun closeDocument() {
         documentMutex.withLock {
             try {
+                // Clear any in-memory bitmap/page cache
+                bitmapCache.evictAll()
+                _annotations.value = emptyList()
+                extractedTextCache.clear()
+
+                // GC Hint
+                System.gc()
+
                 document?.close()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.e("PdfViewerVM", "Error closing document", e)
             } finally {
                  document = null
@@ -973,7 +998,14 @@ class PdfViewerViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        viewModelScope.launch(Dispatchers.IO) {
+        val exceptionHandler = kotlinx.coroutines.CoroutineExceptionHandler { _, e ->
+            if (e is OutOfMemoryError) {
+                _uiState.update {
+                    PdfViewerUiState.Error("Not enough memory. Close other apps and try again.")
+                }
+            } else throw e
+        }
+        viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
             synchronized(activeBitmaps) {
                 uiBitmapRefs.values.forEach { if (!it.isRecycled) it.recycle() }
                 uiBitmapRefs.clear()

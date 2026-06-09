@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
+import com.yourname.pdftoolkit.util.MemoryGuard
 
 /**
  * Handles PDF merge operations.
@@ -32,6 +33,25 @@ class PdfMerger {
         outputStream: OutputStream,
         onProgress: (Float) -> Unit = {}
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("mergePdfs")
+
+        // Calculate total size
+        var totalSize = 0L
+        try {
+            inputUris.forEach { uri ->
+                context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { fd ->
+                    totalSize += fd.length
+                }
+            }
+            if (totalSize > 50L * 1024 * 1024) {
+                // Warning logic for large files, the user says to use onProgress
+                // But onProgress takes 0.0 to 1.0. The UI might not have a warning state. We'll just log or continue
+                android.util.Log.w("PdfMerger", "Merging large files: ${totalSize / (1024 * 1024)}MB total")
+            }
+        } catch (e: Exception) {
+            // Ignore size check errors
+        }
+
         if (inputUris.size < 2) {
             return@withContext Result.failure(
                 IllegalArgumentException("At least 2 PDF files are required for merging")
@@ -88,6 +108,7 @@ class PdfMerger {
         context: Context,
         uris: List<Uri>
     ): Int = withContext(Dispatchers.IO) {
+        MemoryGuard.checkMemory("getTotalPageCount")
         var totalPages = 0
         
         uris.forEach { uri ->

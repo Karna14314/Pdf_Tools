@@ -22,6 +22,7 @@
 
 
     <application
+        android:largeHeap="true"
         android:name=".PdfToolkitApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
