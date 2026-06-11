@@ -1,7 +1,0 @@
-Fixes for:
-1. Problem 1: ANR fix by wrapping PDF operations in `Dispatchers.IO`.
-2. Problem 2: Zoom transform fix by wrapping `Image` and `Canvas` in a common `Box` with `graphicsLayer`.
-3. Problem 3: Render scale fix using dynamically calculated scale instead of hardcoded 1.0f.
-4. Problem 4: Large file loading performance fix using dynamic `LruCache` sizing and LazyColumn `visibleRange` placeholder handling.
-
-Build passes for `playstore`, `fdroid`, and `opensource` flavors. F-Droid stays 100% FOSS. Tests pass as well.
