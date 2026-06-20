@@ -1,0 +1,66 @@
+openjdk version "21.0.10" 2026-01-20
+OpenJDK Runtime Environment (build 21.0.10+7-Ubuntu-124.04)
+OpenJDK 64-Bit Server VM (build 21.0.10+7-Ubuntu-124.04, mixed mode, sharing)
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :app
+No keystore found or F-Droid build - skipping signing
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preFdroidDebugBuild UP-TO-DATE
+> Task :app:mergeFdroidDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateFdroidDebugBuildConfig UP-TO-DATE
+> Task :app:checkFdroidDebugAarMetadata UP-TO-DATE
+> Task :app:generateFdroidDebugResValues UP-TO-DATE
+> Task :app:mapFdroidDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateFdroidDebugResources UP-TO-DATE
+> Task :app:mergeFdroidDebugResources UP-TO-DATE
+> Task :app:packageFdroidDebugResources UP-TO-DATE
+> Task :app:parseFdroidDebugLocalResources UP-TO-DATE
+> Task :app:createFdroidDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksFdroidDebug UP-TO-DATE
+> Task :app:processFdroidDebugMainManifest UP-TO-DATE
+> Task :app:processFdroidDebugManifest UP-TO-DATE
+> Task :app:processFdroidDebugManifestForPackage UP-TO-DATE
+> Task :app:processFdroidDebugResources UP-TO-DATE
+> Task :app:javaPreCompileFdroidDebug UP-TO-DATE
+> Task :app:mergeFdroidDebugShaders UP-TO-DATE
+> Task :app:compileFdroidDebugShaders NO-SOURCE
+> Task :app:generateFdroidDebugAssets UP-TO-DATE
+> Task :app:mergeFdroidDebugAssets UP-TO-DATE
+> Task :app:compressFdroidDebugAssets UP-TO-DATE
+> Task :app:checkFdroidDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarFdroidDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexFdroidDebug UP-TO-DATE
+> Task :app:mergeLibDexFdroidDebug UP-TO-DATE
+> Task :app:mergeFdroidDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeFdroidDebugNativeLibs UP-TO-DATE
+> Task :app:stripFdroidDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningFdroidDebug UP-TO-DATE
+> Task :app:writeFdroidDebugAppMetadata UP-TO-DATE
+> Task :app:writeFdroidDebugSigningConfigVersions UP-TO-DATE
+> Task :app:kspFdroidDebugKotlin
+
+> Task :app:compileFdroidDebugKotlin
+w: file:///app/app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerScreen.kt:2092:5 Parameter 'text' is never used
+
+> Task :app:compileFdroidDebugJavaWithJavac UP-TO-DATE
+> Task :app:dexBuilderFdroidDebug
+> Task :app:mergeFdroidDebugGlobalSynthetics UP-TO-DATE
+> Task :app:processFdroidDebugJavaRes UP-TO-DATE
+> Task :app:mergeFdroidDebugJavaResource UP-TO-DATE
+> Task :app:mergeProjectDexFdroidDebug
+> Task :app:packageFdroidDebug
+> Task :app:createFdroidDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleFdroidDebug
+[Incubating] Problems report is available at: file:///app/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 52s
+38 actionable tasks: 5 executed, 33 up-to-date
