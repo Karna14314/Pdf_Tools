@@ -21,7 +21,7 @@ data class PdfSecurityOptions(
     val allowCopying: Boolean = false,
     val allowModifying: Boolean = false,
     val allowAnnotations: Boolean = false,
-    val keyLength: Int = 128 // 40 or 128 bits
+    val keyLength: Int = 256
 ) {
     // For backward compatibility, provide owner/user password accessors
     // Both use the same password for a simpler user experience
