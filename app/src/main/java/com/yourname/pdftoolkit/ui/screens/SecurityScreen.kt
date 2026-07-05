@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -262,6 +264,9 @@ fun SecurityScreen(
                                         } else {
                                             PasswordVisualTransformation()
                                         },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Password
+                                        ),
                                         trailingIcon = {
                                             IconButton(onClick = { showPassword = !showPassword }) {
                                                 Icon(
@@ -290,6 +295,9 @@ fun SecurityScreen(
                                         } else {
                                             PasswordVisualTransformation()
                                         },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Password
+                                        ),
                                         modifier = Modifier.fillMaxWidth(),
                                         singleLine = true,
                                         isError = confirmPassword.isNotEmpty() && password != confirmPassword,
