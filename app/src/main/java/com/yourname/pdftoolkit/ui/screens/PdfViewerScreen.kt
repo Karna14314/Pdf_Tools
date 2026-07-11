@@ -133,7 +133,6 @@ fun PdfViewerScreen(
     }
 
     // Local UI state
-    var currentPage by remember { mutableIntStateOf(1) }
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
@@ -165,9 +164,9 @@ fun PdfViewerScreen(
     
     val listState = rememberLazyListState()
     
-    // Track visible page based on scroll position
-    LaunchedEffect(listState.firstVisibleItemIndex) {
-        currentPage = listState.firstVisibleItemIndex + 1
+    // Track visible page based on scroll position using derivedStateOf to prevent excessive recompositions
+    val currentPage by remember(listState) {
+        androidx.compose.runtime.derivedStateOf { listState.firstVisibleItemIndex + 1 }
     }
 
     // Handle Save State
