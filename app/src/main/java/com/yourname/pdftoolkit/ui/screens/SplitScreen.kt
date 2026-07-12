@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import com.yourname.pdftoolkit.ui.components.PdfThumbnailGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -93,40 +94,7 @@ fun SplitScreen(
     var selectedVisualPages by remember { mutableStateOf<Set<Int>>(emptySet()) }
     
     // Sequential background-threaded thumbnail loading for Visual Split
-    LaunchedEffect(selectedFile, selectedMode) {
-        val file = selectedFile
-        if (file == null) {
-            pages = emptyList()
-            selectedVisualPages = emptySet()
-        } else if (selectedMode == SplitMode.VISUAL_SELECT && pages.isEmpty()) {
-            isLoadingThumbnails = true
-            val count = pageCount
-            if (count > 0) {
-                pages = (1..count).map { ReorderablePage(it, null) }
-                withContext(Dispatchers.IO) {
-                    try {
-                        organizer.getPageThumbnails(
-                            context = context,
-                            uri = file.uri,
-                            width = 150,
-                            height = 200
-                        ) { pageNum, bitmap ->
-                            pages = pages.map { page ->
-                                if (page.originalIndex == pageNum) {
-                                    page.copy(thumbnail = bitmap)
-                                } else {
-                                    page
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        // Ignore thumbnail load error and proceed
-                    }
-                }
-            }
-            isLoadingThumbnails = false
-        }
-    }
+
     
     // File picker launcher - with PDF MIME type filter
     val pickPdfLauncher = rememberLauncherForActivityResult(
@@ -430,33 +398,19 @@ fun SplitScreen(
                                 .weight(1f)
                                 .fillMaxWidth()
                         ) {
-                            if (isLoadingThumbnails) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            } else {
-                                LazyVerticalGrid(
-                                    columns = GridCells.Fixed(3),
-                                    modifier = Modifier.fillMaxSize(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                                    contentPadding = PaddingValues(bottom = 16.dp)
-                                ) {
-                                    itemsIndexed(pages) { _, page ->
-                                        VisualPagePreviewCard(
-                                            page = page,
-                                            isSelected = selectedVisualPages.contains(page.originalIndex),
-                                            onToggle = {
-                                                selectedVisualPages = if (selectedVisualPages.contains(page.originalIndex)) {
-                                                    selectedVisualPages - page.originalIndex
-                                                } else {
-                                                    selectedVisualPages + page.originalIndex
-                                                }
-                                            }
-                                        )
+                            PdfThumbnailGrid(
+                                uri = selectedFile!!.uri,
+                                pageCount = pageCount,
+                                selectedPages = selectedVisualPages,
+                                onPageSelected = { pageNum ->
+                                    selectedVisualPages = if (selectedVisualPages.contains(pageNum)) {
+                                        selectedVisualPages - pageNum
+                                    } else {
+                                        selectedVisualPages + pageNum
                                     }
-                                }
-                            }
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
                         }
                         
                         // Save location selector
@@ -1003,89 +957,3 @@ private fun ShortcutChip(
     }
 }
 
-@Composable
-private fun VisualPagePreviewCard(
-    page: ReorderablePage,
-    isSelected: Boolean,
-    onToggle: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(0.75f)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable { onToggle() }
-            .border(
-                width = 2.dp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                shape = RoundedCornerShape(8.dp)
-            ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (page.thumbnail != null) {
-                Image(
-                    bitmap = page.thumbnail.asImageBitmap(),
-                    contentDescription = "Page ${page.originalIndex}",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.PictureAsPdf,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
-            }
-            
-            // Top-left index badge
-            Box(
-                modifier = Modifier
-                    .padding(6.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                    .align(Alignment.TopStart)
-            ) {
-                Text(
-                    text = "${page.originalIndex}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            
-            // Top-right premium glassmorphic selection indicator/checkbox
-            Box(
-                modifier = Modifier
-                    .padding(6.dp)
-                    .size(24.dp)
-                    .background(
-                        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Black.copy(alpha = 0.4f),
-                        shape = CircleShape
-                    )
-                    .border(1.5.dp, Color.White, CircleShape)
-                    .align(Alignment.TopEnd),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isSelected) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Selected",
-                        tint = Color.White,
-                        modifier = Modifier.size(14.dp)
-                    )
-                }
-            }
-        }
-    }
-}

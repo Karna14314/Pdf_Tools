@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import com.yourname.pdftoolkit.ui.components.PdfThumbnailGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -306,35 +307,20 @@ fun ExtractScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         // Page grid
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(4),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            contentPadding = PaddingValues(bottom = 16.dp)
-                        ) {
-                            itemsIndexed(
-                                items = (1..pageCount).toList(),
-                                key = { _, page -> page }
-                            ) { _, pageNum ->
-                                PageSelector(
-                                    pageNumber = pageNum,
-                                    isSelected = pageNum in selectedPages,
-                                    onClick = {
-                                        selectedPages = if (pageNum in selectedPages) {
-                                            selectedPages - pageNum
-                                        } else {
-                                            selectedPages + pageNum
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
+                        PdfThumbnailGrid(
+                            uri = selectedFile!!.uri,
+                            pageCount = pageCount,
+                            selectedPages = selectedPages,
+                            onPageSelected = { pageNum ->
+                                selectedPages = if (pageNum in selectedPages) {
+                                    selectedPages - pageNum
+                                } else {
+                                    selectedPages + pageNum
+                                }
+                            },
+                            columns = 4,
+                            modifier = Modifier.fillMaxWidth().weight(1f)
+                        )
                         // Save location option
                         SaveLocationSelector(
                             useCustomLocation = useCustomLocation,
@@ -429,58 +415,3 @@ fun ExtractScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PageSelector(
-    pageNumber: Int,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .aspectRatio(0.75f),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        ),
-        border = if (isSelected) {
-            CardDefaults.outlinedCardBorder().copy(
-                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary)
-            )
-        } else null
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (isSelected) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Selected",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-                
-                Text(
-                    text = pageNumber.toString(),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
-            }
-        }
-    }
-}

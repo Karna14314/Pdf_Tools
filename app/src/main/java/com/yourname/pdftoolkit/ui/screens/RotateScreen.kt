@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import com.yourname.pdftoolkit.ui.components.PdfThumbnailGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -376,91 +377,66 @@ fun RotateScreen(
                             
                             Spacer(modifier = Modifier.height(8.dp))
                             
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(5),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                itemsIndexed(
-                                    items = (1..pageCount).toList(),
-                                    key = { _, page -> page }
-                                ) { _, pageNum ->
-                                    SmallPageSelector(
-                                        pageNumber = pageNum,
-                                        isSelected = pageNum in selectedPages,
-                                        rotationAngle = if (pageNum in selectedPages) rotationAngle else null,
-                                        onClick = {
-                                            selectedPages = if (pageNum in selectedPages) {
-                                                selectedPages - pageNum
-                                            } else {
-                                                selectedPages + pageNum
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        } else {
-                            // Preview rotation
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                                )
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Surface(
-                                            shape = MaterialTheme.shapes.medium,
-                                            color = MaterialTheme.colorScheme.surface,
-                                            modifier = Modifier
-                                                .size(120.dp, 160.dp)
-                                                .rotate(rotationAngle.degrees.toFloat())
-                                        ) {
-                                            Box(
-                                                contentAlignment = Alignment.Center,
-                                                modifier = Modifier.fillMaxSize()
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Description,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(48.dp),
-                                                    tint = MaterialTheme.colorScheme.primary
-                                                )
-                                            }
-                                        }
-                                        
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        
-                                        Text(
-                                            text = "Rotate ${rotationAngle.degrees}° clockwise",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
+                            PdfThumbnailGrid(
+                                uri = selectedFile!!.uri,
+                                pageCount = pageCount,
+                                selectedPages = selectedPages,
+                                onPageSelected = { pageNum ->
+                                    selectedPages = if (pageNum in selectedPages) {
+                                        selectedPages - pageNum
+                                    } else {
+                                        selectedPages + pageNum
                                     }
-                                }
+                                },
+                                rotationDegrees = { pageNum ->
+                                    if (pageNum in selectedPages) {
+                                        when (rotationAngle) {
+                                            RotationAngle.ROTATE_90 -> 90f
+                                            RotationAngle.ROTATE_180 -> 180f
+                                            RotationAngle.ROTATE_270 -> 270f
+                                        }
+                                    } else {
+                                        0f
+                                    }
+                                },
+                                columns = 3,
+                                modifier = Modifier.fillMaxWidth().weight(1f)
+                            )
+                        } else {
+                            // "All Pages" preview block
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Preview (First Page)",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                com.yourname.pdftoolkit.ui.components.PdfThumbnailCard(
+                                    uri = selectedFile!!.uri,
+                                    pageNumber = 1,
+                                    organizer = remember { com.yourname.pdftoolkit.domain.operations.PdfOrganizer() },
+                                    isSelected = true,
+                                    onClick = {},
+                                    rotationDegrees = when (rotationAngle) {
+                                        RotationAngle.ROTATE_90 -> 90f
+                                        RotationAngle.ROTATE_180 -> 180f
+                                        RotationAngle.ROTATE_270 -> 270f
+                                    },
+                                    modifier = Modifier.width(200.dp)
+                                )
                             }
                         }
-                        
-                        Spacer(modifier = Modifier.height(12.dp))
-                        
-                        // Save location option
-                        SaveLocationSelector(
-                            useCustomLocation = useCustomLocation,
-                            onUseCustomLocationChange = { useCustomLocation = it }
-                        )
                     }
                 }
                 
+                // Progress overlay
                 // Progress overlay
                 if (isProcessing) {
                     androidx.compose.animation.AnimatedVisibility(
@@ -603,51 +579,3 @@ private fun RotationAngleChip(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SmallPageSelector(
-    pageNumber: Int,
-    isSelected: Boolean,
-    rotationAngle: RotationAngle?,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.aspectRatio(1f),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            if (isSelected && rotationAngle != null) {
-                Icon(
-                    imageVector = Icons.Default.RotateRight,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(12.dp)
-                        .align(Alignment.TopEnd)
-                        .padding(2.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-            
-            Text(
-                text = pageNumber.toString(),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (isSelected) {
-                    MaterialTheme.colorScheme.onPrimaryContainer
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
-            )
-        }
-    }
-}

@@ -1,0 +1,48 @@
+Audit Report: PDF Page Selection Screens
+
+1. ReorderScreen
+   - UI: Custom `PagePreviewCard` grid.
+   - Thumbnails: Yes.
+   - Rendering logic: Duplicated map/state logic.
+
+2. SplitScreen
+   - UI: Custom `VisualPagePreviewCard` grid.
+   - Thumbnails: Yes.
+   - Rendering logic: Duplicated effect-based map logic.
+
+3. ExtractScreen
+   - UI: Custom `PageSelector` widget showing only numbers.
+   - Thumbnails: No (missing).
+
+4. RotateScreen
+   - UI: Custom `SmallPageSelector` widget showing numbers in gray boxes.
+   - Thumbnails: No (missing).
+
+5. OrganizeScreen
+   - UI: FilterChip widgets showing numbers.
+   - Thumbnails: No (missing).
+
+Root Cause Analysis:
+Previously, there was no generic component capable of lazy-loading and caching thumbnails for grids. Developers either manually mapped out state arrays to fetch thumbnails iteratively (which caused memory issues on large PDFs) or resorted to rendering generic placeholder blocks containing only page numbers.
+
+Files Modified:
+- `app/src/main/java/com/yourname/pdftoolkit/ui/components/PdfThumbnailGrid.kt` (New)
+- `app/src/main/java/com/yourname/pdftoolkit/ui/screens/ExtractScreen.kt`
+- `app/src/main/java/com/yourname/pdftoolkit/ui/screens/OrganizeScreen.kt`
+- `app/src/main/java/com/yourname/pdftoolkit/ui/screens/ReorderScreen.kt`
+- `app/src/main/java/com/yourname/pdftoolkit/ui/screens/RotateScreen.kt`
+- `app/src/main/java/com/yourname/pdftoolkit/ui/screens/SplitScreen.kt`
+- `app/src/main/java/com/yourname/pdftoolkit/domain/operations/PdfOrganizer.kt`
+
+Performance Improvements:
+- Introduced a unified `PdfThumbnailGrid` that uses standard Compose `LazyVerticalGrid` along with per-item `LaunchedEffect` to only decode visible pages.
+- Memory usage is tightly bound using a synchronized `LruCache` sized to 100 bitmaps.
+- Used a Semaphore to ensure no more than 4 concurrent rendering threads exist at a time, preventing IO/CPU exhaustion when flinging scrolls.
+- Pages are explicitly rendered directly to the screen dimensions (e.g. 200x280) rather than full document resolution.
+
+Testing:
+- Checked both `playstore` and `fdroid` build variants locally.
+- Tests run: `testFdroidDebugUnitTest`, `testPlaystoreDebugUnitTest`.
+
+Limitations:
+- Thumbnails still block shortly on cold load if the user flings instantly to page 500, but memory remains secure.
