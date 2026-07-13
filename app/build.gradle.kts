@@ -256,14 +256,14 @@ dependencies {
     "playstoreImplementation"("com.google.android.play:review:2.0.1")
 
     // F-Droid: Tesseract (open source, larger APK but no runtime downloads)
-    "fdroidImplementation"("com.rmtheis:tess-two:9.1.0")
+    "fdroidImplementation"("cz.adaptech.tesseract4android:tesseract4android:4.9.0")
 
     // F-Droid: MuPDF for PDF viewer (fully open source, high performance)
     // NOTE: MuPDF requires custom repository setup. Commented out until configured.
     // "fdroidImplementation"("com.artifex.mupdf:fitz:1.24.9")
 
     // Open Source: Tesseract (same as F-Droid, fully open source)
-    "opensourceImplementation"("com.rmtheis:tess-two:9.1.0")
+    "opensourceImplementation"("cz.adaptech.tesseract4android:tesseract4android:4.9.0")
 
     // Open Source: MuPDF for PDF viewer
     // NOTE: MuPDF requires custom repository setup. Commented out until configured.

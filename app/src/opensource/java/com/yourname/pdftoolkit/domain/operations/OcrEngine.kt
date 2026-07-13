@@ -62,7 +62,7 @@ class OcrEngine(private val context: Context) {
     }
     
     fun close() {
-        tessBaseAPI?.end()
+        tessBaseAPI?.recycle()
         tessBaseAPI = null
         isInitialized = false
     }
