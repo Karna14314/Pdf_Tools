@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
@@ -401,26 +402,56 @@ fun ReorderScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         // Page grid with thumbnails
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(3),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.weight(1f),
-                            contentPadding = PaddingValues(bottom = 8.dp)
-                        ) {
-                            itemsIndexed(pages) { index, page ->
-                                PagePreviewCard(
-                                    page = page,
-                                    currentPosition = index + 1,
-                                    isSelected = selectedPageIndex == index,
-                                    canMoveUp = index > 0,
-                                    canMoveDown = index < pages.size - 1,
-                                    onSelect = { selectedPageIndex = if (selectedPageIndex == index) null else index },
-                                    onMoveUp = { movePageUp(index) },
-                                    onMoveDown = { movePageDown(index) },
-                                    onMoveToFirst = { moveToFirst(index) },
-                                    onMoveToLast = { moveToLast(index) }
-                                )
+                        PdfThumbnailGrid(
+                            uri = selectedFile!!.uri,
+                            pageCount = pages.size,
+                            displayPages = pages.map { it.originalIndex },
+                            selectedPages = selectedPageIndex?.let { setOf(it) } ?: emptySet(),
+                            onPageSelected = { index ->
+                                selectedPageIndex = if (selectedPageIndex == index) null else index
+                            },
+                            multiSelect = false,
+                            topLeftBadge = { pageNum, index ->
+                                val hasChanged = pageNum != index + 1
+                                Box(
+                                    modifier = Modifier
+                                        .padding(6.dp)
+                                        .background(
+                                            if (hasChanged) MaterialTheme.colorScheme.tertiary else Color.Black.copy(alpha = 0.6f),
+                                            RoundedCornerShape(4.dp)
+                                        )
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = if (hasChanged) "${index + 1} (was $pageNum)" else "${index + 1}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (hasChanged) MaterialTheme.colorScheme.onTertiary else Color.White,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        // Action buttons for reordering
+                        if (selectedPageIndex != null) {
+                            val index = selectedPageIndex!!
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                IconButton(onClick = { moveToFirst(index) }, enabled = index > 0) {
+                                    Icon(Icons.Default.KeyboardDoubleArrowLeft, "First")
+                                }
+                                IconButton(onClick = { movePageUp(index) }, enabled = index > 0) {
+                                    Icon(Icons.Default.KeyboardArrowLeft, "Previous")
+                                }
+                                IconButton(onClick = { movePageDown(index) }, enabled = index < pages.size - 1) {
+                                    Icon(Icons.Default.KeyboardArrowRight, "Next")
+                                }
+                                IconButton(onClick = { moveToLast(index) }, enabled = index < pages.size - 1) {
+                                    Icon(Icons.Default.KeyboardDoubleArrowRight, "Last")
+                                }
                             }
                         }
                     }
@@ -517,183 +548,3 @@ fun ReorderScreen(
 /**
  * Card showing a page preview with reorder controls.
  */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PagePreviewCard(
-    page: ReorderablePage,
-    currentPosition: Int,
-    isSelected: Boolean,
-    canMoveUp: Boolean,
-    canMoveDown: Boolean,
-    onSelect: () -> Unit,
-    onMoveUp: () -> Unit,
-    onMoveDown: () -> Unit,
-    onMoveToFirst: () -> Unit,
-    onMoveToLast: () -> Unit
-) {
-    val hasChanged = page.originalIndex != currentPosition
-    
-    Card(
-        onClick = onSelect,
-        modifier = Modifier
-            .aspectRatio(0.7f)
-            .then(
-                if (isSelected) {
-                    Modifier.border(
-                        width = 3.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                } else Modifier
-            ),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Thumbnail or placeholder
-            if (page.thumbnail != null) {
-                Image(
-                    bitmap = page.thumbnail.asImageBitmap(),
-                    contentDescription = "Page ${page.originalIndex}",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(12.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Description,
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                    )
-                }
-            }
-            
-            // Position badge (top-left)
-            Surface(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(6.dp),
-                shape = CircleShape,
-                color = if (hasChanged) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
-                }
-            ) {
-                Text(
-                    text = "$currentPosition",
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = if (hasChanged) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
-            }
-            
-            // Original page number (if different)
-            if (hasChanged) {
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(6.dp),
-                    shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.9f)
-                ) {
-                    Text(
-                        text = "was ${page.originalIndex}",
-                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
-                }
-            }
-            
-            // Move controls (when selected)
-            if (isSelected) {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .background(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
-                        )
-                        .padding(4.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        // Move to first
-                        IconButton(
-                            onClick = onMoveToFirst,
-                            enabled = canMoveUp,
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.KeyboardDoubleArrowUp,
-                                contentDescription = "Move to first",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        
-                        // Move up
-                        IconButton(
-                            onClick = onMoveUp,
-                            enabled = canMoveUp,
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.KeyboardArrowUp,
-                                contentDescription = "Move up",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        
-                        // Move down
-                        IconButton(
-                            onClick = onMoveDown,
-                            enabled = canMoveDown,
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Move down",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        
-                        // Move to last
-                        IconButton(
-                            onClick = onMoveToLast,
-                            enabled = canMoveDown,
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.KeyboardDoubleArrowDown,
-                                contentDescription = "Move to last",
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}

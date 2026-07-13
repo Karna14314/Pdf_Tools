@@ -403,6 +403,74 @@ class PdfOrganizer {
      * @param height Desired thumbnail height
      * @param callback Callback for each page thumbnail (pageNumber: 1-indexed, bitmap)
      */
+
+    suspend fun getPageThumbnail(
+        context: Context,
+        uri: Uri,
+        pageIndex: Int, // 0-based
+        width: Int,
+        height: Int
+    ): android.graphics.Bitmap? = withContext(Dispatchers.IO) {
+        var tempFile: File? = null
+        var pfd: ParcelFileDescriptor? = null
+        var renderer: PdfRenderer? = null
+        var result: android.graphics.Bitmap? = null
+
+        try {
+            try {
+                pfd = context.contentResolver.openFileDescriptor(uri, "r")
+            } catch (e: Exception) {
+                // Ignore
+            }
+
+            if (pfd == null) {
+                val temp = File.createTempFile("temp_thumb_${pageIndex}_", ".pdf", context.cacheDir)
+                tempFile = temp
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    temp.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                pfd = ParcelFileDescriptor.open(temp, ParcelFileDescriptor.MODE_READ_ONLY)
+            }
+
+            if (pfd != null) {
+                renderer = PdfRenderer(pfd)
+                if (pageIndex in 0 until renderer.pageCount) {
+                    val page = renderer.openPage(pageIndex)
+
+                    val pageWidth = page.width
+                    val pageHeight = page.height
+                    val scale = minOf(width.toFloat() / pageWidth, height.toFloat() / pageHeight)
+                    val scaledWidth = maxOf(1, (pageWidth * scale).toInt())
+                    val scaledHeight = maxOf(1, (pageHeight * scale).toInt())
+
+                    val bitmap = android.graphics.Bitmap.createBitmap(
+                        scaledWidth,
+                        scaledHeight,
+                        android.graphics.Bitmap.Config.ARGB_8888
+                    )
+
+                    // Fill with white background
+                    bitmap.eraseColor(android.graphics.Color.WHITE)
+
+                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                    page.close()
+
+                    result = bitmap
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            renderer?.close()
+            pfd?.close()
+            tempFile?.delete()
+        }
+
+        return@withContext result
+    }
+
     suspend fun getPageThumbnails(
         context: Context,
         uri: Uri,

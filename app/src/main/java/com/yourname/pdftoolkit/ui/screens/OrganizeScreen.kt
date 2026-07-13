@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import com.yourname.pdftoolkit.ui.components.PdfThumbnailGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -313,44 +314,24 @@ fun OrganizeScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         // Page grid
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(5),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        PdfThumbnailGrid(
+                            uri = selectedFile!!.uri,
+                            pageCount = pageCount,
+                            selectedPages = selectedPages,
+                            onPageSelected = { pageNum ->
+                                selectedPages = if (pageNum in selectedPages) {
+                                    selectedPages - pageNum
+                                } else {
+                                    selectedPages + pageNum
+                                }
+                            },
+                            columns = 3,
                             modifier = Modifier.weight(1f)
-                        ) {
-                            items((1..pageCount).toList()) { pageNum ->
-                                val isSelected = pageNum in selectedPages
-                                
-                                FilterChip(
-                                    selected = isSelected,
-                                    onClick = {
-                                        selectedPages = if (isSelected) {
-                                            selectedPages - pageNum
-                                        } else {
-                                            selectedPages + pageNum
-                                        }
-                                    },
-                                    label = {
-                                        Text(
-                                            "$pageNum",
-                                            modifier = Modifier.fillMaxWidth(),
-                                            style = MaterialTheme.typography.labelMedium
-                                        )
-                                    },
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = if (isRemoveMode) {
-                                            MaterialTheme.colorScheme.errorContainer
-                                        } else {
-                                            MaterialTheme.colorScheme.primaryContainer
-                                        }
-                                    )
-                                )
-                            }
-                        }
+                        )
                     }
                 }
                 
+                // Progress overlay
                 // Progress overlay
                 if (isProcessing) {
                     Card(

@@ -1,0 +1,29 @@
+Phase 1 - Audit Report
+
+After scanning the codebase for PDF page selection screens, I found the following screens and implementations:
+
+1. ReorderScreen
+   - UI: `LazyVerticalGrid` with `PagePreviewCard` showing thumbnails.
+   - Thumbnails: Yes (loaded via `PdfOrganizer.getPageThumbnails`).
+   - Rendering/caching logic: Inside the composable `ReorderScreen` manually mapping `ReorderablePage` data.
+
+2. SplitScreen
+   - UI: `VisualPagePreviewCard` inside a grid when `SplitMode.VISUAL_SELECT` is active.
+   - Thumbnails: Yes (loaded via `PdfOrganizer.getPageThumbnails`).
+   - Rendering/caching logic: Similar ad-hoc caching and mapping in the view logic.
+
+3. ExtractScreen
+   - UI: `LazyVerticalGrid` containing a custom `PageSelector` widget showing ONLY numbers inside gray boxes.
+   - Thumbnails: No (missing).
+
+4. RotateScreen
+   - UI: `LazyVerticalGrid` containing a custom `SmallPageSelector` widget showing numbers in gray boxes (similar to ExtractScreen).
+   - Thumbnails: No (missing).
+
+5. OrganizeScreen
+   - UI: `LazyVerticalGrid` with standard Compose `FilterChip` widgets showing page numbers.
+   - Thumbnails: No (missing).
+
+The logic for generating thumbnails (`PdfOrganizer.getPageThumbnails`) is present but currently duplicated/inconsistent across screens, and some screens don't use it at all.
+
+I will build a unified `PdfThumbnailGrid` component that takes an `imageRenderer: suspend (Int) -> Bitmap?` and manages lazy loading, caching, and selection internally to replace all these disparate implementations.
