@@ -10,13 +10,13 @@
     <string name="action_back">Zurück</string>
     <string name="action_cancel">Abbrechen</string>
     <string name="action_clear">Löschen</string>
-    <string name="action_close">Schlie�?en</string>
+    <string name="action_close">Schließen</string>
     <string name="action_compress">Komprimieren</string>
     <string name="action_delete">Löschen</string>
     <string name="action_done">Fertig</string>
     <string name="action_merge">Zusammenführen</string>
     <string name="action_next">Weiter</string>
-    <string name="action_open">�?ffnen</string>
+    <string name="action_open">Öffnen</string>
     <string name="action_open_pdf">PDF öffnen</string>
     <string name="action_previous">Zurück</string>
     <string name="action_processing">Wird verarbeitet...</string>
@@ -35,7 +35,7 @@
 
     <string name="cd_open_pdf">PDF öffnen</string>
     <string name="cd_back">Zurück</string>
-    <string name="cd_close_search">Suche schlie�?en</string>
+    <string name="cd_close_search">Suche schließen</string>
     <string name="cd_clear_search">Suche löschen</string>
     <string name="cd_stop_search">Suche stoppen</string>
     <string name="cd_previous_result">Vorheriges</string>
@@ -111,7 +111,7 @@
     <string name="desc_extract_text">Textinhalt in TXT-Datei extrahieren</string>
     <string name="desc_scan_to_pdf">Dokumente mit Kamera scannen</string>
     <string name="desc_ocr">Gescannte PDFs durchsuchbar machen</string>
-    <string name="desc_image_tools">Bilder vergrö�?ern, komprimieren, konvertieren</string>
+    <string name="desc_image_tools">Bilder vergrößern, komprimieren, konvertieren</string>
     <string name="desc_sign_pdf">Ihre Signatur zu PDF hinzufügen</string>
     <string name="desc_fill_forms">PDF-Formularfelder ausfüllen</string>
     <string name="desc_annotate_pdf">Hervorhebungen, Notizen, Stempel hinzufügen</string>
@@ -119,15 +119,15 @@
     <string name="desc_unlock_pdf">Passwort aus PDFs entfernen</string>
     <string name="desc_add_watermark">Wasserzeichen aus Text oder Bild hinzufügen</string>
     <string name="desc_flatten_pdf">Kommentare mit Inhalt zusammenführen</string>
-    <string name="desc_compress_pdf">PDF-Dateigrö�?e reduzieren</string>
+    <string name="desc_compress_pdf">PDF-Dateigröße reduzieren</string>
     <string name="desc_repair_pdf">Beschädigte PDF-Dateien reparieren</string>
     <string name="desc_page_numbers">Seitenzahlen zu Ihrem PDF hinzufügen</string>
     <string name="desc_view_metadata">PDF-Eigenschaften anzeigen und bearbeiten</string>
     <string name="desc_reorder_pages">PDF-Seiten neu anordnen</string>
     <string name="desc_delete_pages">Seiten aus PDF entfernen</string>
-    <string name="desc_compress_image">Bilddateigrö�?e reduzieren</string>
-    <string name="desc_resize_image">Bildbema�?ungen ändern</string>
-    <string name="desc_convert_format">JPEG �?? WebP</string>
+    <string name="desc_compress_image">Bilddateigröße reduzieren</string>
+    <string name="desc_resize_image">Bildbemaßungen ändern</string>
+    <string name="desc_convert_format">JPEG ↔ WebP</string>
     <string name="desc_strip_metadata">EXIF-Daten entfernen</string>
     <string name="desc_lock_pdf">Schützen Sie Ihr PDF mit Passwort</string>
     <string name="desc_sign">Ihre Signatur hinzufügen</string>
@@ -187,9 +187,9 @@
     <string name="pdf_document_default_name">PDF-Dokument</string>
     <string name="pdf_page_indicator">Seite %1$d von %2$d (%3$d%%)</string>
     <string name="pdf_search_placeholder">In PDF suchen...</string>
-    <string name="pdf_search_no_matches">Keine �?bereinstimmungen</string>
+    <string name="pdf_search_no_matches">Keine Übereinstimmungen</string>
     <string name="pdf_search_results">%1$d/%2$d</string>
-    <string name="pdf_zoom_in">Vergrö�?ern</string>
+    <string name="pdf_zoom_in">Vergrößern</string>
     <string name="pdf_zoom_out">Verkleinern</string>
     <string name="pdf_fit_to_width">An Breite anpassen</string>
     <string name="pdf_tools">Werkzeuge</string>
@@ -215,13 +215,13 @@
     <string name="settings_section_appearance">Erscheinungsbild</string>
     <string name="settings_section_storage">Speicher</string>
     <string name="settings_section_support">Unterstützung</string>
-    <string name="settings_section_about">�?ber</string>
+    <string name="settings_section_about">Über</string>
     <string name="settings_section_language">Sprache</string>
     <string name="settings_compression_quality">Standard-Komprimierungsqualität</string>
     <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
     <string name="settings_image_format">Standard-Bildformat</string>
     <string name="settings_theme_mode">Design-Modus</string>
-    <string name="settings_cache_size">Cache-Grö�?e</string>
+    <string name="settings_cache_size">Cache-Größe</string>
     <string name="settings_request_feature">Funktion anfordern</string>
     <string name="settings_request_feature_subtitle">Teilen Sie Ihre Ideen mit, um die App zu verbessern</string>
     <string name="settings_report_bug">Fehler melden</string>
@@ -236,7 +236,7 @@
     <string name="settings_clear_cache">Cache löschen?</string>
     <string name="settings_clear_cache_message">Dies löscht temporäre Dateien und zwischengespeicherte Daten. Ihre gespeicherten PDFs sind nicht betroffen.</string>
     <string name="settings_cache_cleared">Cache erfolgreich gelöscht</string>
-    <string name="settings_about_title">�?ber PDF Toolkit</string>
+    <string name="settings_about_title">Über PDF Toolkit</string>
     <string name="settings_about_description">PDF Toolkit ist ein leistungsstarkes Offline-PDF-Tool, das Ihnen hilft, PDF-Dokumente schnell und effizient zu verwalten.</string>
     <string name="settings_about_features">Funktionen:</string>
     <string name="settings_about_feature_1">PDFs zusammenführen, aufteilen, komprimieren</string>
@@ -257,8 +257,8 @@
 
     <string name="language_english">English</string>
     <string name="language_spanish">Español</string>
-    <string name="language_hindi">हिन्द�?</string>
-    <string name="language_chinese">中�??</string>
+    <string name="language_hindi">हहिन्दी</string>
+    <string name="language_chinese">中文</string>
     <string name="language_portuguese">Português (Brasil)</string>
     <string name="language_german">Deutsch</string>
 
@@ -289,7 +289,7 @@
 
 
     <string name="bug_report_subject">[Fehlerbericht] PDF Toolkit</string>
-    <string name="bug_report_template">Fehlerbeschreibung:\n[Bitte beschreiben Sie das Problem, auf das Sie gesto�?en sind]\n\nSchritte zum Reproduzieren:\n1. \n2. \n3. \n\nErwartetes Verhalten:\n[Was hätten Sie erwartet?]\n\nAktuelles Verhalten:\n[Was ist tatsächlich passiert?]</string>
+    <string name="bug_report_template">Fehlerbeschreibung:\n[Bitte beschreiben Sie das Problem, auf das Sie gestoßen sind]\n\nSchritte zum Reproduzieren:\n1. \n2. \n3. \n\nErwartetes Verhalten:\n[Was hätten Sie erwartet?]\n\nAktuelles Verhalten:\n[Was ist tatsächlich passiert?]</string>
 
 
     <string name="error_gmail_required">Gmail-App erforderlich. Bitte installieren Sie Gmail oder senden Sie Feedback an %s</string>
@@ -318,7 +318,7 @@
     <string name="label_pages">Seiten</string>
     <string name="label_file">Datei</string>
     <string name="label_files">Dateien</string>
-    <string name="label_size">Grö�?e</string>
+    <string name="label_size">Größe</string>
     <string name="label_quality">Qualität</string>
     <string name="label_format">Format</string>
     <string name="label_password">Passwort</string>
