@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.yourname.pdftoolkit"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         // Version code and name are read from gradle.properties for F-Droid compatibility
         versionCode = project.property("APP_VERSION_CODE").toString().toInt()
         versionName = project.property("APP_VERSION_NAME").toString()
