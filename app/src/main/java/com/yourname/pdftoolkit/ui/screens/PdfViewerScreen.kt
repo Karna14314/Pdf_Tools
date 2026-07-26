@@ -165,6 +165,14 @@ fun PdfViewerScreen(
     val listState = rememberLazyListState()
     
     // Track visible page based on scroll position using derivedStateOf to prevent excessive recompositions
+    // Auto-hide immersive controls
+    LaunchedEffect(showControls, listState.isScrollInProgress, scale) {
+        if (showControls && !listState.isScrollInProgress && scale <= 1f && toolState !is PdfTool.Edit && toolState !is PdfTool.Search) {
+            kotlinx.coroutines.delay(3000)
+            showControls = false
+        }
+    }
+
     val currentPage by remember(listState) {
         androidx.compose.runtime.derivedStateOf { listState.firstVisibleItemIndex + 1 }
     }

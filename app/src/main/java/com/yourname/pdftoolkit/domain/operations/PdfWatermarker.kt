@@ -238,11 +238,9 @@ class PdfWatermarker {
                 
                 // Apply rotation
                 val radians = Math.toRadians(textConfig.rotation.toDouble())
-                val rotationMatrix = Matrix(
-                    cos(radians).toFloat(), sin(radians).toFloat(),
-                    -sin(radians).toFloat(), cos(radians).toFloat(),
-                    x, y
-                )
+                val rotationMatrix = Matrix()
+                rotationMatrix.translate(x, y)
+                rotationMatrix.rotate(radians)
                 contentStream.setTextMatrix(rotationMatrix)
                 
                 contentStream.showText(textConfig.content)
@@ -274,11 +272,9 @@ class PdfWatermarker {
                 contentStream.beginText()
                 
                 val radians = Math.toRadians(textConfig.rotation.toDouble())
-                val rotationMatrix = Matrix(
-                    cos(radians).toFloat(), sin(radians).toFloat(),
-                    -sin(radians).toFloat(), cos(radians).toFloat(),
-                    x, y
-                )
+                val rotationMatrix = Matrix()
+                rotationMatrix.translate(x, y)
+                rotationMatrix.rotate(radians)
                 contentStream.setTextMatrix(rotationMatrix)
                 contentStream.showText(textConfig.content)
                 contentStream.endText()

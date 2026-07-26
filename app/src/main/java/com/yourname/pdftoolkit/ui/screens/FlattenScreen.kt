@@ -67,6 +67,7 @@ class FlattenViewModel : ViewModel() {
         context: android.content.Context,
         outputUri: Uri
     ) {
+        if (_state.value.isProcessing) return
         val sourceUri = _state.value.sourceUri ?: return
         
         viewModelScope.launch {

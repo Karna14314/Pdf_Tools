@@ -128,6 +128,7 @@ class SignPdfViewModel : ViewModel() {
         
         if (currentState.signaturePaths.isEmpty()) return
         
+        if (_state.value.isProcessing) return
         viewModelScope.launch {
             _state.value = _state.value.copy(isProcessing = true, progress = 0, error = null)
             
