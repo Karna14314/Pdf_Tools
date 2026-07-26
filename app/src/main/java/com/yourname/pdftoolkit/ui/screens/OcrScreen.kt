@@ -47,6 +47,7 @@ class OcrViewModel : ViewModel() {
     }
     
     fun extractText(context: android.content.Context) {
+        if (_state.value.isProcessing) return
         val sourceUri = _state.value.sourceUri ?: return
         
         viewModelScope.launch {
@@ -75,6 +76,7 @@ class OcrViewModel : ViewModel() {
         context: android.content.Context,
         outputUri: Uri
     ) {
+        if (_state.value.isProcessing) return
         val sourceUri = _state.value.sourceUri ?: return
         
         viewModelScope.launch {

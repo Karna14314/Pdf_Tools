@@ -126,11 +126,22 @@ class PdfFlattener {
             document.close()
             progressCallback(100)
             
-            FlattenResult(
-                success = true,
-                annotationsFlattened = annotationsCount,
-                formsFlattened = formsCount
-            )
+            // Verify output file exists and is not empty
+            val outputStreamCheck = context.contentResolver.openInputStream(outputUri)
+            val isSuccess = outputStreamCheck?.use { it.available() > 0 } ?: false
+
+            if (isSuccess) {
+                FlattenResult(
+                    success = true,
+                    annotationsFlattened = annotationsCount,
+                    formsFlattened = formsCount
+                )
+            } else {
+                FlattenResult(
+                    success = false,
+                    errorMessage = "Failed to create output file"
+                )
+            }
             
         } catch (e: IOException) {
             document?.close()
@@ -210,12 +221,9 @@ class PdfFlattener {
                         if (rect != null) {
                             // Transform and draw the appearance stream
                             contentStream.saveGraphicsState()
-                            contentStream.transform(
-                                com.tom_roush.pdfbox.util.Matrix(
-                                    1f, 0f, 0f, 1f,
-                                    rect.lowerLeftX, rect.lowerLeftY
-                                )
-                            )
+                            val matrix = com.tom_roush.pdfbox.util.Matrix()
+                            matrix.translate(rect.lowerLeftX, rect.lowerLeftY)
+                            contentStream.transform(matrix)
                             contentStream.drawForm(appearance)
                             contentStream.restoreGraphicsState()
                         }

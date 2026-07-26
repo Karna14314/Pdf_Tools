@@ -456,7 +456,7 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun getParcelableExtraCompat(intent: Intent): Uri? {
-        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        return if (android.os.Build.VERSION.SDK_INT >= 33) {
             intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
         } else {
             @Suppress("DEPRECATION")

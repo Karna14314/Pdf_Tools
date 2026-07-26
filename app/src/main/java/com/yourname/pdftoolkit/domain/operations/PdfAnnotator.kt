@@ -690,11 +690,9 @@ class PdfAnnotator {
             if (annotation.rotation != 0f) {
                 contentStream.saveGraphicsState()
                 val radians = Math.toRadians(annotation.rotation.toDouble())
-                val matrix = com.tom_roush.pdfbox.util.Matrix(
-                    kotlin.math.cos(radians).toFloat(), kotlin.math.sin(radians).toFloat(),
-                    -kotlin.math.sin(radians).toFloat(), kotlin.math.cos(radians).toFloat(),
-                    annotation.x, annotation.y
-                )
+                val matrix = com.tom_roush.pdfbox.util.Matrix()
+                matrix.translate(annotation.x, annotation.y)
+                matrix.rotate(radians)
                 contentStream.transform(matrix)
                 contentStream.drawImage(pdImage, 0f, 0f, annotation.width, annotation.height)
                 contentStream.restoreGraphicsState()

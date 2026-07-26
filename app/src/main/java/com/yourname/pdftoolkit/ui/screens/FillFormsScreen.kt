@@ -45,6 +45,7 @@ class FillFormsViewModel : ViewModel() {
             isAnalyzing = true
         )
         
+        if (_state.value.isProcessing) return
         viewModelScope.launch {
             val result = formFiller.analyzeForm(context, uri)
             _state.value = _state.value.copy(
@@ -88,6 +89,7 @@ class FillFormsViewModel : ViewModel() {
     ) {
         val sourceUri = _state.value.sourceUri ?: return
         
+        if (_state.value.isProcessing) return
         viewModelScope.launch {
             _state.value = _state.value.copy(isProcessing = true, progress = 0, error = null)
             
