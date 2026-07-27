@@ -77,6 +77,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.BorderStroke
 import com.tom_roush.pdfbox.text.TextPosition
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
 
 
 /**
@@ -132,6 +134,14 @@ fun PdfViewerScreen(
         }
     }
 
+    // Handle back button for interactive tools
+    BackHandler(enabled = toolState !is PdfTool.None) {
+        if (toolState is PdfTool.Search) {
+            viewModel.clearSearch()
+        }
+        viewModel.setTool(PdfTool.None)
+    }
+
     // Local UI state
     var scale by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -140,6 +150,11 @@ fun PdfViewerScreen(
     var showControls by remember { mutableStateOf(true) }
     var showPageSelector by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
+
+    // Ensure controls are visible when tool changes
+    LaunchedEffect(toolState) {
+        showControls = true
+    }
 
     // Password state
     var showPasswordDialog by remember { mutableStateOf(false) }
@@ -165,16 +180,38 @@ fun PdfViewerScreen(
     val listState = rememberLazyListState()
     
     // Track visible page based on scroll position using derivedStateOf to prevent excessive recompositions
-    // Auto-hide immersive controls
-    LaunchedEffect(showControls, listState.isScrollInProgress, scale) {
-        if (showControls && !listState.isScrollInProgress && scale <= 1f && toolState !is PdfTool.Edit && toolState !is PdfTool.Search) {
-            kotlinx.coroutines.delay(3000)
-            showControls = false
+    val currentPage by remember(listState) {
+        androidx.compose.runtime.derivedStateOf { listState.firstVisibleItemIndex + 1 }
+    }
+
+    // Scroll-driven toolbar visibility
+    val nestedScrollConnection = remember {
+        object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+            override fun onPreScroll(
+                available: Offset,
+                source: androidx.compose.ui.input.nestedscroll.NestedScrollSource
+            ): Offset {
+                if (toolState is PdfTool.None && scale <= 1f) {
+                    if (available.y < -10f) {
+                        showControls = false
+                    } else if (available.y > 10f) {
+                        showControls = true
+                    }
+                }
+                return Offset.Zero
+            }
         }
     }
 
-    val currentPage by remember(listState) {
-        androidx.compose.runtime.derivedStateOf { listState.firstVisibleItemIndex + 1 }
+    // Show floating page indicator when scrolling
+    var showPageIndicator by remember { mutableStateOf(false) }
+    LaunchedEffect(listState.isScrollInProgress, currentPage) {
+        if (listState.isScrollInProgress) {
+            showPageIndicator = true
+        } else if (showPageIndicator) {
+            kotlinx.coroutines.delay(1500)
+            showPageIndicator = false
+        }
     }
 
     // Handle Save State
@@ -236,6 +273,7 @@ fun PdfViewerScreen(
     }
     
     Scaffold(
+        modifier = Modifier.nestedScroll(nestedScrollConnection),
         topBar = {
             AnimatedVisibility(
                 visible = showControls,
@@ -329,13 +367,6 @@ fun PdfViewerScreen(
                                     fontWeight = FontWeight.SemiBold,
                                     maxLines = 1
                                 )
-                                if (totalPages > 0) {
-                                    Text(
-                                        text = "Page $currentPage of $totalPages",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
                             }
                         },
                         navigationIcon = {
@@ -564,74 +595,6 @@ fun PdfViewerScreen(
                     )
                 }
                 
-                // Page navigation bar
-                AnimatedVisibility(
-                    visible = showControls && totalPages > 1 && !isEditMode,
-                    enter = fadeIn() + slideInVertically { it },
-                    exit = fadeOut() + slideOutVertically { it }
-                ) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    scope.launch { listState.animateScrollToItem(0) }
-                                },
-                                enabled = currentPage > 1
-                            ) {
-                                Icon(Icons.Default.FirstPage, contentDescription = "First Page")
-                            }
-                            
-                            IconButton(
-                                onClick = {
-                                    scope.launch {
-                                        listState.animateScrollToItem((currentPage - 2).coerceAtLeast(0))
-                                    }
-                                },
-                                enabled = currentPage > 1
-                            ) {
-                                Icon(Icons.Default.ChevronLeft, contentDescription = "Previous Page")
-                            }
-                            
-                            Spacer(modifier = Modifier.width(16.dp))
-                            
-                            Text(
-                                text = "$currentPage / $totalPages",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium
-                            )
-                            
-                            Spacer(modifier = Modifier.width(16.dp))
-                            
-                            IconButton(
-                                onClick = {
-                                    scope.launch {
-                                        listState.animateScrollToItem(currentPage.coerceAtMost(totalPages - 1))
-                                    }
-                                },
-                                enabled = currentPage < totalPages
-                            ) {
-                                Icon(Icons.Default.ChevronRight, contentDescription = "Next Page")
-                            }
-                            
-                            IconButton(
-                                onClick = {
-                                    scope.launch { listState.animateScrollToItem(totalPages - 1) }
-                                },
-                                enabled = currentPage < totalPages
-                            ) {
-                                Icon(Icons.Default.LastPage, contentDescription = "Last Page")
-                            }
-                        }
-                    }
-                }
             }
         }
     ) { paddingValues ->
@@ -640,6 +603,7 @@ fun PdfViewerScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
+                .testTag("PdfPagesContent")
                 .pointerInput(toolState, selectedAnnotationTool, scale, offsetX, offsetY, viewportSize) {
                     // Enable controls toggle and double-tap zoom
                     // Disable gestures only when actively drawing (Edit + Tool)
@@ -647,7 +611,11 @@ fun PdfViewerScreen(
 
                     if (!isDrawing) {
                         detectTapGestures(
-                            onTap = { showControls = !showControls },
+                            onTap = {
+                                if (toolState is PdfTool.None) {
+                                    showControls = !showControls
+                                }
+                            },
                             onDoubleTap = { tapOffset ->
                                 val newScale = if (scale >= 2f) 1f else 2.5f
 
@@ -741,6 +709,29 @@ fun PdfViewerScreen(
 
                 PdfViewerUiState.Idle -> {
                     // Initial state
+                }
+            }
+
+            // Floating Page Indicator
+            AnimatedVisibility(
+                visible = showPageIndicator && totalPages > 0,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp)
+                    .navigationBarsPadding()
+            ) {
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f),
+                    shape = RoundedCornerShape(16.dp),
+                    shadowElevation = 4.dp
+                ) {
+                    Text(
+                        text = "$currentPage / $totalPages",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
                 }
             }
 
@@ -1326,13 +1317,6 @@ private fun PdfPagesContent(
                         selectEndCharIndex = selectEndCharIndex,
                         onSelectionChange = onSelectionChange,
                         viewModel = viewModel
-                    )
-
-                    Text(
-                        text = "Page ${index + 1}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 4.dp)
                     )
                 }
             }
