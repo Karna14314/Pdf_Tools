@@ -101,7 +101,7 @@ sealed class PdfViewerUiState {
     data class Loaded(val totalPages: Int) : PdfViewerUiState()
 }
 
-class PdfViewerViewModel : ViewModel() {
+open class PdfViewerViewModel : ViewModel() {
 
     companion object {
         const val RENDER_SCALE = 1.5f  // ~108 DPI for text-based PDFs
@@ -109,35 +109,35 @@ class PdfViewerViewModel : ViewModel() {
     }
 
     private val _uiState = MutableStateFlow<PdfViewerUiState>(PdfViewerUiState.Idle)
-    val uiState: StateFlow<PdfViewerUiState> = _uiState.asStateFlow()
+    open val uiState: StateFlow<PdfViewerUiState> = _uiState.asStateFlow()
 
     private val _toolState = MutableStateFlow<PdfTool>(PdfTool.None)
-    val toolState: StateFlow<PdfTool> = _toolState.asStateFlow()
+    open val toolState: StateFlow<PdfTool> = _toolState.asStateFlow()
 
     private val _searchState = MutableStateFlow(SearchState())
-    val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
+    open val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
 
     private val _saveState = MutableStateFlow<SaveState>(SaveState.Idle)
-    val saveState: StateFlow<SaveState> = _saveState.asStateFlow()
+    open val saveState: StateFlow<SaveState> = _saveState.asStateFlow()
 
     private val _selectedAnnotationTool = MutableStateFlow(AnnotationTool.NONE)
-    val selectedAnnotationTool: StateFlow<AnnotationTool> = _selectedAnnotationTool.asStateFlow()
+    open val selectedAnnotationTool: StateFlow<AnnotationTool> = _selectedAnnotationTool.asStateFlow()
 
     private val _selectedColor = MutableStateFlow(Color.Yellow)
-    val selectedColor: StateFlow<Color> = _selectedColor.asStateFlow()
+    open val selectedColor: StateFlow<Color> = _selectedColor.asStateFlow()
 
     private val _annotations = MutableStateFlow<List<AnnotationStroke>>(emptyList())
-    val annotations: StateFlow<List<AnnotationStroke>> = _annotations.asStateFlow()
+    open val annotations: StateFlow<List<AnnotationStroke>> = _annotations.asStateFlow()
 
     // Stroke width configurations for each drawing tool
     private val _highlighterWidth = MutableStateFlow(20f)
-    val highlighterWidth: StateFlow<Float> = _highlighterWidth.asStateFlow()
+    open val highlighterWidth: StateFlow<Float> = _highlighterWidth.asStateFlow()
 
     private val _markerWidth = MutableStateFlow(8f)
-    val markerWidth: StateFlow<Float> = _markerWidth.asStateFlow()
+    open val markerWidth: StateFlow<Float> = _markerWidth.asStateFlow()
 
     private val _underlineWidth = MutableStateFlow(4f)
-    val underlineWidth: StateFlow<Float> = _underlineWidth.asStateFlow()
+    open val underlineWidth: StateFlow<Float> = _underlineWidth.asStateFlow()
 
     fun setHighlighterWidth(width: Float) {
         _highlighterWidth.value = width
