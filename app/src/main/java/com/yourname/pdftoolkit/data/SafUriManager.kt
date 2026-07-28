@@ -268,7 +268,19 @@ object SafUriManager {
                         uri.lastPathSegment ?: "Unknown"
                     }
                     
-                    val size = if (sizeIndex >= 0) cursor.getLong(sizeIndex) else 0L
+                    var size = if (sizeIndex >= 0) cursor.getLong(sizeIndex) else 0L
+                    
+                    // Fallback: AssetFileDescriptor.length is more reliable
+                    // than OpenableColumns.SIZE for many content providers
+                    if (size <= 0) {
+                        size = try {
+                            context.contentResolver
+                                .openAssetFileDescriptor(uri, "r")
+                                ?.length ?: 0L
+                        } catch (e: Exception) {
+                            0L
+                        }
+                    }
                     
                     Triple(name, size, mimeType)
                 } else null

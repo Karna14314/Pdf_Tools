@@ -111,7 +111,6 @@ fun PdfViewerScreen(
     val highlighterWidth by viewModel.highlighterWidth.collectAsState()
     val markerWidth by viewModel.markerWidth.collectAsState()
     val underlineWidth by viewModel.underlineWidth.collectAsState()
-    val eraserWidth by viewModel.eraserWidth.collectAsState()
     var showThicknessSlider by remember { mutableStateOf(false) }
 
     // Text selection state
@@ -428,13 +427,45 @@ fun PdfViewerScreen(
                                 )
                             }
                             
-                        // More options menu
-                        Box {
-                            var showMenu by remember { mutableStateOf(false) }
-                            IconButton(onClick = { showMenu = true }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                            // Zoom reset button (visible when zoomed)
+                            if (scale > 1f) {
+                                IconButton(onClick = {
+                                    scale = 1f
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                }) {
+                                    Icon(Icons.Default.ZoomOutMap, contentDescription = "Reset Zoom")
+                                }
                             }
-                            DropdownMenu(
+
+                            // Zoom controls
+                            IconButton(onClick = {
+                                val newScale = (scale * 1.25f).coerceIn(1f, 5f)
+                                if (newScale <= 1f) {
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                }
+                                scale = newScale
+                            }) {
+                                Icon(Icons.Default.ZoomIn, contentDescription = "Zoom In")
+                            }
+                            IconButton(onClick = {
+                                val newScale = (scale * 0.8f).coerceIn(1f, 5f)
+                                if (newScale <= 1f) {
+                                    offsetX = 0f
+                                    offsetY = 0f
+                                }
+                                scale = newScale
+                            }) {
+                                Icon(Icons.Default.ZoomOut, contentDescription = "Zoom Out")
+                            }
+                        
+                        // More options menu
+                        var showMenu by remember { mutableStateOf(false) }
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                        }
+                        DropdownMenu(
                             expanded = showMenu,
                             onDismissRequest = { showMenu = false }
                         ) {
@@ -517,7 +548,6 @@ fun PdfViewerScreen(
                                 }
                             )
                         }
-                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
@@ -542,11 +572,9 @@ fun PdfViewerScreen(
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
                         underlineWidth = underlineWidth,
-                        eraserWidth = eraserWidth,
                         onHighlighterWidthChange = { viewModel.setHighlighterWidth(it) },
                         onMarkerWidthChange = { viewModel.setMarkerWidth(it) },
-                        onUnderlineWidthChange = { viewModel.setUnderlineWidth(it) },
-                        onEraserWidthChange = { viewModel.setEraserWidth(it) }
+                        onUnderlineWidthChange = { viewModel.setUnderlineWidth(it) }
                     )
                 }
 
@@ -577,6 +605,8 @@ fun PdfViewerScreen(
                 .background(MaterialTheme.colorScheme.background)
                 .testTag("PdfPagesContent")
                 .pointerInput(toolState, selectedAnnotationTool, scale, offsetX, offsetY, viewportSize) {
+                    // Enable controls toggle and double-tap zoom
+                    // Disable gestures only when actively drawing (Edit + Tool)
                     val isDrawing = toolState is PdfTool.Edit && selectedAnnotationTool != AnnotationTool.NONE
 
                     if (!isDrawing) {
@@ -590,8 +620,11 @@ fun PdfViewerScreen(
                                 val newScale = if (scale >= 2f) 1f else 2.5f
 
                                 if (newScale > 1f) {
+                                    // With top-center transform origin:
+                                    // X pivots around center (width/2), Y pivots around top (0)
                                     val centerX = viewportSize.width / 2f
                                     val focusX = tapOffset.x - centerX
+                                    // Shift content so the tapped point stays under finger
                                     val newOffsetX = (-focusX * (newScale - 1f))
                                         .coerceIn(
                                             -((viewportSize.width * newScale - viewportSize.width) / 2f),
@@ -662,7 +695,6 @@ fun PdfViewerScreen(
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
                         underlineWidth = underlineWidth,
-                        eraserWidth = eraserWidth,
                         selectPageIndex = selectPageIndex,
                         selectStartCharIndex = selectStartCharIndex,
                         selectEndCharIndex = selectEndCharIndex,
@@ -865,15 +897,6 @@ private fun AnnotationToolbar(
                 isSelected = selectedTool == AnnotationTool.UNDERLINE,
                 onClick = {
                     onToolSelected(AnnotationTool.UNDERLINE)
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                }
-            )
-            ToolButton(
-                icon = Icons.Default.AutoFixHigh,
-                label = "Eraser",
-                isSelected = selectedTool == AnnotationTool.ERASER,
-                onClick = {
-                    onToolSelected(AnnotationTool.ERASER)
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             )
@@ -1153,7 +1176,6 @@ private fun PdfPagesContent(
     highlighterWidth: Float,
     markerWidth: Float,
     underlineWidth: Float,
-    eraserWidth: Float,
     selectPageIndex: Int,
     selectStartCharIndex: Int,
     selectEndCharIndex: Int,
@@ -1187,6 +1209,7 @@ private fun PdfPagesContent(
                     // Key is Unit so it never restarts. Use rememberUpdatedState for all state access.
                     Modifier.pointerInput(Unit) {
                         awaitEachGesture {
+                            // Wait for first down
                             awaitFirstDown(requireUnconsumed = false)
 
                             do {
@@ -1194,9 +1217,12 @@ private fun PdfPagesContent(
                                 val zoomChange = event.calculateZoom()
                                 val panChange = event.calculatePan()
 
+                                // Calculate new scale
                                 val newScale = (currentScale * zoomChange).coerceIn(1f, 5f)
 
                                 val containerWidth = currentContainerSize.width.toFloat()
+
+                                // X bounds: content wider than container after scaling
                                 val scaledContentWidth = containerWidth * newScale
                                 val maxOffsetX = ((scaledContentWidth - containerWidth) / 2f).coerceAtLeast(0f)
 
@@ -1286,13 +1312,11 @@ private fun PdfPagesContent(
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
                         underlineWidth = underlineWidth,
-                        eraserWidth = eraserWidth,
                         selectPageIndex = selectPageIndex,
                         selectStartCharIndex = selectStartCharIndex,
                         selectEndCharIndex = selectEndCharIndex,
                         onSelectionChange = onSelectionChange,
-                        viewModel = viewModel,
-                        listState = listState
+                        viewModel = viewModel
                     )
                 }
             }
@@ -1326,13 +1350,11 @@ private fun PdfPageWithAnnotations(
     highlighterWidth: Float,
     markerWidth: Float,
     underlineWidth: Float,
-    eraserWidth: Float,
     selectPageIndex: Int,
     selectStartCharIndex: Int,
     selectEndCharIndex: Int,
     onSelectionChange: (Int, Int, Int) -> Unit,
-    viewModel: PdfViewerViewModel,
-    listState: LazyListState
+    viewModel: PdfViewerViewModel
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
     val haptic = LocalHapticFeedback.current
@@ -1404,7 +1426,6 @@ private fun PdfPageWithAnnotations(
                                     }
                                 },
                                 onLongPress = { touchOffset ->
-                                    if (listState.isScrollInProgress) return@detectTapGestures
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     scope.launch {
                                         val textData = viewModel.getPageText(pageIndex)
@@ -1748,7 +1769,7 @@ private fun PdfPageWithAnnotations(
                         .matchParentSize()
                         .then(
                             if (isEditMode && selectedTool != AnnotationTool.NONE) {
-                                Modifier.pointerInput(isEditMode, selectedTool, selectedColor, highlighterWidth, markerWidth, underlineWidth, eraserWidth) {
+                                Modifier.pointerInput(isEditMode, selectedTool, selectedColor, highlighterWidth, markerWidth, underlineWidth) {
                                     if (!isEditMode || selectedTool == AnnotationTool.NONE) return@pointerInput
                                     
                                     var localStroke = mutableListOf<Offset>()
@@ -1765,21 +1786,6 @@ private fun PdfPageWithAnnotations(
                                         },
                                         onDragEnd = {
                                             if (localStroke.isNotEmpty()) {
-                                                if (selectedTool == AnnotationTool.ERASER) {
-                                                    val normalizedPoints = localStroke.map {
-                                                        Offset(
-                                                            x = (it.x / size.width).coerceIn(0f, 1f),
-                                                            y = (it.y / size.height).coerceIn(0f, 1f)
-                                                        )
-                                                    }
-                                                    val normalizedWidth = eraserWidth / size.width
-                                                    viewModel.eraseAnnotations(pageIndex, normalizedPoints, normalizedWidth)
-                                                    localStroke = mutableListOf()
-                                                    onCurrentStrokeChange(emptyList())
-                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                    return@detectDragGestures
-                                                }
-
                                                 val rawWidth = when (selectedTool) {
                                                     AnnotationTool.HIGHLIGHTER -> highlighterWidth
                                                     AnnotationTool.MARKER -> markerWidth
@@ -1817,7 +1823,6 @@ private fun PdfPageWithAnnotations(
                                                     )
                                                 )
                                                 localStroke = mutableListOf()
-                                                onCurrentStrokeChange(emptyList())
                                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             }
                                         }
@@ -1855,7 +1860,7 @@ private fun PdfPageWithAnnotations(
                             )
                         }
                     }
-                    if (currentStroke.isNotEmpty() && selectedTool != AnnotationTool.ERASER) {
+                    if (currentStroke.isNotEmpty()) {
                         val path = androidx.compose.ui.graphics.Path().apply {
                             moveTo(currentStroke.first().x, currentStroke.first().y)
                             for (i in 1 until currentStroke.size) {
@@ -2053,29 +2058,6 @@ private fun findClosestCharIndex(
     scaleY: Float
 ): Int {
     if (positions.isEmpty()) return -1
-
-    // Estimate page width from positions
-    val pageWidth = positions.maxOf {
-        (it.xDirAdj + it.widthDirAdj) * PdfViewerViewModel.RENDER_SCALE * scaleX
-    }
-
-    fun findClosestInBand(bandLeft: Float, bandRight: Float): Int {
-        var closest = -1
-        var minDist = Float.MAX_VALUE
-        for (i in positions.indices) {
-            val tp = positions[i]
-            val cx = (tp.xDirAdj + tp.widthDirAdj / 2f) * PdfViewerViewModel.RENDER_SCALE * scaleX
-            if (cx < bandLeft || cx > bandRight) continue
-            val cy = (tp.yDirAdj + tp.heightDir / 2f) * PdfViewerViewModel.RENDER_SCALE * scaleY
-            val dx = touchX - cx
-            val dy = (touchY - cy) * 2f
-            val d = dx * dx + dy * dy
-            if (d < minDist) { minDist = d; closest = i }
-        }
-        return closest
-    }
-
-    // First pass: global search
     var closestIndex = -1
     var minDistance = Float.MAX_VALUE
 
@@ -2085,7 +2067,7 @@ private fun findClosestCharIndex(
         val charCenterY = (tp.yDirAdj + tp.heightDir / 2f) * PdfViewerViewModel.RENDER_SCALE * scaleY
 
         val dx = touchX - charCenterX
-        val dy = (touchY - charCenterY) * 2f
+        val dy = (touchY - charCenterY) * 2f // Weight Y-coordinate distance heavier to align with lines of text
 
         val distance = dx * dx + dy * dy
         if (distance < minDistance) {
@@ -2093,19 +2075,6 @@ private fun findClosestCharIndex(
             closestIndex = i
         }
     }
-
-    // If the global match is too far horizontally (>10% page width), search within a band
-    if (closestIndex >= 0 && pageWidth > 0f) {
-        val closestPos = positions[closestIndex]
-        val closestCenterX = (closestPos.xDirAdj + closestPos.widthDirAdj / 2f) * PdfViewerViewModel.RENDER_SCALE * scaleX
-        val hDist = kotlin.math.abs(touchX - closestCenterX)
-        if (hDist > pageWidth * 0.1f) {
-            val bandHalf = pageWidth * 0.15f
-            val bandResult = findClosestInBand(touchX - bandHalf, touchX + bandHalf)
-            if (bandResult >= 0) closestIndex = bandResult
-        }
-    }
-
     return closestIndex
 }
 
@@ -2124,24 +2093,13 @@ private fun findWordBounds(
         return c.isLetterOrDigit() || c == '\'' || c == '_'
     }
 
-    // Check if two adjacent positions belong to the same word
-    fun isSameWord(idx1: Int, idx2: Int): Boolean {
-        if (idx2 < 0 || idx2 >= positions.size) return false
-        if (!isWordChar(positions[idx1].unicode) || !isWordChar(positions[idx2].unicode)) return false
-        val right1 = positions[idx1].xDirAdj + positions[idx1].widthDirAdj
-        val left2 = positions[idx2].xDirAdj
-        val gap = left2 - right1
-        val avgWidth = (positions[idx1].widthDirAdj + positions[idx2].widthDirAdj) / 2f
-        return gap < avgWidth * 0.35f
-    }
-
     var start = charIndex
-    while (start > 0 && isSameWord(start - 1, start)) {
+    while (start > 0 && isWordChar(positions[start - 1].unicode)) {
         start--
     }
 
     var end = charIndex + 1
-    while (end < positions.size && isSameWord(end - 1, end)) {
+    while (end < positions.size && isWordChar(positions[end].unicode)) {
         end++
     }
 
@@ -2155,11 +2113,9 @@ private fun ThicknessSliderPanel(
     highlighterWidth: Float,
     markerWidth: Float,
     underlineWidth: Float,
-    eraserWidth: Float,
     onHighlighterWidthChange: (Float) -> Unit,
     onMarkerWidthChange: (Float) -> Unit,
-    onUnderlineWidthChange: (Float) -> Unit,
-    onEraserWidthChange: (Float) -> Unit
+    onUnderlineWidthChange: (Float) -> Unit
 ) {
     val currentWidth: Float
     val onWidthChange: (Float) -> Unit
@@ -2184,12 +2140,6 @@ private fun ThicknessSliderPanel(
             onWidthChange = onUnderlineWidthChange
             valueRange = 1f..12f
             title = "Underline Thickness"
-        }
-        AnnotationTool.ERASER -> {
-            currentWidth = eraserWidth
-            onWidthChange = onEraserWidthChange
-            valueRange = 5f..50f
-            title = "Eraser Size"
         }
         else -> return
     }

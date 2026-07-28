@@ -181,10 +181,7 @@ fun ImageToolsScreen(
             var totalSaved = 0L
             var totalOriginal = 0L
             
-            val format = when (selectedOperation) {
-                ImageOperation.CONVERT -> targetFormat
-                else -> OutputFormat.WEBP
-            }
+            val format = targetFormat
             
             selectedImages.forEachIndexed { index, uri ->
                 val result = when (selectedOperation) {
@@ -214,7 +211,7 @@ fun ImageToolsScreen(
                             context = context,
                             inputUri = uri,
                             quality = compressionQuality.toInt(),
-                            format = OutputFormat.WEBP
+                            format = targetFormat
                         )
                     }
                     ImageOperation.CONVERT -> {
@@ -703,6 +700,26 @@ fun ImageToolsScreen(
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Output format (visible for all operations)
+                                    if (selectedOperation != ImageOperation.CONVERT) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            "Output Format",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            items(OutputFormat.entries) { fmt ->
+                                                FilterChip(
+                                                    selected = targetFormat == fmt,
+                                                    onClick = { targetFormat = fmt },
+                                                    label = { Text(fmt.extension.uppercase()) }
+                                                )
                                             }
                                         }
                                     }
