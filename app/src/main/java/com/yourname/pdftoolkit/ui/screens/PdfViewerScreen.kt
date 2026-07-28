@@ -111,6 +111,7 @@ fun PdfViewerScreen(
     val highlighterWidth by viewModel.highlighterWidth.collectAsState()
     val markerWidth by viewModel.markerWidth.collectAsState()
     val underlineWidth by viewModel.underlineWidth.collectAsState()
+    val eraserWidth by viewModel.eraserWidth.collectAsState()
     var showThicknessSlider by remember { mutableStateOf(false) }
 
     // Text selection state
@@ -427,45 +428,13 @@ fun PdfViewerScreen(
                                 )
                             }
                             
-                            // Zoom reset button (visible when zoomed)
-                            if (scale > 1f) {
-                                IconButton(onClick = {
-                                    scale = 1f
-                                    offsetX = 0f
-                                    offsetY = 0f
-                                }) {
-                                    Icon(Icons.Default.ZoomOutMap, contentDescription = "Reset Zoom")
-                                }
-                            }
-
-                            // Zoom controls
-                            IconButton(onClick = {
-                                val newScale = (scale * 1.25f).coerceIn(1f, 5f)
-                                if (newScale <= 1f) {
-                                    offsetX = 0f
-                                    offsetY = 0f
-                                }
-                                scale = newScale
-                            }) {
-                                Icon(Icons.Default.ZoomIn, contentDescription = "Zoom In")
-                            }
-                            IconButton(onClick = {
-                                val newScale = (scale * 0.8f).coerceIn(1f, 5f)
-                                if (newScale <= 1f) {
-                                    offsetX = 0f
-                                    offsetY = 0f
-                                }
-                                scale = newScale
-                            }) {
-                                Icon(Icons.Default.ZoomOut, contentDescription = "Zoom Out")
-                            }
-                        
                         // More options menu
-                        var showMenu by remember { mutableStateOf(false) }
-                        IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "More Options")
-                        }
-                        DropdownMenu(
+                        Box {
+                            var showMenu by remember { mutableStateOf(false) }
+                            IconButton(onClick = { showMenu = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                            }
+                            DropdownMenu(
                             expanded = showMenu,
                             onDismissRequest = { showMenu = false }
                         ) {
@@ -548,6 +517,7 @@ fun PdfViewerScreen(
                                 }
                             )
                         }
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
@@ -572,9 +542,11 @@ fun PdfViewerScreen(
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
                         underlineWidth = underlineWidth,
+                        eraserWidth = eraserWidth,
                         onHighlighterWidthChange = { viewModel.setHighlighterWidth(it) },
                         onMarkerWidthChange = { viewModel.setMarkerWidth(it) },
-                        onUnderlineWidthChange = { viewModel.setUnderlineWidth(it) }
+                        onUnderlineWidthChange = { viewModel.setUnderlineWidth(it) },
+                        onEraserWidthChange = { viewModel.setEraserWidth(it) }
                     )
                 }
 
@@ -604,42 +576,14 @@ fun PdfViewerScreen(
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
                 .testTag("PdfPagesContent")
-                .pointerInput(toolState, selectedAnnotationTool, scale, offsetX, offsetY, viewportSize) {
-                    // Enable controls toggle and double-tap zoom
-                    // Disable gestures only when actively drawing (Edit + Tool)
-                    val isDrawing = toolState is PdfTool.Edit && selectedAnnotationTool != AnnotationTool.NONE
-
-                    if (!isDrawing) {
-                        detectTapGestures(
-                            onTap = {
-                                if (toolState is PdfTool.None) {
-                                    showControls = !showControls
-                                }
-                            },
-                            onDoubleTap = { tapOffset ->
-                                val newScale = if (scale >= 2f) 1f else 2.5f
-
-                                if (newScale > 1f) {
-                                    // With top-center transform origin:
-                                    // X pivots around center (width/2), Y pivots around top (0)
-                                    val centerX = viewportSize.width / 2f
-                                    val focusX = tapOffset.x - centerX
-                                    // Shift content so the tapped point stays under finger
-                                    val newOffsetX = (-focusX * (newScale - 1f))
-                                        .coerceIn(
-                                            -((viewportSize.width * newScale - viewportSize.width) / 2f),
-                                            (viewportSize.width * newScale - viewportSize.width) / 2f
-                                        )
-                                    offsetX = newOffsetX
-                                    offsetY = 0f
-                                } else {
-                                    offsetX = 0f
-                                    offsetY = 0f
-                                }
-                                scale = newScale
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            if (toolState is PdfTool.None) {
+                                showControls = !showControls
                             }
-                        )
-                    }
+                        }
+                    )
                 }
         ) {
             when (uiState) {
@@ -662,6 +606,24 @@ fun PdfViewerScreen(
                 
                 is PdfViewerUiState.Loaded -> {
                     val isEditMode = toolState is PdfTool.Edit
+                    val onDoubleTap: (Offset) -> Unit = { tapOffset ->
+                        val newScale = if (scale >= 2f) 1f else 2.5f
+                        if (newScale > 1f) {
+                            val centerX = viewportSize.width / 2f
+                            val focusX = tapOffset.x - centerX
+                            val newOffsetX = (-focusX * (newScale - 1f))
+                                .coerceIn(
+                                    -((viewportSize.width * newScale - viewportSize.width) / 2f),
+                                    (viewportSize.width * newScale - viewportSize.width) / 2f
+                                )
+                            offsetX = newOffsetX
+                            offsetY = 0f
+                        } else {
+                            offsetX = 0f
+                            offsetY = 0f
+                        }
+                        scale = newScale
+                    }
                     PdfPagesContent(
                         totalPages = totalPages,
                         currentPage = currentPage,
@@ -695,6 +657,7 @@ fun PdfViewerScreen(
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
                         underlineWidth = underlineWidth,
+                        eraserWidth = eraserWidth,
                         selectPageIndex = selectPageIndex,
                         selectStartCharIndex = selectStartCharIndex,
                         selectEndCharIndex = selectEndCharIndex,
@@ -703,6 +666,8 @@ fun PdfViewerScreen(
                             selectStartCharIndex = start
                             selectEndCharIndex = end
                         },
+                        offsetY = offsetY,
+                        onDoubleTap = onDoubleTap,
                         viewModel = viewModel
                     )
                 }
@@ -897,6 +862,15 @@ private fun AnnotationToolbar(
                 isSelected = selectedTool == AnnotationTool.UNDERLINE,
                 onClick = {
                     onToolSelected(AnnotationTool.UNDERLINE)
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+            )
+            ToolButton(
+                icon = Icons.Default.AutoFixHigh,
+                label = "Eraser",
+                isSelected = selectedTool == AnnotationTool.ERASER,
+                onClick = {
+                    onToolSelected(AnnotationTool.ERASER)
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             )
@@ -1176,10 +1150,13 @@ private fun PdfPagesContent(
     highlighterWidth: Float,
     markerWidth: Float,
     underlineWidth: Float,
+    eraserWidth: Float,
     selectPageIndex: Int,
     selectStartCharIndex: Int,
     selectEndCharIndex: Int,
     onSelectionChange: (Int, Int, Int) -> Unit,
+    offsetY: Float = 0f,
+    onDoubleTap: ((Offset) -> Unit)? = null,
     viewModel: PdfViewerViewModel
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -1188,9 +1165,12 @@ private fun PdfPagesContent(
     // Use rememberUpdatedState to get latest values inside pointerInput without restarting
     val currentScale by rememberUpdatedState(scale)
     val currentOffsetX by rememberUpdatedState(offsetX)
+    val currentOffsetY by rememberUpdatedState(offsetY)
     val currentOnScaleChange by rememberUpdatedState(onScaleChange)
     val currentOnOffsetChange by rememberUpdatedState(onOffsetChange)
     val currentContainerSize by rememberUpdatedState(containerSize)
+    val currentOnDoubleTap by rememberUpdatedState(onDoubleTap)
+    var lastTapTime by remember { mutableLongStateOf(0L) }
 
     // Wrapper box to clip the scaled content so it doesn't bleed outside container bounds
     Box(modifier = Modifier.fillMaxSize().clipToBounds()) {
@@ -1209,20 +1189,29 @@ private fun PdfPagesContent(
                     // Key is Unit so it never restarts. Use rememberUpdatedState for all state access.
                     Modifier.pointerInput(Unit) {
                         awaitEachGesture {
-                            // Wait for first down
-                            awaitFirstDown(requireUnconsumed = false)
+                            val down = awaitFirstDown(requireUnconsumed = false)
+
+                            // Double-tap detection
+                            val now = System.currentTimeMillis()
+                            if (now - lastTapTime < 300L) {
+                                lastTapTime = 0L
+                                do {
+                                    val upEvent = awaitPointerEvent()
+                                } while (upEvent.changes.any { it.pressed })
+                                currentOnDoubleTap?.invoke(down.position)
+                                return@awaitEachGesture
+                            }
 
                             do {
                                 val event = awaitPointerEvent()
                                 val zoomChange = event.calculateZoom()
                                 val panChange = event.calculatePan()
 
-                                // Calculate new scale
                                 val newScale = (currentScale * zoomChange).coerceIn(1f, 5f)
 
                                 val containerWidth = currentContainerSize.width.toFloat()
+                                val containerHeight = currentContainerSize.height.toFloat()
 
-                                // X bounds: content wider than container after scaling
                                 val scaledContentWidth = containerWidth * newScale
                                 val maxOffsetX = ((scaledContentWidth - containerWidth) / 2f).coerceAtLeast(0f)
 
@@ -1231,10 +1220,29 @@ private fun PdfPagesContent(
                                 if (newScale > 1f) {
                                     val newOffsetX = (currentOffsetX + panChange.x)
                                         .coerceIn(-maxOffsetX, maxOffsetX)
-                                    currentOnOffsetChange(newOffsetX, 0f)
+
+                                    var newOffsetY = currentOffsetY
+
                                     if (panChange.y != 0f) {
-                                        listState.dispatchRawDelta(-panChange.y)
+                                        val layoutInfo = listState.layoutInfo
+                                        val lastIdx = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                                        val firstIdx = layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
+                                        val isAtEnd = lastIdx >= layoutInfo.totalItemsCount - 1
+                                        val isAtStart = firstIdx <= 0
+
+                                        if ((panChange.y > 0f && !isAtEnd) || (panChange.y < 0f && !isAtStart)) {
+                                            listState.dispatchRawDelta(-panChange.y)
+                                            // Reset offsetY when user scrolls between pages
+                                            newOffsetY = 0f
+                                        } else {
+                                            // At scroll boundary, accumulate into offsetY
+                                            val maxOY = containerHeight * (currentScale - 1f) / 2f
+                                            newOffsetY = (currentOffsetY + panChange.y)
+                                                .coerceIn(-maxOY, maxOY)
+                                        }
                                     }
+
+                                    currentOnOffsetChange(newOffsetX, newOffsetY)
                                 } else {
                                     currentOnOffsetChange(0f, 0f)
                                 }
@@ -1253,7 +1261,7 @@ private fun PdfPagesContent(
                     scaleX = scale
                     scaleY = scale
                     translationX = offsetX
-                    translationY = 0f
+                    translationY = offsetY
                     transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 0f) // Top-center anchor
                 }
         ) {
@@ -1312,11 +1320,13 @@ private fun PdfPagesContent(
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
                         underlineWidth = underlineWidth,
+                        eraserWidth = eraserWidth,
                         selectPageIndex = selectPageIndex,
                         selectStartCharIndex = selectStartCharIndex,
                         selectEndCharIndex = selectEndCharIndex,
                         onSelectionChange = onSelectionChange,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        listState = listState
                     )
                 }
             }
@@ -1350,11 +1360,13 @@ private fun PdfPageWithAnnotations(
     highlighterWidth: Float,
     markerWidth: Float,
     underlineWidth: Float,
+    eraserWidth: Float,
     selectPageIndex: Int,
     selectStartCharIndex: Int,
     selectEndCharIndex: Int,
     onSelectionChange: (Int, Int, Int) -> Unit,
-    viewModel: PdfViewerViewModel
+    viewModel: PdfViewerViewModel,
+    listState: LazyListState
 ) {
     var size by remember { mutableStateOf(IntSize.Zero) }
     val haptic = LocalHapticFeedback.current
@@ -1426,6 +1438,7 @@ private fun PdfPageWithAnnotations(
                                     }
                                 },
                                 onLongPress = { touchOffset ->
+                                    if (listState.isScrollInProgress) return@detectTapGestures
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     scope.launch {
                                         val textData = viewModel.getPageText(pageIndex)
@@ -1769,7 +1782,7 @@ private fun PdfPageWithAnnotations(
                         .matchParentSize()
                         .then(
                             if (isEditMode && selectedTool != AnnotationTool.NONE) {
-                                Modifier.pointerInput(isEditMode, selectedTool, selectedColor, highlighterWidth, markerWidth, underlineWidth) {
+                                Modifier.pointerInput(isEditMode, selectedTool, selectedColor, highlighterWidth, markerWidth, underlineWidth, eraserWidth) {
                                     if (!isEditMode || selectedTool == AnnotationTool.NONE) return@pointerInput
                                     
                                     var localStroke = mutableListOf<Offset>()
@@ -1786,6 +1799,21 @@ private fun PdfPageWithAnnotations(
                                         },
                                         onDragEnd = {
                                             if (localStroke.isNotEmpty()) {
+                                                if (selectedTool == AnnotationTool.ERASER) {
+                                                    val normalizedPoints = localStroke.map {
+                                                        Offset(
+                                                            x = (it.x / size.width).coerceIn(0f, 1f),
+                                                            y = (it.y / size.height).coerceIn(0f, 1f)
+                                                        )
+                                                    }
+                                                    val normalizedWidth = eraserWidth / size.width
+                                                    viewModel.eraseAnnotations(pageIndex, normalizedPoints, normalizedWidth)
+                                                    localStroke = mutableListOf()
+                                                    onCurrentStrokeChange(emptyList())
+                                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                                    return@detectDragGestures
+                                                }
+
                                                 val rawWidth = when (selectedTool) {
                                                     AnnotationTool.HIGHLIGHTER -> highlighterWidth
                                                     AnnotationTool.MARKER -> markerWidth
@@ -1823,6 +1851,7 @@ private fun PdfPageWithAnnotations(
                                                     )
                                                 )
                                                 localStroke = mutableListOf()
+                                                onCurrentStrokeChange(emptyList())
                                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                             }
                                         }
@@ -1860,7 +1889,7 @@ private fun PdfPageWithAnnotations(
                             )
                         }
                     }
-                    if (currentStroke.isNotEmpty()) {
+                    if (currentStroke.isNotEmpty() && selectedTool != AnnotationTool.ERASER) {
                         val path = androidx.compose.ui.graphics.Path().apply {
                             moveTo(currentStroke.first().x, currentStroke.first().y)
                             for (i in 1 until currentStroke.size) {
@@ -2113,9 +2142,11 @@ private fun ThicknessSliderPanel(
     highlighterWidth: Float,
     markerWidth: Float,
     underlineWidth: Float,
+    eraserWidth: Float,
     onHighlighterWidthChange: (Float) -> Unit,
     onMarkerWidthChange: (Float) -> Unit,
-    onUnderlineWidthChange: (Float) -> Unit
+    onUnderlineWidthChange: (Float) -> Unit,
+    onEraserWidthChange: (Float) -> Unit
 ) {
     val currentWidth: Float
     val onWidthChange: (Float) -> Unit
@@ -2140,6 +2171,12 @@ private fun ThicknessSliderPanel(
             onWidthChange = onUnderlineWidthChange
             valueRange = 1f..12f
             title = "Underline Thickness"
+        }
+        AnnotationTool.ERASER -> {
+            currentWidth = eraserWidth
+            onWidthChange = onEraserWidthChange
+            valueRange = 5f..50f
+            title = "Eraser Size"
         }
         else -> return
     }

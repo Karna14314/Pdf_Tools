@@ -57,7 +57,8 @@ enum class AnnotationTool(val displayName: String) {
     NONE("Select"),
     HIGHLIGHTER("Highlighter"),
     MARKER("Marker"),
-    UNDERLINE("Underline")
+    UNDERLINE("Underline"),
+    ERASER("Eraser")
 }
 
 data class AnnotationStroke(
@@ -139,6 +140,9 @@ open class PdfViewerViewModel : ViewModel() {
     private val _underlineWidth = MutableStateFlow(4f)
     open val underlineWidth: StateFlow<Float> = _underlineWidth.asStateFlow()
 
+    private val _eraserWidth = MutableStateFlow(15f)
+    open val eraserWidth: StateFlow<Float> = _eraserWidth.asStateFlow()
+
     fun setHighlighterWidth(width: Float) {
         _highlighterWidth.value = width
     }
@@ -149,6 +153,10 @@ open class PdfViewerViewModel : ViewModel() {
 
     fun setUnderlineWidth(width: Float) {
         _underlineWidth.value = width
+    }
+
+    fun setEraserWidth(width: Float) {
+        _eraserWidth.value = width
     }
 
     // Document management
@@ -369,14 +377,30 @@ open class PdfViewerViewModel : ViewModel() {
         _annotations.value = currentList
     }
 
-    fun undoAnnotation() {
-        if (_annotations.value.size > 500) throw OutOfMemoryError("PDF has too many annotations to process at once")
-        val currentList = _annotations.value.toMutableList()
-        if (currentList.isNotEmpty()) {
-            currentList.removeAt(currentList.lastIndex)
-            _annotations.value = currentList
+fun undoAnnotation() {
+    if (_annotations.value.size > 500) throw OutOfMemoryError("PDF has too many annotations to process at once")
+    val currentList = _annotations.value.toMutableList()
+    if (currentList.isNotEmpty()) {
+        currentList.removeAt(currentList.lastIndex)
+        _annotations.value = currentList
+    }
+}
+
+fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth: Float) {
+    val currentList = _annotations.value.toMutableList()
+    val threshold = (eraserNormWidth * 3f).coerceAtLeast(0.01f)
+    currentList.removeAll { stroke ->
+        if (stroke.pageIndex != pageIndex) return@removeAll false
+        stroke.points.any { sp ->
+            eraserPoints.any { ep ->
+                val dx = sp.x - ep.x
+                val dy = sp.y - ep.y
+                dx * dx + dy * dy < threshold * threshold
+            }
         }
     }
+    _annotations.value = currentList
+}
 
     fun clearAnnotations() {
         _annotations.value = emptyList()
@@ -750,7 +774,8 @@ open class PdfViewerViewModel : ViewModel() {
                 var outputStream: BufferedOutputStream? = null
 
                 try {
-                    outputStream = BufferedOutputStream(context.contentResolver.openOutputStream(outputUri))
+                    val rawStream = context.contentResolver.openOutputStream(outputUri)
+                    outputStream = BufferedOutputStream(rawStream)
 
                     val totalPages = sourceDoc.numberOfPages
 
@@ -941,13 +966,17 @@ open class PdfViewerViewModel : ViewModel() {
                     }
 
                     destDoc.save(outputStream)
+                    outputStream.close()
+                    outputStream = null
+                    destDoc.close()
+
                     _saveState.value = SaveState.Success(outputUri)
 
                 } catch (e: Exception) {
                     Log.e("PdfViewerVM", "Error saving PDF", e)
                     _saveState.value = SaveState.Error(e.message ?: "Unknown error")
                 } finally {
-                    destDoc.close()
+                    try { destDoc.close() } catch (_: Exception) {}
                     outputStream?.close()
                 }
             }
