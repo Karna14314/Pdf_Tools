@@ -31,6 +31,8 @@ import com.yourname.pdftoolkit.domain.operations.ImageConverter
 import com.yourname.pdftoolkit.domain.operations.ImageFormat
 import com.yourname.pdftoolkit.ui.components.*
 import com.yourname.pdftoolkit.util.FileOpener
+import com.yourname.pdftoolkit.ui.screens.DefaultImageFormat
+import com.yourname.pdftoolkit.ui.screens.SettingsPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -51,7 +53,12 @@ fun PdfToImageScreen(
     
     // State
     var selectedFile by remember { mutableStateOf<PdfFileInfo?>(null) }
-    var imageFormat by remember { mutableStateOf(ImageFormat.WEBP) }
+    var imageFormat by remember { mutableStateOf(
+        when (SettingsPreferences.getDefaultImageFormat(context)) {
+            DefaultImageFormat.WEBP -> ImageFormat.WEBP
+            DefaultImageFormat.JPEG -> ImageFormat.JPEG
+        }
+    ) }
     var dpi by remember { mutableStateOf(150f) }
     var isProcessing by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }

@@ -68,6 +68,7 @@ class PdfRotator {
             }
             
             document.save(outputStream)
+            outputStream.flush()
             
             Result.success(totalPages)
             
@@ -129,6 +130,7 @@ class PdfRotator {
             }
             
             document.save(outputStream)
+            outputStream.flush()
             
             Result.success(rotatedCount)
             

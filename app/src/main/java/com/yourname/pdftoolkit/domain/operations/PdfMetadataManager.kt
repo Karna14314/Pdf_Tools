@@ -145,6 +145,7 @@ class PdfMetadataManager {
             
             // Save with updated metadata
             document.save(outputStream)
+            outputStream.flush()
             
             onProgress(1.0f)
             
@@ -188,6 +189,7 @@ class PdfMetadataManager {
             onProgress(0.7f)
             
             document.save(outputStream)
+            outputStream.flush()
             
             onProgress(1.0f)
             

@@ -171,6 +171,7 @@ class PdfSigner(private val context: Context) {
             // Save the document
             context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
                 document.save(outputStream)
+            outputStream.flush()
             }
             
             signatureBitmap.recycle()
@@ -275,6 +276,7 @@ class PdfSigner(private val context: Context) {
             // Save the document
             context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
                 document.save(outputStream)
+            outputStream.flush()
             }
             
             scaledBitmap.recycle()

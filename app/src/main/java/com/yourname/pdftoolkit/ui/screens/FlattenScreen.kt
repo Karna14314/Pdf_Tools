@@ -63,6 +63,12 @@ class FlattenViewModel : ViewModel() {
         )
     }
     
+    fun toggleRasterizeContent() {
+        _state.value = _state.value.copy(
+            rasterizeContent = !_state.value.rasterizeContent
+        )
+    }
+    
     fun flattenPdf(
         context: android.content.Context,
         outputUri: Uri
@@ -78,7 +84,8 @@ class FlattenViewModel : ViewModel() {
                 flattenAnnotations = _state.value.flattenAnnotations,
                 flattenForms = _state.value.flattenForms,
                 removeJavaScript = _state.value.removeJavaScript,
-                removeEmbeddedFiles = _state.value.removeEmbeddedFiles
+                removeEmbeddedFiles = _state.value.removeEmbeddedFiles,
+                rasterizeContent = _state.value.rasterizeContent
             )
             
             val result = flattener.flattenPdf(
@@ -114,6 +121,7 @@ data class FlattenUiState(
     val flattenForms: Boolean = true,
     val removeJavaScript: Boolean = true,
     val removeEmbeddedFiles: Boolean = false,
+    val rasterizeContent: Boolean = false,
     val isProcessing: Boolean = false,
     val progress: Int = 0,
     val isComplete: Boolean = false,
@@ -360,6 +368,30 @@ fun FlattenScreen(
                             onCheckedChange = { viewModel.toggleRemoveEmbeddedFiles() }
                         )
                     }
+                    
+                    Divider()
+                    
+                    // Rasterize Content
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Flatten to image",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(
+                                "Maximum compatibility — removes text selection & search",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Switch(
+                            checked = state.rasterizeContent,
+                            onCheckedChange = { viewModel.toggleRasterizeContent() }
+                        )
+                    }
                 }
             }
             
@@ -410,9 +442,19 @@ fun FlattenScreen(
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
-                            if (state.annotationsFlattened > 0 || state.formsFlattened > 0) {
+                            val anyAction = state.annotationsFlattened > 0 || state.formsFlattened > 0 || state.rasterizeContent
+                            if (anyAction) {
+                                val parts = mutableListOf<String>()
+                                if (state.annotationsFlattened > 0) parts.add("${state.annotationsFlattened} annotations")
+                                if (state.formsFlattened > 0) parts.add("${state.formsFlattened} form fields")
+                                if (state.rasterizeContent) parts.add("pages converted to images")
                                 Text(
-                                    "${state.annotationsFlattened} annotations, ${state.formsFlattened} form fields processed",
+                                    parts.joinToString(", "),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            } else {
+                                Text(
+                                    "No interactive form fields or annotations found — this PDF was already flat",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }

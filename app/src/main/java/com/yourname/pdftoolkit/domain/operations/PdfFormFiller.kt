@@ -268,6 +268,7 @@ class PdfFormFiller {
             // Save the document
             context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
                 document.save(outputStream)
+            outputStream.flush()
             }
             
             document.close()

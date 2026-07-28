@@ -95,6 +95,7 @@ class PdfOrganizer {
             
             // Save the document
             document.save(outputStream)
+            outputStream.flush()
             
             onProgress(1.0f)
             
@@ -185,6 +186,7 @@ class PdfOrganizer {
             
             // Save the reordered document
             resultDocument.save(outputStream)
+            outputStream.flush()
             
             onProgress(1.0f)
             

@@ -86,6 +86,7 @@ class ImageConverter {
             }
             
             document.save(outputStream)
+            outputStream.flush()
             
             Result.success(imageUris.size)
             

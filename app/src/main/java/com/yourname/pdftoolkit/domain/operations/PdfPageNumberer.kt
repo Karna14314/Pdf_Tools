@@ -154,6 +154,7 @@ class PdfPageNumberer {
             
             // Save the document
             document.save(outputStream)
+            outputStream.flush()
             
             onProgress(1.0f)
             

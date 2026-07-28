@@ -5,8 +5,11 @@ import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDPage
 import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
+import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
+import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory
 import com.tom_roush.pdfbox.pdmodel.interactive.annotation.PDAnnotation
 import com.tom_roush.pdfbox.pdmodel.interactive.form.PDAcroForm
+import com.tom_roush.pdfbox.rendering.PDFRenderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -18,7 +21,8 @@ data class FlattenConfig(
     val flattenAnnotations: Boolean = true,
     val flattenForms: Boolean = true,
     val removeJavaScript: Boolean = true,
-    val removeEmbeddedFiles: Boolean = false
+    val removeEmbeddedFiles: Boolean = false,
+    val rasterizeContent: Boolean = false
 )
 
 /**
@@ -104,6 +108,31 @@ class PdfFlattener {
                 }
             }
             
+            // Rasterize pages if requested — replaces content with images for max compatibility
+            if (config.rasterizeContent) {
+                val renderer = PDFRenderer(document)
+                for (pageIndex in 0 until totalPages) {
+                    val page = document.getPage(pageIndex)
+                    val dpi = OcrDpiUtil.getSafeOcrDpi(page.mediaBox.width, page.mediaBox.height)
+                    val bitmap = renderer.renderImageWithDPI(pageIndex, dpi)
+
+                    try {
+                        val imageXObject = LosslessFactory.createFromImage(document, bitmap)
+                        val pageRect = page.mediaBox
+                        PDPageContentStream(
+                            document, page,
+                            PDPageContentStream.AppendMode.OVERWRITE,
+                            true, true
+                        ).use { cs ->
+                            cs.drawImage(imageXObject, pageRect.lowerLeftX, pageRect.lowerLeftY, pageRect.width, pageRect.height)
+                        }
+                        page.setAnnotations(emptyList())
+                    } finally {
+                        bitmap.recycle()
+                    }
+                }
+            }
+
             progressCallback(80)
             
             // Remove JavaScript if requested
@@ -121,27 +150,25 @@ class PdfFlattener {
             // Save the flattened document
             context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
                 document.save(outputStream)
+                outputStream.flush()
             }
             
             document.close()
             progressCallback(100)
             
-            // Verify output file exists and is not empty
-            val outputStreamCheck = context.contentResolver.openInputStream(outputUri)
-            val isSuccess = outputStreamCheck?.use { it.available() > 0 } ?: false
+            // Verify output file exists
+            val outputStreamCheck = try {
+                context.contentResolver.openInputStream(outputUri)?.use { it.read() != -1 }
+            } catch (e: Exception) {
+                false
+            } ?: false
 
-            if (isSuccess) {
-                FlattenResult(
-                    success = true,
-                    annotationsFlattened = annotationsCount,
-                    formsFlattened = formsCount
-                )
-            } else {
-                FlattenResult(
-                    success = false,
-                    errorMessage = "Failed to create output file"
-                )
-            }
+            FlattenResult(
+                success = outputStreamCheck,
+                annotationsFlattened = annotationsCount,
+                formsFlattened = formsCount,
+                errorMessage = if (outputStreamCheck) null else "Failed to create output file"
+            )
             
         } catch (e: IOException) {
             document?.close()
@@ -219,10 +246,15 @@ class PdfFlattener {
                     try {
                         val rect = annotation.rectangle
                         if (rect != null) {
-                            // Transform and draw the appearance stream
                             contentStream.saveGraphicsState()
                             val matrix = com.tom_roush.pdfbox.util.Matrix()
-                            matrix.translate(rect.lowerLeftX, rect.lowerLeftY)
+                            val bbox = appearance.bBox
+                            val scaleX = if (bbox != null && bbox.width > 0) rect.width / bbox.width else 1f
+                            val scaleY = if (bbox != null && bbox.height > 0) rect.height / bbox.height else 1f
+                            val tx = if (bbox != null) rect.lowerLeftX - bbox.lowerLeftX * scaleX else rect.lowerLeftX
+                            val ty = if (bbox != null) rect.lowerLeftY - bbox.lowerLeftY * scaleY else rect.lowerLeftY
+                            matrix.translate(tx, ty)
+                            matrix.scale(scaleX, scaleY)
                             contentStream.transform(matrix)
                             contentStream.drawForm(appearance)
                             contentStream.restoreGraphicsState()

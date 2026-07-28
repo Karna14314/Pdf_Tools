@@ -24,6 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.data.FileManager
 import com.yourname.pdftoolkit.ui.components.*
+import com.yourname.pdftoolkit.ui.screens.DefaultImageFormat
+import com.yourname.pdftoolkit.ui.screens.SettingsPreferences
 import com.yourname.pdftoolkit.util.CacheManager
 import com.yourname.pdftoolkit.util.ImageProcessor
 import com.yourname.pdftoolkit.util.OutputFormat
@@ -85,7 +87,12 @@ fun ImageToolsScreen(
     var compressionQuality by remember { mutableStateOf(75f) }
     
     // Convert settings
-    var targetFormat by remember { mutableStateOf(OutputFormat.WEBP) }
+    var targetFormat by remember { mutableStateOf(
+        when (SettingsPreferences.getDefaultImageFormat(context)) {
+            DefaultImageFormat.WEBP -> OutputFormat.WEBP
+            DefaultImageFormat.JPEG -> OutputFormat.JPEG
+        }
+    ) }
     
     // Image picker launcher
     val pickImagesLauncher = rememberLauncherForActivityResult(

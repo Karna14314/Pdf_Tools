@@ -142,6 +142,7 @@ class PdfRedactor {
             
             // Save the redacted document
             document.save(outputStream)
+            outputStream.flush()
             
             onProgress(1.0f)
             

@@ -23,16 +23,29 @@ class OcrEngine(private val context: Context) {
         return true
     }
     
-    suspend fun recognizeText(bitmap: Bitmap): String {
+    suspend fun recognizeText(bitmap: Bitmap): List<OcrWord> {
         return suspendCancellableCoroutine { continuation ->
             val inputImage = InputImage.fromBitmap(bitmap, 0)
             
             recognizer.process(inputImage)
                 .addOnSuccessListener { text ->
-                    continuation.resume(text.text)
+                    val words = text.textBlocks.flatMap { block ->
+                        block.lines.flatMap { line ->
+                            line.elements.map { element ->
+                                OcrWord(
+                                    text = element.text,
+                                    boundingBox = element.boundingBox?.let { rect ->
+                                        OcrBoundingBox(rect.left, rect.top, rect.right, rect.bottom)
+                                    },
+                                    confidence = element.confidence ?: 0f
+                                )
+                            }
+                        }
+                    }
+                    continuation.resume(words)
                 }
                 .addOnFailureListener {
-                    continuation.resume("")
+                    continuation.resume(emptyList())
                 }
         }
     }

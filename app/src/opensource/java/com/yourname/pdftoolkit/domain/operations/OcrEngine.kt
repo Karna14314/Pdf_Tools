@@ -47,17 +47,37 @@ class OcrEngine(private val context: Context) {
         }
     }
     
-    suspend fun recognizeText(bitmap: Bitmap): String = withContext(Dispatchers.IO) {
+    suspend fun recognizeText(bitmap: Bitmap): List<OcrWord> = withContext(Dispatchers.IO) {
         try {
             if (!isInitialized) {
                 initialize()
             }
-            
-            tessBaseAPI?.setImage(bitmap)
-            tessBaseAPI?.utF8Text ?: ""
+
+            tessBaseAPI?.setImage(bitmap) ?: return@withContext emptyList()
+
+            val iterator = tessBaseAPI?.resultIterator ?: return@withContext emptyList()
+
+            val words = mutableListOf<OcrWord>()
+            try {
+                while (iterator.next(TessBaseAPI.PageIteratorLevel.RIL_WORD)) {
+                    val text = iterator.getUTF8Text(TessBaseAPI.PageIteratorLevel.RIL_WORD) ?: continue
+                    if (text.isBlank()) continue
+                    val rect = iterator.getBoundingRect(TessBaseAPI.PageIteratorLevel.RIL_WORD)
+                    words.add(
+                        OcrWord(
+                            text = text,
+                            boundingBox = rect?.let { OcrBoundingBox(it.left, it.top, it.right, it.bottom) },
+                            confidence = iterator.confidence(TessBaseAPI.PageIteratorLevel.RIL_WORD)
+                        )
+                    )
+                }
+            } finally {
+                iterator.delete()
+            }
+            words
         } catch (e: Exception) {
             e.printStackTrace()
-            ""
+            emptyList()
         }
     }
     

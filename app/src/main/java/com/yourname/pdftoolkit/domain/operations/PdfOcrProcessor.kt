@@ -106,9 +106,9 @@ class PdfOcrProcessor(private val context: Context) {
     
     private val ocrEngine = OcrEngine(context)
     private companion object {
-        private const val DEFAULT_OCR_DPI = 200f
         private const val MAX_OCR_PIXELS = 4_000_000 // ~4MP per page
         private const val OCR_CHUNK_SIZE = 3
+        private const val MAX_WORDS_PER_PAGE = 1000
     }
     
     /**
@@ -171,22 +171,35 @@ class PdfOcrProcessor(private val context: Context) {
                 
                 try {
                     ensureActive()
-                    // Perform OCR on the image
-                    val ocrText = performOcrOnBitmap(pageImage)
-                    
-                    if (ocrText.isNotEmpty()) {
+                    val words = performOcrOnBitmap(pageImage)
+
+                    if (words.isNotEmpty()) {
+                        val pageText = words.joinToString(" ") { it.text }
+                        val blocks = listOf(
+                            OcrTextBlock(
+                                text = pageText,
+                                boundingBox = null,
+                                lines = listOf(
+                                    OcrTextLine(
+                                        text = pageText,
+                                        boundingBox = null,
+                                        words = words
+                                    )
+                                )
+                            )
+                        )
                         val pageResult = OcrPageResult(
                             pageNumber = pageIndex + 1,
-                            text = ocrText,
-                            blocks = emptyList(), // Simplified - no block info
-                            confidence = 0.85f // Estimated confidence
+                            text = pageText,
+                            blocks = blocks,
+                            confidence = 0.85f
                         )
                         pageResults.add(pageResult)
 
                         if (fullTextBuilder.isNotEmpty()) {
                             fullTextBuilder.append("\n\n--- Page ${pageIndex + 1} ---\n\n")
                         }
-                        fullTextBuilder.append(ocrText)
+                        fullTextBuilder.append(pageText)
                     }
                 } finally {
                     pageImage.recycle()
@@ -286,12 +299,10 @@ class PdfOcrProcessor(private val context: Context) {
                 
                 try {
                     ensureActive()
-                    // Perform OCR
-                    val ocrText = performOcrOnBitmap(pageImage)
+                    val words = performOcrOnBitmap(pageImage)
 
-                    if (ocrText.isNotEmpty()) {
-                        // Add invisible text layer to the page
-                        addTextLayerToPage(document, page, ocrText, pageImage.width, pageImage.height, dpi)
+                    if (words.isNotEmpty()) {
+                        addTextLayerToPage(document, page, words, pageImage.width, pageImage.height, dpi)
                     }
                 } finally {
                     pageImage.recycle()
@@ -310,6 +321,7 @@ class PdfOcrProcessor(private val context: Context) {
             // Save the document
             context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
                 document.save(outputStream)
+                outputStream.flush()
             }
             
             document.close()
@@ -366,10 +378,10 @@ class PdfOcrProcessor(private val context: Context) {
             } ?: return@withContext ""
             
             ensureActive()
-            val result = performOcrOnBitmap(bitmap)
+            val words = performOcrOnBitmap(bitmap)
             bitmap.recycle()
             
-            result
+            words.joinToString(" ") { it.text }
         } catch (e: Exception) {
             ""
         }
@@ -378,17 +390,13 @@ class PdfOcrProcessor(private val context: Context) {
     /**
      * Perform OCR on a bitmap using the flavor-specific OCR engine.
      */
-    private suspend fun performOcrOnBitmap(bitmap: Bitmap): String {
+    private suspend fun performOcrOnBitmap(bitmap: Bitmap): List<OcrWord> {
         ocrEngine.initialize()
         return ocrEngine.recognizeText(bitmap)
     }
 
     private fun getSafeOcrDpi(pageWidthPoints: Float, pageHeightPoints: Float): Float {
-        val targetPixelsAtDefault = ((pageWidthPoints * DEFAULT_OCR_DPI / 72f) * (pageHeightPoints * DEFAULT_OCR_DPI / 72f)).toInt()
-        if (targetPixelsAtDefault <= MAX_OCR_PIXELS) return DEFAULT_OCR_DPI
-
-        val scale = kotlin.math.sqrt(MAX_OCR_PIXELS.toFloat() / targetPixelsAtDefault.toFloat())
-        return (DEFAULT_OCR_DPI * scale).coerceIn(120f, DEFAULT_OCR_DPI)
+        return OcrDpiUtil.getSafeOcrDpi(pageWidthPoints, pageHeightPoints)
     }
 
     private fun calculateInSampleSize(width: Int, height: Int, maxPixels: Int): Int {
@@ -402,20 +410,19 @@ class PdfOcrProcessor(private val context: Context) {
     
     /**
      * Add invisible text layer to a page for searchability.
-     * Simplified version that adds text as a single block.
+     * Places each word individually at its detected position scaled to PDF point space.
      */
     private fun addTextLayerToPage(
         document: PDDocument,
         page: PDPage,
-        text: String,
+        words: List<OcrWord>,
         imageWidth: Int,
         imageHeight: Int,
         dpi: Float
     ) {
-        val pageRect = page.mediaBox
-        val pageWidth = pageRect.width
-        val pageHeight = pageRect.height
-        
+        val cropBox = page.cropBox
+        val font = PDType1Font.HELVETICA
+
         val contentStream = PDPageContentStream(
             document,
             page,
@@ -423,38 +430,29 @@ class PdfOcrProcessor(private val context: Context) {
             true,
             true
         )
-        
+
         try {
-            // Make text invisible
             val graphicsState = PDExtendedGraphicsState()
             graphicsState.nonStrokingAlphaConstant = 0f
             contentStream.setGraphicsStateParameters(graphicsState)
-            
-            val font = PDType1Font.HELVETICA
-            val fontSize = 8f
-            
-            contentStream.setFont(font, fontSize)
-            contentStream.beginText()
-            contentStream.newLineAtOffset(10f, pageHeight - 20f)
-            
-            // Split text into lines and add each line
-            val lines = text.split("\n")
-            var yOffset = 0f
-            for (line in lines.take(50)) { // Limit to 50 lines per page
-                // Clean the text to remove unsupported characters
-                val cleanText = line.filter { it.code < 256 }
-                if (cleanText.isNotEmpty()) {
-                    try {
-                        contentStream.showText(cleanText)
-                        yOffset -= fontSize + 2
-                        contentStream.newLineAtOffset(0f, -(fontSize + 2))
-                    } catch (e: Exception) {
-                        // Skip if text can't be rendered
-                    }
-                }
+
+            val scale = 72f / dpi
+            for (word in words.take(MAX_WORDS_PER_PAGE)) {
+                val box = word.boundingBox ?: continue
+                val cleanText = word.text.filter { it.code < 256 }
+                if (cleanText.isBlank()) continue
+
+                val pdfX = cropBox.lowerLeftX + box.left * scale
+                val pdfY = cropBox.upperRightY - box.bottom * scale
+                val boxHeightPts = (box.bottom - box.top) * scale
+                val fontSize = (boxHeightPts * 0.8f).coerceIn(4f, 24f)
+
+                contentStream.beginText()
+                contentStream.setFont(font, fontSize)
+                contentStream.newLineAtOffset(pdfX, pdfY)
+                contentStream.showText(cleanText)
+                contentStream.endText()
             }
-            
-            contentStream.endText()
         } finally {
             contentStream.close()
         }
