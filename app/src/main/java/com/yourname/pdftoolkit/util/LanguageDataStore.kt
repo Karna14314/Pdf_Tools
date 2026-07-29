@@ -45,20 +45,4 @@ object LanguageDataStore {
         }
     }
     
-    /**
-     * Get the selected language synchronously (blocking).
-     * Use only for initialization where coroutines are not available.
-     *
-     * @param context Application context
-     * @return Language code or default
-     */
-    fun getSelectedLanguageSync(context: Context): String {
-        return try {
-            val prefs = context.dataStore.data
-            // This is a simplified sync read - in practice, use Flow
-            DEFAULT_LANGUAGE
-        } catch (e: Exception) {
-            DEFAULT_LANGUAGE
-        }
-    }
 }

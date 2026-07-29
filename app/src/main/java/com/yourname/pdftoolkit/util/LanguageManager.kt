@@ -107,11 +107,30 @@ object LanguageManager {
         // Save to DataStore first to ensure persistence (await completion)
         LanguageDataStore.saveSelectedLanguage(context, langCode)
         
-        // Apply the locale change via AppCompatDelegate
-        // This will trigger activity recreation (since layoutDirection is not in configChanges)
+        // Apply the locale change via AppCompatDelegate.
+        // NOTE: On API 33+ this is proxied through the framework's LocaleManager via a
+        // binder IPC to system_server, which is asynchronous — the automatic activity
+        // recreation callback can lag noticeably (1-3s, worse on some OEM skins).
+        // Force an immediate recreate() rather than waiting on that callback so the UI
+        // updates in the same frame as the confirmation toast.
         setLanguage(context, langCode)
+        findActivity(context)?.recreate()
         
         Log.d("LanguageManager", "Language changed to: $langCode")
+    }
+
+    /**
+     * Unwrap a Context to find the underlying Activity, if any.
+     * Compose's LocalContext.current is usually the Activity directly, but this is
+     * defensive against future ContextWrapper layers (e.g. added theming providers).
+     */
+    private fun findActivity(context: Context): android.app.Activity? {
+        var ctx = context
+        while (ctx is android.content.ContextWrapper) {
+            if (ctx is android.app.Activity) return ctx
+            ctx = ctx.baseContext
+        }
+        return ctx as? android.app.Activity
     }
 
     /**
