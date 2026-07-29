@@ -102,7 +102,7 @@ fun SettingsScreen(
     var showImageFormatDialog by remember { mutableStateOf(false) }
     var showLicensesDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
-    var showLanguageDialog by remember { mutableStateOf(false) }
+    var showLanguageScreen by remember { mutableStateOf(false) }
     
     // Settings state
     var compressionQuality by remember { mutableStateOf(SettingsPreferences.getCompressionQuality(context)) }
@@ -121,6 +121,14 @@ fun SettingsScreen(
         }
     }
     
+    if (showLanguageScreen) {
+        LanguageSelectionScreen(
+            currentLanguage = currentLanguage,
+            onNavigateBack = { showLanguageScreen = false }
+        )
+        return
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -266,7 +274,7 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_select_language),
                     subtitle = LanguageManager.getLanguageDisplayName(currentLanguage),
                     icon = Icons.Default.Language,
-                    onClick = { showLanguageDialog = true }
+                    onClick = { showLanguageScreen = true }
                 )
             }
             
@@ -476,63 +484,6 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showThemeDialog = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            }
-        )
-    }
-    
-    // Language Selection Dialog
-    if (showLanguageDialog) {
-        AlertDialog(
-            onDismissRequest = { showLanguageDialog = false },
-            icon = { Icon(Icons.Default.Language, contentDescription = null) },
-            title = { Text(stringResource(R.string.settings_select_language)) },
-            text = {
-                Column {
-                    LanguageManager.supportedLanguages.forEach { language ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    scope.launch {
-                                        LanguageManager.changeLanguage(context, language.code)
-                                        showLanguageDialog = false
-                                        Toast.makeText(
-                                            context,
-                                            R.string.settings_language_changed,
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = currentLanguage == language.code,
-                                onClick = {
-                                    scope.launch {
-                                        LanguageManager.changeLanguage(context, language.code)
-                                        showLanguageDialog = false
-                                        Toast.makeText(
-                                            context,
-                                            R.string.settings_language_changed,
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = language.displayName,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showLanguageDialog = false }) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }

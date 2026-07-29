@@ -335,4 +335,6 @@
     <string name="result_success">सफल</string>
     <string name="result_error">त्रुटि</string>
 
-<string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string></resources>
+<string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string>    <string name="action_search">खोजें</string>
+    <string name="settings_no_languages_found">कोई भाषा नहीं मिली</string>
+</resources>

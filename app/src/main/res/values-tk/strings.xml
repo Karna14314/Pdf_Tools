@@ -339,4 +339,6 @@
     <string name="result_success">Üstünlik</string>
     <string name="result_error">Roralňyşlyk</string>
 
+    <string name="action_search">Gözleg</string>
+    <string name="settings_no_languages_found">Dil tapylmady</string>
 </resources>

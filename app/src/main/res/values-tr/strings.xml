@@ -339,4 +339,6 @@
     <string name="result_success">Başarı</string>
     <string name="result_error">Hata</string>
 
+    <string name="action_search">Ara</string>
+    <string name="settings_no_languages_found">Dil bulunamadı</string>
 </resources>
