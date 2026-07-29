@@ -10,6 +10,10 @@ import kotlinx.coroutines.runBlocking
 
 /**
  * Language codes supported by the app.
+ * Kept as constants for readability/backwards-compatible references elsewhere in the
+ * codebase. The single source of truth for behavior is [LanguageManager.supportedLanguages]
+ * below — add a new language there (and its values-xx/strings.xml) and everything else
+ * (setLanguage, getCurrentLanguage, the Settings picker) works automatically.
  */
 object LanguageCodes {
     const val ENGLISH = "en"
@@ -17,10 +21,26 @@ object LanguageCodes {
     const val CHINESE = "zh"
     const val PORTUGUESE = "pt-BR"
     const val GERMAN = "de"
+    const val SPANISH = "es"
+    const val RUSSIAN = "ru"
+    const val UZBEK = "uz"
+    const val TURKMEN = "tk"
+    const val FRENCH = "fr"
+    const val ARABIC = "ar"
+    const val JAPANESE = "ja"
+    const val KOREAN = "ko"
+    const val INDONESIAN = "id"
+    const val TURKISH = "tr"
 }
 
 /**
  * Data class representing a language option.
+ *
+ * @param code The language/locale tag used both as the BCP-47 tag passed to
+ *   [LocaleListCompat.forLanguageTags] and as the values-xx resource qualifier
+ *   (e.g. "en", "hi", "zh", "pt-BR", "de").
+ * @param name Resource-name-style identifier for the language (used for logging/lookup).
+ * @param displayName Native-script name shown to the user in the language picker.
  */
 data class LanguageOption(
     val code: String,
@@ -36,13 +56,27 @@ object LanguageManager {
 
     /**
      * List of supported languages with their display names.
+     * This is the single source of truth: adding a language here (plus its matching
+     * values-xx/strings.xml resource folder and an entry in locales_config.xml) is
+     * all that's required — setLanguage(), getCurrentLanguage(), and the Settings
+     * language picker all derive from this list automatically.
      */
     val supportedLanguages = listOf(
         LanguageOption(LanguageCodes.ENGLISH, "language_english", "English"),
         LanguageOption(LanguageCodes.HINDI, "language_hindi", "\u0939\u093F\u0928\u094D\u0926\u0940"),
         LanguageOption(LanguageCodes.CHINESE, "language_chinese", "\u4E2D\u6587"),
         LanguageOption(LanguageCodes.PORTUGUESE, "language_portuguese", "Portugu\u00EAs (Brasil)"),
-        LanguageOption(LanguageCodes.GERMAN, "language_german", "Deutsch")
+        LanguageOption(LanguageCodes.GERMAN, "language_german", "Deutsch"),
+        LanguageOption(LanguageCodes.SPANISH, "language_spanish", "Espa\u00F1ol"),
+        LanguageOption(LanguageCodes.RUSSIAN, "language_russian", "\u0420\u0443\u0441\u0441\u043A\u0438\u0439"),
+        LanguageOption(LanguageCodes.UZBEK, "language_uzbek", "O\u02BBzbekcha"),
+        LanguageOption(LanguageCodes.TURKMEN, "language_turkmen", "T\u00FCrkmen\u00E7e"),
+        LanguageOption(LanguageCodes.FRENCH, "language_french", "Fran\u00E7ais"),
+        LanguageOption(LanguageCodes.ARABIC, "language_arabic", "\u0627\u0644\u0639\u0631\u0628\u064A\u0629"),
+        LanguageOption(LanguageCodes.JAPANESE, "language_japanese", "\u65E5\u672C\u8A9E"),
+        LanguageOption(LanguageCodes.KOREAN, "language_korean", "\uD55C\uAD6D\uC5B4"),
+        LanguageOption(LanguageCodes.INDONESIAN, "language_indonesian", "Bahasa Indonesia"),
+        LanguageOption(LanguageCodes.TURKISH, "language_turkish", "T\u00FCrk\u00E7e")
     )
 
     /**
@@ -50,36 +84,29 @@ object LanguageManager {
      * This applies the language immediately and persists across app restarts.
      *
      * @param context Application context
-     * @param langCode Language code (en, hi, zh, pt-BR, de)
+     * @param langCode Language code — must match a [LanguageOption.code] in [supportedLanguages]
      */
     fun setLanguage(context: Context, langCode: String) {
-        val localeList = when (langCode) {
-            LanguageCodes.ENGLISH -> LocaleListCompat.forLanguageTags(LanguageCodes.ENGLISH)
-            LanguageCodes.HINDI -> LocaleListCompat.forLanguageTags(LanguageCodes.HINDI)
-            LanguageCodes.CHINESE -> LocaleListCompat.forLanguageTags(LanguageCodes.CHINESE)
-            LanguageCodes.PORTUGUESE -> LocaleListCompat.forLanguageTags(LanguageCodes.PORTUGUESE)
-            LanguageCodes.GERMAN -> LocaleListCompat.forLanguageTags(LanguageCodes.GERMAN)
-            else -> LocaleListCompat.forLanguageTags(LanguageCodes.ENGLISH)
-        }
-        AppCompatDelegate.setApplicationLocales(localeList)
+        val resolvedCode = if (isSupportedLanguage(langCode)) langCode else LanguageCodes.ENGLISH
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(resolvedCode))
     }
 
     /**
      * Get the currently selected language code from AppCompatDelegate.
      *
-     * @return The current language code (en, hi, zh, pt-BR, de)
+     * @return The current language code, one of [supportedLanguages]
      */
     fun getCurrentLanguage(): String {
         val locales = AppCompatDelegate.getApplicationLocales()
+        if (locales.isEmpty) return LanguageCodes.ENGLISH
         val languageTags = locales.toLanguageTags()
-        return when {
-            locales.isEmpty -> LanguageCodes.ENGLISH
-            languageTags.startsWith(LanguageCodes.CHINESE) -> LanguageCodes.CHINESE
-            languageTags.startsWith(LanguageCodes.HINDI) -> LanguageCodes.HINDI
-            languageTags.startsWith(LanguageCodes.PORTUGUESE) -> LanguageCodes.PORTUGUESE
-            languageTags.startsWith(LanguageCodes.GERMAN) -> LanguageCodes.GERMAN
-            else -> LanguageCodes.ENGLISH
-        }
+        // Match the longest code first (e.g. "pt-BR" before a hypothetical bare "pt")
+        // so regional variants aren't shadowed by a shorter prefix.
+        return supportedLanguages
+            .sortedByDescending { it.code.length }
+            .firstOrNull { languageTags.startsWith(it.code, ignoreCase = true) }
+            ?.code
+            ?: LanguageCodes.ENGLISH
     }
 
     /**
@@ -96,7 +123,7 @@ object LanguageManager {
     /**
      * Change the application language and persist the choice.
      * This should be called when user selects a new language.
-     * 
+     *
      * IMPORTANT: This is a suspend function to ensure DataStore write completes
      * before locale is applied, preventing race conditions.
      *
@@ -106,7 +133,7 @@ object LanguageManager {
     suspend fun changeLanguage(context: Context, langCode: String) {
         // Save to DataStore first to ensure persistence (await completion)
         LanguageDataStore.saveSelectedLanguage(context, langCode)
-        
+
         // Apply the locale change via AppCompatDelegate.
         // NOTE: On API 33+ this is proxied through the framework's LocaleManager via a
         // binder IPC to system_server, which is asynchronous — the automatic activity
@@ -115,7 +142,7 @@ object LanguageManager {
         // updates in the same frame as the confirmation toast.
         setLanguage(context, langCode)
         findActivity(context)?.recreate()
-        
+
         Log.d("LanguageManager", "Language changed to: $langCode")
     }
 

@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">PDF Toolkit</string>
+
+    <!-- Common Actions -->
+    <string name="action_add">추가하다</string>
+    <string name="action_add_more">더 추가</string>
+    <string name="action_add_more_pdfs">더 많은 PDF 추가</string>
+    <string name="action_back">뒤쪽에</string>
+    <string name="action_cancel">취소</string>
+    <string name="action_clear">분명한</string>
+    <string name="action_close">닫다</string>
+    <string name="action_compress">압박 붕대</string>
+    <string name="action_delete">삭제</string>
+    <string name="action_done">완료</string>
+    <string name="action_merge">병합</string>
+    <string name="action_next">다음</string>
+    <string name="action_open">열려 있는</string>
+    <string name="action_open_pdf">PDF 열기</string>
+    <string name="action_previous">이전의</string>
+    <string name="action_processing">처리 중...</string>
+    <string name="action_remove">제거하다</string>
+    <string name="action_save">구하다</string>
+    <string name="action_save_as">다른 이름으로 저장</string>
+    <string name="action_select">선택하다</string>
+    <string name="action_settings">설정</string>
+    <string name="action_split">나뉘다</string>
+    <string name="action_submit">제출하다</string>
+    <string name="action_view">보다</string>
+    <string name="action_navigate">탐색</string>
+    <string name="action_move_up">위로 이동</string>
+    <string name="action_move_down">아래로 이동</string>
+
+    <!-- Navigation &amp; Content Descriptions -->
+    <string name="cd_open_pdf">PDF 열기</string>
+    <string name="cd_back">뒤쪽에</string>
+    <string name="cd_close_search">검색 닫기</string>
+    <string name="cd_clear_search">검색 지우기</string>
+    <string name="cd_stop_search">검색 중지</string>
+    <string name="cd_previous_result">이전의</string>
+    <string name="cd_next_result">다음</string>
+    <string name="cd_compression_quality">압축 품질</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">PDF Toolkit</string>
+    <string name="home_subtitle">모든 PDF &amp; 이미지 도구를 한곳에 모아보세요</string>
+    <string name="fab_open_pdf">PDF 열기</string>
+
+    <!-- Navigation -->
+    <string name="nav_tab_tools">도구</string>
+    <string name="nav_tab_files">파일</string>
+    <string name="nav_open_history">오픈 히스토리</string>
+
+    <!-- Tool Categories -->
+    <string name="category_organize">정리하다</string>
+    <string name="category_convert">전환하다</string>
+    <string name="category_markup">마크업</string>
+    <string name="category_security">보안</string>
+    <string name="category_optimize">최적화</string>
+    <string name="category_quick_actions">빠른 작업</string>
+    <string name="category_image_tools">이미지 도구</string>
+    <string name="category_view_export">보기 &amp; 내보내다</string>
+
+    <!-- Tool Names - Organize -->
+    <string name="tool_merge_pdfs">PDF 병합</string>
+    <string name="tool_merge_pdf">PDF 병합</string>
+    <string name="tool_split_pdf">PDF 분할</string>
+    <string name="tool_organize_pages">페이지 구성</string>
+    <string name="tool_rotate_pages">페이지 회전</string>
+    <string name="tool_extract_pages">페이지 추출</string>
+    <string name="tool_reorder_pages">페이지 재정렬</string>
+    <string name="tool_delete_pages">페이지 삭제</string>
+
+    <!-- Tool Names - Convert -->
+    <string name="tool_images_to_pdf">이미지를 PDF로</string>
+    <string name="tool_pdf_to_images">PDF를 이미지로</string>
+    <string name="tool_html_to_pdf">HTML을 PDF로</string>
+    <string name="tool_extract_text">텍스트 추출</string>
+    <string name="tool_scan_to_pdf">PDF로 스캔</string>
+    <string name="tool_ocr">OCR</string>
+    <string name="tool_image_tools">이미지 도구</string>
+    <string name="tool_image_compress">이미지 압축</string>
+    <string name="tool_image_resize">이미지 크기 조정</string>
+    <string name="tool_image_convert">형식 변환</string>
+    <string name="tool_image_metadata">스트립 메타데이터</string>
+
+    <!-- Tool Names - Markup -->
+    <string name="tool_sign_pdf">PDF에 서명</string>
+    <string name="tool_fill_forms">양식 작성</string>
+    <string name="tool_annotate_pdf">PDF에 주석 달기</string>
+
+    <!-- Tool Names - Security -->
+    <string name="tool_add_security">보안 추가</string>
+    <string name="tool_lock_pdf">PDF 잠금</string>
+    <string name="tool_unlock_pdf">PDF 잠금해제</string>
+    <string name="tool_add_watermark">워터마크 추가</string>
+    <string name="tool_flatten_pdf">PDF 병합</string>
+
+    <!-- Tool Names - Optimize -->
+    <string name="tool_compress_pdf">PDF 압축</string>
+    <string name="tool_repair_pdf">PDF 복구</string>
+    <string name="tool_page_numbers">페이지 번호</string>
+    <string name="tool_view_metadata">메타데이터 보기</string>
+
+    <!-- Tool Descriptions -->
+    <string name="desc_merge_pdfs">여러 PDF 파일을 하나로 결합</string>
+    <string name="desc_split_pdf">PDF를 여러 파일로 분할</string>
+    <string name="desc_organize_pages">PDF 페이지 제거 또는 재정렬</string>
+    <string name="desc_rotate_pages">PDF 페이지 회전</string>
+    <string name="desc_extract_pages">PDF에서 특정 페이지 추출</string>
+    <string name="desc_images_to_pdf">이미지를 PDF로 변환</string>
+    <string name="desc_pdf_to_images">PDF 페이지를 이미지로 변환</string>
+    <string name="desc_html_to_pdf">웹페이지 또는 HTML을 PDF로 변환</string>
+    <string name="desc_extract_text">텍스트 내용을 TXT 파일로 추출</string>
+    <string name="desc_scan_to_pdf">카메라로 문서 스캔</string>
+    <string name="desc_ocr">스캔한 PDF를 검색 가능하게 만들기</string>
+    <string name="desc_image_tools">이미지 크기 조정, 압축, 변환</string>
+    <string name="desc_sign_pdf">PDF에 서명 추가</string>
+    <string name="desc_fill_forms">PDF 양식 필드 채우기</string>
+    <string name="desc_annotate_pdf">하이라이트, 메모, 스탬프 추가</string>
+    <string name="desc_add_security">PDF를 비밀번호로 보호하세요</string>
+    <string name="desc_unlock_pdf">PDF에서 비밀번호 제거</string>
+    <string name="desc_add_watermark">텍스트 또는 이미지 워터마크 추가</string>
+    <string name="desc_flatten_pdf">주석을 콘텐츠에 병합</string>
+    <string name="desc_compress_pdf">PDF 파일 크기 줄이기</string>
+    <string name="desc_repair_pdf">손상된 PDF 파일 수정</string>
+    <string name="desc_page_numbers">PDF에 페이지 번호 추가</string>
+    <string name="desc_view_metadata">PDF 속성 보기 및 편집</string>
+    <string name="desc_reorder_pages">PDF 페이지 재정렬</string>
+    <string name="desc_delete_pages">PDF에서 페이지 제거</string>
+    <string name="desc_compress_image">이미지 파일 크기 줄이기</string>
+    <string name="desc_resize_image">이미지 크기 변경</string>
+    <string name="desc_convert_format">JPEG ?? 웹P</string>
+    <string name="desc_strip_metadata">EXIF 데이터 제거</string>
+    <string name="desc_lock_pdf">PDF를 비밀번호로 보호하세요</string>
+    <string name="desc_sign">서명 추가</string>
+    <string name="desc_view_pdf">PDF 열기 및 보기</string>
+
+    <!-- Merge Screen -->
+    <string name="merge_title">PDF 병합</string>
+    <string name="merge_empty_title">선택한 PDF가 없습니다.</string>
+    <string name="merge_empty_subtitle">2개 이상의 PDF 파일을 추가하여 단일 문서로 병합</string>
+    <string name="merge_selected_files">선택한 파일(%d)</string>
+    <string name="merge_add_pdfs">PDF 추가</string>
+    <string name="merge_n_pdfs">%d개의 PDF 병합</string>
+    <string name="merge_progress">PDF 병합 중...</string>
+    <string name="merge_complete">병합 완료</string>
+    <string name="merge_failed">병합 실패</string>
+    <string name="merge_success_message">%1$d PDF를 성공적으로 병합했습니다.\n\n저장 위치: %2$s/%3$s</string>
+    <string name="merge_custom_location">사용자 정의 저장 위치 선택</string>
+    <string name="merge_default_path">기본값: %s</string>
+
+    <!-- Compress Screen -->
+    <string name="compress_title">PDF 압축</string>
+    <string name="compress_empty_title">선택한 PDF 없음</string>
+    <string name="compress_empty_subtitle">압축할 PDF 파일을 선택하세요</string>
+    <string name="compress_quality_maximum">최고의 품질</string>
+    <string name="compress_quality_high">고품질</string>
+    <string name="compress_quality_balanced">균형 잡힌</string>
+    <string name="compress_quality_compressed">압축</string>
+    <string name="compress_quality_maximum_compression">최대 압축</string>
+    <string name="compress_smaller_file">더 작은 파일</string>
+    <string name="compress_better_quality">더 나은 품질</string>
+    <string name="compress_progress">PDF 압축 중...</string>
+    <string name="compress_complete">압축 완료</string>
+    <string name="compress_failed">압축 실패</string>
+    <string name="compress_success">압축 성공!</string>
+    <string name="compress_saved">압축된 PDF가 저장되었습니다.</string>
+    <string name="compress_before">이전: %s</string>
+    <string name="compress_after">이후: %s</string>
+    <string name="compress_saved_bytes">저장됨: %1$s(%2$d%%)</string>
+    <string name="compress_note_optimized">참고: 이 PDF는 이미 최적화되었거나 대부분 텍스트가 포함되어 있을 수 있습니다.</string>
+    <string name="compress_select_pdf">PDF 선택</string>
+
+    <!-- Split Screen -->
+    <string name="split_title">PDF 분할</string>
+    <string name="split_empty_title">선택한 PDF 없음</string>
+    <string name="split_empty_subtitle">여러 문서로 분할할 PDF 파일을 선택하세요.</string>
+    <string name="split_select_pdf">분할할 PDF 선택</string>
+    <string name="split_progress">PDF 분할 중...</string>
+    <string name="split_complete">분할 완료</string>
+    <string name="split_failed">분할 실패</string>
+    <string name="split_all_pages">모든 페이지</string>
+    <string name="split_every_n_pages">N페이지마다</string>
+    <string name="split_custom_range">맞춤 범위</string>
+    <string name="split_n_files_created">%d개의 파일이 생성되었습니다.</string>
+
+    <!-- PDF Viewer -->
+    <string name="pdf_viewer_title">PDF 뷰어</string>
+    <string name="pdf_document_default_name">PDF 문서</string>
+    <string name="pdf_page_indicator">페이지 %1$d/%2$d(%3$d%%)</string>
+    <string name="pdf_search_placeholder">PDF에서 검색...</string>
+    <string name="pdf_search_no_matches">일치하는 항목 없음</string>
+    <string name="pdf_search_results">%1$d/%2$d</string>
+    <string name="pdf_zoom_in">확대</string>
+    <string name="pdf_zoom_out">축소</string>
+    <string name="pdf_fit_to_width">너비에 맞춤</string>
+    <string name="pdf_tools">도구</string>
+    <string name="pdf_annotations">주석</string>
+    <string name="pdf_search">찾다</string>
+    <string name="pdf_share">공유하다</string>
+    <string name="pdf_save">구하다</string>
+    <string name="pdf_highlighter">형광펜</string>
+    <string name="pdf_marker">채점자</string>
+    <string name="pdf_underline">밑줄</string>
+    <string name="pdf_clear_annotations">주석을 지우시겠습니까?</string>
+    <string name="pdf_clear_annotations_confirm">그러면 모든 주석이 제거됩니다. 이 작업은 취소할 수 없습니다.</string>
+    <string name="pdf_annotations_saved">주석이 성공적으로 저장되었습니다!</string>
+    <string name="pdf_enter_password">비밀번호 입력</string>
+    <string name="pdf_password_hint">이 PDF는 비밀번호로 보호되어 있습니다</string>
+    <string name="pdf_password_error">잘못된 비밀번호</string>
+    <string name="pdf_go_to_page">페이지로 이동</string>
+    <string name="pdf_page_number">페이지 번호</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">설정</string>
+    <string name="settings_section_quality">품질 설정</string>
+    <string name="settings_section_appearance">모습</string>
+    <string name="settings_section_storage">저장</string>
+    <string name="settings_section_support">지원하다</string>
+    <string name="settings_section_about">에 대한</string>
+    <string name="settings_section_language">언어</string>
+    <string name="settings_compression_quality">기본 압축 품질</string>
+    <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
+    <string name="settings_image_format">기본 이미지 형식</string>
+    <string name="settings_theme_mode">테마 모드</string>
+    <string name="settings_cache_size">캐시 크기</string>
+    <string name="settings_request_feature">기능 요청</string>
+    <string name="settings_request_feature_subtitle">앱 개선을 위한 아이디어를 공유하세요</string>
+    <string name="settings_report_bug">버그 신고</string>
+    <string name="settings_report_bug_subtitle">문제 해결에 도움을 주세요</string>
+    <string name="settings_rate_app">앱 평가</string>
+    <string name="settings_rate_app_subtitle">앱이 마음에 드시나요? Play 스토어에서 평가해 주세요</string>
+    <string name="settings_version">버전</string>
+    <string name="settings_privacy_policy">개인 정보 보호 정책</string>
+    <string name="settings_privacy_policy_subtitle">개인 정보 보호 정책 보기</string>
+    <string name="settings_licenses">오픈 소스 라이선스</string>
+    <string name="settings_licenses_subtitle">타사 라이선스 보기</string>
+    <string name="settings_clear_cache">캐시를 지우시겠습니까?</string>
+    <string name="settings_clear_cache_message">임시 파일과 캐시된 데이터가 삭제됩니다. 저장된 PDF는 영향을 받지 않습니다.</string>
+    <string name="settings_cache_cleared">캐시가 성공적으로 지워졌습니다.</string>
+    <string name="settings_about_title">PDF 툴킷 정보</string>
+    <string name="settings_about_description">PDF Toolkit은 PDF 문서를 빠르고 효율적으로 관리하는 데 도움이 되는 강력한 오프라인 PDF 도구입니다.</string>
+    <string name="settings_about_features">특징:</string>
+    <string name="settings_about_feature_1">PDF 병합, 분할, 압축</string>
+    <string name="settings_about_feature_2">이미지로/이미지에서 변환</string>
+    <string name="settings_about_feature_3">워터마크 추가 &amp; 서명</string>
+    <string name="settings_about_feature_4">OCR 및 PDF로 스캔</string>
+    <string name="settings_about_feature_5">보안 &amp; PDF 암호화</string>
+    <string name="settings_about_version">버전</string>
+    <string name="settings_about_build">짓다</string>
+    <string name="settings_about_made_with">다음으로 제작됨</string>
+    <string name="settings_about_kotlin_compose">코틀린 &amp; Jetpack Compose</string>
+    <string name="settings_app_name">PDF Toolkit</string>
+    <string name="settings_made_with_love">생산성을 위해 ❤️으로 제작</string>
+    <string name="settings_copyright">© 2026 PDF 툴킷</string>
+    <string name="settings_select_language">언어 선택</string>
+    <string name="settings_language_changed">언어가 변경됨</string>
+
+    <!-- Language Names -->
+    <string name="language_english">영어</string>
+    <string name="language_spanish">스페인어</string>
+    <string name="language_hindi">힌두교</string>
+    <string name="language_chinese">중국어</string>
+    <string name="language_portuguese">포르투갈어(브라질)</string>
+    <string name="language_german">독일어</string>
+
+    <!-- Image Format Options -->
+    <string name="image_format_webp">WebP(권장)</string>
+    <string name="image_format_jpeg">JPEG</string>
+    <string name="image_format_webp_desc">최고의 압축, 더 작은 파일</string>
+    <string name="image_format_jpeg_desc">범용 호환성</string>
+
+    <!-- Theme Modes -->
+    <string name="theme_light">빛</string>
+    <string name="theme_dark">어두운</string>
+    <string name="theme_system">시스템 기본값</string>
+    <string name="theme_light_desc">항상 밝은 테마 사용</string>
+    <string name="theme_dark_desc">항상 어두운 테마를 사용하세요</string>
+    <string name="theme_system_desc">시스템 설정을 따르세요</string>
+
+    <!-- Feature Request -->
+    <string name="feature_request_title">기능 요청</string>
+    <string name="feature_request_description">PDF Toolkit을 개선하는 데 도움이 되는 아이디어를 공유해 주세요!</string>
+    <string name="feature_request_category">범주</string>
+    <string name="feature_request_category_feature">특징</string>
+    <string name="feature_request_category_improvement">개선</string>
+    <string name="feature_request_category_ui">UI/UX</string>
+    <string name="feature_request_category_other">다른</string>
+    <string name="feature_request_idea">당신의 아이디어를 설명하세요</string>
+    <string name="feature_request_placeholder">어떤 기능을 보고 싶나요?</string>
+
+    <!-- Bug Report -->
+    <string name="bug_report_subject">[버그 리포트] PDF 툴킷</string>
+    <string name="bug_report_template">버그 설명:\n[발생한 문제를 설명해 주세요.]\n\n재현 단계:\n1. \n2. \n3. \n\n예상 동작:\n[무슨 일이 일어날 것으로 예상했나요?]\n\n실제 동작:\n[실제로 무슨 일이 일어났나요?]</string>
+
+    <!-- Error Messages -->
+    <string name="error_gmail_required">Gmail 앱이 필요합니다. Gmail을 설치하거나 %s에게 피드백을 보내주세요.</string>
+    <string name="error_generic">오류가 발생했습니다</string>
+    <string name="error_file_not_found">파일을 찾을 수 없습니다</string>
+    <string name="error_invalid_pdf">잘못된 PDF 파일</string>
+    <string name="error_password_required">비밀번호가 필요합니다</string>
+    <string name="error_cannot_create_output">출력 파일을 생성할 수 없습니다.</string>
+    <string name="error_merge_failed">병합 실패</string>
+    <string name="error_compress_failed">압축 실패</string>
+    <string name="error_split_failed">분할 실패</string>
+
+    <!-- Success Messages -->
+    <string name="success_operation_complete">작업이 성공적으로 완료되었습니다.</string>
+    <string name="success_file_saved">파일이 성공적으로 저장되었습니다.</string>
+
+    <!-- File Picker -->
+    <string name="file_picker_select_pdf">PDF 선택</string>
+    <string name="file_picker_select_pdfs">PDF 선택</string>
+    <string name="file_picker_select_image">이미지 선택</string>
+    <string name="file_picker_select_images">이미지 선택</string>
+
+    <!-- Common Labels -->
+    <string name="label_pdf">PDF</string>
+    <string name="label_page">페이지</string>
+    <string name="label_pages">페이지</string>
+    <string name="label_file">파일</string>
+    <string name="label_files">파일</string>
+    <string name="label_size">크기</string>
+    <string name="label_quality">품질</string>
+    <string name="label_format">체재</string>
+    <string name="label_password">비밀번호</string>
+    <string name="label_loading">로드 중...</string>
+    <string name="label_calculating">계산 중...</string>
+
+    <!-- Empty States -->
+    <string name="empty_no_files">선택한 파일이 없습니다.</string>
+    <string name="empty_no_pdfs">선택한 PDF가 없습니다.</string>
+    <string name="empty_no_images">선택한 이미지가 없습니다.</string>
+    <string name="empty_add_files">시작하려면 파일을 추가하세요.</string>
+
+    <!-- Result Dialog -->
+    <string name="result_success">성공</string>
+    <string name="result_error">오류</string>
+
+</resources>

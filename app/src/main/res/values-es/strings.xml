@@ -329,4 +329,14 @@
     <string name="result_error">Error</string>
 
     <string name="nav_tab_tools">Herramientas</string>
-<string name="nav_tab_files">Files</string><string name="nav_open_history">Open History</string><string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string><string name="language_portuguese">Português (Brasil)</string><string name="language_german">Deutsch</string></resources>
+    <!-- Missing translations -->
+    <string name="nav_tab_files">Archivos</string>
+    <string name="nav_open_history">Abrir Historial</string>
+    <string name="tool_image_compress">Comprimir Imagen</string>
+    <string name="tool_image_resize">Cambiar Tamaño de Imagen</string>
+    <string name="tool_image_convert">Convertir Formato</string>
+    <string name="tool_image_metadata">Eliminar Metadatos</string>
+    <string name="language_portuguese">Português (Brasil)</string>
+
+    <string name="language_german">Alemán</string>
+</resources>
