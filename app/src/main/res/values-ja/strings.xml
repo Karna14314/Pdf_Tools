@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">PDF Toolkit</string>
+
+    <!-- Common Actions -->
+    <string name="action_add">追加</string>
+    <string name="action_add_more">さらに追加</string>
+    <string name="action_add_more_pdfs">PDFをさらに追加</string>
+    <string name="action_back">戻る</string>
+    <string name="action_cancel">キャンセル</string>
+    <string name="action_clear">クリア</string>
+    <string name="action_close">近い</string>
+    <string name="action_compress">圧縮する</string>
+    <string name="action_delete">消去</string>
+    <string name="action_done">終わり</string>
+    <string name="action_merge">マージ</string>
+    <string name="action_next">次</string>
+    <string name="action_open">開ける</string>
+    <string name="action_open_pdf">PDFを開く</string>
+    <string name="action_previous">前の</string>
+    <string name="action_processing">処理...</string>
+    <string name="action_remove">取り除く</string>
+    <string name="action_save">保存</string>
+    <string name="action_save_as">名前を付けて保存</string>
+    <string name="action_select">選択</string>
+    <string name="action_settings">設定</string>
+    <string name="action_split">スプリット</string>
+    <string name="action_submit">提出する</string>
+    <string name="action_view">ビュー</string>
+    <string name="action_navigate">ナビゲート</string>
+    <string name="action_move_up">上に移動</string>
+    <string name="action_move_down">下に移動</string>
+
+    <!-- Navigation &amp; Content Descriptions -->
+    <string name="cd_open_pdf">PDFを開く</string>
+    <string name="cd_back">戻る</string>
+    <string name="cd_close_search">検索を閉じる</string>
+    <string name="cd_clear_search">検索をクリア</string>
+    <string name="cd_stop_search">検索の停止</string>
+    <string name="cd_previous_result">前の</string>
+    <string name="cd_next_result">次</string>
+    <string name="cd_compression_quality">圧縮品質</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">PDF Toolkit</string>
+    <string name="home_subtitle">すべての PDF と画像ツールを 1 か所にまとめた</string>
+    <string name="fab_open_pdf">PDFを開く</string>
+
+    <!-- Navigation -->
+    <string name="nav_tab_tools">ツール</string>
+    <string name="nav_tab_files">ファイル</string>
+    <string name="nav_open_history">履歴を開く</string>
+
+    <!-- Tool Categories -->
+    <string name="category_organize">整理する</string>
+    <string name="category_convert">変換する</string>
+    <string name="category_markup">マークアップ</string>
+    <string name="category_security">安全</string>
+    <string name="category_optimize">最適化する</string>
+    <string name="category_quick_actions">クイックアクション</string>
+    <string name="category_image_tools">画像ツール</string>
+    <string name="category_view_export">閲覧・閲覧輸出</string>
+
+    <!-- Tool Names - Organize -->
+    <string name="tool_merge_pdfs">PDFを結合する</string>
+    <string name="tool_merge_pdf">PDFを結合</string>
+    <string name="tool_split_pdf">PDFの分割</string>
+    <string name="tool_organize_pages">ページを整理する</string>
+    <string name="tool_rotate_pages">ページを回転する</string>
+    <string name="tool_extract_pages">ページの抽出</string>
+    <string name="tool_reorder_pages">ページの並べ替え</string>
+    <string name="tool_delete_pages">ページの削除</string>
+
+    <!-- Tool Names - Convert -->
+    <string name="tool_images_to_pdf">画像をPDFに変換</string>
+    <string name="tool_pdf_to_images">PDFから画像へ</string>
+    <string name="tool_html_to_pdf">HTMLからPDFへ</string>
+    <string name="tool_extract_text">テキストの抽出</string>
+    <string name="tool_scan_to_pdf">スキャンして PDF に保存</string>
+    <string name="tool_ocr">OCR</string>
+    <string name="tool_image_tools">画像ツール</string>
+    <string name="tool_image_compress">画像を圧縮する</string>
+    <string name="tool_image_resize">画像のサイズを変更する</string>
+    <string name="tool_image_convert">フォーマットの変換</string>
+    <string name="tool_image_metadata">メタデータの除去</string>
+
+    <!-- Tool Names - Markup -->
+    <string name="tool_sign_pdf">PDFに署名</string>
+    <string name="tool_fill_forms">フォームに記入する</string>
+    <string name="tool_annotate_pdf">PDFに注釈を付ける</string>
+
+    <!-- Tool Names - Security -->
+    <string name="tool_add_security">セキュリティの追加</string>
+    <string name="tool_lock_pdf">PDFをロックする</string>
+    <string name="tool_unlock_pdf">PDFのロックを解除する</string>
+    <string name="tool_add_watermark">透かしを追加する</string>
+    <string name="tool_flatten_pdf">PDF を平坦化する</string>
+
+    <!-- Tool Names - Optimize -->
+    <string name="tool_compress_pdf">PDFを圧縮する</string>
+    <string name="tool_repair_pdf">PDFを修復する</string>
+    <string name="tool_page_numbers">ページ番号</string>
+    <string name="tool_view_metadata">メタデータの表示</string>
+
+    <!-- Tool Descriptions -->
+    <string name="desc_merge_pdfs">複数の PDF ファイルを 1 つに結合する</string>
+    <string name="desc_split_pdf">PDF を複数のファイルに分割する</string>
+    <string name="desc_organize_pages">PDF ページを削除または並べ替える</string>
+    <string name="desc_rotate_pages">PDF ページを回転する</string>
+    <string name="desc_extract_pages">PDFから特定のページを抽出する</string>
+    <string name="desc_images_to_pdf">画像を PDF に変換する</string>
+    <string name="desc_pdf_to_images">PDF ページを画像に変換する</string>
+    <string name="desc_html_to_pdf">WebページまたはHTMLをPDFに変換</string>
+    <string name="desc_extract_text">テキストコンテンツをTXTファイルに抽出します</string>
+    <string name="desc_scan_to_pdf">カメラで書類をスキャン</string>
+    <string name="desc_ocr">スキャンした PDF を検索可能にする</string>
+    <string name="desc_image_tools">画像のサイズ変更、圧縮、変換</string>
+    <string name="desc_sign_pdf">PDF に署名を追加する</string>
+    <string name="desc_fill_forms">PDF フォームのフィールドに入力します</string>
+    <string name="desc_annotate_pdf">ハイライト、メモ、スタンプを追加する</string>
+    <string name="desc_add_security">PDF をパスワードで保護する</string>
+    <string name="desc_unlock_pdf">PDFからパスワードを削除する</string>
+    <string name="desc_add_watermark">テキストまたは画像の透かしを追加する</string>
+    <string name="desc_flatten_pdf">注釈をコンテンツに結合する</string>
+    <string name="desc_compress_pdf">PDFファイルのサイズを小さくする</string>
+    <string name="desc_repair_pdf">破損したPDFファイルを修正する</string>
+    <string name="desc_page_numbers">PDF にページ番号を追加する</string>
+    <string name="desc_view_metadata">PDF プロパティの表示と編集</string>
+    <string name="desc_reorder_pages">PDF ページを並べ替える</string>
+    <string name="desc_delete_pages">PDF からページを削除する</string>
+    <string name="desc_compress_image">画像ファイルのサイズを減らす</string>
+    <string name="desc_resize_image">画像の寸法を変更する</string>
+    <string name="desc_convert_format">JPEG・・・？？ WebP</string>
+    <string name="desc_strip_metadata">EXIFデータを削除する</string>
+    <string name="desc_lock_pdf">PDF をパスワードで保護する</string>
+    <string name="desc_sign">署名を追加</string>
+    <string name="desc_view_pdf">PDFを開いて表示する</string>
+
+    <!-- Merge Screen -->
+    <string name="merge_title">PDFを結合する</string>
+    <string name="merge_empty_title">PDF が選択されていません</string>
+    <string name="merge_empty_subtitle">2 つ以上の PDF ファイルを追加して 1 つのドキュメントに結合します</string>
+    <string name="merge_selected_files">選択したファイル (%d)</string>
+    <string name="merge_add_pdfs">PDFを追加する</string>
+    <string name="merge_n_pdfs">%d PDF を結合</string>
+    <string name="merge_progress">PDF を結合しています...</string>
+    <string name="merge_complete">マージが完了しました</string>
+    <string name="merge_failed">マージに失敗しました</string>
+    <string name="merge_success_message">%1$d PDF が正常に結合されました\n\n保存先: %2$s/%3$s</string>
+    <string name="merge_custom_location">カスタムの保存場所を選択する</string>
+    <string name="merge_default_path">デフォルト: %s</string>
+
+    <!-- Compress Screen -->
+    <string name="compress_title">PDFを圧縮する</string>
+    <string name="compress_empty_title">PDF が選択されていません</string>
+    <string name="compress_empty_subtitle">圧縮する PDF ファイルを選択してください</string>
+    <string name="compress_quality_maximum">最高の品質</string>
+    <string name="compress_quality_high">高品質</string>
+    <string name="compress_quality_balanced">バランスの取れた</string>
+    <string name="compress_quality_compressed">圧縮された</string>
+    <string name="compress_quality_maximum_compression">最大圧縮率</string>
+    <string name="compress_smaller_file">より小さいファイル</string>
+    <string name="compress_better_quality">より良い品質</string>
+    <string name="compress_progress">PDFを圧縮しています...</string>
+    <string name="compress_complete">圧縮が完了しました</string>
+    <string name="compress_failed">圧縮に失敗しました</string>
+    <string name="compress_success">圧縮が成功しました。</string>
+    <string name="compress_saved">圧縮されたPDFが保存されました。</string>
+    <string name="compress_before">前: %s</string>
+    <string name="compress_after">後: %s</string>
+    <string name="compress_saved_bytes">保存しました: %1$s (%2$d%%)</string>
+    <string name="compress_note_optimized">注: この PDF はすでに最適化されているか、ほとんどテキストが含まれている可能性があります。</string>
+    <string name="compress_select_pdf">PDFを選択</string>
+
+    <!-- Split Screen -->
+    <string name="split_title">PDFの分割</string>
+    <string name="split_empty_title">PDF が選択されていません</string>
+    <string name="split_empty_subtitle">複数のドキュメントに分割する PDF ファイルを選択します</string>
+    <string name="split_select_pdf">分割する PDF を選択してください</string>
+    <string name="split_progress">PDFを分割しています...</string>
+    <string name="split_complete">分割完了</string>
+    <string name="split_failed">分割に失敗しました</string>
+    <string name="split_all_pages">すべてのページ</string>
+    <string name="split_every_n_pages">N ページごと</string>
+    <string name="split_custom_range">カスタム範囲</string>
+    <string name="split_n_files_created">%d ファイルが作成されました</string>
+
+    <!-- PDF Viewer -->
+    <string name="pdf_viewer_title">PDFビューア</string>
+    <string name="pdf_document_default_name">PDFドキュメント</string>
+    <string name="pdf_page_indicator">ページ %1$d/%2$d (%3$d%%)</string>
+    <string name="pdf_search_placeholder">PDFで検索...</string>
+    <string name="pdf_search_no_matches">一致しません</string>
+    <string name="pdf_search_results">%1$d/%2$d</string>
+    <string name="pdf_zoom_in">ズームイン</string>
+    <string name="pdf_zoom_out">ズームアウト</string>
+    <string name="pdf_fit_to_width">幅に合わせる</string>
+    <string name="pdf_tools">ツール</string>
+    <string name="pdf_annotations">注釈</string>
+    <string name="pdf_search">検索</string>
+    <string name="pdf_share">共有</string>
+    <string name="pdf_save">保存</string>
+    <string name="pdf_highlighter">ハイライター</string>
+    <string name="pdf_marker">マーカー</string>
+    <string name="pdf_underline">下線</string>
+    <string name="pdf_clear_annotations">注釈をクリアしますか?</string>
+    <string name="pdf_clear_annotations_confirm">これにより、すべての注釈が削除されます。この操作は元に戻すことができません。</string>
+    <string name="pdf_annotations_saved">注釈が正常に保存されました。</string>
+    <string name="pdf_enter_password">パスワードを入力してください</string>
+    <string name="pdf_password_hint">この PDF はパスワードで保護されています</string>
+    <string name="pdf_password_error">パスワードが間違っています</string>
+    <string name="pdf_go_to_page">ページに移動</string>
+    <string name="pdf_page_number">ページ番号</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">設定</string>
+    <string name="settings_section_quality">品質設定</string>
+    <string name="settings_section_appearance">外観</string>
+    <string name="settings_section_storage">ストレージ</string>
+    <string name="settings_section_support">サポート</string>
+    <string name="settings_section_about">について</string>
+    <string name="settings_section_language">言語</string>
+    <string name="settings_compression_quality">デフォルトの圧縮品質</string>
+    <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
+    <string name="settings_image_format">デフォルトの画像フォーマット</string>
+    <string name="settings_theme_mode">テーマモード</string>
+    <string name="settings_cache_size">キャッシュサイズ</string>
+    <string name="settings_request_feature">機能をリクエストする</string>
+    <string name="settings_request_feature_subtitle">アプリを改善するためにアイデアを共有してください</string>
+    <string name="settings_report_bug">バグを報告する</string>
+    <string name="settings_report_bug_subtitle">問題の解決にご協力ください</string>
+    <string name="settings_rate_app">アプリを評価する</string>
+    <string name="settings_rate_app_subtitle">アプリは気に入っていますか? Play ストアで評価してください</string>
+    <string name="settings_version">バージョン</string>
+    <string name="settings_privacy_policy">プライバシーポリシー</string>
+    <string name="settings_privacy_policy_subtitle">プライバシーポリシーを見る</string>
+    <string name="settings_licenses">オープンソースライセンス</string>
+    <string name="settings_licenses_subtitle">サードパーティのライセンスを表示する</string>
+    <string name="settings_clear_cache">キャッシュをクリアしますか?</string>
+    <string name="settings_clear_cache_message">これにより、一時ファイルとキャッシュされたデータが削除されます。保存した PDF は影響を受けません。</string>
+    <string name="settings_cache_cleared">キャッシュが正常にクリアされました</string>
+    <string name="settings_about_title">PDF ツールキットについて</string>
+    <string name="settings_about_description">PDF Toolkit は、PDF ドキュメントを迅速かつ効率的に管理できる強力なオフライン PDF ツールです。</string>
+    <string name="settings_about_features">特徴：</string>
+    <string name="settings_about_feature_1">PDF の結合、分割、圧縮</string>
+    <string name="settings_about_feature_2">画像への変換/画像からの変換</string>
+    <string name="settings_about_feature_3">透かしと透かしを追加します。署名</string>
+    <string name="settings_about_feature_4">OCRとスキャンして PDF に保存</string>
+    <string name="settings_about_feature_5">安全で安全なPDFを暗号化する</string>
+    <string name="settings_about_version">バージョン</string>
+    <string name="settings_about_build">建てる</string>
+    <string name="settings_about_made_with">で作られました</string>
+    <string name="settings_about_kotlin_compose">Kotlin とJetpack Compose</string>
+    <string name="settings_app_name">PDF Toolkit</string>
+    <string name="settings_made_with_love">生産性を高める❤️で作られています</string>
+    <string name="settings_copyright">© 2026 PDF ツールキット</string>
+    <string name="settings_select_language">言語の選択</string>
+    <string name="settings_language_changed">言語が変更されました</string>
+
+    <!-- Language Names -->
+    <string name="language_english">英語</string>
+    <string name="language_spanish">スペイン語</string>
+    <string name="language_hindi">हिन्दी</string>
+    <string name="language_chinese">中国語</string>
+    <string name="language_portuguese">ポルトガル語 (ブラジル)</string>
+    <string name="language_german">ドイツ語</string>
+
+    <!-- Image Format Options -->
+    <string name="image_format_webp">WebP (推奨)</string>
+    <string name="image_format_jpeg">JPEG</string>
+    <string name="image_format_webp_desc">最適な圧縮、より小さいファイル</string>
+    <string name="image_format_jpeg_desc">ユニバーサルな互換性</string>
+
+    <!-- Theme Modes -->
+    <string name="theme_light">ライト</string>
+    <string name="theme_dark">暗い</string>
+    <string name="theme_system">システムのデフォルト</string>
+    <string name="theme_light_desc">常に明るいテーマを使用する</string>
+    <string name="theme_dark_desc">常にダークテーマを使用する</string>
+    <string name="theme_system_desc">システム設定に従ってください</string>
+
+    <!-- Feature Request -->
+    <string name="feature_request_title">機能をリクエストする</string>
+    <string name="feature_request_description">PDF Toolkit の改善に役立つアイデアを共有してください。</string>
+    <string name="feature_request_category">カテゴリ</string>
+    <string name="feature_request_category_feature">特徴</string>
+    <string name="feature_request_category_improvement">改善</string>
+    <string name="feature_request_category_ui">UI/UX</string>
+    <string name="feature_request_category_other">他の</string>
+    <string name="feature_request_idea">あなたのアイデアを説明してください</string>
+    <string name="feature_request_placeholder">どのような機能が欲しいですか?</string>
+
+    <!-- Bug Report -->
+    <string name="bug_report_subject">[バグレポート] PDF ツールキット</string>
+    <string name="bug_report_template">バグの説明:\n[発生した問題について説明してください]\n\n再現手順:\n1. \n2. \n3. \n\n期待される動作:\n[何が起こると予想していましたか?]\n\n実際の動作:\n[実際には何が起こりましたか?]</string>
+
+    <!-- Error Messages -->
+    <string name="error_gmail_required">Gmailアプリが必要です。 Gmail をインストールするか、フィードバックを %s に送信してください</string>
+    <string name="error_generic">エラーが発生しました</string>
+    <string name="error_file_not_found">ファイルが見つかりません</string>
+    <string name="error_invalid_pdf">無効な PDF ファイルです</string>
+    <string name="error_password_required">パスワードが必要です</string>
+    <string name="error_cannot_create_output">出力ファイルを作成できません</string>
+    <string name="error_merge_failed">マージに失敗しました</string>
+    <string name="error_compress_failed">圧縮に失敗しました</string>
+    <string name="error_split_failed">分割に失敗しました</string>
+
+    <!-- Success Messages -->
+    <string name="success_operation_complete">操作は正常に完了しました</string>
+    <string name="success_file_saved">ファイルは正常に保存されました</string>
+
+    <!-- File Picker -->
+    <string name="file_picker_select_pdf">PDFを選択</string>
+    <string name="file_picker_select_pdfs">PDFを選択</string>
+    <string name="file_picker_select_image">画像の選択</string>
+    <string name="file_picker_select_images">画像の選択</string>
+
+    <!-- Common Labels -->
+    <string name="label_pdf">PDF</string>
+    <string name="label_page">ページ</string>
+    <string name="label_pages">ページ</string>
+    <string name="label_file">ファイル</string>
+    <string name="label_files">ファイル</string>
+    <string name="label_size">サイズ</string>
+    <string name="label_quality">品質</string>
+    <string name="label_format">形式</string>
+    <string name="label_password">パスワード</string>
+    <string name="label_loading">読み込み中...</string>
+    <string name="label_calculating">計算中...</string>
+
+    <!-- Empty States -->
+    <string name="empty_no_files">ファイルが選択されていません</string>
+    <string name="empty_no_pdfs">PDF が選択されていません</string>
+    <string name="empty_no_images">画像が選択されていません</string>
+    <string name="empty_add_files">ファイルを追加して開始します</string>
+
+    <!-- Result Dialog -->
+    <string name="result_success">成功</string>
+    <string name="result_error">エラー</string>
+
+</resources>

@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">PDF Toolkit</string>
+
+    <!-- Common Actions -->
+    <string name="action_add">Добавлять</string>
+    <string name="action_add_more">Добавить больше</string>
+    <string name="action_add_more_pdfs">Добавить больше PDF-файлов</string>
+    <string name="action_back">Назад</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_clear">Прозрачный</string>
+    <string name="action_close">Закрывать</string>
+    <string name="action_compress">Компресс</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_done">Сделанный</string>
+    <string name="action_merge">Объединить</string>
+    <string name="action_next">Следующий</string>
+    <string name="action_open">Открыть</string>
+    <string name="action_open_pdf">Открыть PDF</string>
+    <string name="action_previous">Предыдущий</string>
+    <string name="action_processing">Обработка...</string>
+    <string name="action_remove">Удалять</string>
+    <string name="action_save">Сохранять</string>
+    <string name="action_save_as">Сохранить как</string>
+    <string name="action_select">Выбирать</string>
+    <string name="action_settings">Настройки</string>
+    <string name="action_split">Расколоть</string>
+    <string name="action_submit">Представлять на рассмотрение</string>
+    <string name="action_view">Вид</string>
+    <string name="action_navigate">Навигация</string>
+    <string name="action_move_up">Вверх</string>
+    <string name="action_move_down">Двигаться вниз</string>
+
+    <!-- Navigation &amp; Content Descriptions -->
+    <string name="cd_open_pdf">Открыть PDF</string>
+    <string name="cd_back">Назад</string>
+    <string name="cd_close_search">Закрыть поиск</string>
+    <string name="cd_clear_search">Очистить поиск</string>
+    <string name="cd_stop_search">Остановить поиск</string>
+    <string name="cd_previous_result">Предыдущий</string>
+    <string name="cd_next_result">Следующий</string>
+    <string name="cd_compression_quality">Качество сжатия</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">PDF Toolkit</string>
+    <string name="home_subtitle">Все ваши PDF &amp; инструменты для работы с изображениями в одном месте</string>
+    <string name="fab_open_pdf">Открыть PDF</string>
+
+    <!-- Navigation -->
+    <string name="nav_tab_tools">Инструменты</string>
+    <string name="nav_tab_files">Файлы</string>
+    <string name="nav_open_history">Открыть историю</string>
+
+    <!-- Tool Categories -->
+    <string name="category_organize">Организовать</string>
+    <string name="category_convert">Конвертировать</string>
+    <string name="category_markup">Разметка</string>
+    <string name="category_security">Безопасность</string>
+    <string name="category_optimize">Оптимизировать</string>
+    <string name="category_quick_actions">Быстрые действия</string>
+    <string name="category_image_tools">Инструменты для изображений</string>
+    <string name="category_view_export">Посмотреть и усилить; Экспорт</string>
+
+    <!-- Tool Names - Organize -->
+    <string name="tool_merge_pdfs">Объединить PDF-файлы</string>
+    <string name="tool_merge_pdf">Объединить PDF-файл</string>
+    <string name="tool_split_pdf">Разделить PDF</string>
+    <string name="tool_organize_pages">Организация страниц</string>
+    <string name="tool_rotate_pages">Поворот страниц</string>
+    <string name="tool_extract_pages">Извлечь страницы</string>
+    <string name="tool_reorder_pages">Изменение порядка страниц</string>
+    <string name="tool_delete_pages">Удалить страницы</string>
+
+    <!-- Tool Names - Convert -->
+    <string name="tool_images_to_pdf">Изображения в PDF</string>
+    <string name="tool_pdf_to_images">PDF в изображения</string>
+    <string name="tool_html_to_pdf">HTML в PDF</string>
+    <string name="tool_extract_text">Извлечь текст</string>
+    <string name="tool_scan_to_pdf">Сканировать в PDF</string>
+    <string name="tool_ocr">оптическое распознавание символов</string>
+    <string name="tool_image_tools">Инструменты для изображений</string>
+    <string name="tool_image_compress">Сжать изображение</string>
+    <string name="tool_image_resize">Изменить размер изображения</string>
+    <string name="tool_image_convert">Преобразование формата</string>
+    <string name="tool_image_metadata">Удаление метаданных</string>
+
+    <!-- Tool Names - Markup -->
+    <string name="tool_sign_pdf">Подписать PDF</string>
+    <string name="tool_fill_forms">Заполните формы</string>
+    <string name="tool_annotate_pdf">Аннотировать PDF</string>
+
+    <!-- Tool Names - Security -->
+    <string name="tool_add_security">Добавить безопасность</string>
+    <string name="tool_lock_pdf">Заблокировать PDF</string>
+    <string name="tool_unlock_pdf">Разблокировать PDF</string>
+    <string name="tool_add_watermark">Добавить водяной знак</string>
+    <string name="tool_flatten_pdf">Свести PDF-файл</string>
+
+    <!-- Tool Names - Optimize -->
+    <string name="tool_compress_pdf">Сжать PDF</string>
+    <string name="tool_repair_pdf">Восстановить PDF</string>
+    <string name="tool_page_numbers">Номера страниц</string>
+    <string name="tool_view_metadata">Просмотр метаданных</string>
+
+    <!-- Tool Descriptions -->
+    <string name="desc_merge_pdfs">Объединение нескольких PDF-файлов в один</string>
+    <string name="desc_split_pdf">Разделить PDF на несколько файлов</string>
+    <string name="desc_organize_pages">Удаление или изменение порядка страниц PDF</string>
+    <string name="desc_rotate_pages">Поворот страниц PDF</string>
+    <string name="desc_extract_pages">Извлечение определенных страниц из PDF</string>
+    <string name="desc_images_to_pdf">Конвертируйте изображения в PDF</string>
+    <string name="desc_pdf_to_images">Преобразование PDF-страниц в изображения</string>
+    <string name="desc_html_to_pdf">Преобразование веб-страницы или HTML в PDF</string>
+    <string name="desc_extract_text">Извлечь текстовое содержимое в файл TXT</string>
+    <string name="desc_scan_to_pdf">Сканирование документов с помощью камеры</string>
+    <string name="desc_ocr">Сделайте отсканированные PDF-файлы доступными для поиска</string>
+    <string name="desc_image_tools">Изменение размера, сжатие и конвертация изображений</string>
+    <string name="desc_sign_pdf">Добавьте свою подпись в PDF</string>
+    <string name="desc_fill_forms">Заполните поля PDF-формы</string>
+    <string name="desc_annotate_pdf">Добавляйте блики, заметки, штампы</string>
+    <string name="desc_add_security">Защитите паролем ваши PDF-файлы</string>
+    <string name="desc_unlock_pdf">Удалить пароль из PDF-файлов</string>
+    <string name="desc_add_watermark">Добавьте текстовый или графический водяной знак</string>
+    <string name="desc_flatten_pdf">Объединение аннотаций с контентом</string>
+    <string name="desc_compress_pdf">Уменьшить размер PDF-файла</string>
+    <string name="desc_repair_pdf">Исправить поврежденные PDF-файлы</string>
+    <string name="desc_page_numbers">Добавьте номера страниц в PDF-файл</string>
+    <string name="desc_view_metadata">Просмотр и редактирование свойств PDF</string>
+    <string name="desc_reorder_pages">Изменение порядка страниц PDF</string>
+    <string name="desc_delete_pages">Удалить страницы из PDF</string>
+    <string name="desc_compress_image">Уменьшить размер файла изображения</string>
+    <string name="desc_resize_image">Изменить размеры изображения</string>
+    <string name="desc_convert_format">JPEG �?? ВебП</string>
+    <string name="desc_strip_metadata">Удалить данные EXIF</string>
+    <string name="desc_lock_pdf">Защитите свой PDF-файл паролем</string>
+    <string name="desc_sign">Добавьте свою подпись</string>
+    <string name="desc_view_pdf">Открыть и просмотреть PDF</string>
+
+    <!-- Merge Screen -->
+    <string name="merge_title">Объединить PDF-файлы</string>
+    <string name="merge_empty_title">PDF-файлы не выбраны</string>
+    <string name="merge_empty_subtitle">Добавьте 2 или более PDF-файла, чтобы объединить их в один документ.</string>
+    <string name="merge_selected_files">Выбранные файлы (%d)</string>
+    <string name="merge_add_pdfs">Добавить PDF-файлы</string>
+    <string name="merge_n_pdfs">Объединить %d PDF-файлов</string>
+    <string name="merge_progress">Объединение PDF-файлов...</string>
+    <string name="merge_complete">Объединение завершено</string>
+    <string name="merge_failed">Слияние не удалось</string>
+    <string name="merge_success_message">Успешно объединено %1$d PDF-файлов.\n\nСохранено в: %2$s/%3$s.</string>
+    <string name="merge_custom_location">Выберите собственное место сохранения</string>
+    <string name="merge_default_path">По умолчанию: %s</string>
+
+    <!-- Compress Screen -->
+    <string name="compress_title">Сжать PDF</string>
+    <string name="compress_empty_title">PDF-файл не выбран</string>
+    <string name="compress_empty_subtitle">Выберите PDF-файл для сжатия</string>
+    <string name="compress_quality_maximum">Максимальное качество</string>
+    <string name="compress_quality_high">Высокое качество</string>
+    <string name="compress_quality_balanced">Сбалансированный</string>
+    <string name="compress_quality_compressed">Сжатый</string>
+    <string name="compress_quality_maximum_compression">Максимальное сжатие</string>
+    <string name="compress_smaller_file">Меньший файл</string>
+    <string name="compress_better_quality">Лучшее качество</string>
+    <string name="compress_progress">Сжатие PDF...</string>
+    <string name="compress_complete">Сжатие завершено</string>
+    <string name="compress_failed">Сжатие не выполнено</string>
+    <string name="compress_success">Сжатие успешно!</string>
+    <string name="compress_saved">Сжатый PDF-файл сохранен.</string>
+    <string name="compress_before">До: %s</string>
+    <string name="compress_after">После: %s</string>
+    <string name="compress_saved_bytes">Сохранено: %1$s (%2$d%%)</string>
+    <string name="compress_note_optimized">Примечание. Возможно, этот PDF-файл уже оптимизирован или содержит в основном текст.</string>
+    <string name="compress_select_pdf">Выберите PDF</string>
+
+    <!-- Split Screen -->
+    <string name="split_title">Разделить PDF</string>
+    <string name="split_empty_title">PDF-файл не выбран</string>
+    <string name="split_empty_subtitle">Выберите PDF-файл, который нужно разделить на несколько документов.</string>
+    <string name="split_select_pdf">Выберите PDF для разделения</string>
+    <string name="split_progress">Разделение PDF-файла...</string>
+    <string name="split_complete">Разделение завершено</string>
+    <string name="split_failed">Разделить не удалось</string>
+    <string name="split_all_pages">Все страницы</string>
+    <string name="split_every_n_pages">Каждые N страниц</string>
+    <string name="split_custom_range">Пользовательский диапазон</string>
+    <string name="split_n_files_created">Создано %d файлов</string>
+
+    <!-- PDF Viewer -->
+    <string name="pdf_viewer_title">Просмотрщик PDF-файлов</string>
+    <string name="pdf_document_default_name">PDF-документ</string>
+    <string name="pdf_page_indicator">Страница %1$d из %2$d (%3$d%%)</string>
+    <string name="pdf_search_placeholder">Искать в PDF...</string>
+    <string name="pdf_search_no_matches">Нет совпадений</string>
+    <string name="pdf_search_results">%1$d/%2$d</string>
+    <string name="pdf_zoom_in">Увеличить масштаб</string>
+    <string name="pdf_zoom_out">Уменьшить масштаб</string>
+    <string name="pdf_fit_to_width">По ширине</string>
+    <string name="pdf_tools">Инструменты</string>
+    <string name="pdf_annotations">Аннотации</string>
+    <string name="pdf_search">Поиск</string>
+    <string name="pdf_share">Делиться</string>
+    <string name="pdf_save">Сохранять</string>
+    <string name="pdf_highlighter">Хайлайтер</string>
+    <string name="pdf_marker">Маркер</string>
+    <string name="pdf_underline">Подчеркнуть</string>
+    <string name="pdf_clear_annotations">Очистить аннотации?</string>
+    <string name="pdf_clear_annotations_confirm">Это удалит все аннотации. Это действие невозможно отменить.</string>
+    <string name="pdf_annotations_saved">Аннотации успешно сохранены!</string>
+    <string name="pdf_enter_password">Введите пароль</string>
+    <string name="pdf_password_hint">Этот PDF-файл защищен паролем</string>
+    <string name="pdf_password_error">Неправильный пароль</string>
+    <string name="pdf_go_to_page">Перейти на страницу</string>
+    <string name="pdf_page_number">Номер страницы</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_section_quality">Настройки качества</string>
+    <string name="settings_section_appearance">Появление</string>
+    <string name="settings_section_storage">Хранилище</string>
+    <string name="settings_section_support">Поддерживать</string>
+    <string name="settings_section_about">О</string>
+    <string name="settings_section_language">Язык</string>
+    <string name="settings_compression_quality">Качество сжатия по умолчанию</string>
+    <string name="settings_compression_quality_value">%1$d%% – %2$s</string>
+    <string name="settings_image_format">Формат изображения по умолчанию</string>
+    <string name="settings_theme_mode">Тематический режим</string>
+    <string name="settings_cache_size">Размер кэша</string>
+    <string name="settings_request_feature">Запросить функцию</string>
+    <string name="settings_request_feature_subtitle">Поделитесь своими идеями по улучшению приложения</string>
+    <string name="settings_report_bug">Сообщить об ошибке</string>
+    <string name="settings_report_bug_subtitle">Помогите нам решить проблемы</string>
+    <string name="settings_rate_app">Оцените приложение</string>
+    <string name="settings_rate_app_subtitle">Нравится приложение? Оцените нас в Play Store</string>
+    <string name="settings_version">Версия</string>
+    <string name="settings_privacy_policy">политика конфиденциальности</string>
+    <string name="settings_privacy_policy_subtitle">Ознакомьтесь с нашей политикой конфиденциальности</string>
+    <string name="settings_licenses">Лицензии с открытым исходным кодом</string>
+    <string name="settings_licenses_subtitle">Просмотр сторонних лицензий</string>
+    <string name="settings_clear_cache">Очистить кэш?</string>
+    <string name="settings_clear_cache_message">Это приведет к удалению временных файлов и кэшированных данных. Ваши сохраненные PDF-файлы не будут затронуты.</string>
+    <string name="settings_cache_cleared">Кэш успешно очищен</string>
+    <string name="settings_about_title">О наборе инструментов PDF</string>
+    <string name="settings_about_description">PDF Toolkit — это мощный автономный инструмент PDF, который помогает быстро и эффективно управлять PDF-документами.</string>
+    <string name="settings_about_features">Функции:</string>
+    <string name="settings_about_feature_1">Объединение, разделение, сжатие PDF-файлов</string>
+    <string name="settings_about_feature_2">Преобразование в/из изображений</string>
+    <string name="settings_about_feature_3">Добавить водяные знаки и подписи</string>
+    <string name="settings_about_feature_4">OCR и amp; Сканировать в PDF</string>
+    <string name="settings_about_feature_5">Безопасный &amp; шифровать PDF-файлы</string>
+    <string name="settings_about_version">Версия</string>
+    <string name="settings_about_build">Строить</string>
+    <string name="settings_about_made_with">Сделано с</string>
+    <string name="settings_about_kotlin_compose">Котлин &amp; Реактивный ранец</string>
+    <string name="settings_app_name">PDF Toolkit</string>
+    <string name="settings_made_with_love">Сделано с ❤️ для продуктивности</string>
+    <string name="settings_copyright">© 2026 PDF-инструментарий</string>
+    <string name="settings_select_language">Выберите язык</string>
+    <string name="settings_language_changed">Язык изменен</string>
+
+    <!-- Language Names -->
+    <string name="language_english">Английский</string>
+    <string name="language_spanish">испанский</string>
+    <string name="language_hindi">हिन्दी</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_portuguese">Португальский (Бразилия)</string>
+    <string name="language_german">немецкий</string>
+
+    <!-- Image Format Options -->
+    <string name="image_format_webp">WebP (рекомендуется)</string>
+    <string name="image_format_jpeg">JPEG</string>
+    <string name="image_format_webp_desc">Лучшее сжатие, файлы меньшего размера</string>
+    <string name="image_format_jpeg_desc">Универсальная совместимость</string>
+
+    <!-- Theme Modes -->
+    <string name="theme_light">Свет</string>
+    <string name="theme_dark">Темный</string>
+    <string name="theme_system">Системные настройки по умолчанию</string>
+    <string name="theme_light_desc">Всегда используйте светлую тему</string>
+    <string name="theme_dark_desc">Всегда используйте темную тему</string>
+    <string name="theme_system_desc">Следуйте настройкам системы</string>
+
+    <!-- Feature Request -->
+    <string name="feature_request_title">Запросить функцию</string>
+    <string name="feature_request_description">Поделитесь своей идеей, чтобы помочь нам улучшить PDF Toolkit!</string>
+    <string name="feature_request_category">Категория</string>
+    <string name="feature_request_category_feature">Особенность</string>
+    <string name="feature_request_category_improvement">Улучшение</string>
+    <string name="feature_request_category_ui">UI/UX</string>
+    <string name="feature_request_category_other">Другой</string>
+    <string name="feature_request_idea">Опишите свою идею</string>
+    <string name="feature_request_placeholder">Какую функцию вы хотели бы видеть?</string>
+
+    <!-- Bug Report -->
+    <string name="bug_report_subject">[Отчет об ошибке] PDF Toolkit</string>
+    <string name="bug_report_template">Описание ошибки:\n[Опишите проблему, с которой вы столкнулись]\n\nШаги по воспроизведению:\n1. \n2. \n3. \n\nОжидаемое поведение:\n[Чего вы ожидали?]\n\nФактическое поведение:\n[Что произошло на самом деле?]</string>
+
+    <!-- Error Messages -->
+    <string name="error_gmail_required">Требуется приложение Gmail. Установите Gmail или отправьте отзыв %s.</string>
+    <string name="error_generic">Произошла ошибка</string>
+    <string name="error_file_not_found">Файл не найден</string>
+    <string name="error_invalid_pdf">Неверный PDF-файл</string>
+    <string name="error_password_required">Требуется пароль</string>
+    <string name="error_cannot_create_output">Невозможно создать выходной файл</string>
+    <string name="error_merge_failed">Слияние не удалось</string>
+    <string name="error_compress_failed">Сжатие не удалось</string>
+    <string name="error_split_failed">Разделить не удалось</string>
+
+    <!-- Success Messages -->
+    <string name="success_operation_complete">Операция завершена успешно</string>
+    <string name="success_file_saved">Файл успешно сохранен</string>
+
+    <!-- File Picker -->
+    <string name="file_picker_select_pdf">Выберите PDF</string>
+    <string name="file_picker_select_pdfs">Выберите PDF-файлы</string>
+    <string name="file_picker_select_image">Выберите изображение</string>
+    <string name="file_picker_select_images">Выберите изображения</string>
+
+    <!-- Common Labels -->
+    <string name="label_pdf">PDF</string>
+    <string name="label_page">Страница</string>
+    <string name="label_pages">Страницы</string>
+    <string name="label_file">Файл</string>
+    <string name="label_files">Файлы</string>
+    <string name="label_size">Размер</string>
+    <string name="label_quality">Качество</string>
+    <string name="label_format">Формат</string>
+    <string name="label_password">Пароль</string>
+    <string name="label_loading">Загрузка...</string>
+    <string name="label_calculating">Расчет...</string>
+
+    <!-- Empty States -->
+    <string name="empty_no_files">Файлы не выбраны</string>
+    <string name="empty_no_pdfs">PDF-файлы не выбраны</string>
+    <string name="empty_no_images">Изображения не выбраны</string>
+    <string name="empty_add_files">Добавьте файлы, чтобы начать</string>
+
+    <!-- Result Dialog -->
+    <string name="result_success">Успех</string>
+    <string name="result_error">Ошибка</string>
+
+</resources>

@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">PDF Toolkit</string>
+
+    <!-- Common Actions -->
+    <string name="action_add">Menambahkan</string>
+    <string name="action_add_more">Tambahkan Lebih Banyak</string>
+    <string name="action_add_more_pdfs">Tambahkan Lebih Banyak PDF</string>
+    <string name="action_back">Kembali</string>
+    <string name="action_cancel">Membatalkan</string>
+    <string name="action_clear">Jernih</string>
+    <string name="action_close">Menutup</string>
+    <string name="action_compress">Kompres</string>
+    <string name="action_delete">Menghapus</string>
+    <string name="action_done">Selesai</string>
+    <string name="action_merge">Menggabungkan</string>
+    <string name="action_next">Berikutnya</string>
+    <string name="action_open">Membuka</string>
+    <string name="action_open_pdf">Buka PDF</string>
+    <string name="action_previous">Sebelumnya</string>
+    <string name="action_processing">Pengolahan...</string>
+    <string name="action_remove">Menghapus</string>
+    <string name="action_save">Menyimpan</string>
+    <string name="action_save_as">Simpan Sebagai</string>
+    <string name="action_select">Memilih</string>
+    <string name="action_settings">Pengaturan</string>
+    <string name="action_split">Membelah</string>
+    <string name="action_submit">Kirim</string>
+    <string name="action_view">Melihat</string>
+    <string name="action_navigate">Navigasi</string>
+    <string name="action_move_up">Naik</string>
+    <string name="action_move_down">Pindah ke bawah</string>
+
+    <!-- Navigation &amp; Content Descriptions -->
+    <string name="cd_open_pdf">Buka PDF</string>
+    <string name="cd_back">Kembali</string>
+    <string name="cd_close_search">Tutup pencarian</string>
+    <string name="cd_clear_search">Hapus pencarian</string>
+    <string name="cd_stop_search">Hentikan Pencarian</string>
+    <string name="cd_previous_result">Sebelumnya</string>
+    <string name="cd_next_result">Berikutnya</string>
+    <string name="cd_compression_quality">Kualitas Kompresi</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">PDF Toolkit</string>
+    <string name="home_subtitle">Semua file PDF &amp; alat gambar di satu tempat</string>
+    <string name="fab_open_pdf">Buka PDF</string>
+
+    <!-- Navigation -->
+    <string name="nav_tab_tools">Peralatan</string>
+    <string name="nav_tab_files">File</string>
+    <string name="nav_open_history">Buka Sejarah</string>
+
+    <!-- Tool Categories -->
+    <string name="category_organize">Mengatur</string>
+    <string name="category_convert">Mengubah</string>
+    <string name="category_markup">Menandai</string>
+    <string name="category_security">Keamanan</string>
+    <string name="category_optimize">Optimalkan</string>
+    <string name="category_quick_actions">Tindakan Cepat</string>
+    <string name="category_image_tools">Alat Gambar</string>
+    <string name="category_view_export">Lihat &amp; Ekspor</string>
+
+    <!-- Tool Names - Organize -->
+    <string name="tool_merge_pdfs">Gabungkan PDF</string>
+    <string name="tool_merge_pdf">Gabungkan PDF</string>
+    <string name="tool_split_pdf">Pisahkan PDF</string>
+    <string name="tool_organize_pages">Atur Halaman</string>
+    <string name="tool_rotate_pages">Putar Halaman</string>
+    <string name="tool_extract_pages">Ekstrak Halaman</string>
+    <string name="tool_reorder_pages">Susun Ulang Halaman</string>
+    <string name="tool_delete_pages">Hapus Halaman</string>
+
+    <!-- Tool Names - Convert -->
+    <string name="tool_images_to_pdf">Gambar ke PDF</string>
+    <string name="tool_pdf_to_images">PDF ke Gambar</string>
+    <string name="tool_html_to_pdf">HTML ke PDF</string>
+    <string name="tool_extract_text">Ekstrak Teks</string>
+    <string name="tool_scan_to_pdf">Pindai ke PDF</string>
+    <string name="tool_ocr">OCR</string>
+    <string name="tool_image_tools">Alat Gambar</string>
+    <string name="tool_image_compress">Kompres Gambar</string>
+    <string name="tool_image_resize">Ubah Ukuran Gambar</string>
+    <string name="tool_image_convert">Konversi Format</string>
+    <string name="tool_image_metadata">Hapus Metadata</string>
+
+    <!-- Tool Names - Markup -->
+    <string name="tool_sign_pdf">Tanda tangani PDF</string>
+    <string name="tool_fill_forms">Isi Formulir</string>
+    <string name="tool_annotate_pdf">Beri anotasi pada PDF</string>
+
+    <!-- Tool Names - Security -->
+    <string name="tool_add_security">Tambahkan Keamanan</string>
+    <string name="tool_lock_pdf">Kunci PDF</string>
+    <string name="tool_unlock_pdf">Buka kunci PDF</string>
+    <string name="tool_add_watermark">Tambahkan Tanda Air</string>
+    <string name="tool_flatten_pdf">Ratakan PDF</string>
+
+    <!-- Tool Names - Optimize -->
+    <string name="tool_compress_pdf">Kompres PDF</string>
+    <string name="tool_repair_pdf">Perbaiki PDF</string>
+    <string name="tool_page_numbers">Nomor Halaman</string>
+    <string name="tool_view_metadata">Lihat Metadata</string>
+
+    <!-- Tool Descriptions -->
+    <string name="desc_merge_pdfs">Gabungkan beberapa file PDF menjadi satu</string>
+    <string name="desc_split_pdf">Pisahkan PDF menjadi beberapa file</string>
+    <string name="desc_organize_pages">Hapus atau susun ulang halaman PDF</string>
+    <string name="desc_rotate_pages">Putar halaman PDF</string>
+    <string name="desc_extract_pages">Ekstrak halaman tertentu dari PDF</string>
+    <string name="desc_images_to_pdf">Konversi gambar ke PDF</string>
+    <string name="desc_pdf_to_images">Konversi halaman PDF menjadi gambar</string>
+    <string name="desc_html_to_pdf">Konversi halaman web atau HTML ke PDF</string>
+    <string name="desc_extract_text">Ekstrak konten teks ke file TXT</string>
+    <string name="desc_scan_to_pdf">Pindai dokumen dengan kamera</string>
+    <string name="desc_ocr">Jadikan PDF yang dipindai dapat dicari</string>
+    <string name="desc_image_tools">Ubah ukuran, kompres, konversi gambar</string>
+    <string name="desc_sign_pdf">Tambahkan tanda tangan Anda ke PDF</string>
+    <string name="desc_fill_forms">Isi kolom formulir PDF</string>
+    <string name="desc_annotate_pdf">Tambahkan sorotan, catatan, prangko</string>
+    <string name="desc_add_security">Lindungi PDF Anda dengan kata sandi</string>
+    <string name="desc_unlock_pdf">Hapus kata sandi dari PDF</string>
+    <string name="desc_add_watermark">Tambahkan tanda air teks atau gambar</string>
+    <string name="desc_flatten_pdf">Gabungkan anotasi ke konten</string>
+    <string name="desc_compress_pdf">Kurangi ukuran file PDF</string>
+    <string name="desc_repair_pdf">Perbaiki file PDF yang rusak</string>
+    <string name="desc_page_numbers">Tambahkan nomor halaman ke PDF Anda</string>
+    <string name="desc_view_metadata">Lihat dan edit properti PDF</string>
+    <string name="desc_reorder_pages">Susun ulang halaman PDF</string>
+    <string name="desc_delete_pages">Hapus halaman dari PDF</string>
+    <string name="desc_compress_image">Kurangi ukuran file gambar</string>
+    <string name="desc_resize_image">Ubah dimensi gambar</string>
+    <string name="desc_convert_format">JPEG �?? WebP</string>
+    <string name="desc_strip_metadata">Hapus data EXIF</string>
+    <string name="desc_lock_pdf">Lindungi PDF Anda dengan kata sandi</string>
+    <string name="desc_sign">Tambahkan tanda tangan Anda</string>
+    <string name="desc_view_pdf">Buka dan lihat PDF</string>
+
+    <!-- Merge Screen -->
+    <string name="merge_title">Gabungkan PDF</string>
+    <string name="merge_empty_title">Tidak Ada PDF yang Dipilih</string>
+    <string name="merge_empty_subtitle">Tambahkan 2 atau lebih file PDF untuk menggabungkannya menjadi satu dokumen</string>
+    <string name="merge_selected_files">File yang Dipilih (%d)</string>
+    <string name="merge_add_pdfs">Tambahkan PDF</string>
+    <string name="merge_n_pdfs">Gabungkan %d PDF</string>
+    <string name="merge_progress">Menggabungkan PDF...</string>
+    <string name="merge_complete">Penggabungan Selesai</string>
+    <string name="merge_failed">Penggabungan Gagal</string>
+    <string name="merge_success_message">Berhasil menggabungkan %1$d PDF\n\nDisimpan ke: %2$s/%3$s</string>
+    <string name="merge_custom_location">Pilih lokasi penyimpanan khusus</string>
+    <string name="merge_default_path">Bawaan: %s</string>
+
+    <!-- Compress Screen -->
+    <string name="compress_title">Kompres PDF</string>
+    <string name="compress_empty_title">Tidak ada PDF yang Dipilih</string>
+    <string name="compress_empty_subtitle">Pilih file PDF untuk dikompres</string>
+    <string name="compress_quality_maximum">Kualitas maksimal</string>
+    <string name="compress_quality_high">Kualitas tinggi</string>
+    <string name="compress_quality_balanced">Seimbang</string>
+    <string name="compress_quality_compressed">Terkompresi</string>
+    <string name="compress_quality_maximum_compression">Kompresi maksimum</string>
+    <string name="compress_smaller_file">Berkas lebih kecil</string>
+    <string name="compress_better_quality">Kualitas yang lebih baik</string>
+    <string name="compress_progress">Mengompresi PDF...</string>
+    <string name="compress_complete">Kompresi Selesai</string>
+    <string name="compress_failed">Kompresi Gagal</string>
+    <string name="compress_success">Kompresi berhasil!</string>
+    <string name="compress_saved">PDF terkompresi disimpan.</string>
+    <string name="compress_before">Sebelumnya: %s</string>
+    <string name="compress_after">Setelah: %s</string>
+    <string name="compress_saved_bytes">Tersimpan: %1$s (%2$d%%)</string>
+    <string name="compress_note_optimized">Catatan: PDF ini mungkin sudah dioptimalkan atau sebagian besar berisi teks.</string>
+    <string name="compress_select_pdf">Pilih PDF</string>
+
+    <!-- Split Screen -->
+    <string name="split_title">Pisahkan PDF</string>
+    <string name="split_empty_title">Tidak ada PDF yang Dipilih</string>
+    <string name="split_empty_subtitle">Pilih file PDF untuk dipecah menjadi beberapa dokumen</string>
+    <string name="split_select_pdf">Pilih PDF untuk Dibagi</string>
+    <string name="split_progress">Memisahkan PDF...</string>
+    <string name="split_complete">Pemisahan Selesai</string>
+    <string name="split_failed">Pemisahan Gagal</string>
+    <string name="split_all_pages">Semua Halaman</string>
+    <string name="split_every_n_pages">Setiap N halaman</string>
+    <string name="split_custom_range">Rentang khusus</string>
+    <string name="split_n_files_created">%d file dibuat</string>
+
+    <!-- PDF Viewer -->
+    <string name="pdf_viewer_title">Penampil PDF</string>
+    <string name="pdf_document_default_name">Dokumen PDF</string>
+    <string name="pdf_page_indicator">Halaman %1$d dari %2$d (%3$d%%)</string>
+    <string name="pdf_search_placeholder">Cari dalam PDF...</string>
+    <string name="pdf_search_no_matches">Tidak ada kecocokan</string>
+    <string name="pdf_search_results">%1$d/%2$d</string>
+    <string name="pdf_zoom_in">Perbesar</string>
+    <string name="pdf_zoom_out">Perkecil</string>
+    <string name="pdf_fit_to_width">Sesuai dengan lebarnya</string>
+    <string name="pdf_tools">Peralatan</string>
+    <string name="pdf_annotations">Anotasi</string>
+    <string name="pdf_search">Mencari</string>
+    <string name="pdf_share">Membagikan</string>
+    <string name="pdf_save">Menyimpan</string>
+    <string name="pdf_highlighter">Penyorot</string>
+    <string name="pdf_marker">Penanda</string>
+    <string name="pdf_underline">Menggarisbawahi</string>
+    <string name="pdf_clear_annotations">Hapus anotasi?</string>
+    <string name="pdf_clear_annotations_confirm">Ini akan menghapus semua anotasi. Tindakan ini tidak dapat dibatalkan.</string>
+    <string name="pdf_annotations_saved">Anotasi berhasil disimpan!</string>
+    <string name="pdf_enter_password">Masukkan Kata Sandi</string>
+    <string name="pdf_password_hint">PDF ini dilindungi kata sandi</string>
+    <string name="pdf_password_error">Kata sandi salah</string>
+    <string name="pdf_go_to_page">Buka halaman</string>
+    <string name="pdf_page_number">Nomor halaman</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_section_quality">Pengaturan Kualitas</string>
+    <string name="settings_section_appearance">Penampilan</string>
+    <string name="settings_section_storage">Penyimpanan</string>
+    <string name="settings_section_support">Mendukung</string>
+    <string name="settings_section_about">Tentang</string>
+    <string name="settings_section_language">Bahasa</string>
+    <string name="settings_compression_quality">Kualitas Kompresi Default</string>
+    <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
+    <string name="settings_image_format">Format Gambar Default</string>
+    <string name="settings_theme_mode">Modus Tema</string>
+    <string name="settings_cache_size">Ukuran Tembolok</string>
+    <string name="settings_request_feature">Minta Fitur</string>
+    <string name="settings_request_feature_subtitle">Bagikan ide Anda untuk meningkatkan aplikasi</string>
+    <string name="settings_report_bug">Laporkan Bug</string>
+    <string name="settings_report_bug_subtitle">Bantu kami memperbaiki masalah</string>
+    <string name="settings_rate_app">Nilai Aplikasinya</string>
+    <string name="settings_rate_app_subtitle">Suka aplikasinya? Nilai kami di Play Store</string>
+    <string name="settings_version">Versi</string>
+    <string name="settings_privacy_policy">Kebijakan Privasi</string>
+    <string name="settings_privacy_policy_subtitle">Lihat kebijakan privasi kami</string>
+    <string name="settings_licenses">Lisensi Sumber Terbuka</string>
+    <string name="settings_licenses_subtitle">Lihat lisensi pihak ketiga</string>
+    <string name="settings_clear_cache">Hapus Tembolok?</string>
+    <string name="settings_clear_cache_message">Ini akan menghapus file-file sementara dan data cache. PDF Anda yang disimpan tidak akan terpengaruh.</string>
+    <string name="settings_cache_cleared">Cache berhasil dibersihkan</string>
+    <string name="settings_about_title">Tentang Perangkat PDF</string>
+    <string name="settings_about_description">PDF Toolkit adalah alat PDF offline yang kuat yang membantu Anda mengelola dokumen PDF dengan cepat dan efisien.</string>
+    <string name="settings_about_features">Fitur:</string>
+    <string name="settings_about_feature_1">Gabungkan, Pisahkan, Kompres PDF</string>
+    <string name="settings_about_feature_2">Konversi ke/dari gambar</string>
+    <string name="settings_about_feature_3">Tambahkan tanda air &amp; tanda tangan</string>
+    <string name="settings_about_feature_4">OCR &amp; Pindai ke PDF</string>
+    <string name="settings_about_feature_5">Aman &amp; mengenkripsi PDF</string>
+    <string name="settings_about_version">Versi</string>
+    <string name="settings_about_build">Membangun</string>
+    <string name="settings_about_made_with">Dibuat dengan</string>
+    <string name="settings_about_kotlin_compose">Kotlin &amp; Penulisan Jetpack</string>
+    <string name="settings_app_name">PDF Toolkit</string>
+    <string name="settings_made_with_love">Dibuat dengan ❤️ untuk produktivitas</string>
+    <string name="settings_copyright">© 2026 Perangkat PDF</string>
+    <string name="settings_select_language">Pilih Bahasa</string>
+    <string name="settings_language_changed">Bahasa berubah</string>
+
+    <!-- Language Names -->
+    <string name="language_english">Bahasa inggris</string>
+    <string name="language_spanish">Spanyol</string>
+    <string name="language_hindi">हिन्दी</string>
+    <string name="language_chinese">tidak</string>
+    <string name="language_portuguese">Portugis (Brasil)</string>
+    <string name="language_german">Jerman</string>
+
+    <!-- Image Format Options -->
+    <string name="image_format_webp">WebP (Disarankan)</string>
+    <string name="image_format_jpeg">jpeg</string>
+    <string name="image_format_webp_desc">Kompresi terbaik, file lebih kecil</string>
+    <string name="image_format_jpeg_desc">Kompatibilitas universal</string>
+
+    <!-- Theme Modes -->
+    <string name="theme_light">Lampu</string>
+    <string name="theme_dark">Gelap</string>
+    <string name="theme_system">Bawaan Sistem</string>
+    <string name="theme_light_desc">Selalu gunakan tema terang</string>
+    <string name="theme_dark_desc">Selalu gunakan tema gelap</string>
+    <string name="theme_system_desc">Ikuti pengaturan sistem</string>
+
+    <!-- Feature Request -->
+    <string name="feature_request_title">Minta Fitur</string>
+    <string name="feature_request_description">Bagikan ide Anda untuk membantu kami meningkatkan PDF Toolkit!</string>
+    <string name="feature_request_category">Kategori</string>
+    <string name="feature_request_category_feature">Fitur</string>
+    <string name="feature_request_category_improvement">Peningkatan</string>
+    <string name="feature_request_category_ui">UI/UX</string>
+    <string name="feature_request_category_other">Lainnya</string>
+    <string name="feature_request_idea">Jelaskan ide Anda</string>
+    <string name="feature_request_placeholder">Fitur apa yang ingin Anda lihat?</string>
+
+    <!-- Bug Report -->
+    <string name="bug_report_subject">[Laporan Bug] Perangkat PDF</string>
+    <string name="bug_report_template">Deskripsi Bug:\n[Tolong jelaskan masalah yang Anda temui]\n\nLangkah-Langkah untuk Mereproduksi:\n1. \n2. \n3. \n\nPerilaku yang Diharapkan:\n[Apa yang Anda perkirakan akan terjadi?]\n\nPerilaku Sebenarnya:\n[Apa yang sebenarnya terjadi?]</string>
+
+    <!-- Error Messages -->
+    <string name="error_gmail_required">Aplikasi Gmail diperlukan. Silakan instal Gmail atau kirim masukan ke %s</string>
+    <string name="error_generic">Terjadi kesalahan</string>
+    <string name="error_file_not_found">Berkas tidak ditemukan</string>
+    <string name="error_invalid_pdf">Berkas PDF tidak valid</string>
+    <string name="error_password_required">Diperlukan kata sandi</string>
+    <string name="error_cannot_create_output">Tidak dapat membuat file keluaran</string>
+    <string name="error_merge_failed">Penggabungan gagal</string>
+    <string name="error_compress_failed">Kompresi gagal</string>
+    <string name="error_split_failed">Pemisahan gagal</string>
+
+    <!-- Success Messages -->
+    <string name="success_operation_complete">Operasi selesai dengan sukses</string>
+    <string name="success_file_saved">File berhasil disimpan</string>
+
+    <!-- File Picker -->
+    <string name="file_picker_select_pdf">Pilih PDF</string>
+    <string name="file_picker_select_pdfs">Pilih PDF</string>
+    <string name="file_picker_select_image">Pilih Gambar</string>
+    <string name="file_picker_select_images">Pilih Gambar</string>
+
+    <!-- Common Labels -->
+    <string name="label_pdf">PDF</string>
+    <string name="label_page">Halaman</string>
+    <string name="label_pages">Halaman</string>
+    <string name="label_file">Mengajukan</string>
+    <string name="label_files">File</string>
+    <string name="label_size">Ukuran</string>
+    <string name="label_quality">Kualitas</string>
+    <string name="label_format">Format</string>
+    <string name="label_password">Kata sandi</string>
+    <string name="label_loading">Memuat...</string>
+    <string name="label_calculating">Menghitung...</string>
+
+    <!-- Empty States -->
+    <string name="empty_no_files">Tidak ada file yang dipilih</string>
+    <string name="empty_no_pdfs">Tidak ada PDF yang dipilih</string>
+    <string name="empty_no_images">Tidak ada gambar yang dipilih</string>
+    <string name="empty_add_files">Tambahkan file untuk memulai</string>
+
+    <!-- Result Dialog -->
+    <string name="result_success">Kesuksesan</string>
+    <string name="result_error">Kesalahan</string>
+
+</resources>

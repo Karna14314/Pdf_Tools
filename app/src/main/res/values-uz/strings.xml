@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">PDF Toolkit</string>
+
+    <!-- Common Actions -->
+    <string name="action_add">Qo\'shish</string>
+    <string name="action_add_more">Koʻproq qoʻshish</string>
+    <string name="action_add_more_pdfs">Ko\'proq PDF qo\'shing</string>
+    <string name="action_back">Orqaga</string>
+    <string name="action_cancel">Bekor qilish</string>
+    <string name="action_clear">Tozalash</string>
+    <string name="action_close">Yopish</string>
+    <string name="action_compress">Siqish</string>
+    <string name="action_delete">Oʻchirish</string>
+    <string name="action_done">Bajarildi</string>
+    <string name="action_merge">Birlashtirish</string>
+    <string name="action_next">Keyingisi</string>
+    <string name="action_open">Ochiq</string>
+    <string name="action_open_pdf">PDF-ni oching</string>
+    <string name="action_previous">Oldingi</string>
+    <string name="action_processing">Qayta ishlanmoqda...</string>
+    <string name="action_remove">O\'chirish</string>
+    <string name="action_save">Saqlash</string>
+    <string name="action_save_as">Boshqacha saqlash</string>
+    <string name="action_select">Tanlang</string>
+    <string name="action_settings">Sozlamalar</string>
+    <string name="action_split">Split</string>
+    <string name="action_submit">Yuborish</string>
+    <string name="action_view">Ko\'rish</string>
+    <string name="action_navigate">Navigatsiya</string>
+    <string name="action_move_up">Yuqoriga siljiting</string>
+    <string name="action_move_down">Pastga siljiting</string>
+
+    <!-- Navigation &amp; Content Descriptions -->
+    <string name="cd_open_pdf">PDF-ni oching</string>
+    <string name="cd_back">Orqaga</string>
+    <string name="cd_close_search">Qidiruvni yopish</string>
+    <string name="cd_clear_search">Qidiruvni tozalash</string>
+    <string name="cd_stop_search">Qidiruvni to\'xtatish</string>
+    <string name="cd_previous_result">Oldingi</string>
+    <string name="cd_next_result">Keyingisi</string>
+    <string name="cd_compression_quality">Siqish sifati</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">PDF Toolkit</string>
+    <string name="home_subtitle">Barcha PDF &amp; tasvir vositalari bir joyda</string>
+    <string name="fab_open_pdf">PDF-ni oching</string>
+
+    <!-- Navigation -->
+    <string name="nav_tab_tools">Asboblar</string>
+    <string name="nav_tab_files">Fayllar</string>
+    <string name="nav_open_history">Ochiq tarix</string>
+
+    <!-- Tool Categories -->
+    <string name="category_organize">Tashkil eting</string>
+    <string name="category_convert">Konvertatsiya qilish</string>
+    <string name="category_markup">Belgilash</string>
+    <string name="category_security">Xavfsizlik</string>
+    <string name="category_optimize">Optimallashtirish</string>
+    <string name="category_quick_actions">Tezkor harakatlar</string>
+    <string name="category_image_tools">Tasvir vositalari</string>
+    <string name="category_view_export">Ko‘rish &amp; Eksport</string>
+
+    <!-- Tool Names - Organize -->
+    <string name="tool_merge_pdfs">PDF-fayllarni birlashtirish</string>
+    <string name="tool_merge_pdf">PDF-ni birlashtirish</string>
+    <string name="tool_split_pdf">PDF bo\'linish</string>
+    <string name="tool_organize_pages">Sahifalarni tartibga solish</string>
+    <string name="tool_rotate_pages">Sahifalarni aylantirish</string>
+    <string name="tool_extract_pages">Sahifalarni chiqarish</string>
+    <string name="tool_reorder_pages">Sahifalarni qayta tartiblash</string>
+    <string name="tool_delete_pages">Sahifalarni o\'chirish</string>
+
+    <!-- Tool Names - Convert -->
+    <string name="tool_images_to_pdf">Pdf uchun rasmlar</string>
+    <string name="tool_pdf_to_images">Tasvirlar uchun PDF</string>
+    <string name="tool_html_to_pdf">HTML dan PDF ga</string>
+    <string name="tool_extract_text">Matnni chiqarish</string>
+    <string name="tool_scan_to_pdf">PDF-ga skanerlash</string>
+    <string name="tool_ocr">OCR</string>
+    <string name="tool_image_tools">Tasvir vositalari</string>
+    <string name="tool_image_compress">Rasmni siqish</string>
+    <string name="tool_image_resize">Rasm hajmini o\'zgartirish</string>
+    <string name="tool_image_convert">Formatni aylantirish</string>
+    <string name="tool_image_metadata">Meta-maʼlumotlarni ajratib olish</string>
+
+    <!-- Tool Names - Markup -->
+    <string name="tool_sign_pdf">PDF imzolash</string>
+    <string name="tool_fill_forms">Shakllarni to\'ldirish</string>
+    <string name="tool_annotate_pdf">Annotatsiya PDF</string>
+
+    <!-- Tool Names - Security -->
+    <string name="tool_add_security">Xavfsizlikni qo\'shish</string>
+    <string name="tool_lock_pdf">PDF qulflash</string>
+    <string name="tool_unlock_pdf">PDF qulfini ochish</string>
+    <string name="tool_add_watermark">Suv belgisi qo\'shing</string>
+    <string name="tool_flatten_pdf">PDF tekislash</string>
+
+    <!-- Tool Names - Optimize -->
+    <string name="tool_compress_pdf">PDF ni siqish</string>
+    <string name="tool_repair_pdf">PDF ta\'mirlash</string>
+    <string name="tool_page_numbers">Sahifa raqamlari</string>
+    <string name="tool_view_metadata">Metamaʼlumotlarni koʻrish</string>
+
+    <!-- Tool Descriptions -->
+    <string name="desc_merge_pdfs">Bir nechta PDF-fayllarni bitta faylga birlashtiring</string>
+    <string name="desc_split_pdf">PDF-ni bir nechta fayllarga bo\'ling</string>
+    <string name="desc_organize_pages">PDF sahifalarini olib tashlang yoki tartibni o\'zgartiring</string>
+    <string name="desc_rotate_pages">PDF sahifalarini aylantiring</string>
+    <string name="desc_extract_pages">PDF-dan ma\'lum sahifalarni ajratib oling</string>
+    <string name="desc_images_to_pdf">Tasvirlarni PDF ga aylantirish</string>
+    <string name="desc_pdf_to_images">PDF sahifalarini rasmlarga aylantiring</string>
+    <string name="desc_html_to_pdf">Veb-sahifani yoki HTMLni PDF-ga aylantiring</string>
+    <string name="desc_extract_text">Matn tarkibini TXT fayliga chiqarib oling</string>
+    <string name="desc_scan_to_pdf">Hujjatlarni kamera bilan skanerlang</string>
+    <string name="desc_ocr">Skanerlangan PDF-fayllarni qidirib toping</string>
+    <string name="desc_image_tools">Rasm hajmini o\'zgartirish, siqish, o\'zgartirish</string>
+    <string name="desc_sign_pdf">Imzongizni PDF-ga qo\'shing</string>
+    <string name="desc_fill_forms">PDF forma maydonlarini to\'ldiring</string>
+    <string name="desc_annotate_pdf">Belgilar, eslatmalar, shtamplar qo\'shing</string>
+    <string name="desc_add_security">PDF-fayllaringizni parol bilan himoya qiling</string>
+    <string name="desc_unlock_pdf">PDF-dan parolni olib tashlang</string>
+    <string name="desc_add_watermark">Matn yoki rasmga moybo\'yoq qo\'shing</string>
+    <string name="desc_flatten_pdf">Kontentga izohlarni birlashtiring</string>
+    <string name="desc_compress_pdf">PDF fayl hajmini kamaytiring</string>
+    <string name="desc_repair_pdf">Buzuq PDF fayllarni tuzatish</string>
+    <string name="desc_page_numbers">PDF-ga sahifa raqamlarini qo\'shing</string>
+    <string name="desc_view_metadata">PDF xususiyatlarini ko\'rish va tahrirlash</string>
+    <string name="desc_reorder_pages">PDF sahifalarini qayta tartiblash</string>
+    <string name="desc_delete_pages">PDF-dan sahifalarni olib tashlang</string>
+    <string name="desc_compress_image">Tasvir fayli hajmini kamaytiring</string>
+    <string name="desc_resize_image">Rasm o\'lchamlarini o\'zgartirish</string>
+    <string name="desc_convert_format">JPEG ?? WebP</string>
+    <string name="desc_strip_metadata">EXIF ma\'lumotlarini olib tashlang</string>
+    <string name="desc_lock_pdf">PDF faylingizni parol bilan himoyalang</string>
+    <string name="desc_sign">Imzo qo\'shing</string>
+    <string name="desc_view_pdf">PDF-ni oching va ko\'ring</string>
+
+    <!-- Merge Screen -->
+    <string name="merge_title">PDF-fayllarni birlashtirish</string>
+    <string name="merge_empty_title">Hech qanday PDF tanlanmagan</string>
+    <string name="merge_empty_subtitle">Ularni bitta hujjatga birlashtirish uchun 2 yoki undan ortiq PDF-fayllarni qo\'shing</string>
+    <string name="merge_selected_files">Tanlangan fayllar (%d)</string>
+    <string name="merge_add_pdfs">PDF qo\'shing</string>
+    <string name="merge_n_pdfs">%d ta PDF faylni birlashtiring</string>
+    <string name="merge_progress">PDF fayllarni birlashtirmoqda...</string>
+    <string name="merge_complete">Birlashtirish tugallandi</string>
+    <string name="merge_failed">Birlashtirish amalga oshmadi</string>
+    <string name="merge_success_message">%1$d ta PDF muvaffaqiyatli birlashtirildi\n\nSaqlandi: %2$s/%3$s</string>
+    <string name="merge_custom_location">Shaxsiy saqlash joyini tanlang</string>
+    <string name="merge_default_path">Standart: %s</string>
+
+    <!-- Compress Screen -->
+    <string name="compress_title">PDF ni siqish</string>
+    <string name="compress_empty_title">Hech qanday PDF tanlanmagan</string>
+    <string name="compress_empty_subtitle">Siqish uchun PDF faylni tanlang</string>
+    <string name="compress_quality_maximum">Maksimal sifat</string>
+    <string name="compress_quality_high">Yuqori sifatli</string>
+    <string name="compress_quality_balanced">Balanslangan</string>
+    <string name="compress_quality_compressed">Siqilgan</string>
+    <string name="compress_quality_maximum_compression">Maksimal siqish</string>
+    <string name="compress_smaller_file">Kichikroq fayl</string>
+    <string name="compress_better_quality">Yaxshiroq sifat</string>
+    <string name="compress_progress">PDF siqilmoqda...</string>
+    <string name="compress_complete">Siqish tugallandi</string>
+    <string name="compress_failed">Siqish amalga oshmadi</string>
+    <string name="compress_success">Siqish muvaffaqiyatli!</string>
+    <string name="compress_saved">Siqilgan PDF saqlangan.</string>
+    <string name="compress_before">Oldin: %s</string>
+    <string name="compress_after">Keyin: %s</string>
+    <string name="compress_saved_bytes">Saqlangan: %1$s (%2$d%%)</string>
+    <string name="compress_note_optimized">Eslatma: Bu PDF allaqachon optimallashtirilgan yoki asosan matndan iborat bo\'lishi mumkin.</string>
+    <string name="compress_select_pdf">PDF-ni tanlang</string>
+
+    <!-- Split Screen -->
+    <string name="split_title">PDF bo\'linish</string>
+    <string name="split_empty_title">Hech qanday PDF tanlanmagan</string>
+    <string name="split_empty_subtitle">Bir nechta hujjatlarga bo\'lish uchun PDF faylini tanlang</string>
+    <string name="split_select_pdf">Bo\'lish uchun PDF-ni tanlang</string>
+    <string name="split_progress">PDF ajratilmoqda...</string>
+    <string name="split_complete">Ajratish tugallandi</string>
+    <string name="split_failed">Ajratish amalga oshmadi</string>
+    <string name="split_all_pages">Barcha sahifalar</string>
+    <string name="split_every_n_pages">Har N sahifa</string>
+    <string name="split_custom_range">Maxsus diapazon</string>
+    <string name="split_n_files_created">%d ta fayl yaratildi</string>
+
+    <!-- PDF Viewer -->
+    <string name="pdf_viewer_title">PDF ko\'rish dasturi</string>
+    <string name="pdf_document_default_name">PDF hujjat</string>
+    <string name="pdf_page_indicator">%1$d sahifa / %2$d (%3$d%%)</string>
+    <string name="pdf_search_placeholder">PDF formatida qidirish...</string>
+    <string name="pdf_search_no_matches">Mos kelmaydi</string>
+    <string name="pdf_search_results">%1$d/%2$d</string>
+    <string name="pdf_zoom_in">Kattalashtirish</string>
+    <string name="pdf_zoom_out">Kichraytirish</string>
+    <string name="pdf_fit_to_width">Kenglikka moslash</string>
+    <string name="pdf_tools">Asboblar</string>
+    <string name="pdf_annotations">Izohlar</string>
+    <string name="pdf_search">Qidiruv</string>
+    <string name="pdf_share">Ulashish</string>
+    <string name="pdf_save">Saqlash</string>
+    <string name="pdf_highlighter">Yoritgich</string>
+    <string name="pdf_marker">Marker</string>
+    <string name="pdf_underline">tagiga chizish</string>
+    <string name="pdf_clear_annotations">Izohlar tozalansinmi?</string>
+    <string name="pdf_clear_annotations_confirm">Bu barcha izohlarni olib tashlaydi. Bu amalni ortga qaytarib bo‘lmaydi.</string>
+    <string name="pdf_annotations_saved">Izohlar muvaffaqiyatli saqlandi!</string>
+    <string name="pdf_enter_password">Parolni kiriting</string>
+    <string name="pdf_password_hint">Ushbu PDF parol bilan himoyalangan</string>
+    <string name="pdf_password_error">Noto\'g\'ri parol</string>
+    <string name="pdf_go_to_page">Sahifaga o\'tish</string>
+    <string name="pdf_page_number">Sahifa raqami</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Sozlamalar</string>
+    <string name="settings_section_quality">Sifat sozlamalari</string>
+    <string name="settings_section_appearance">Tashqi ko\'rinish</string>
+    <string name="settings_section_storage">Saqlash</string>
+    <string name="settings_section_support">Qo\'llab-quvvatlash</string>
+    <string name="settings_section_about">Haqida</string>
+    <string name="settings_section_language">Til</string>
+    <string name="settings_compression_quality">Standart siqish sifati</string>
+    <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
+    <string name="settings_image_format">Standart rasm formati</string>
+    <string name="settings_theme_mode">Mavzu rejimi</string>
+    <string name="settings_cache_size">Kesh hajmi</string>
+    <string name="settings_request_feature">Xususiyatni so\'rash</string>
+    <string name="settings_request_feature_subtitle">Ilovani yaxshilash bo\'yicha fikringizni o\'rtoqlashing</string>
+    <string name="settings_report_bug">Xato haqida xabar berish</string>
+    <string name="settings_report_bug_subtitle">Muammolarni tuzatishga yordam bering</string>
+    <string name="settings_rate_app">Ilovaga baho bering</string>
+    <string name="settings_rate_app_subtitle">Ilova yoqdimi? Play Marketda bizni baholang</string>
+    <string name="settings_version">Versiya</string>
+    <string name="settings_privacy_policy">Maxfiylik siyosati</string>
+    <string name="settings_privacy_policy_subtitle">Maxfiylik siyosatimizni ko\'ring</string>
+    <string name="settings_licenses">Ochiq kodli litsenziyalar</string>
+    <string name="settings_licenses_subtitle">Uchinchi tomon litsenziyalarini ko\'rish</string>
+    <string name="settings_clear_cache">Kesh tozalansinmi?</string>
+    <string name="settings_clear_cache_message">Bu vaqtinchalik fayllar va keshlangan ma\'lumotlarni o\'chiradi. Saqlangan PDF-fayllaringizga ta\'sir qilmaydi.</string>
+    <string name="settings_cache_cleared">Kesh muvaffaqiyatli tozalandi</string>
+    <string name="settings_about_title">PDF asboblar to\'plami haqida</string>
+    <string name="settings_about_description">PDF Toolkit - bu PDF hujjatlarini tez va samarali boshqarishga yordam beradigan kuchli, oflayn PDF vositasi.</string>
+    <string name="settings_about_features">Xususiyatlari:</string>
+    <string name="settings_about_feature_1">PDF-fayllarni birlashtirish, ajratish, siqish</string>
+    <string name="settings_about_feature_2">Tasvirlarga/rasmlarga aylantirish</string>
+    <string name="settings_about_feature_3">Suv belgilari qo\'shish &amp; imzolar</string>
+    <string name="settings_about_feature_4">OCR &amp; PDF-ga skanerlash</string>
+    <string name="settings_about_feature_5">Xavfsiz &amp; PDF-fayllarni shifrlash</string>
+    <string name="settings_about_version">Versiya</string>
+    <string name="settings_about_build">Qurilish</string>
+    <string name="settings_about_made_with">bilan qilingan</string>
+    <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack Compose</string>
+    <string name="settings_app_name">PDF Toolkit</string>
+    <string name="settings_made_with_love">Samaradorlik uchun ❤️ bilan yaratilgan</string>
+    <string name="settings_copyright">© 2026 PDF asboblar to\'plami</string>
+    <string name="settings_select_language">Tilni tanlang</string>
+    <string name="settings_language_changed">Til o\'zgartirildi</string>
+
+    <!-- Language Names -->
+    <string name="language_english">Ingliz</string>
+    <string name="language_spanish">ispan</string>
+    <string name="language_hindi">हिन्दी</string>
+    <string name="language_chinese">mín</string>
+    <string name="language_portuguese">Português (Braziliya)</string>
+    <string name="language_german">nemis</string>
+
+    <!-- Image Format Options -->
+    <string name="image_format_webp">WebP (tavsiya etiladi)</string>
+    <string name="image_format_jpeg">JPEG</string>
+    <string name="image_format_webp_desc">Eng yaxshi siqish, kichikroq fayllar</string>
+    <string name="image_format_jpeg_desc">Universal muvofiqlik</string>
+
+    <!-- Theme Modes -->
+    <string name="theme_light">Nur</string>
+    <string name="theme_dark">Qorong\'i</string>
+    <string name="theme_system">Tizim standarti</string>
+    <string name="theme_light_desc">Har doim engil mavzudan foydalaning</string>
+    <string name="theme_dark_desc">Har doim qorong\'u mavzudan foydalaning</string>
+    <string name="theme_system_desc">Tizim sozlamalariga rioya qiling</string>
+
+    <!-- Feature Request -->
+    <string name="feature_request_title">Xususiyatni so\'rash</string>
+    <string name="feature_request_description">PDF asboblar to\'plamini yaxshilashga yordam berish uchun fikringizni o\'rtoqlashing!</string>
+    <string name="feature_request_category">Turkum</string>
+    <string name="feature_request_category_feature">Xususiyat</string>
+    <string name="feature_request_category_improvement">Yaxshilash</string>
+    <string name="feature_request_category_ui">UI/UX</string>
+    <string name="feature_request_category_other">Boshqa</string>
+    <string name="feature_request_idea">Fikringizni tasvirlab bering</string>
+    <string name="feature_request_placeholder">Qaysi xususiyatni ko\'rishni xohlaysiz?</string>
+
+    <!-- Bug Report -->
+    <string name="bug_report_subject">[Xatolik hisoboti] PDF asboblar to\'plami</string>
+    <string name="bug_report_template">Xato tavsifi:\n[Iltimos, duch kelgan muammoni tavsiflab bering]\n\nKo‘paytirish bosqichlari:\n1. \n2. \n3. \n\nKutilayotgan xatti-harakatlar:\n[Nima bo‘lishini kutgan edingiz?]\n\nHaqiqiy xatti-harakatlar:\n[Aslida nima bo‘ldi?]</string>
+
+    <!-- Error Messages -->
+    <string name="error_gmail_required">Gmail ilovasi talab qilinadi. Iltimos, Gmailni oʻrnating yoki %s manziliga fikr-mulohaza yuboring</string>
+    <string name="error_generic">Xatolik yuz berdi</string>
+    <string name="error_file_not_found">Fayl topilmadi</string>
+    <string name="error_invalid_pdf">Yaroqsiz PDF fayl</string>
+    <string name="error_password_required">Parol talab qilinadi</string>
+    <string name="error_cannot_create_output">Chiqish faylini yaratib bo\'lmadi</string>
+    <string name="error_merge_failed">Birlashtirish amalga oshmadi</string>
+    <string name="error_compress_failed">Siqish amalga oshmadi</string>
+    <string name="error_split_failed">Ajratish amalga oshmadi</string>
+
+    <!-- Success Messages -->
+    <string name="success_operation_complete">Operatsiya muvaffaqiyatli yakunlandi</string>
+    <string name="success_file_saved">Fayl muvaffaqiyatli saqlandi</string>
+
+    <!-- File Picker -->
+    <string name="file_picker_select_pdf">PDF-ni tanlang</string>
+    <string name="file_picker_select_pdfs">PDF-fayllarni tanlang</string>
+    <string name="file_picker_select_image">Rasmni tanlang</string>
+    <string name="file_picker_select_images">Tasvirlarni tanlang</string>
+
+    <!-- Common Labels -->
+    <string name="label_pdf">PDF</string>
+    <string name="label_page">Sahifa</string>
+    <string name="label_pages">Sahifalar</string>
+    <string name="label_file">Fayl</string>
+    <string name="label_files">Fayllar</string>
+    <string name="label_size">Hajmi</string>
+    <string name="label_quality">Sifat</string>
+    <string name="label_format">Format</string>
+    <string name="label_password">Parol</string>
+    <string name="label_loading">Yuklanmoqda...</string>
+    <string name="label_calculating">Hisoblash...</string>
+
+    <!-- Empty States -->
+    <string name="empty_no_files">Hech qanday fayl tanlanmagan</string>
+    <string name="empty_no_pdfs">Hech qanday PDF tanlanmagan</string>
+    <string name="empty_no_images">Hech qanday rasm tanlanmagan</string>
+    <string name="empty_add_files">Boshlash uchun fayllarni qo\'shing</string>
+
+    <!-- Result Dialog -->
+    <string name="result_success">Muvaffaqiyat</string>
+    <string name="result_error">Xato</string>
+
+</resources>
