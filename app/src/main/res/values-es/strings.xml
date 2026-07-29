@@ -339,4 +339,6 @@
     <string name="language_portuguese">Português (Brasil)</string>
 
     <string name="language_german">Alemán</string>
+    <string name="action_search">Buscar</string>
+    <string name="settings_no_languages_found">No se encontraron idiomas</string>
 </resources>

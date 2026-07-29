@@ -335,4 +335,6 @@
     <string name="result_success">成功</string>
     <string name="result_error">错误</string>
 
-<string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string></resources>
+<string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string>    <string name="action_search">搜索</string>
+    <string name="settings_no_languages_found">未找到语言</string>
+</resources>

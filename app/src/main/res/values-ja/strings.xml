@@ -339,4 +339,6 @@
     <string name="result_success">成功</string>
     <string name="result_error">エラー</string>
 
+    <string name="action_search">検索</string>
+    <string name="settings_no_languages_found">言語が見つかりません</string>
 </resources>

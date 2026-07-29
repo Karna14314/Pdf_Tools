@@ -339,4 +339,6 @@
     <string name="result_success">Muvaffaqiyat</string>
     <string name="result_error">Xato</string>
 
+    <string name="action_search">Qidirish</string>
+    <string name="settings_no_languages_found">Tillar topilmadi</string>
 </resources>

@@ -339,4 +339,6 @@
     <string name="result_success">Успех</string>
     <string name="result_error">Ошибка</string>
 
+    <string name="action_search">Поиск</string>
+    <string name="settings_no_languages_found">Языки не найдены</string>
 </resources>

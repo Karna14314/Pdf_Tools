@@ -339,4 +339,6 @@
     <string name="result_success">Kesuksesan</string>
     <string name="result_error">Kesalahan</string>
 
+    <string name="action_search">Cari</string>
+    <string name="settings_no_languages_found">Tidak ada bahasa yang ditemukan</string>
 </resources>

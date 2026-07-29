@@ -339,5 +339,7 @@
     <string name="result_success">Success</string>
     <string name="result_error">Error</string>
 
+    <string name="action_search">Search</string>
+    <string name="settings_no_languages_found">No languages found</string>
 </resources>
 
