@@ -64,8 +64,10 @@ class MainActivity : AppCompatActivity() {
     private var isLoadingState: androidx.compose.runtime.MutableState<Boolean>? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Initialize language before Activity.onCreate so AppCompatDelegate applies locales immediately.
-        LanguageManager.initializeLanguage(this)
+        // Language is already applied by PdfToolkitApplication.onCreate() before any
+        // Activity is created — calling initializeLanguage() again here duplicated a
+        // blocking DataStore disk read on the main thread every cold start, adding to
+        // the perceived language-switch delay. Do not re-initialize here.
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         
