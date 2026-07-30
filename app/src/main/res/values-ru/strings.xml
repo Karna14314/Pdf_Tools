@@ -9,9 +9,9 @@
     <string name="action_add_more_pdfs">Добавить больше PDF-файлов</string>
     <string name="action_back">Назад</string>
     <string name="action_cancel">Отмена</string>
-    <string name="action_clear">Прозрачный</string>
+    <string name="action_clear">Очистить</string>
     <string name="action_close">Закрывать</string>
-    <string name="action_compress">Компресс</string>
+    <string name="action_compress">Сжать</string>
     <string name="action_delete">Удалить</string>
     <string name="action_done">Сделанный</string>
     <string name="action_merge">Объединить</string>
@@ -25,7 +25,7 @@
     <string name="action_save_as">Сохранить как</string>
     <string name="action_select">Выбирать</string>
     <string name="action_settings">Настройки</string>
-    <string name="action_split">Расколоть</string>
+    <string name="action_split">Разделить</string>
     <string name="action_submit">Представлять на рассмотрение</string>
     <string name="action_view">Вид</string>
     <string name="action_navigate">Навигация</string>
@@ -216,9 +216,9 @@
     <!-- Settings Screen -->
     <string name="settings_title">Настройки</string>
     <string name="settings_section_quality">Настройки качества</string>
-    <string name="settings_section_appearance">Появление</string>
+    <string name="settings_section_appearance">Внешний вид</string>
     <string name="settings_section_storage">Хранилище</string>
-    <string name="settings_section_support">Поддерживать</string>
+    <string name="settings_section_support">Поддержка</string>
     <string name="settings_section_about">О</string>
     <string name="settings_section_language">Язык</string>
     <string name="settings_compression_quality">Качество сжатия по умолчанию</string>
@@ -249,7 +249,7 @@
     <string name="settings_about_feature_4">OCR и amp; Сканировать в PDF</string>
     <string name="settings_about_feature_5">Безопасный &amp; шифровать PDF-файлы</string>
     <string name="settings_about_version">Версия</string>
-    <string name="settings_about_build">Строить</string>
+    <string name="settings_about_build">Сборка</string>
     <string name="settings_about_made_with">Сделано с</string>
     <string name="settings_about_kotlin_compose">Котлин &amp; Реактивный ранец</string>
     <string name="settings_app_name">PDF Toolkit</string>

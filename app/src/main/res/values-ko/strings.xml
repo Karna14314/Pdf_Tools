@@ -7,25 +7,25 @@
     <string name="action_add">추가하다</string>
     <string name="action_add_more">더 추가</string>
     <string name="action_add_more_pdfs">더 많은 PDF 추가</string>
-    <string name="action_back">뒤쪽에</string>
+    <string name="action_back">뒤로</string>
     <string name="action_cancel">취소</string>
-    <string name="action_clear">분명한</string>
+    <string name="action_clear">지우기</string>
     <string name="action_close">닫다</string>
-    <string name="action_compress">압박 붕대</string>
+    <string name="action_compress">압축</string>
     <string name="action_delete">삭제</string>
     <string name="action_done">완료</string>
     <string name="action_merge">병합</string>
     <string name="action_next">다음</string>
-    <string name="action_open">열려 있는</string>
+    <string name="action_open">열기</string>
     <string name="action_open_pdf">PDF 열기</string>
     <string name="action_previous">이전의</string>
     <string name="action_processing">처리 중...</string>
     <string name="action_remove">제거하다</string>
-    <string name="action_save">구하다</string>
+    <string name="action_save">저장</string>
     <string name="action_save_as">다른 이름으로 저장</string>
     <string name="action_select">선택하다</string>
     <string name="action_settings">설정</string>
-    <string name="action_split">나뉘다</string>
+    <string name="action_split">분할</string>
     <string name="action_submit">제출하다</string>
     <string name="action_view">보다</string>
     <string name="action_navigate">탐색</string>
@@ -50,7 +50,7 @@
     <!-- Navigation -->
     <string name="nav_tab_tools">도구</string>
     <string name="nav_tab_files">파일</string>
-    <string name="nav_open_history">오픈 히스토리</string>
+    <string name="nav_open_history">최근 기록</string>
 
     <!-- Tool Categories -->
     <string name="category_organize">정리하다</string>
@@ -83,7 +83,7 @@
     <string name="tool_image_compress">이미지 압축</string>
     <string name="tool_image_resize">이미지 크기 조정</string>
     <string name="tool_image_convert">형식 변환</string>
-    <string name="tool_image_metadata">스트립 메타데이터</string>
+    <string name="tool_image_metadata">메타데이터 제거</string>
 
     <!-- Tool Names - Markup -->
     <string name="tool_sign_pdf">PDF에 서명</string>
@@ -200,7 +200,7 @@
     <string name="pdf_annotations">주석</string>
     <string name="pdf_search">찾다</string>
     <string name="pdf_share">공유하다</string>
-    <string name="pdf_save">구하다</string>
+    <string name="pdf_save">저장</string>
     <string name="pdf_highlighter">형광펜</string>
     <string name="pdf_marker">채점자</string>
     <string name="pdf_underline">밑줄</string>
@@ -249,7 +249,7 @@
     <string name="settings_about_feature_4">OCR 및 PDF로 스캔</string>
     <string name="settings_about_feature_5">보안 &amp; PDF 암호화</string>
     <string name="settings_about_version">버전</string>
-    <string name="settings_about_build">짓다</string>
+    <string name="settings_about_build">빌드</string>
     <string name="settings_about_made_with">다음으로 제작됨</string>
     <string name="settings_about_kotlin_compose">코틀린 &amp; Jetpack Compose</string>
     <string name="settings_app_name">PDF Toolkit</string>
@@ -261,7 +261,7 @@
     <!-- Language Names -->
     <string name="language_english">영어</string>
     <string name="language_spanish">스페인어</string>
-    <string name="language_hindi">힌두교</string>
+    <string name="language_hindi">힌디어</string>
     <string name="language_chinese">중국어</string>
     <string name="language_portuguese">포르투갈어(브라질)</string>
     <string name="language_german">독일어</string>
@@ -273,7 +273,7 @@
     <string name="image_format_jpeg_desc">범용 호환성</string>
 
     <!-- Theme Modes -->
-    <string name="theme_light">빛</string>
+    <string name="theme_light">라이트</string>
     <string name="theme_dark">어두운</string>
     <string name="theme_system">시스템 기본값</string>
     <string name="theme_light_desc">항상 밝은 테마 사용</string>

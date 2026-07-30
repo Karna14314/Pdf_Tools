@@ -10,13 +10,13 @@
     <string name="action_back">戻る</string>
     <string name="action_cancel">キャンセル</string>
     <string name="action_clear">クリア</string>
-    <string name="action_close">近い</string>
+    <string name="action_close">閉じる</string>
     <string name="action_compress">圧縮する</string>
     <string name="action_delete">消去</string>
     <string name="action_done">終わり</string>
     <string name="action_merge">マージ</string>
     <string name="action_next">次</string>
-    <string name="action_open">開ける</string>
+    <string name="action_open">開く</string>
     <string name="action_open_pdf">PDFを開く</string>
     <string name="action_previous">前の</string>
     <string name="action_processing">処理...</string>
@@ -56,7 +56,7 @@
     <string name="category_organize">整理する</string>
     <string name="category_convert">変換する</string>
     <string name="category_markup">マークアップ</string>
-    <string name="category_security">安全</string>
+    <string name="category_security">セキュリティ</string>
     <string name="category_optimize">最適化する</string>
     <string name="category_quick_actions">クイックアクション</string>
     <string name="category_image_tools">画像ツール</string>
@@ -219,7 +219,7 @@
     <string name="settings_section_appearance">外観</string>
     <string name="settings_section_storage">ストレージ</string>
     <string name="settings_section_support">サポート</string>
-    <string name="settings_section_about">について</string>
+    <string name="settings_section_about">情報</string>
     <string name="settings_section_language">言語</string>
     <string name="settings_compression_quality">デフォルトの圧縮品質</string>
     <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
@@ -249,7 +249,7 @@
     <string name="settings_about_feature_4">OCRとスキャンして PDF に保存</string>
     <string name="settings_about_feature_5">安全で安全なPDFを暗号化する</string>
     <string name="settings_about_version">バージョン</string>
-    <string name="settings_about_build">建てる</string>
+    <string name="settings_about_build">ビルド</string>
     <string name="settings_about_made_with">で作られました</string>
     <string name="settings_about_kotlin_compose">Kotlin とJetpack Compose</string>
     <string name="settings_app_name">PDF Toolkit</string>

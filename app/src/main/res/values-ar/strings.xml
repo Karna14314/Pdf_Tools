@@ -4,37 +4,37 @@
     <string name="app_name">PDF Toolkit</string>
 
     <!-- Common Actions -->
-    <string name="action_add">يضيف</string>
+    <string name="action_add">إضافة</string>
     <string name="action_add_more">أضف المزيد</string>
     <string name="action_add_more_pdfs">إضافة المزيد من ملفات PDF</string>
-    <string name="action_back">خلف</string>
-    <string name="action_cancel">يلغي</string>
-    <string name="action_clear">واضح</string>
-    <string name="action_close">يغلق</string>
+    <string name="action_back">رجوع</string>
+    <string name="action_cancel">إلغاء</string>
+    <string name="action_clear">مسح</string>
+    <string name="action_close">إغلاق</string>
     <string name="action_compress">ضغط</string>
-    <string name="action_delete">يمسح</string>
-    <string name="action_done">منتهي</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_done">تم</string>
     <string name="action_merge">دمج</string>
     <string name="action_next">التالي</string>
-    <string name="action_open">يفتح</string>
+    <string name="action_open">فتح</string>
     <string name="action_open_pdf">افتح ملف PDF</string>
     <string name="action_previous">سابق</string>
-    <string name="action_processing">يعالج...</string>
-    <string name="action_remove">يزيل</string>
-    <string name="action_save">يحفظ</string>
+    <string name="action_processing">جارٍ المعالجة...</string>
+    <string name="action_remove">إزالة</string>
+    <string name="action_save">حفظ</string>
     <string name="action_save_as">حفظ باسم</string>
-    <string name="action_select">يختار</string>
+    <string name="action_select">اختيار</string>
     <string name="action_settings">إعدادات</string>
-    <string name="action_split">ينقسم</string>
-    <string name="action_submit">يُقدِّم</string>
-    <string name="action_view">منظر</string>
+    <string name="action_split">تقسيم</string>
+    <string name="action_submit">إرسال</string>
+    <string name="action_view">عرض</string>
     <string name="action_navigate">انتقل</string>
-    <string name="action_move_up">تحرك للأعلى</string>
-    <string name="action_move_down">تحرك للأسفل</string>
+    <string name="action_move_up">نقل للأعلى</string>
+    <string name="action_move_down">نقل للأسفل</string>
 
     <!-- Navigation &amp; Content Descriptions -->
     <string name="cd_open_pdf">افتح ملف PDF</string>
-    <string name="cd_back">خلف</string>
+    <string name="cd_back">رجوع</string>
     <string name="cd_close_search">إغلاق البحث</string>
     <string name="cd_clear_search">مسح البحث</string>
     <string name="cd_stop_search">توقف عن البحث</string>
@@ -53,19 +53,19 @@
     <string name="nav_open_history">افتح التاريخ</string>
 
     <!-- Tool Categories -->
-    <string name="category_organize">تنظم</string>
-    <string name="category_convert">يتحول</string>
-    <string name="category_markup">العلامات</string>
+    <string name="category_organize">تنظيم</string>
+    <string name="category_convert">تحويل</string>
+    <string name="category_markup">تعليق توضيحي</string>
     <string name="category_security">حماية</string>
     <string name="category_optimize">تحسين</string>
     <string name="category_quick_actions">إجراءات سريعة</string>
     <string name="category_image_tools">أدوات الصورة</string>
-    <string name="category_view_export">عرض &amp; يصدّر</string>
+    <string name="category_view_export">عرض وتصدير</string>
 
     <!-- Tool Names - Organize -->
     <string name="tool_merge_pdfs">دمج ملفات PDF</string>
-    <string name="tool_merge_pdf">دمج قوات الدفاع الشعبي</string>
-    <string name="tool_split_pdf">تقسيم قوات الدفاع الشعبي</string>
+    <string name="tool_merge_pdf">دمج PDF</string>
+    <string name="tool_split_pdf">تقسيم PDF</string>
     <string name="tool_organize_pages">تنظيم الصفحات</string>
     <string name="tool_rotate_pages">تدوير الصفحات</string>
     <string name="tool_extract_pages">استخراج الصفحات</string>
@@ -74,7 +74,7 @@
 
     <!-- Tool Names - Convert -->
     <string name="tool_images_to_pdf">الصور إلى PDF</string>
-    <string name="tool_pdf_to_images">قوات الدفاع الشعبي إلى الصور</string>
+    <string name="tool_pdf_to_images">PDF إلى الصور</string>
     <string name="tool_html_to_pdf">HTML إلى PDF</string>
     <string name="tool_extract_text">استخراج النص</string>
     <string name="tool_scan_to_pdf">المسح الضوئي إلى PDF</string>
@@ -86,20 +86,20 @@
     <string name="tool_image_metadata">قطاع البيانات الوصفية</string>
 
     <!-- Tool Names - Markup -->
-    <string name="tool_sign_pdf">التوقيع على قوات الدفاع الشعبي</string>
+    <string name="tool_sign_pdf">التوقيع على PDF</string>
     <string name="tool_fill_forms">ملء النماذج</string>
     <string name="tool_annotate_pdf">علق بصيغة PDF</string>
 
     <!-- Tool Names - Security -->
     <string name="tool_add_security">أضف الأمان</string>
-    <string name="tool_lock_pdf">قفل قوات الدفاع الشعبي</string>
+    <string name="tool_lock_pdf">قفل PDF</string>
     <string name="tool_unlock_pdf">فتح ملف PDF</string>
     <string name="tool_add_watermark">أضف علامة مائية</string>
-    <string name="tool_flatten_pdf">تتسطح قوات الدفاع الشعبي</string>
+    <string name="tool_flatten_pdf">تتسطح PDF</string>
 
     <!-- Tool Names - Optimize -->
-    <string name="tool_compress_pdf">ضغط قوات الدفاع الشعبي</string>
-    <string name="tool_repair_pdf">إصلاح قوات الدفاع الشعبي</string>
+    <string name="tool_compress_pdf">ضغط PDF</string>
+    <string name="tool_repair_pdf">إصلاح PDF</string>
     <string name="tool_page_numbers">أرقام الصفحات</string>
     <string name="tool_view_metadata">عرض البيانات الوصفية</string>
 
@@ -152,7 +152,7 @@
     <string name="merge_default_path">الافتراضي: %s</string>
 
     <!-- Compress Screen -->
-    <string name="compress_title">ضغط قوات الدفاع الشعبي</string>
+    <string name="compress_title">ضغط PDF</string>
     <string name="compress_empty_title">لم يتم تحديد ملف PDF</string>
     <string name="compress_empty_subtitle">حدد ملف PDF لضغطه</string>
     <string name="compress_quality_maximum">الجودة القصوى</string>
@@ -171,14 +171,14 @@
     <string name="compress_after">بعد: %s</string>
     <string name="compress_saved_bytes">تم الحفظ: %1$s (%2$d%%)</string>
     <string name="compress_note_optimized">ملاحظة: قد يكون ملف PDF هذا محسّنًا بالفعل أو يحتوي على نص في الغالب.</string>
-    <string name="compress_select_pdf">حدد قوات الدفاع الشعبي</string>
+    <string name="compress_select_pdf">حدد PDF</string>
 
     <!-- Split Screen -->
-    <string name="split_title">تقسيم قوات الدفاع الشعبي</string>
+    <string name="split_title">تقسيم PDF</string>
     <string name="split_empty_title">لم يتم تحديد ملف PDF</string>
     <string name="split_empty_subtitle">حدد ملف PDF لتقسيمه إلى مستندات متعددة</string>
     <string name="split_select_pdf">حدد PDF للتقسيم</string>
-    <string name="split_progress">تقسيم قوات الدفاع الشعبي...</string>
+    <string name="split_progress">تقسيم PDF...</string>
     <string name="split_complete">اكتمل الانقسام</string>
     <string name="split_failed">فشل الانقسام</string>
     <string name="split_all_pages">جميع الصفحات</string>
@@ -187,7 +187,7 @@
     <string name="split_n_files_created">تم إنشاء %d ملف</string>
 
     <!-- PDF Viewer -->
-    <string name="pdf_viewer_title">عارض قوات الدفاع الشعبي</string>
+    <string name="pdf_viewer_title">عارض PDF</string>
     <string name="pdf_document_default_name">وثيقة PDF</string>
     <string name="pdf_page_indicator">الصفحة %1$d من %2$d (%3$d%%)</string>
     <string name="pdf_search_placeholder">البحث في PDF...</string>
@@ -198,9 +198,9 @@
     <string name="pdf_fit_to_width">تناسب العرض</string>
     <string name="pdf_tools">أدوات</string>
     <string name="pdf_annotations">الشروح</string>
-    <string name="pdf_search">يبحث</string>
-    <string name="pdf_share">يشارك</string>
-    <string name="pdf_save">يحفظ</string>
+    <string name="pdf_search">بحث</string>
+    <string name="pdf_share">مشاركة</string>
+    <string name="pdf_save">حفظ</string>
     <string name="pdf_highlighter">قلم تمييز</string>
     <string name="pdf_marker">علامة</string>
     <string name="pdf_underline">تسطير</string>
@@ -216,10 +216,10 @@
     <!-- Settings Screen -->
     <string name="settings_title">إعدادات</string>
     <string name="settings_section_quality">إعدادات الجودة</string>
-    <string name="settings_section_appearance">مظهر</string>
+    <string name="settings_section_appearance">المظهر</string>
     <string name="settings_section_storage">تخزين</string>
-    <string name="settings_section_support">يدعم</string>
-    <string name="settings_section_about">عن</string>
+    <string name="settings_section_support">الدعم</string>
+    <string name="settings_section_about">حول</string>
     <string name="settings_section_language">لغة</string>
     <string name="settings_compression_quality">جودة الضغط الافتراضية</string>
     <string name="settings_compression_quality_value">%1$d%% - %2$s</string>
@@ -249,7 +249,7 @@
     <string name="settings_about_feature_4">التعرف الضوئي على الحروف &amp; المسح الضوئي إلى PDF</string>
     <string name="settings_about_feature_5">آمن &amp; تشفير ملفات PDF</string>
     <string name="settings_about_version">إصدار</string>
-    <string name="settings_about_build">يبني</string>
+    <string name="settings_about_build">الإصدار</string>
     <string name="settings_about_made_with">صنع مع</string>
     <string name="settings_about_kotlin_compose">كوتلين وأمبير. جيتباك يؤلف</string>
     <string name="settings_app_name">PDF Toolkit</string>
@@ -273,8 +273,8 @@
     <string name="image_format_jpeg_desc">التوافق العالمي</string>
 
     <!-- Theme Modes -->
-    <string name="theme_light">ضوء</string>
-    <string name="theme_dark">مظلم</string>
+    <string name="theme_light">فاتح</string>
+    <string name="theme_dark">داكن</string>
     <string name="theme_system">النظام الافتراضي</string>
     <string name="theme_light_desc">استخدم دائمًا المظهر الفاتح</string>
     <string name="theme_dark_desc">استخدم المظهر الداكن دائمًا</string>
@@ -311,13 +311,13 @@
     <string name="success_file_saved">تم حفظ الملف بنجاح</string>
 
     <!-- File Picker -->
-    <string name="file_picker_select_pdf">حدد قوات الدفاع الشعبي</string>
+    <string name="file_picker_select_pdf">حدد PDF</string>
     <string name="file_picker_select_pdfs">حدد ملفات PDF</string>
     <string name="file_picker_select_image">حدد الصورة</string>
     <string name="file_picker_select_images">حدد الصور</string>
 
     <!-- Common Labels -->
-    <string name="label_pdf">قوات الدفاع الشعبي</string>
+    <string name="label_pdf">PDF</string>
     <string name="label_page">صفحة</string>
     <string name="label_pages">الصفحات</string>
     <string name="label_file">ملف</string>

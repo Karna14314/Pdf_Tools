@@ -16,7 +16,7 @@
     <string name="action_done">Bajarildi</string>
     <string name="action_merge">Birlashtirish</string>
     <string name="action_next">Keyingisi</string>
-    <string name="action_open">Ochiq</string>
+    <string name="action_open">Ochish</string>
     <string name="action_open_pdf">PDF-ni oching</string>
     <string name="action_previous">Oldingi</string>
     <string name="action_processing">Qayta ishlanmoqda...</string>
@@ -25,7 +25,7 @@
     <string name="action_save_as">Boshqacha saqlash</string>
     <string name="action_select">Tanlang</string>
     <string name="action_settings">Sozlamalar</string>
-    <string name="action_split">Split</string>
+    <string name="action_split">Ajratish</string>
     <string name="action_submit">Yuborish</string>
     <string name="action_view">Ko\'rish</string>
     <string name="action_navigate">Navigatsiya</string>
@@ -73,8 +73,8 @@
     <string name="tool_delete_pages">Sahifalarni o\'chirish</string>
 
     <!-- Tool Names - Convert -->
-    <string name="tool_images_to_pdf">Pdf uchun rasmlar</string>
-    <string name="tool_pdf_to_images">Tasvirlar uchun PDF</string>
+    <string name="tool_images_to_pdf">Rasmlarni PDF ga aylantirish</string>
+    <string name="tool_pdf_to_images">PDF dan tasvirlarga</string>
     <string name="tool_html_to_pdf">HTML dan PDF ga</string>
     <string name="tool_extract_text">Matnni chiqarish</string>
     <string name="tool_scan_to_pdf">PDF-ga skanerlash</string>
@@ -83,7 +83,7 @@
     <string name="tool_image_compress">Rasmni siqish</string>
     <string name="tool_image_resize">Rasm hajmini o\'zgartirish</string>
     <string name="tool_image_convert">Formatni aylantirish</string>
-    <string name="tool_image_metadata">Meta-maʼlumotlarni ajratib olish</string>
+    <string name="tool_image_metadata">Metamaʼlumotlarni olib tashlash</string>
 
     <!-- Tool Names - Markup -->
     <string name="tool_sign_pdf">PDF imzolash</string>
@@ -262,7 +262,7 @@
     <string name="language_english">Ingliz</string>
     <string name="language_spanish">ispan</string>
     <string name="language_hindi">हिन्दी</string>
-    <string name="language_chinese">mín</string>
+    <string name="language_chinese">Xitoy tili</string>
     <string name="language_portuguese">Português (Braziliya)</string>
     <string name="language_german">nemis</string>
 

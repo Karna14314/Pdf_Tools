@@ -185,7 +185,7 @@ android {
     
     bundle {
         language {
-            enableSplit = true
+            enableSplit = false
         }
         density {
             enableSplit = true

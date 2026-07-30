@@ -10,13 +10,13 @@
     <string name="action_back">Geri</string>
     <string name="action_cancel">İptal etmek</string>
     <string name="action_clear">Temizlemek</string>
-    <string name="action_close">Kapalı</string>
-    <string name="action_compress">Kompres</string>
+    <string name="action_close">Kapat</string>
+    <string name="action_compress">Sıkıştır</string>
     <string name="action_delete">Silmek</string>
     <string name="action_done">Tamamlamak</string>
     <string name="action_merge">Birleştir</string>
     <string name="action_next">Sonraki</string>
-    <string name="action_open">Açık</string>
+    <string name="action_open">Aç</string>
     <string name="action_open_pdf">PDF\'yi aç</string>
     <string name="action_previous">Öncesi</string>
     <string name="action_processing">İşleme...</string>
@@ -27,7 +27,7 @@
     <string name="action_settings">Ayarlar</string>
     <string name="action_split">Bölmek</string>
     <string name="action_submit">Göndermek</string>
-    <string name="action_view">Görüş</string>
+    <string name="action_view">Görüntüle</string>
     <string name="action_navigate">Gezin</string>
     <string name="action_move_up">Yukarı taşı</string>
     <string name="action_move_down">Aşağı taşı</string>
@@ -48,7 +48,7 @@
     <string name="fab_open_pdf">PDF\'yi aç</string>
 
     <!-- Navigation -->
-    <string name="nav_tab_tools">Aletler</string>
+    <string name="nav_tab_tools">Araçlar</string>
     <string name="nav_tab_files">Dosyalar</string>
     <string name="nav_open_history">Geçmişi Aç</string>
 
@@ -60,7 +60,7 @@
     <string name="category_optimize">Optimize et</string>
     <string name="category_quick_actions">Hızlı Eylemler</string>
     <string name="category_image_tools">Görüntü Araçları</string>
-    <string name="category_view_export">Görüntüle ve göster İhracat</string>
+    <string name="category_view_export">Görüntüle ve Dışa Aktar</string>
 
     <!-- Tool Names - Organize -->
     <string name="tool_merge_pdfs">PDF\'leri birleştir</string>
@@ -196,11 +196,11 @@
     <string name="pdf_zoom_in">Yakınlaştır</string>
     <string name="pdf_zoom_out">Uzaklaştır</string>
     <string name="pdf_fit_to_width">Genişliğe sığdır</string>
-    <string name="pdf_tools">Aletler</string>
+    <string name="pdf_tools">Araçlar</string>
     <string name="pdf_annotations">Ek açıklamalar</string>
-    <string name="pdf_search">Aramak</string>
-    <string name="pdf_share">Paylaşmak</string>
-    <string name="pdf_save">Kaydetmek</string>
+    <string name="pdf_search">Ara</string>
+    <string name="pdf_share">Paylaş</string>
+    <string name="pdf_save">Kaydet</string>
     <string name="pdf_highlighter">Vurgulayıcı</string>
     <string name="pdf_marker">işaretleyici</string>
     <string name="pdf_underline">Altı çizili</string>
@@ -245,11 +245,11 @@
     <string name="settings_about_features">Özellikler:</string>
     <string name="settings_about_feature_1">PDF\'leri Birleştir, Böl, Sıkıştır</string>
     <string name="settings_about_feature_2">Görüntülere/görüntülerden dönüştürme</string>
-    <string name="settings_about_feature_3">Filigran ekleyin ve ekleyin imzalar</string>
+    <string name="settings_about_feature_3">Filigran ve imza ekleyin</string>
     <string name="settings_about_feature_4">OCR ve PDF\'ye Tara</string>
     <string name="settings_about_feature_5">Güvenli ve Güvenli PDF\'leri şifrele</string>
     <string name="settings_about_version">Sürüm</string>
-    <string name="settings_about_build">İnşa etmek</string>
+    <string name="settings_about_build">Derleme</string>
     <string name="settings_about_made_with">İle yapıldı</string>
     <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack Oluşturma</string>
     <string name="settings_app_name">PDF Toolkit</string>
@@ -261,7 +261,7 @@
     <!-- Language Names -->
     <string name="language_english">İngilizce</string>
     <string name="language_spanish">İspanyolca</string>
-    <string name="language_hindi">evet</string>
+    <string name="language_hindi">Hintçe</string>
     <string name="language_chinese">中文</string>
     <string name="language_portuguese">Portekizce (Brezilya)</string>
     <string name="language_german">Almanca</string>
@@ -317,7 +317,7 @@
     <string name="file_picker_select_images">Görselleri Seçin</string>
 
     <!-- Common Labels -->
-    <string name="label_pdf">PDF\'ler</string>
+    <string name="label_pdf">PDF</string>
     <string name="label_page">Sayfa</string>
     <string name="label_pages">Sayfalar</string>
     <string name="label_file">Dosya</string>

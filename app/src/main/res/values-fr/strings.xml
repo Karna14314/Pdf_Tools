@@ -7,13 +7,13 @@
     <string name="action_add">Ajouter</string>
     <string name="action_add_more">Ajouter plus</string>
     <string name="action_add_more_pdfs">Ajouter plus de PDF</string>
-    <string name="action_back">Dos</string>
+    <string name="action_back">Retour</string>
     <string name="action_cancel">Annuler</string>
-    <string name="action_clear">Clair</string>
+    <string name="action_clear">Effacer</string>
     <string name="action_close">Fermer</string>
-    <string name="action_compress">Compresse</string>
+    <string name="action_compress">Compresser</string>
     <string name="action_delete">Supprimer</string>
-    <string name="action_done">Fait</string>
+    <string name="action_done">Terminé</string>
     <string name="action_merge">Fusionner</string>
     <string name="action_next">Suivant</string>
     <string name="action_open">Ouvrir</string>
@@ -34,7 +34,7 @@
 
     <!-- Navigation &amp; Content Descriptions -->
     <string name="cd_open_pdf">Ouvrir le PDF</string>
-    <string name="cd_back">Dos</string>
+    <string name="cd_back">Retour</string>
     <string name="cd_close_search">Fermer la recherche</string>
     <string name="cd_clear_search">Effacer la recherche</string>
     <string name="cd_stop_search">Arrêter la recherche</string>
@@ -249,7 +249,7 @@
     <string name="settings_about_feature_4">ROC et amp; Numériser vers PDF</string>
     <string name="settings_about_feature_5">Sécurisé et sécurisé chiffrer des PDF</string>
     <string name="settings_about_version">Version</string>
-    <string name="settings_about_build">Construire</string>
+    <string name="settings_about_build">Version</string>
     <string name="settings_about_made_with">Fabriqué avec</string>
     <string name="settings_about_kotlin_compose">Kotlin et amp; Composer Jetpack</string>
     <string name="settings_app_name">PDF Toolkit</string>
@@ -262,7 +262,7 @@
     <string name="language_english">Anglais</string>
     <string name="language_spanish">espagnol</string>
     <string name="language_hindi">हिन्दी</string>
-    <string name="language_chinese">Chine</string>
+    <string name="language_chinese">Chinois</string>
     <string name="language_portuguese">Portugais (Brésil)</string>
     <string name="language_german">Allemand</string>
 
@@ -273,7 +273,7 @@
     <string name="image_format_jpeg_desc">Compatibilité universelle</string>
 
     <!-- Theme Modes -->
-    <string name="theme_light">Lumière</string>
+    <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
     <string name="theme_system">Système par défaut</string>
     <string name="theme_light_desc">Utilisez toujours un thème clair</string>
@@ -320,14 +320,14 @@
     <string name="label_pdf">PDF</string>
     <string name="label_page">Page</string>
     <string name="label_pages">Pages</string>
-    <string name="label_file">Déposer</string>
+    <string name="label_file">Fichier</string>
     <string name="label_files">Fichiers</string>
     <string name="label_size">Taille</string>
     <string name="label_quality">Qualité</string>
     <string name="label_format">Format</string>
     <string name="label_password">Mot de passe</string>
     <string name="label_loading">Chargement...</string>
-    <string name="label_calculating">Calculateur...</string>
+    <string name="label_calculating">Calcul en cours...</string>
 
     <!-- Empty States -->
     <string name="empty_no_files">Aucun fichier sélectionné</string>

@@ -4,30 +4,30 @@
     <string name="app_name">PDF Toolkit</string>
 
     <!-- Common Actions -->
-    <string name="action_add">Menambahkan</string>
+    <string name="action_add">Tambah</string>
     <string name="action_add_more">Tambahkan Lebih Banyak</string>
     <string name="action_add_more_pdfs">Tambahkan Lebih Banyak PDF</string>
     <string name="action_back">Kembali</string>
-    <string name="action_cancel">Membatalkan</string>
+    <string name="action_cancel">Batal</string>
     <string name="action_clear">Jernih</string>
-    <string name="action_close">Menutup</string>
+    <string name="action_close">Tutup</string>
     <string name="action_compress">Kompres</string>
-    <string name="action_delete">Menghapus</string>
+    <string name="action_delete">Hapus</string>
     <string name="action_done">Selesai</string>
     <string name="action_merge">Menggabungkan</string>
     <string name="action_next">Berikutnya</string>
-    <string name="action_open">Membuka</string>
+    <string name="action_open">Buka</string>
     <string name="action_open_pdf">Buka PDF</string>
     <string name="action_previous">Sebelumnya</string>
     <string name="action_processing">Pengolahan...</string>
     <string name="action_remove">Menghapus</string>
-    <string name="action_save">Menyimpan</string>
+    <string name="action_save">Simpan</string>
     <string name="action_save_as">Simpan Sebagai</string>
-    <string name="action_select">Memilih</string>
+    <string name="action_select">Pilih</string>
     <string name="action_settings">Pengaturan</string>
-    <string name="action_split">Membelah</string>
+    <string name="action_split">Pisah</string>
     <string name="action_submit">Kirim</string>
-    <string name="action_view">Melihat</string>
+    <string name="action_view">Lihat</string>
     <string name="action_navigate">Navigasi</string>
     <string name="action_move_up">Naik</string>
     <string name="action_move_down">Pindah ke bawah</string>
@@ -50,7 +50,7 @@
     <!-- Navigation -->
     <string name="nav_tab_tools">Peralatan</string>
     <string name="nav_tab_files">File</string>
-    <string name="nav_open_history">Buka Sejarah</string>
+    <string name="nav_open_history">Riwayat</string>
 
     <!-- Tool Categories -->
     <string name="category_organize">Mengatur</string>
@@ -262,7 +262,7 @@
     <string name="language_english">Bahasa inggris</string>
     <string name="language_spanish">Spanyol</string>
     <string name="language_hindi">हिन्दी</string>
-    <string name="language_chinese">tidak</string>
+    <string name="language_chinese">Cina</string>
     <string name="language_portuguese">Portugis (Brasil)</string>
     <string name="language_german">Jerman</string>
 
@@ -273,7 +273,7 @@
     <string name="image_format_jpeg_desc">Kompatibilitas universal</string>
 
     <!-- Theme Modes -->
-    <string name="theme_light">Lampu</string>
+    <string name="theme_light">Terang</string>
     <string name="theme_dark">Gelap</string>
     <string name="theme_system">Bawaan Sistem</string>
     <string name="theme_light_desc">Selalu gunakan tema terang</string>
@@ -320,7 +320,7 @@
     <string name="label_pdf">PDF</string>
     <string name="label_page">Halaman</string>
     <string name="label_pages">Halaman</string>
-    <string name="label_file">Mengajukan</string>
+    <string name="label_file">Berkas</string>
     <string name="label_files">File</string>
     <string name="label_size">Ukuran</string>
     <string name="label_quality">Kualitas</string>
