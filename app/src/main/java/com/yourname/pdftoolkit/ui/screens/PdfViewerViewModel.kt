@@ -1032,9 +1032,10 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
                 _uiState.update {
                     PdfViewerUiState.Error("Not enough memory. Close other apps and try again.")
                 }
-            } else throw e
+            } else Log.e("PdfViewerVM", "Error in onCleared cleanup", e)
         }
-        viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
+        @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
+        kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO + kotlinx.coroutines.NonCancellable + exceptionHandler) {
             synchronized(activeBitmaps) {
                 uiBitmapRefs.values.forEach { if (!it.isRecycled) it.recycle() }
                 uiBitmapRefs.clear()
