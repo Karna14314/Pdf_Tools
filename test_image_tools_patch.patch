@@ -1,0 +1,12 @@
+--- app/src/main/java/com/yourname/pdftoolkit/ui/screens/ImageToolsScreen.kt
++++ app/src/main/java/com/yourname/pdftoolkit/ui/screens/ImageToolsScreen.kt
+@@ -783,7 +783,8 @@
+
+             // Bottom action area
+             Surface(
+-                modifier = Modifier.fillMaxWidth(),
++                modifier = Modifier.fillMaxWidth()
++                    .navigationBarsPadding(),
+                 tonalElevation = 3.dp
+             ) {
+                 Column(

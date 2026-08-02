@@ -1,0 +1,12 @@
+--- app/src/main/java/com/yourname/pdftoolkit/ui/screens/ScanToPdfScreen.kt
++++ app/src/main/java/com/yourname/pdftoolkit/ui/screens/ScanToPdfScreen.kt
+@@ -681,7 +681,8 @@
+             modifier = Modifier
+                 .fillMaxWidth()
+                 .align(Alignment.BottomCenter)
+-                .padding(32.dp),
++                .padding(32.dp)
++                .navigationBarsPadding(),
+             horizontalArrangement = Arrangement.SpaceEvenly,
+             verticalAlignment = Alignment.CenterVertically
+         ) {

@@ -1,0 +1,11 @@
+--- app/src/main/java/com/yourname/pdftoolkit/ui/screens/ConvertScreen.kt
++++ app/src/main/java/com/yourname/pdftoolkit/ui/screens/ConvertScreen.kt
+@@ -557,7 +557,8 @@
+             // Bottom action area
+             Surface(
+-                modifier = Modifier.fillMaxWidth(),
++                modifier = Modifier.fillMaxWidth()
++                    .navigationBarsPadding(),
+                 tonalElevation = 3.dp
+             ) {
+                 Column(

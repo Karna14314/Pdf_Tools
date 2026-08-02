@@ -7,4 +7,13 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="Theme.UCropActivity" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Prevent edge-to-edge layout inside UCrop to fix overlapping with system navigation bar -->
+        <item name="android:windowLayoutInDisplayCutoutMode">default</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
 </resources>

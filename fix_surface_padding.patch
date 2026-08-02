@@ -1,0 +1,36 @@
+--- app/src/main/java/com/yourname/pdftoolkit/ui/screens/ConvertScreen.kt
++++ app/src/main/java/com/yourname/pdftoolkit/ui/screens/ConvertScreen.kt
+@@ -557,8 +557,7 @@
+
+             // Bottom action area
+             Surface(
+-                modifier = Modifier.fillMaxWidth()
+-                    .navigationBarsPadding(),
++                modifier = Modifier.fillMaxWidth(),
+                 tonalElevation = 3.dp
+             ) {
+                 Column(
+                     modifier = Modifier
+                         .fillMaxWidth()
++                        .navigationBarsPadding()
+                         .padding(16.dp)
+                 ) {
+                     if (selectedImages.isEmpty()) {
+--- app/src/main/java/com/yourname/pdftoolkit/ui/screens/ImageToolsScreen.kt
++++ app/src/main/java/com/yourname/pdftoolkit/ui/screens/ImageToolsScreen.kt
+@@ -783,8 +783,7 @@
+
+             // Bottom action area
+             Surface(
+-                modifier = Modifier.fillMaxWidth()
+-                    .navigationBarsPadding(),
++                modifier = Modifier.fillMaxWidth(),
+                 tonalElevation = 3.dp
+             ) {
+                 Column(
+                     modifier = Modifier
+                         .fillMaxWidth()
++                        .navigationBarsPadding()
+                         .padding(16.dp)
+                 ) {
+                     if (selectedImages.isEmpty()) {
