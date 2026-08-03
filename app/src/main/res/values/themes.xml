@@ -7,4 +7,13 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+
+    <!-- Dedicated UCrop Theme with Window Inset handling for Crop Activity -->
+    <style name="Theme.UCrop" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:statusBarColor">#0F0F1A</item>
+        <item name="android:navigationBarColor">#1A1A2E</item>
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
 </resources>
