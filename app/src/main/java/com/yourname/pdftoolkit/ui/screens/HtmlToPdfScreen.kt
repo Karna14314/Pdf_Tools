@@ -37,8 +37,12 @@ fun HtmlToPdfScreen(
     val scope = rememberCoroutineScope()
     val converter = remember { HtmlToPdfConverter() }
     
+    val hasNetworkUrlSupport = com.yourname.pdftoolkit.BuildConfig.HAS_NETWORK_URL_TO_PDF
+
     // State
-    var inputMode by remember { mutableStateOf(InputMode.URL) }
+    var inputMode by remember {
+        mutableStateOf(if (hasNetworkUrlSupport) InputMode.URL else InputMode.HTML)
+    }
     var urlInput by remember { mutableStateOf("") }
     var htmlInput by remember { mutableStateOf("") }
     var isProcessing by remember { mutableStateOf(false) }
@@ -247,29 +251,31 @@ fun HtmlToPdfScreen(
                     contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
                     // Mode selection
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            FilterChip(
-                                selected = inputMode == InputMode.URL,
-                                onClick = { inputMode = InputMode.URL },
-                                label = { Text("From URL") },
-                                leadingIcon = if (inputMode == InputMode.URL) {
-                                    { Icon(Icons.Default.Link, null, Modifier.size(18.dp)) }
-                                } else null,
-                                modifier = Modifier.weight(1f)
-                            )
-                            FilterChip(
-                                selected = inputMode == InputMode.HTML,
-                                onClick = { inputMode = InputMode.HTML },
-                                label = { Text("From HTML") },
-                                leadingIcon = if (inputMode == InputMode.HTML) {
-                                    { Icon(Icons.Default.Code, null, Modifier.size(18.dp)) }
-                                } else null,
-                                modifier = Modifier.weight(1f)
-                            )
+                    if (hasNetworkUrlSupport) {
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                FilterChip(
+                                    selected = inputMode == InputMode.URL,
+                                    onClick = { inputMode = InputMode.URL },
+                                    label = { Text("From URL") },
+                                    leadingIcon = if (inputMode == InputMode.URL) {
+                                        { Icon(Icons.Default.Link, null, Modifier.size(18.dp)) }
+                                    } else null,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                FilterChip(
+                                    selected = inputMode == InputMode.HTML,
+                                    onClick = { inputMode = InputMode.HTML },
+                                    label = { Text("From HTML") },
+                                    leadingIcon = if (inputMode == InputMode.HTML) {
+                                        { Icon(Icons.Default.Code, null, Modifier.size(18.dp)) }
+                                    } else null,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
                     

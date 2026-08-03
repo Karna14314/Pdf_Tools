@@ -235,7 +235,7 @@ fun OcrScreen(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "OCR uses AI to recognize text in scanned PDFs and images. This works best with clear, high-resolution scans.",
+                        text = "Offline OCR recognizes text in scanned PDFs and images. Works completely offline on your device.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )

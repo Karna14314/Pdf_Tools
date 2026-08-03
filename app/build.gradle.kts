@@ -88,6 +88,7 @@ android {
             // Uses ML Kit for OCR (proprietary but smaller)
             buildConfigField("boolean", "HAS_OCR", "true")
             buildConfigField("boolean", "USE_MLKIT_OCR", "true")
+            buildConfigField("boolean", "HAS_NETWORK_URL_TO_PDF", "true")
         }
         
         create("fdroid") {
@@ -96,6 +97,7 @@ android {
             // Uses Tesseract for OCR (open source but larger APK)
             buildConfigField("boolean", "HAS_OCR", "true")
             buildConfigField("boolean", "USE_MLKIT_OCR", "false")
+            buildConfigField("boolean", "HAS_NETWORK_URL_TO_PDF", "false")
         }
         
         create("opensource") {
@@ -107,6 +109,7 @@ android {
             buildConfigField("boolean", "HAS_ADS", "false")
             buildConfigField("boolean", "HAS_FIREBASE", "false")
             buildConfigField("boolean", "HAS_PLAY_SERVICES", "false")
+            buildConfigField("boolean", "HAS_NETWORK_URL_TO_PDF", "false")
         }
     }
 
