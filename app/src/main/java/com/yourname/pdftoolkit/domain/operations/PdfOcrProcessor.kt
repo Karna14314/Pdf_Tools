@@ -37,6 +37,7 @@ enum class OcrLanguage(val displayName: String) {
 data class OcrPageResult(
     val pageNumber: Int, // 1-indexed
     val text: String,
+    val markdownText: String = "",
     val blocks: List<OcrTextBlock>,
     val confidence: Float
 )
@@ -85,6 +86,7 @@ data class OcrResult(
     val success: Boolean,
     val pages: List<OcrPageResult>,
     val fullText: String,
+    val markdownText: String = "",
     val errorMessage: String? = null
 )
 
@@ -160,6 +162,7 @@ class PdfOcrProcessor(private val context: Context) {
             val renderer = PDFRenderer(document)
             val pageResults = mutableListOf<OcrPageResult>()
             val fullTextBuilder = StringBuilder()
+            val fullMarkdownBuilder = StringBuilder()
             
             for ((index, pageIndex) in validPages.withIndex()) {
                 ensureActive()
@@ -175,6 +178,7 @@ class PdfOcrProcessor(private val context: Context) {
 
                     if (words.isNotEmpty()) {
                         val pageText = words.joinToString(" ") { it.text }
+                        val pageMarkdown = buildMarkdownFromWords(words)
                         val blocks = listOf(
                             OcrTextBlock(
                                 text = pageText,
@@ -191,6 +195,7 @@ class PdfOcrProcessor(private val context: Context) {
                         val pageResult = OcrPageResult(
                             pageNumber = pageIndex + 1,
                             text = pageText,
+                            markdownText = pageMarkdown,
                             blocks = blocks,
                             confidence = 0.85f
                         )
@@ -198,8 +203,12 @@ class PdfOcrProcessor(private val context: Context) {
 
                         if (fullTextBuilder.isNotEmpty()) {
                             fullTextBuilder.append("\n\n--- Page ${pageIndex + 1} ---\n\n")
+                            fullMarkdownBuilder.append("\n\n---\n\n### Page ${pageIndex + 1}\n\n")
+                        } else {
+                            fullMarkdownBuilder.append("### Page ${pageIndex + 1}\n\n")
                         }
                         fullTextBuilder.append(pageText)
+                        fullMarkdownBuilder.append(pageMarkdown)
                     }
                 } finally {
                     pageImage.recycle()
@@ -218,7 +227,8 @@ class PdfOcrProcessor(private val context: Context) {
             OcrResult(
                 success = true,
                 pages = pageResults,
-                fullText = fullTextBuilder.toString()
+                fullText = fullTextBuilder.toString(),
+                markdownText = fullMarkdownBuilder.toString()
             )
             
         } catch (e: CancellationException) {
@@ -456,6 +466,85 @@ class PdfOcrProcessor(private val context: Context) {
         } finally {
             contentStream.close()
         }
+    }
+
+    /**
+     * Build Markdown formatted text from recognized OCR words.
+     * Uses bounding box layout analysis to structure headers, paragraphs, and list items.
+     */
+    private fun buildMarkdownFromWords(words: List<OcrWord>): String {
+        if (words.isEmpty()) return ""
+
+        val validWords = words.filter { it.boundingBox != null }
+        if (validWords.isEmpty()) {
+            return words.joinToString(" ") { it.text }
+        }
+
+        // Group words into lines by bounding box vertical position
+        val lines = mutableListOf<MutableList<OcrWord>>()
+        val sortedWords = validWords.sortedWith(
+            compareBy<OcrWord> { it.boundingBox!!.top }.thenBy { it.boundingBox!!.left }
+        )
+
+        for (word in sortedWords) {
+            val box = word.boundingBox!!
+            val matchingLine = lines.find { line ->
+                val lineTop = line.minOf { it.boundingBox!!.top }
+                val lineBottom = line.maxOf { it.boundingBox!!.bottom }
+                val wordCenterY = (box.top + box.bottom) / 2
+                wordCenterY >= (lineTop - 6) && wordCenterY <= (lineBottom + 6)
+            }
+
+            if (matchingLine != null) {
+                matchingLine.add(word)
+            } else {
+                lines.add(mutableListOf(word))
+            }
+        }
+
+        lines.forEach { line -> line.sortBy { it.boundingBox!!.left } }
+
+        val lineHeights = lines.map { line ->
+            line.maxOf { it.boundingBox!!.bottom } - line.minOf { it.boundingBox!!.top }
+        }.sorted()
+        val medianHeight = if (lineHeights.isNotEmpty()) lineHeights[lineHeights.size / 2].toFloat() else 20f
+
+        val markdownBuilder = StringBuilder()
+        var prevBottom = -1
+
+        for (line in lines) {
+            val lineText = line.joinToString(" ") { it.text }.trim()
+            if (lineText.isBlank()) continue
+
+            val lineTop = line.minOf { it.boundingBox!!.top }
+            val lineBottom = line.maxOf { it.boundingBox!!.bottom }
+            val lineHeight = (lineBottom - lineTop).toFloat()
+
+            if (prevBottom != -1 && (lineTop - prevBottom) > (medianHeight * 1.5f)) {
+                markdownBuilder.append("\n\n")
+            } else if (prevBottom != -1) {
+                markdownBuilder.append("\n")
+            }
+
+            when {
+                lineHeight > medianHeight * 1.6f -> {
+                    markdownBuilder.append("# ").append(lineText)
+                }
+                lineHeight > medianHeight * 1.3f -> {
+                    markdownBuilder.append("## ").append(lineText)
+                }
+                lineText.startsWith("•") || lineText.startsWith("- ") || lineText.startsWith("* ") -> {
+                    markdownBuilder.append("- ").append(lineText.removePrefix("•").removePrefix("-").removePrefix("*").trim())
+                }
+                else -> {
+                    markdownBuilder.append(lineText)
+                }
+            }
+
+            prevBottom = lineBottom
+        }
+
+        return markdownBuilder.toString()
     }
     
     /**

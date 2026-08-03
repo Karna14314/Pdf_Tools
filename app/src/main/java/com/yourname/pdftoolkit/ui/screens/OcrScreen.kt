@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.yourname.pdftoolkit.domain.operations.PdfOcrProcessor
 import com.yourname.pdftoolkit.util.FileOpener
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +48,10 @@ class OcrViewModel : ViewModel() {
     fun setMode(mode: OcrMode) {
         _state.value = _state.value.copy(mode = mode)
     }
+
+    fun setViewFormat(format: OcrViewFormat) {
+        _state.value = _state.value.copy(viewFormat = format)
+    }
     
     fun extractText(context: android.content.Context) {
         if (_state.value.isProcessing) return
@@ -67,6 +74,7 @@ class OcrViewModel : ViewModel() {
                 isComplete = result?.success == true,
                 error = result?.errorMessage,
                 extractedText = result?.fullText ?: "",
+                markdownText = result?.markdownText ?: result?.fullText ?: "",
                 pagesProcessed = result?.pages?.size ?: 0
             )
         }
@@ -141,15 +149,22 @@ enum class OcrMode {
     MAKE_SEARCHABLE
 }
 
+enum class OcrViewFormat {
+    MARKDOWN,
+    RAW_TEXT
+}
+
 data class OcrUiState(
     val sourceUri: Uri? = null,
     val sourceName: String = "",
     val mode: OcrMode = OcrMode.EXTRACT_TEXT,
+    val viewFormat: OcrViewFormat = OcrViewFormat.MARKDOWN,
     val isProcessing: Boolean = false,
     val progress: Int = 0,
     val isComplete: Boolean = false,
     val error: String? = null,
     val extractedText: String = "",
+    val markdownText: String = "",
     val pagesProcessed: Int = 0,
     val resultUri: Uri? = null
 )
@@ -167,6 +182,7 @@ fun OcrScreen(
     val clipboardManager = LocalClipboardManager.current
     val state by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
+    var showFullScreenReader by remember { mutableStateOf(false) }
     
     val pdfPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -193,6 +209,16 @@ fun OcrScreen(
         uri?.let { outputUri ->
             context.contentResolver.openOutputStream(outputUri)?.use { stream ->
                 stream.write(state.extractedText.toByteArray())
+            }
+        }
+    }
+
+    val saveMarkdownLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/markdown")
+    ) { uri ->
+        uri?.let { outputUri ->
+            context.contentResolver.openOutputStream(outputUri)?.use { stream ->
+                stream.write(state.markdownText.toByteArray())
             }
         }
     }
@@ -428,6 +454,31 @@ fun OcrScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        // Disclaimer Banner
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Layout Disclaimer: Markdown formatting and structural positioning are approximated from document spatial analysis. Layout may vary from original PDF.",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            }
+                        }
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -438,36 +489,138 @@ fun OcrScreen(
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
-                            Row {
-                                IconButton(onClick = {
-                                    clipboardManager.setText(AnnotatedString(state.extractedText))
-                                }) {
-                                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = { showFullScreenReader = true }) {
+                                    Icon(Icons.Default.Fullscreen, contentDescription = "Full Screen Reader")
                                 }
-                                IconButton(onClick = {
-                                    saveTextLauncher.launch("extracted_text_${System.currentTimeMillis()}.txt")
-                                }) {
-                                    Icon(Icons.Default.Save, contentDescription = "Save")
+                                OutlinedButton(
+                                    onClick = {
+                                        val textToCopy = if (state.viewFormat == OcrViewFormat.MARKDOWN) state.markdownText else state.extractedText
+                                        clipboardManager.setText(AnnotatedString(textToCopy))
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Copy", style = MaterialTheme.typography.labelMedium)
+                                }
+                                FilledTonalButton(
+                                    onClick = {
+                                        if (state.viewFormat == OcrViewFormat.MARKDOWN) {
+                                            saveMarkdownLauncher.launch("extracted_markdown_${System.currentTimeMillis()}.md")
+                                        } else {
+                                            saveTextLauncher.launch("extracted_text_${System.currentTimeMillis()}.txt")
+                                        }
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(if (state.viewFormat == OcrViewFormat.MARKDOWN) "Save .md" else "Save .txt", style = MaterialTheme.typography.labelMedium)
                                 }
                             }
+                        }
+
+                        // Format Selection Chips
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                selected = state.viewFormat == OcrViewFormat.MARKDOWN,
+                                onClick = { viewModel.setViewFormat(OcrViewFormat.MARKDOWN) },
+                                label = { Text("Markdown View") },
+                                leadingIcon = if (state.viewFormat == OcrViewFormat.MARKDOWN) {
+                                    { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                                } else null
+                            )
+                            FilterChip(
+                                selected = state.viewFormat == OcrViewFormat.RAW_TEXT,
+                                onClick = { viewModel.setViewFormat(OcrViewFormat.RAW_TEXT) },
+                                label = { Text("Raw Text") },
+                                leadingIcon = if (state.viewFormat == OcrViewFormat.RAW_TEXT) {
+                                    { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                                } else null
+                            )
                         }
                         
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(max = 300.dp),
+                                .heightIn(max = 320.dp),
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surface
                             )
                         ) {
-                            Text(
-                                text = state.extractedText.take(2000) + 
-                                       if (state.extractedText.length > 2000) "..." else "",
+                            val displayText = if (state.viewFormat == OcrViewFormat.MARKDOWN) state.markdownText else state.extractedText
+                            
+                            Column(
                                 modifier = Modifier
                                     .padding(12.dp)
-                                    .verticalScroll(rememberScrollState()),
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                if (state.viewFormat == OcrViewFormat.MARKDOWN) {
+                                    displayText.split("\n").forEach { line ->
+                                        val trimmed = line.trim()
+                                        when {
+                                            trimmed.startsWith("# ") -> {
+                                                Text(
+                                                    text = trimmed.removePrefix("# ").trim(),
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.padding(vertical = 4.dp)
+                                                )
+                                            }
+                                            trimmed.startsWith("## ") -> {
+                                                Text(
+                                                    text = trimmed.removePrefix("## ").trim(),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MaterialTheme.colorScheme.secondary,
+                                                    modifier = Modifier.padding(vertical = 2.dp)
+                                                )
+                                            }
+                                            trimmed.startsWith("### Page ") -> {
+                                                Text(
+                                                    text = trimmed.removePrefix("### ").trim(),
+                                                    style = MaterialTheme.typography.labelLarge,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.tertiary,
+                                                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                                                )
+                                            }
+                                            trimmed == "---" -> {
+                                                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                                            }
+                                            trimmed.startsWith("- ") -> {
+                                                Row(modifier = Modifier.padding(vertical = 2.dp)) {
+                                                    Text("• ", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                                    Text(
+                                                        text = trimmed.removePrefix("- ").trim(),
+                                                        style = MaterialTheme.typography.bodyMedium
+                                                    )
+                                                }
+                                            }
+                                            else -> {
+                                                if (trimmed.isNotEmpty()) {
+                                                    Text(
+                                                        text = line,
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        modifier = Modifier.padding(vertical = 2.dp)
+                                                    )
+                                                } else {
+                                                    Spacer(modifier = Modifier.height(6.dp))
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Text(
+                                        text = displayText,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
                         }
                         
                         Text(
@@ -583,6 +736,186 @@ fun OcrScreen(
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Process Another PDF")
+                }
+            }
+        }
+    }
+
+    // Full Screen Document Reader Dialog
+    if (showFullScreenReader) {
+        Dialog(
+            onDismissRequest = { showFullScreenReader = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Extracted Document Reader") },
+                            navigationIcon = {
+                                IconButton(onClick = { showFullScreenReader = false }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Close")
+                                }
+                            },
+                            actions = {
+                                IconButton(onClick = {
+                                    val textToCopy = if (state.viewFormat == OcrViewFormat.MARKDOWN) state.markdownText else state.extractedText
+                                    clipboardManager.setText(AnnotatedString(textToCopy))
+                                }) {
+                                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
+                                }
+                                IconButton(onClick = {
+                                    if (state.viewFormat == OcrViewFormat.MARKDOWN) {
+                                        saveMarkdownLauncher.launch("extracted_markdown_${System.currentTimeMillis()}.md")
+                                    } else {
+                                        saveTextLauncher.launch("extracted_text_${System.currentTimeMillis()}.txt")
+                                    }
+                                }) {
+                                    Icon(Icons.Default.Save, contentDescription = "Save")
+                                }
+                            }
+                        )
+                    }
+                ) { padding ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Format Chips
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                selected = state.viewFormat == OcrViewFormat.MARKDOWN,
+                                onClick = { viewModel.setViewFormat(OcrViewFormat.MARKDOWN) },
+                                label = { Text("Markdown View") },
+                                leadingIcon = if (state.viewFormat == OcrViewFormat.MARKDOWN) {
+                                    { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                                } else null
+                            )
+                            FilterChip(
+                                selected = state.viewFormat == OcrViewFormat.RAW_TEXT,
+                                onClick = { viewModel.setViewFormat(OcrViewFormat.RAW_TEXT) },
+                                label = { Text("Raw Text") },
+                                leadingIcon = if (state.viewFormat == OcrViewFormat.RAW_TEXT) {
+                                    { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                                } else null
+                            )
+                        }
+
+                        // Disclaimer Banner
+                        Surface(
+                            shape = MaterialTheme.shapes.small,
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.secondary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Layout Disclaimer: Markdown formatting and structural positioning are approximated from document spatial analysis. Layout may vary from original PDF.",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            }
+                        }
+
+                        // Full Screen Text Reader Area
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            val displayText = if (state.viewFormat == OcrViewFormat.MARKDOWN) state.markdownText else state.extractedText
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp)
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                if (state.viewFormat == OcrViewFormat.MARKDOWN) {
+                                    displayText.split("\n").forEach { line ->
+                                        val trimmed = line.trim()
+                                        when {
+                                            trimmed.startsWith("# ") -> {
+                                                Text(
+                                                    text = trimmed.removePrefix("# ").trim(),
+                                                    style = MaterialTheme.typography.headlineMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.padding(vertical = 6.dp)
+                                                )
+                                            }
+                                            trimmed.startsWith("## ") -> {
+                                                Text(
+                                                    text = trimmed.removePrefix("## ").trim(),
+                                                    style = MaterialTheme.typography.titleLarge,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MaterialTheme.colorScheme.secondary,
+                                                    modifier = Modifier.padding(vertical = 4.dp)
+                                                )
+                                            }
+                                            trimmed.startsWith("### Page ") -> {
+                                                Text(
+                                                    text = trimmed.removePrefix("### ").trim(),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.tertiary,
+                                                    modifier = Modifier.padding(top = 12.dp, bottom = 6.dp)
+                                                )
+                                            }
+                                            trimmed == "---" -> {
+                                                Divider(modifier = Modifier.padding(vertical = 12.dp))
+                                            }
+                                            trimmed.startsWith("- ") -> {
+                                                Row(modifier = Modifier.padding(vertical = 3.dp)) {
+                                                    Text("• ", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                                    Text(
+                                                        text = trimmed.removePrefix("- ").trim(),
+                                                        style = MaterialTheme.typography.bodyLarge
+                                                    )
+                                                }
+                                            }
+                                            else -> {
+                                                if (trimmed.isNotEmpty()) {
+                                                    Text(
+                                                        text = line,
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        modifier = Modifier.padding(vertical = 3.dp)
+                                                    )
+                                                } else {
+                                                    Spacer(modifier = Modifier.height(8.dp))
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Text(
+                                        text = displayText,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
