@@ -21,6 +21,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -1218,8 +1219,17 @@ private fun PdfPagesContent(
                 }
             )
     ) {
-        // Issue 2 Fix: Wrap LazyColumn in Box with graphicsLayer for continuous zoom
-        // This prevents page splitting by scaling entire content as one unit
+        val density = LocalDensity.current
+        val extraBottomPaddingDp = remember(scale, containerSize.height) {
+            if (scale > 1f && containerSize.height > 0) {
+                with(density) {
+                    (containerSize.height.toFloat() * ((scale - 1f) / scale)).toDp()
+                }
+            } else {
+                0.dp
+            }
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -1237,7 +1247,7 @@ private fun PdfPagesContent(
                 userScrollEnabled = (!isEditMode || selectedTool == AnnotationTool.NONE) && scale <= 1f,
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                contentPadding = PaddingValues(vertical = 8.dp)
+                contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp + extraBottomPaddingDp)
             ) {
                 items(
                     count = totalPages,
@@ -2092,6 +2102,13 @@ private fun findClosestCharIndex(
             minDistance = distance
             closestIndex = i
         }
+    }
+
+    // Maximum touch distance threshold: ~32dp from touch point to nearest character
+    val maxAllowedDistancePx = (32f * scaleX * PdfViewerViewModel.RENDER_SCALE).coerceAtLeast(48f)
+    val maxAllowedDistSq = maxAllowedDistancePx * maxAllowedDistancePx
+    if (minDistance > maxAllowedDistSq) {
+        return -1
     }
 
     // If the global match is too far horizontally (>10% page width), search within a band
