@@ -129,3 +129,10 @@ fdroiddata/
 # Jules AI Prompt - provided manually to AI, not stored in repo
 JULES_AI_PROMPT.md
 nul
+
+# AI-generated logs and reports (prevent future commits)
+AI_RUN_LOG.md
+FINAL_REPORT.md
+plan_report.txt
+plan_update.txt
+pr_description.txt

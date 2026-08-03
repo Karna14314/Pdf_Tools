@@ -1,3 +1,0 @@
-1. We need to fix the `PdfThumbnailGrid` to lazily load thumbnails instead of fetching all of them at once. We can do this by moving the thumbnail fetch logic into `PdfThumbnailCard` itself, so it only runs when composed (visible).
-2. We need to implement an `LruCache` to store the bitmaps rather than a `mutableStateMapOf`.
-3. We need to allow `PdfThumbnailCard` to display original index if reordered, and a rotation preview if on `RotateScreen`.
