@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -305,7 +308,7 @@ fun SplitScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Split PDF",
+                title = stringResource(R.string.tool_split_pdf),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -324,8 +327,8 @@ fun SplitScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.CallSplit,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF file to split or extract pages",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.split_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else if (selectedMode == SplitMode.VISUAL_SELECT) {
@@ -360,7 +363,7 @@ fun SplitScreen(
                             ) {
                                 Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Switch Mode", style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.split_switch_mode), style = MaterialTheme.typography.bodySmall)
                             }
                         }
                         
@@ -616,14 +619,14 @@ fun SplitScreen(
             onAction = resultUris.firstOrNull()?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
     
     // Multi-output result screen (for ALL_PAGES mode)
     if (showMultiOutputScreen && resultUris.isNotEmpty()) {
         MultiOutputResultScreen(
-            title = "Split PDF - All Pages",
+            title = stringResource(R.string.split_all_pages_title),
             outputUris = resultUris,
             isImageOutput = false,
             onNavigateBack = { 
@@ -773,7 +776,7 @@ private fun RangeInput(
                 OutlinedTextField(
                     value = startPage,
                     onValueChange = onStartChange,
-                    label = { Text("From") },
+                    label = { Text(stringResource(R.string.split_from)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f),
                     singleLine = true
@@ -784,7 +787,7 @@ private fun RangeInput(
                 OutlinedTextField(
                     value = endPage,
                     onValueChange = onEndChange,
-                    label = { Text("To") },
+                    label = { Text(stringResource(R.string.split_to)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f),
                     singleLine = true
@@ -815,8 +818,8 @@ private fun SpecificPagesInput(
             OutlinedTextField(
                 value = value,
                 onValueChange = onChange,
-                label = { Text("Page Numbers") },
-                placeholder = { Text("e.g., 1, 3, 5-8, 10") },
+                label = { Text(stringResource(R.string.split_page_numbers)) },
+                placeholder = { Text(stringResource(R.string.split_placeholder)) },
                 supportingText = { Text("Enter page numbers or ranges (1 - $maxPages)") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
@@ -920,7 +923,7 @@ private fun SelectedFileHeader(
             IconButton(onClick = onRemove) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Remove",
+                    contentDescription = stringResource(R.string.action_remove),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }

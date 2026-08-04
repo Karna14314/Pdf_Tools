@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
@@ -370,10 +373,10 @@ fun SignPdfScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Sign PDF") },
+                title = { Text(stringResource(R.string.tool_sign_pdf)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -421,7 +424,7 @@ fun SignPdfScreen(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             IconButton(onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Change")
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
                             }
                         }
                     } else {
@@ -431,7 +434,7 @@ fun SignPdfScreen(
                         ) {
                             Icon(Icons.Default.FileOpen, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Select PDF")
+                            Text(stringResource(R.string.action_select_pdf))
                         }
                     }
                 }
@@ -461,7 +464,7 @@ fun SignPdfScreen(
                         TextButton(onClick = { viewModel.clearSignature() }) {
                             Icon(Icons.Default.Clear, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Clear")
+                            Text(stringResource(R.string.action_clear))
                         }
                     }
                     
@@ -577,7 +580,7 @@ fun SignPdfScreen(
                                 if (page > 0) viewModel.setPageIndex(page - 1)
                             }
                         },
-                        label = { Text("Page Number") },
+                        label = { Text(stringResource(R.string.label_page_number)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         leadingIcon = { Icon(Icons.Default.Description, contentDescription = null) }
@@ -766,7 +769,7 @@ fun SignPdfScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Add Date", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.sign_add_date), modifier = Modifier.weight(1f))
                         Switch(
                             checked = state.addDate,
                             onCheckedChange = { viewModel.toggleAddDate() }
@@ -777,7 +780,7 @@ fun SignPdfScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Add Name", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.sign_add_name), modifier = Modifier.weight(1f))
                         Switch(
                             checked = state.addName,
                             onCheckedChange = { viewModel.toggleAddName() }
@@ -788,7 +791,7 @@ fun SignPdfScreen(
                         OutlinedTextField(
                             value = state.signerName,
                             onValueChange = { viewModel.setName(it) },
-                            label = { Text("Your Name") },
+                            label = { Text(stringResource(R.string.sign_your_name)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -810,7 +813,7 @@ fun SignPdfScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         CircularProgressIndicator()
-                        Text("Adding signature... ${state.progress}%")
+                        Text(stringResource(R.string.sign_progress, state.progress))
                         LinearProgressIndicator(
                             progress = state.progress / 100f,
                             modifier = Modifier.fillMaxWidth()
@@ -849,7 +852,7 @@ fun SignPdfScreen(
                             ) {
                                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Open")
+                                Text(stringResource(R.string.action_open))
                             }
                         }
                     }
@@ -894,7 +897,7 @@ fun SignPdfScreen(
             ) {
                 Icon(Icons.Default.Draw, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Sign PDF")
+                Text(stringResource(R.string.tool_sign_pdf))
             }
             
             // Reset Button
@@ -905,7 +908,7 @@ fun SignPdfScreen(
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Sign Another PDF")
+                    Text(stringResource(R.string.sign_another_pdf))
                 }
             }
         }

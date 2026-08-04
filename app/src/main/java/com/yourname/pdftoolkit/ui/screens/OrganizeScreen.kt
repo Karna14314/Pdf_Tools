@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -197,7 +200,7 @@ fun OrganizeScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Organize Pages",
+                title = stringResource(R.string.tool_organize_pages),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -216,8 +219,8 @@ fun OrganizeScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.SwapVert,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF to remove or reorder pages",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.organize_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -252,7 +255,7 @@ fun OrganizeScreen(
                                     isRemoveMode = true
                                     selectedPages = setOf()
                                 },
-                                label = { Text("Remove Pages") },
+                                label = { Text(stringResource(R.string.organize_remove_pages)) },
                                 leadingIcon = if (isRemoveMode) {
                                     { Icon(Icons.Default.Delete, null, Modifier.size(18.dp)) }
                                 } else null,
@@ -264,7 +267,7 @@ fun OrganizeScreen(
                                     isRemoveMode = false
                                     selectedPages = setOf()
                                 },
-                                label = { Text("Extract/Reorder Pages") },
+                                label = { Text(stringResource(R.string.organize_reorder_pages)) },
                                 leadingIcon = if (!isRemoveMode) {
                                     { Icon(Icons.Default.ContentCopy, null, Modifier.size(18.dp)) }
                                 } else null,
@@ -295,12 +298,12 @@ fun OrganizeScreen(
                                 TextButton(onClick = { 
                                     selectedPages = (1..pageCount).toSet()
                                 }) {
-                                    Text("All")
+                                    Text(stringResource(R.string.action_select_all))
                                 }
                                 TextButton(onClick = { 
                                     selectedPages = setOf()
                                 }) {
-                                    Text("None")
+                                    Text(stringResource(R.string.action_select_none))
                                 }
                             }
                         }
@@ -424,7 +427,7 @@ fun OrganizeScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }

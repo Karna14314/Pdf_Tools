@@ -131,11 +131,12 @@
     <string name="desc_delete_pages">Sahypalary PDF-den aýyryň</string>
     <string name="desc_compress_image">Surat faýlyň ululygyny azaltmak</string>
     <string name="desc_resize_image">Surat ölçeglerini üýtgediň</string>
-    <string name="desc_convert_format">JPEG � ?? WebP</string>
+    <string name="desc_convert_format">JPEG ↔ WebP</string>
     <string name="desc_strip_metadata">EXIF maglumatlary aýyryň</string>
     <string name="desc_lock_pdf">Parol PDF-ni goraýar</string>
     <string name="desc_sign">Goluňyzy goşuň</string>
     <string name="desc_view_pdf">PDF açyň we görüň</string>
+    <string name="tool_view_pdf">PDF görüň</string>
 
     <!-- Merge Screen -->
     <string name="merge_title">PDF-leri birleşdiriň</string>
@@ -251,10 +252,10 @@
     <string name="settings_about_version">Wersiýa</string>
     <string name="settings_about_build">Gurmak</string>
     <string name="settings_about_made_with">Bilen ýasaldy</string>
-    <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack düzmek</string>
+    <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack Compose</string>
     <string name="settings_app_name">PDF Toolkit</string>
     <string name="settings_made_with_love">Söýgü bilen ýasaldy</string>
-    <string name="settings_copyright">© 2026 PDF gurallar toplumy</string>
+    <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">Dil saýlaň</string>
     <string name="settings_language_changed">Dil üýtgedi</string>
 
@@ -292,7 +293,7 @@
     <string name="feature_request_placeholder">Haýsy aýratynlygy görmek isleýärsiňiz?</string>
 
     <!-- Bug Report -->
-    <string name="bug_report_subject">[Bug hasabaty] PDF gurallary</string>
+    <string name="bug_report_subject">[Bug hasabaty] PDF Toolkit</string>
     <string name="bug_report_template">Bugalňyşlygyň beýany: \n [Duşuşan meseläňizi suratlandyrmagyňyzy haýyş edýäris] \n \n Köpeltmek üçin ädimler: \n1. \n2. \n3. \n \n Garaşylýan özüni alyp baryş: \n [Näme bolmagyna garaşdyňyz?] \n \n Hakyky özüni alyp baryş: \n [Aslynda näme boldy?]</string>
 
     <!-- Error Messages -->
@@ -341,4 +342,252 @@
 
     <string name="action_search">Gözleg</string>
     <string name="settings_no_languages_found">Dil tapylmady</string>
+
+    <!-- PDF Viewer additions -->
+    <string name="pdf_stop_search">Gözlegi sakla</string>
+    <string name="pdf_open_with">Şu bilen aç...</string>
+    <string name="pdf_reset_zoom">Massştaby nol et</string>
+    <string name="pdf_print">Çap et</string>
+    <string name="pdf_clear_all_annotations">Ähli bellikleri poz</string>
+    <string name="pdf_clear_all_dialog_title">Ähli bellikleri pozmalymy?</string>
+    <string name="pdf_compress_this">Şu PDF-i gys</string>
+    <string name="pdf_add_watermark_option">Suw belgisini goş</string>
+    <string name="pdf_saving_annotations">Bellikler ýazdyrylýar… %1$d%%</string>
+    <string name="pdf_tool_pan">Süýşür</string>
+    <string name="pdf_tool_eraser">Pozguç</string>
+    <string name="pdf_brush_size">Çotganyň ululygy</string>
+    <string name="pdf_undo">Yza al</string>
+    <string name="pdf_select_color">Reňk saýla</string>
+    <string name="pdf_opening">PDF açylýar...</string>
+    <string name="pdf_opening_pages">PDF açylýar... (%1$d sahypa)</string>
+    <string name="pdf_large_file_warning">Uly PDF - biraz wagt alyp biler</string>
+    <string name="pdf_unable_to_open">PDF-i açyp bolmady</string>
+    <string name="pdf_failed_to_render_page">%1$d sahypany görkezip bolmady</string>
+    <string name="pdf_copied_to_clipboard">Göçürildi!</string>
+    <string name="pdf_selection_highlighted">Saýlanan bölek bellendi</string>
+    <string name="pdf_enter_page_number_range">Sahypa belgisini giriziň (1-%1$d)</string>
+    <string name="pdf_password_required">Açar söz gerek</string>
+    <string name="pdf_password_incorrect_retry">Nädogry açar söz. Täzeden synanyşyň.</string>
+    <string name="pdf_password_protected_enter">Şu PDF açar söz bilen goralan. Açmak üçin açar sözi giriziň.</string>
+    <string name="pdf_no_app_found">PDF açmak üçin programma tapylmady</string>
+    <string name="pdf_thickness_highlighter">Bellikçiniň galyňlygy</string>
+    <string name="pdf_thickness_marker">Markeriň galyňlygy</string>
+    <string name="pdf_thickness_underline">Aşagyny çyzmagyň galyňlygy</string>
+    <string name="pdf_thickness_eraser">Pozgucyň ululygy</string>
+    <string name="pdf_px_unit">%1$d px</string>
+    <string name="action_done_editing">Düzeltmek gutardy</string>
+    <string name="action_edit">Düzelt</string>
+    <string name="action_copy">Göçür</string>
+    <string name="action_go">Geç</string>
+    <string name="action_go_back">Yza</string>
+    <string name="action_retry">Täzeden synanyş</string>
+    <string name="action_clear_all">Hemmesini poz</string>
+    <string name="cd_done_editing">Düzeltmegi tamamla</string>
+    <string name="cd_edit">Düzelt</string>
+    <string name="cd_more_options">Goşmaça opsiýalar</string>
+    <string name="cd_save_annotations">Bellikleri ýazdyr</string>
+    <string name="cd_page_number">%1$d sahypa</string>
+    <string name="cd_selected">Saýlanan</string>
+    <string name="color_yellow">Sary</string>
+    <string name="color_green">Yşyl</string>
+    <string name="color_cyan">Göküş</string>
+    <string name="color_pink">Pewse</string>
+    <string name="color_red">Gyzyl</string>
+    <string name="color_blue">Gök</string>
+    <string name="color_brown">Garaňky sary</string>
+    <string name="color_black">Gara</string>
+
+    <!-- Metadata Screen additions -->
+    <string name="metadata_no_pdf_selected">PDF saýlanmady</string>
+    <string name="metadata_no_pdf_selected_subtitle">Metabelligini görmek üçin PDF faýly saýlaň</string>
+    <string name="metadata_pages_and_size">%1$d sahypa • %2$s</string>
+    <string name="metadata_strip_banner_title">Resminamanyň metabelligini poz</string>
+    <string name="metadata_strip_banner_subtitle">Paýlaşmazdan ozal ähli gizlin yzlama maglumatlaryny poz.</string>
+    <string name="metadata_strip_all">Hemmesini poz</string>
+    <string name="metadata_basic_title">Esasy metabellik</string>
+    <string name="label_title">Sözbaşy</string>
+    <string name="label_author">Awtor</string>
+    <string name="label_subject">Mawzu</string>
+    <string name="label_keywords">Açar sözler</string>
+    <string name="metadata_keywords_placeholder">Pürese bilen bölünen açar sözler</string>
+    <string name="metadata_not_set">Bellenmedi</string>
+    <string name="metadata_advanced_properties">Giňişleýin häsiýetler</string>
+    <string name="cd_collapse">Gys</string>
+    <string name="cd_expand">Giňelt</string>
+    <string name="label_creator">Dörediji</string>
+    <string name="label_producer">Öndürici</string>
+    <string name="metadata_unknown">Nämälim</string>
+    <string name="label_created">Döredilen senesi</string>
+    <string name="label_modified">Üýtgedilen senesi</string>
+    <string name="label_pdf_version">PDF görnüşi</string>
+    <string name="label_encrypted">Goralan</string>
+    <string name="label_yes">Hawa</string>
+    <string name="label_no">Ýok</string>
+    <string name="metadata_updating_progress">Metabellik täzelenýär...</string>
+    <string name="metadata_updated_success">Metabellik üstünlikli täzelendi</string>
+    <string name="metadata_update_failed">Täzlemek başartmady</string>
+    <string name="metadata_stripping_failed">Pozmak başartmady</string>
+    <string name="metadata_cannot_create_output">Çykyş faýlyny döredip bolmady</string>
+    <string name="metadata_saved_to">%1$s
+
+Ýazdyryldy: %2$s</string>
+    <string name="metadata_stripped_saved_to">Gizlinlik üçin ähli metabellik üstünlikli pozuldy.
+
+Ýazdyryldy: %1$s</string>
+    <string name="action_select_pdf">PDF saýla</string>
+    <string name="action_save_changes">Üýtgeşmeleri ýazdyr</string>
+    <string name="action_select_another_pdf">Başga PDF saýla</string>
+    <string name="metadata_update_complete">Täzlemek tamamlandy</string>
+
+    <!-- Scan to PDF Screen additions -->
+    <string name="scan_add_images">Surat goş</string>
+    <string name="scan_camera">Kamera</string>
+    <string name="scan_gallery">Galereýa</string>
+    <string name="scan_pages_count">Sahypalar (%1$d)</string>
+    <string name="action_crop">Gyrp</string>
+    <string name="scan_page_size">Sahypanyň ululygy</string>
+    <string name="scan_color_mode">Reňk düzgüni</string>
+    <string name="scan_enhance_contrast">Kontrasty gowulandyr</string>
+    <string name="scan_creating_pdf">PDF döredilýär... %1$d%%</string>
+    <string name="scan_pdf_created">PDF döredildi!</string>
+    <string name="scan_pages_scanned">%1$d sahypa</string>
+    <string name="scan_create_pdf">PDF döret</string>
+    <string name="scan_more_documents">Yene resminama skan et</string>
+    <string name="cd_capture">Surata al</string>
+
+    <!-- Group 1 additions (Annotation, OCR, Watermark, Security, Sign) -->
+    <string name="annotate_title">PDF-e bellik goşmak</string>
+    <string name="annotate_no_pdf_subtitle">Bellik goşmak üçin PDF faýly saýlaň</string>
+    <string name="label_stamp_type">Möhür görnüşi</string>
+    <string name="label_width">Eni</string>
+    <string name="label_height">Beýikligi</string>
+    <string name="action_add_annotation">Bellik goş</string>
+    <string name="ocr_title">OCR - Tekst almak</string>
+    <string name="ocr_no_pdf_subtitle">OCR bilen tekst almak üçin PDF faýly saýlaň</string>
+    <string name="ocr_markdown_view">Markdown görnüşi</string>
+    <string name="ocr_raw_text">Düz tekst</string>
+    <string name="ocr_reader_title">Alnan resminamany okaýjy</string>
+    <string name="watermark_title">Suw belgisini goş</string>
+    <string name="watermark_no_pdf_subtitle">Suw belgisini goşmak üçin PDF faýly saýlaň</string>
+    <string name="watermark_label_text">Suw belgisiniň teksti</string>
+    <string name="watermark_label_opacity">Durylygy</string>
+    <string name="watermark_label_rotation">Aýlanmagy</string>
+    <string name="security_title">PDF-i gora</string>
+    <string name="security_no_pdf_subtitle">Açar söz bellemek üçin PDF faýly saýlaň</string>
+    <string name="security_confirm_password">Açar sözi tassyklaň</string>
+    <string name="security_allow_printing">Çap etmäge rugsat ber</string>
+    <string name="security_allow_copying">Göçürmäge rugsat ber</string>
+    <string name="security_allow_editing">Düzetmäge rugsat ber</string>
+    <string name="sign_title">PDF-e қол goý</string>
+    <string name="sign_no_pdf_subtitle">Gol çekmek üçin PDF faýly saýlaň</string>
+    <string name="sign_add_date">Sene goş</string>
+    <string name="sign_add_name">At goş</string>
+    <string name="sign_your_name">Siziň adyňyz</string>
+
+    <!-- Group 2 additions (Convert, ImageTools, Split, HistorySidebar) -->
+    <string name="convert_title">Suratlardan PDF döretmek</string>
+    <string name="convert_no_images_subtitle">PDF resminama döretmek üçin suratlary saýlaň</string>
+    <string name="action_add_more_images">Ýene surat goş</string>
+    <string name="imgtools_title">Surat gurallary</string>
+    <string name="imgtools_custom_size">Aýratyn ululyk ulan</string>
+    <string name="imgtools_aspect_ratio">Proporsiýany sakla</string>
+    <string name="imgtools_target_resolution">Maksatlaýyn durulyk</string>
+    <string name="split_no_pdf_subtitle">Aýratyn resminamalara bölmek üçin PDF faýly saýlaň</string>
+    <string name="history_title">Taryh</string>
+    <string name="history_empty_title">Taryh boş</string>
+    <string name="history_empty_subtitle">Işlenen resminamalar bärik düşer</string>
+    <string name="history_clear_all">Taryhy arassala</string>
+    <string name="history_clear_dialog_title">Taryhy arassalamalymy?</string>
+    <string name="history_clear_dialog_message">Bu ähli taryhy ýazgylary pozar.</string>
+    <string name="history_view_all_files">Ähli %1$d faýly görkez</string>
+    <string name="history_open_file">Faýly aç</string>
+    <string name="history_open_gallery">Galereýany aç</string>
+
+    <!-- Group 3 additions (FillForms, HtmlToPdf, PdfToImage, Flatten, Organize, Rotate) -->
+    <string name="fill_title">PDF formalary doldurmak</string>
+    <string name="fill_no_pdf_subtitle">Meýdançalary doldurmak üçin PDF formasyny saýlaň</string>
+    <string name="fill_analyzing_fields">Forma meýdançalary derňelýär...</string>
+    <string name="fill_filling_form">Forma doldurulýar... %1$d%%</string>
+    <string name="fill_save_filled">Doldurylan formany sakla</string>
+    <string name="fill_another_form">Başga forma doldur</string>
+    <string name="html_title">HTML-den PDF-e</string>
+    <string name="html_from_url">URL-den</string>
+    <string name="html_from_html">HTML-den</string>
+    <string name="html_website_url">Web saýt URL</string>
+    <string name="html_content_label">HTML mazmuny</string>
+    <string name="html_basic_template">Esasy</string>
+    <string name="html_invoice_template">Hasap-faktura</string>
+    <string name="pdf2img_title">PDF-den surata</string>
+    <string name="pdf2img_no_pdf_subtitle">Sahypalary surata öwürmek üçin PDF faýly saýlaň</string>
+    <string name="action_ok">Bolýar</string>
+    <string name="flatten_title">PDF-i birleşdirmek (Flatten)</string>
+    <string name="flatten_no_pdf_subtitle">Bellikleri we formalary birleşdirmek üçin PDF faýly saýlaň</string>
+    <string name="flatten_progress">PDF birleşdirilýär... %1$d%%</string>
+    <string name="flatten_another_pdf">Başga PDF-i birleşdir</string>
+    <string name="organize_title">Sahypalary tertiplemek</string>
+    <string name="organize_no_pdf_subtitle">Sahypalary pozmak ýa-da tertiplemek üçin PDF saýlaň</string>
+    <string name="organize_remove_pages">Sahypalary poz</string>
+    <string name="organize_reorder_pages">Sahypalary bölüp al/tertiple</string>
+    <string name="action_select_all">Hemmesi</string>
+    <string name="action_select_none">Hiç haýsy</string>
+    <string name="rotate_title">Sahypalary aýlamak</string>
+    <string name="rotate_no_pdf_subtitle">Sahypalary aýlamak üçin PDF faýly saýlaň</string>
+    <string name="rotate_all_pages">Ähli sahypalar</string>
+    <string name="rotate_select_pages">Sahypalary saýla</string>
+
+    <!-- Group 4 additions (Files, Compress, Repair, Extract, PageNumber, Licenses) -->
+    <string name="files_clear_dialog_title">Soňky faýllary arassalamalymy?</string>
+    <string name="files_clear_dialog_message">Bu ähli faýllary taryhdan aýyrar. Asyl faýllar pozulmaz.</string>
+    <string name="compress_no_pdf_subtitle">Göwrümini kiçeltmek üçin PDF faýly saýlaň</string>
+    <string name="action_share_all">Ählisini paýlaş</string>
+    <string name="repair_title">PDF-i bejermek</string>
+    <string name="repair_no_pdf_subtitle">Barlag we bejergä bermek üçin PDF saýlaň</string>
+    <string name="repair_analyzing_structure">PDF gurluşy derňelýär...</string>
+    <string name="extract_title">Teksti bölüp almak</string>
+    <string name="extract_no_pdf_subtitle">Tekst mazmunyny bölüp almak üçin PDF saýlaň</string>
+    <string name="pagenum_title">Sahypa belgileri</string>
+    <string name="pagenum_no_pdf_subtitle">Sahypa belgilerini goşmak üçin PDF saýlaň</string>
+    <string name="licenses_title">Açyk kodly lisenziýalar</string>
+    <string name="cd_open_link">SSylkany aç</string>
+
+    <!-- Pass 2 additions -->
+    <string name="security_password_info">Bu açar söz PDF-i açmak üçin gerek bolar</string>
+    <string name="security_reenter_password">Açar sözi gaýtadan giriziň</string>
+    <string name="security_passwords_mismatch">Açar sözler deň däl</string>
+    <string name="cd_toggle_visibility">Görünijiligi üýtget</string>
+    <string name="sign_another_pdf">Başga PDF-e gol çek</string>
+    <string name="convert_no_images_title">Surat saýlanmady</string>
+    <string name="action_move_first">Birinji</string>
+    <string name="action_move_last">Soňky</string>
+    <string name="imgtools_target_format">Maksatlaýyn format</string>
+    <string name="split_switch_mode">Düzgüni üýtget</string>
+    <string name="split_all_pages_title">PDF bölmek - Ähli sahypalar</string>
+    <string name="split_placeholder">mes., 1, 3, 5-8, 10</string>
+    <string name="action_change">Üýtget</string>
+    <string name="action_reset">Nula düz</string>
+
+    <!-- Final cleanup additions -->
+    <string name="annotate_add_another">Ýene bellik goş</string>
+    <string name="ocr_progress">OCR bilen işlenilýär... %1$d%%</string>
+    <string name="ocr_process_another">Başga PDF-i işle</string>
+    <string name="watermark_font_size">Şrift ululygy: %1$d</string>
+    <string name="watermark_image_selected">Surat saýlandy</string>
+    <string name="watermark_select_image">Surat saýla</string>
+    <string name="watermark_opacity_val">Durylygy: %1$d%%</string>
+    <string name="watermark_rotation_val">Aýlanmagy: %1$d°</string>
+    <string name="watermark_progress">Suw belgisi goşulýar... %1$d%%</string>
+    <string name="watermark_another_pdf">Başga PDF-e suw belgisini goş</string>
+    <string name="sign_progress">Gol goşulýar... %1$d%%</string>
+
+    <!-- Last few additions -->
+    <string name="annotate_progress">Bellikler ulanylýar... %1$d%%</string>
+    <string name="annotate_save_pdf">Bellikli PDF-i sakla</string>
+    <string name="annotate_another_pdf">Başga PDF-e bellik goş</string>
+
+    <!-- Fix missing keys additions -->
+    <string name="label_page_number">Sahypa belgisi</string>
+    <string name="label_color">Reňk</string>
+    <string name="split_from">Dan</string>
+    <string name="split_to">Çenli</string>
+    <string name="split_page_numbers">Sahypa belgileri</string>
 </resources>

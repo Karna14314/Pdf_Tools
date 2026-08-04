@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import android.webkit.URLUtil
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -227,7 +230,7 @@ fun HtmlToPdfScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "HTML to PDF",
+                title = stringResource(R.string.tool_html_to_pdf),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -260,7 +263,7 @@ fun HtmlToPdfScreen(
                                 FilterChip(
                                     selected = inputMode == InputMode.URL,
                                     onClick = { inputMode = InputMode.URL },
-                                    label = { Text("From URL") },
+                                    label = { Text(stringResource(R.string.html_from_url)) },
                                     leadingIcon = if (inputMode == InputMode.URL) {
                                         { Icon(Icons.Default.Link, null, Modifier.size(18.dp)) }
                                     } else null,
@@ -269,7 +272,7 @@ fun HtmlToPdfScreen(
                                 FilterChip(
                                     selected = inputMode == InputMode.HTML,
                                     onClick = { inputMode = InputMode.HTML },
-                                    label = { Text("From HTML") },
+                                    label = { Text(stringResource(R.string.html_from_html)) },
                                     leadingIcon = if (inputMode == InputMode.HTML) {
                                         { Icon(Icons.Default.Code, null, Modifier.size(18.dp)) }
                                     } else null,
@@ -286,7 +289,7 @@ fun HtmlToPdfScreen(
                                 OutlinedTextField(
                                     value = urlInput,
                                     onValueChange = { urlInput = it },
-                                    label = { Text("Website URL") },
+                                    label = { Text(stringResource(R.string.html_website_url)) },
                                     placeholder = { Text("https://example.com") },
                                     singleLine = true,
                                     leadingIcon = {
@@ -302,7 +305,7 @@ fun HtmlToPdfScreen(
                                 OutlinedTextField(
                                     value = htmlInput,
                                     onValueChange = { htmlInput = it },
-                                    label = { Text("HTML Content") },
+                                    label = { Text(stringResource(R.string.html_content_label)) },
                                     placeholder = { Text("<html>\n  <body>\n    <h1>Hello</h1>\n  </body>\n</html>") },
                                     minLines = 8,
                                     maxLines = 15,
@@ -346,7 +349,7 @@ fun HtmlToPdfScreen(
 </html>
                                         """.trimIndent()
                                     },
-                                    label = { Text("Basic") }
+                                    label = { Text(stringResource(R.string.html_basic_template)) }
                                 )
                                 AssistChip(
                                     onClick = {
@@ -379,7 +382,7 @@ fun HtmlToPdfScreen(
 </html>
                                         """.trimIndent()
                                     },
-                                    label = { Text("Invoice") }
+                                    label = { Text(stringResource(R.string.html_invoice_template)) }
                                 )
                             }
                         }
@@ -504,7 +507,7 @@ fun HtmlToPdfScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }

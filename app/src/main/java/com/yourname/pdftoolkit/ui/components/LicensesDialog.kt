@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
@@ -43,7 +46,7 @@ fun LicensesDialog(
             ) {
                 // Top bar
                 TopAppBar(
-                    title = { Text("Open Source Licenses") },
+                    title = { Text(stringResource(R.string.licenses_title)) },
                     navigationIcon = {
                         IconButton(onClick = onDismiss) {
                             Icon(Icons.Default.Close, "Close")
@@ -207,7 +210,7 @@ private fun LibrarySection(
             ) {
                 Icon(
                     imageVector = Icons.Default.OpenInBrowser,
-                    contentDescription = "Open link",
+                    contentDescription = stringResource(R.string.cd_open_link),
                     modifier = Modifier.size(14.dp),
                     tint = MaterialTheme.colorScheme.tertiary
                 )
@@ -305,7 +308,7 @@ private fun AboutSection() {
             ) {
                 Icon(
                     imageVector = Icons.Default.OpenInBrowser,
-                    contentDescription = "Open link",
+                    contentDescription = stringResource(R.string.cd_open_link),
                     modifier = Modifier.size(14.dp),
                     tint = MaterialTheme.colorScheme.onTertiaryContainer
                 )

@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -125,7 +128,7 @@ fun ExtractTextScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Extract Text",
+                title = stringResource(R.string.tool_extract_text),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -144,8 +147,8 @@ fun ExtractTextScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.TextFields,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF to extract text content",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.extract_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {

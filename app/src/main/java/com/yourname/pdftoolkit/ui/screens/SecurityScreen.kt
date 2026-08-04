@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -184,7 +187,7 @@ fun SecurityScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Add Security",
+                title = stringResource(R.string.tool_add_security),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -203,8 +206,8 @@ fun SecurityScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.Security,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF to protect with a password",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.security_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -251,10 +254,10 @@ fun SecurityScreen(
                                     OutlinedTextField(
                                         value = password,
                                         onValueChange = { password = it },
-                                        label = { Text("Password") },
-                                        placeholder = { Text("Enter password to protect PDF") },
+                                        label = { Text(stringResource(R.string.label_password)) },
+                                        placeholder = { Text(stringResource(R.string.pdf_password_hint)) },
                                         supportingText = { 
-                                            Text("This password will be required to open the PDF")
+                                            Text(stringResource(R.string.security_password_info))
                                         },
                                         visualTransformation = if (showPassword) {
                                             VisualTransformation.None
@@ -272,7 +275,7 @@ fun SecurityScreen(
                                                     } else {
                                                         Icons.Default.Visibility
                                                     },
-                                                    contentDescription = "Toggle visibility"
+                                                    contentDescription = stringResource(R.string.cd_toggle_visibility)
                                                 )
                                             }
                                         },
@@ -285,8 +288,8 @@ fun SecurityScreen(
                                     OutlinedTextField(
                                         value = confirmPassword,
                                         onValueChange = { confirmPassword = it },
-                                        label = { Text("Confirm Password") },
-                                        placeholder = { Text("Re-enter password") },
+                                        label = { Text(stringResource(R.string.security_confirm_password)) },
+                                        placeholder = { Text(stringResource(R.string.security_reenter_password)) },
                                         visualTransformation = if (showPassword) {
                                             VisualTransformation.None
                                         } else {
@@ -299,7 +302,7 @@ fun SecurityScreen(
                                         singleLine = true,
                                         isError = confirmPassword.isNotEmpty() && password != confirmPassword,
                                         supportingText = if (confirmPassword.isNotEmpty() && password != confirmPassword) {
-                                            { Text("Passwords don't match", color = MaterialTheme.colorScheme.error) }
+                                            { Text(stringResource(R.string.security_passwords_mismatch), color = MaterialTheme.colorScheme.error) }
                                         } else null
                                     )
                                 }
@@ -327,7 +330,7 @@ fun SecurityScreen(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     PermissionItem(
-                                        title = "Allow Printing",
+                                        title = stringResource(R.string.security_allow_printing),
                                         icon = Icons.Default.Print,
                                         checked = allowPrinting,
                                         onCheckedChange = { allowPrinting = it }
@@ -336,7 +339,7 @@ fun SecurityScreen(
                                     Divider(modifier = Modifier.padding(horizontal = 16.dp))
                                     
                                     PermissionItem(
-                                        title = "Allow Copying",
+                                        title = stringResource(R.string.security_allow_copying),
                                         icon = Icons.Default.ContentCopy,
                                         checked = allowCopying,
                                         onCheckedChange = { allowCopying = it }
@@ -345,7 +348,7 @@ fun SecurityScreen(
                                     Divider(modifier = Modifier.padding(horizontal = 16.dp))
                                     
                                     PermissionItem(
-                                        title = "Allow Editing",
+                                        title = stringResource(R.string.security_allow_editing),
                                         icon = Icons.Default.Edit,
                                         checked = allowModifying,
                                         onCheckedChange = { allowModifying = it }
@@ -439,7 +442,7 @@ fun SecurityScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }

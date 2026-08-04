@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -226,10 +229,10 @@ fun OcrScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("OCR - Text Recognition") },
+                title = { Text(stringResource(R.string.ocr_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -302,7 +305,7 @@ fun OcrScreen(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             IconButton(onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Change")
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
                             }
                         }
                     } else {
@@ -312,7 +315,7 @@ fun OcrScreen(
                         ) {
                             Icon(Icons.Default.FileOpen, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Select PDF")
+                            Text(stringResource(R.string.action_select_pdf))
                         }
                     }
                 }
@@ -423,7 +426,7 @@ fun OcrScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         CircularProgressIndicator()
-                        Text("Processing with OCR... ${state.progress}%")
+                        Text(stringResource(R.string.ocr_progress, state.progress))
                         Text(
                             "This may take a while for large documents",
                             style = MaterialTheme.typography.bodySmall,
@@ -491,7 +494,7 @@ fun OcrScreen(
                             )
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(onClick = { showFullScreenReader = true }) {
-                                    Icon(Icons.Default.Fullscreen, contentDescription = "Full Screen Reader")
+                                    Icon(Icons.Default.Fullscreen, contentDescription = stringResource(R.string.ocr_reader_title))
                                 }
                                 OutlinedButton(
                                     onClick = {
@@ -502,7 +505,7 @@ fun OcrScreen(
                                 ) {
                                     Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Copy", style = MaterialTheme.typography.labelMedium)
+                                    Text(stringResource(R.string.action_copy), style = MaterialTheme.typography.labelMedium)
                                 }
                                 FilledTonalButton(
                                     onClick = {
@@ -528,7 +531,7 @@ fun OcrScreen(
                             FilterChip(
                                 selected = state.viewFormat == OcrViewFormat.MARKDOWN,
                                 onClick = { viewModel.setViewFormat(OcrViewFormat.MARKDOWN) },
-                                label = { Text("Markdown View") },
+                                label = { Text(stringResource(R.string.ocr_markdown_view)) },
                                 leadingIcon = if (state.viewFormat == OcrViewFormat.MARKDOWN) {
                                     { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
                                 } else null
@@ -536,7 +539,7 @@ fun OcrScreen(
                             FilterChip(
                                 selected = state.viewFormat == OcrViewFormat.RAW_TEXT,
                                 onClick = { viewModel.setViewFormat(OcrViewFormat.RAW_TEXT) },
-                                label = { Text("Raw Text") },
+                                label = { Text(stringResource(R.string.ocr_raw_text)) },
                                 leadingIcon = if (state.viewFormat == OcrViewFormat.RAW_TEXT) {
                                     { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
                                 } else null
@@ -671,7 +674,7 @@ fun OcrScreen(
                             ) {
                                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Open")
+                                Text(stringResource(R.string.action_open))
                             }
                         }
                     }
@@ -735,7 +738,7 @@ fun OcrScreen(
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Process Another PDF")
+                    Text(stringResource(R.string.ocr_process_another))
                 }
             }
         }
@@ -754,10 +757,10 @@ fun OcrScreen(
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("Extracted Document Reader") },
+                            title = { Text(stringResource(R.string.ocr_reader_title)) },
                             navigationIcon = {
                                 IconButton(onClick = { showFullScreenReader = false }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Close")
+                                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close))
                                 }
                             },
                             actions = {
@@ -765,7 +768,7 @@ fun OcrScreen(
                                     val textToCopy = if (state.viewFormat == OcrViewFormat.MARKDOWN) state.markdownText else state.extractedText
                                     clipboardManager.setText(AnnotatedString(textToCopy))
                                 }) {
-                                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
+                                    Icon(Icons.Default.ContentCopy, contentDescription = stringResource(R.string.action_copy))
                                 }
                                 IconButton(onClick = {
                                     if (state.viewFormat == OcrViewFormat.MARKDOWN) {
@@ -774,7 +777,7 @@ fun OcrScreen(
                                         saveTextLauncher.launch("extracted_text_${System.currentTimeMillis()}.txt")
                                     }
                                 }) {
-                                    Icon(Icons.Default.Save, contentDescription = "Save")
+                                    Icon(Icons.Default.Save, contentDescription = stringResource(R.string.pdf_save))
                                 }
                             }
                         )
@@ -794,7 +797,7 @@ fun OcrScreen(
                             FilterChip(
                                 selected = state.viewFormat == OcrViewFormat.MARKDOWN,
                                 onClick = { viewModel.setViewFormat(OcrViewFormat.MARKDOWN) },
-                                label = { Text("Markdown View") },
+                                label = { Text(stringResource(R.string.ocr_markdown_view)) },
                                 leadingIcon = if (state.viewFormat == OcrViewFormat.MARKDOWN) {
                                     { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
                                 } else null
@@ -802,7 +805,7 @@ fun OcrScreen(
                             FilterChip(
                                 selected = state.viewFormat == OcrViewFormat.RAW_TEXT,
                                 onClick = { viewModel.setViewFormat(OcrViewFormat.RAW_TEXT) },
-                                label = { Text("Raw Text") },
+                                label = { Text(stringResource(R.string.ocr_raw_text)) },
                                 leadingIcon = if (state.viewFormat == OcrViewFormat.RAW_TEXT) {
                                     { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
                                 } else null

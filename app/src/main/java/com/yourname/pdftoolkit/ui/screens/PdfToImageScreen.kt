@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
@@ -187,7 +190,7 @@ fun PdfToImageScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "PDF to Images",
+                title = stringResource(R.string.tool_pdf_to_images),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -206,8 +209,8 @@ fun PdfToImageScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.Image,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF file to convert its pages to images",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.pdf2img_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -254,7 +257,7 @@ fun PdfToImageScreen(
                                     IconButton(onClick = { selectedFile = null }) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
-                                            contentDescription = "Remove",
+                                            contentDescription = stringResource(R.string.action_remove),
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
                                     }
@@ -463,18 +466,18 @@ fun PdfToImageScreen(
                     ) {
                         Icon(Icons.Default.PhotoLibrary, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Open Gallery")
+                        Text(stringResource(R.string.history_open_gallery))
                     }
                 } else {
                     TextButton(onClick = { showResult = false }) {
-                        Text("OK")
+                        Text(stringResource(R.string.action_ok))
                     }
                 }
             },
             dismissButton = {
                 if (resultSuccess && savedImageUris.isNotEmpty()) {
                     TextButton(onClick = { showResult = false }) {
-                        Text("Close")
+                        Text(stringResource(R.string.action_close))
                     }
                 }
             }
@@ -484,7 +487,7 @@ fun PdfToImageScreen(
     // Multi-output result screen (for multiple images)
     if (showMultiOutputScreen && savedImageUris.isNotEmpty()) {
         MultiOutputResultScreen(
-            title = "PDF to Images",
+            title = stringResource(R.string.tool_pdf_to_images),
             outputUris = savedImageUris,
             isImageOutput = true,
             onNavigateBack = { 

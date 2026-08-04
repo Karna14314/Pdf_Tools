@@ -40,7 +40,7 @@ fun ToolTopBar(
             IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
+                    contentDescription = stringResource(R.string.action_back)
                 )
             }
         },
@@ -315,7 +315,7 @@ fun FileItemCard(
             IconButton(onClick = onRemove) {
                 Icon(
                     imageVector = Icons.Default.Clear,
-                    contentDescription = "Remove",
+                    contentDescription = stringResource(R.string.action_remove),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

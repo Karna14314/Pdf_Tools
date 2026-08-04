@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -241,10 +244,10 @@ fun WatermarkScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Watermark") },
+                title = { Text(stringResource(R.string.tool_add_watermark)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -292,7 +295,7 @@ fun WatermarkScreen(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             IconButton(onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Change")
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
                             }
                         }
                     } else {
@@ -302,7 +305,7 @@ fun WatermarkScreen(
                         ) {
                             Icon(Icons.Default.FileOpen, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Select PDF")
+                            Text(stringResource(R.string.action_select_pdf))
                         }
                     }
                 }
@@ -332,7 +335,7 @@ fun WatermarkScreen(
                         FilterChip(
                             selected = state.isTextWatermark,
                             onClick = { viewModel.setWatermarkType(true) },
-                            label = { Text("Text") },
+                            label = { Text(stringResource(R.string.watermark_label_text)) },
                             leadingIcon = {
                                 Icon(Icons.Default.TextFields, contentDescription = null, modifier = Modifier.size(18.dp))
                             },
@@ -341,7 +344,7 @@ fun WatermarkScreen(
                         FilterChip(
                             selected = !state.isTextWatermark,
                             onClick = { viewModel.setWatermarkType(false) },
-                            label = { Text("Image") },
+                            label = { Text(stringResource(R.string.scan_gallery)) },
                             leadingIcon = {
                                 Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(18.dp))
                             },
@@ -359,12 +362,12 @@ fun WatermarkScreen(
                             OutlinedTextField(
                                 value = state.watermarkText,
                                 onValueChange = { viewModel.updateWatermarkText(it) },
-                                label = { Text("Watermark Text") },
+                                label = { Text(stringResource(R.string.watermark_label_text)) },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true
                             )
                             
-                            Text("Font Size: ${state.fontSize.toInt()}", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.watermark_font_size, state.fontSize.toInt()), style = MaterialTheme.typography.bodyMedium)
                             Slider(
                                 value = state.fontSize,
                                 onValueChange = { viewModel.setFontSize(it) },
@@ -387,9 +390,9 @@ fun WatermarkScreen(
                                 ) {
                                     Icon(Icons.Default.Image, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Image selected", modifier = Modifier.weight(1f))
+                                    Text(stringResource(R.string.watermark_image_selected), modifier = Modifier.weight(1f))
                                     TextButton(onClick = { imagePickerLauncher.launch(arrayOf("image/*")) }) {
-                                        Text("Change")
+                                        Text(stringResource(R.string.action_change))
                                     }
                                 }
                             } else {
@@ -399,7 +402,7 @@ fun WatermarkScreen(
                                 ) {
                                     Icon(Icons.Default.Image, contentDescription = null)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Select Image")
+                                    Text(stringResource(R.string.watermark_select_image))
                                 }
                             }
                         }
@@ -455,14 +458,14 @@ fun WatermarkScreen(
                         fontWeight = FontWeight.SemiBold
                     )
                     
-                    Text("Opacity: ${(state.opacity * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.watermark_opacity_val, (state.opacity * 100).toInt()), style = MaterialTheme.typography.bodyMedium)
                     Slider(
                         value = state.opacity,
                         onValueChange = { viewModel.setOpacity(it) },
                         valueRange = 0.1f..1f
                     )
                     
-                    Text("Rotation: ${state.rotation.toInt()}°", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.watermark_rotation_val, state.rotation.toInt()), style = MaterialTheme.typography.bodyMedium)
                     Slider(
                         value = state.rotation,
                         onValueChange = { viewModel.setRotation(it) },
@@ -485,7 +488,7 @@ fun WatermarkScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         CircularProgressIndicator()
-                        Text("Adding watermark... ${state.progress}%")
+                        Text(stringResource(R.string.watermark_progress, state.progress))
                         LinearProgressIndicator(
                             progress = state.progress / 100f,
                             modifier = Modifier.fillMaxWidth()
@@ -529,7 +532,7 @@ fun WatermarkScreen(
                             ) {
                                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Open")
+                                Text(stringResource(R.string.action_open))
                             }
                         }
                     }
@@ -575,7 +578,7 @@ fun WatermarkScreen(
             ) {
                 Icon(Icons.Default.WaterDrop, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Watermark")
+                Text(stringResource(R.string.tool_add_watermark))
             }
             
             // Reset Button
@@ -586,7 +589,7 @@ fun WatermarkScreen(
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Watermark Another PDF")
+                    Text(stringResource(R.string.watermark_another_pdf))
                 }
             }
         }

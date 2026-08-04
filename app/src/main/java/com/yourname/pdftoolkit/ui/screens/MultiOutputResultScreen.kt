@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.*
@@ -143,7 +146,7 @@ fun MultiOutputResultScreen(
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Share All")
+                        Text(stringResource(R.string.action_share_all))
                     }
                 }
             }
@@ -251,7 +254,7 @@ private fun PdfOutputCard(
                 IconButton(onClick = onShare) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "Share",
+                        contentDescription = stringResource(R.string.pdf_share),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -259,7 +262,7 @@ private fun PdfOutputCard(
                 IconButton(onClick = onOpen) {
                     Icon(
                         imageVector = Icons.Default.OpenInNew,
-                        contentDescription = "Open",
+                        contentDescription = stringResource(R.string.action_open),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -353,7 +356,7 @@ private fun ImageOutputCard(
                 IconButton(onClick = onOpen) {
                     Icon(
                         imageVector = Icons.Default.OpenInNew,
-                        contentDescription = "Open",
+                        contentDescription = stringResource(R.string.action_open),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -361,7 +364,7 @@ private fun ImageOutputCard(
                 IconButton(onClick = onShare) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "Share",
+                        contentDescription = stringResource(R.string.pdf_share),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }

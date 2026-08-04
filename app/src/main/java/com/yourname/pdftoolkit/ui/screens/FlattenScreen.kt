@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -166,10 +169,10 @@ fun FlattenScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Flatten PDF") },
+                title = { Text(stringResource(R.string.tool_flatten_pdf)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -242,7 +245,7 @@ fun FlattenScreen(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             IconButton(onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Change")
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
                             }
                         }
                     } else {
@@ -252,7 +255,7 @@ fun FlattenScreen(
                         ) {
                             Icon(Icons.Default.FileOpen, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Select PDF")
+                            Text(stringResource(R.string.action_select_pdf))
                         }
                     }
                 }
@@ -409,7 +412,7 @@ fun FlattenScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         CircularProgressIndicator()
-                        Text("Flattening PDF... ${state.progress}%")
+                        Text(stringResource(R.string.flatten_progress, state.progress))
                         LinearProgressIndicator(
                             progress = state.progress / 100f,
                             modifier = Modifier.fillMaxWidth()
@@ -465,7 +468,7 @@ fun FlattenScreen(
                             ) {
                                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Open")
+                                Text(stringResource(R.string.action_open))
                             }
                         }
                     }
@@ -508,7 +511,7 @@ fun FlattenScreen(
             ) {
                 Icon(Icons.Default.Layers, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Flatten PDF")
+                Text(stringResource(R.string.tool_flatten_pdf))
             }
             
             // Reset Button
@@ -519,7 +522,7 @@ fun FlattenScreen(
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Flatten Another PDF")
+                    Text(stringResource(R.string.flatten_another_pdf))
                 }
             }
         }

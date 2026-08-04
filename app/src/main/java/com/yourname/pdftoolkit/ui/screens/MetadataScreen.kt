@@ -1,5 +1,9 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import com.yourname.pdftoolkit.R
+
+import androidx.compose.ui.res.stringResource
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -131,17 +135,17 @@ fun MetadataScreen(
                             onSuccess = {
                                 resultSuccess = true
                                 resultUri = outputUri
-                                resultMessage = "Metadata updated successfully"
+                                resultMessage = context.getString(R.string.metadata_updated_success)
                                 isEditing = false
                             },
                             onFailure = { error ->
                                 resultSuccess = false
-                                resultMessage = error.message ?: "Update failed"
+                                resultMessage = error.message ?: context.getString(R.string.metadata_update_failed)
                             }
                         )
                     } else {
                         resultSuccess = false
-                        resultMessage = "Cannot create output file"
+                        resultMessage = context.getString(R.string.metadata_cannot_create_output)
                     }
                     
                     isProcessing = false
@@ -185,18 +189,18 @@ fun MetadataScreen(
                         
                         updateResult.fold(
                             onSuccess = {
-                                Triple(true, "Metadata updated successfully\n\nSaved to: ${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}", outputResult.outputFile.contentUri)
+                                Triple(true, context.getString(R.string.metadata_saved_to, context.getString(R.string.metadata_updated_success), "${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}"), outputResult.outputFile.contentUri)
                             },
                             onFailure = { error ->
                                 outputResult.outputFile.file.delete()
-                                Triple(false, error.message ?: "Update failed", null)
+                                Triple(false, error.message ?: context.getString(R.string.metadata_update_failed), null)
                             }
                         )
                     } else {
-                        Triple(false, "Cannot create output file", null)
+                        Triple(false, context.getString(R.string.metadata_cannot_create_output), null)
                     }
                 } catch (e: Exception) {
-                    Triple(false, e.message ?: "Update failed", null)
+                    Triple(false, e.message ?: context.getString(R.string.metadata_update_failed), null)
                 }
             }
             
@@ -235,18 +239,18 @@ fun MetadataScreen(
                         
                         stripResult.fold(
                             onSuccess = {
-                                Triple(true, "All metadata successfully stripped for privacy.\n\nSaved to: ${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}", outputResult.outputFile.contentUri)
+                                Triple(true, context.getString(R.string.metadata_stripped_saved_to, "${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}"), outputResult.outputFile.contentUri)
                             },
                             onFailure = { error ->
                                 outputResult.outputFile.file.delete()
-                                Triple(false, error.message ?: "Stripping failed", null)
+                                Triple(false, error.message ?: context.getString(R.string.metadata_stripping_failed), null)
                             }
                         )
                     } else {
-                        Triple(false, "Cannot create output file", null)
+                        Triple(false, context.getString(R.string.metadata_cannot_create_output), null)
                     }
                 } catch (e: Exception) {
-                    Triple(false, e.message ?: "Stripping failed", null)
+                    Triple(false, e.message ?: context.getString(R.string.metadata_stripping_failed), null)
                 }
             }
             
@@ -261,7 +265,7 @@ fun MetadataScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "View Metadata",
+                title = stringResource(R.string.tool_view_metadata),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -281,8 +285,8 @@ fun MetadataScreen(
                     selectedFile == null -> {
                         EmptyState(
                             icon = Icons.Default.Info,
-                            title = "No PDF Selected",
-                            subtitle = "Select a PDF file to view its metadata",
+                            title = stringResource(R.string.metadata_no_pdf_selected),
+                            subtitle = stringResource(R.string.metadata_no_pdf_selected_subtitle),
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
@@ -327,7 +331,7 @@ fun MetadataScreen(
                                                 color = MaterialTheme.colorScheme.onPrimaryContainer
                                             )
                                             Text(
-                                                text = "${metadata!!.pageCount} pages • ${selectedFile!!.formattedSize}",
+                                                text = stringResource(R.string.metadata_pages_and_size, metadata!!.pageCount, selectedFile!!.formattedSize),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                                             )
@@ -338,7 +342,7 @@ fun MetadataScreen(
                                         }) {
                                             Icon(
                                                 imageVector = Icons.Default.Close,
-                                                contentDescription = "Remove",
+                                                contentDescription = stringResource(R.string.action_remove),
                                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                                             )
                                         }
@@ -373,12 +377,12 @@ fun MetadataScreen(
                                             )
                                             Column(modifier = Modifier.weight(1f)) {
                                                 Text(
-                                                    text = "Strip Document Metadata",
+                                                    text = stringResource(R.string.metadata_strip_banner_title),
                                                     style = MaterialTheme.typography.bodyMedium,
                                                     fontWeight = FontWeight.SemiBold
                                                 )
                                                 Text(
-                                                    text = "Remove all hidden tracking details before sharing.",
+                                                    text = stringResource(R.string.metadata_strip_banner_subtitle),
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
@@ -389,7 +393,7 @@ fun MetadataScreen(
                                                     contentColor = MaterialTheme.colorScheme.error
                                                 )
                                             ) {
-                                                Text("Strip All")
+                                                Text(stringResource(R.string.metadata_strip_all))
                                             }
                                         }
                                     }
@@ -404,7 +408,7 @@ fun MetadataScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Basic Metadata",
+                                        text = stringResource(R.string.metadata_basic_title),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -419,7 +423,7 @@ fun MetadataScreen(
                                             modifier = Modifier.size(18.dp)
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Text(if (isEditing) "Cancel" else "Edit")
+                                        Text(if (isEditing) stringResource(R.string.action_cancel) else stringResource(R.string.action_edit))
                                     }
                                 }
                             }
@@ -442,7 +446,7 @@ fun MetadataScreen(
                                             OutlinedTextField(
                                                 value = editTitle,
                                                 onValueChange = { editTitle = it },
-                                                label = { Text("Title") },
+                                                label = { Text(stringResource(R.string.label_title)) },
                                                 modifier = Modifier.fillMaxWidth(),
                                                 singleLine = true
                                             )
@@ -450,7 +454,7 @@ fun MetadataScreen(
                                             OutlinedTextField(
                                                 value = editAuthor,
                                                 onValueChange = { editAuthor = it },
-                                                label = { Text("Author") },
+                                                label = { Text(stringResource(R.string.label_author)) },
                                                 modifier = Modifier.fillMaxWidth(),
                                                 singleLine = true
                                             )
@@ -458,7 +462,7 @@ fun MetadataScreen(
                                             OutlinedTextField(
                                                 value = editSubject,
                                                 onValueChange = { editSubject = it },
-                                                label = { Text("Subject") },
+                                                label = { Text(stringResource(R.string.label_subject)) },
                                                 modifier = Modifier.fillMaxWidth(),
                                                 singleLine = true
                                             )
@@ -466,27 +470,27 @@ fun MetadataScreen(
                                             OutlinedTextField(
                                                 value = editKeywords,
                                                 onValueChange = { editKeywords = it },
-                                                label = { Text("Keywords") },
-                                                placeholder = { Text("Comma-separated keywords") },
+                                                label = { Text(stringResource(R.string.label_keywords)) },
+                                                placeholder = { Text(stringResource(R.string.metadata_keywords_placeholder)) },
                                                 modifier = Modifier.fillMaxWidth(),
                                                 singleLine = true
                                             )
                                         } else {
                                             MetadataRow(
-                                                label = "Title",
-                                                value = metadata!!.title ?: "Not set"
+                                                label = stringResource(R.string.label_title),
+                                                value = metadata!!.title ?: stringResource(R.string.metadata_not_set)
                                             )
                                             MetadataRow(
-                                                label = "Author",
-                                                value = metadata!!.author ?: "Not set"
+                                                label = stringResource(R.string.label_author),
+                                                value = metadata!!.author ?: stringResource(R.string.metadata_not_set)
                                             )
                                             MetadataRow(
-                                                label = "Subject",
-                                                value = metadata!!.subject ?: "Not set"
+                                                label = stringResource(R.string.label_subject),
+                                                value = metadata!!.subject ?: stringResource(R.string.metadata_not_set)
                                             )
                                             MetadataRow(
-                                                label = "Keywords",
-                                                value = metadata!!.keywords ?: "Not set"
+                                                label = stringResource(R.string.label_keywords),
+                                                value = metadata!!.keywords ?: stringResource(R.string.metadata_not_set)
                                             )
                                         }
                                     }
@@ -520,7 +524,7 @@ fun MetadataScreen(
                                                 )
                                                 Spacer(modifier = Modifier.width(8.dp))
                                                 Text(
-                                                    text = "Advanced Properties",
+                                                    text = stringResource(R.string.metadata_advanced_properties),
                                                     style = MaterialTheme.typography.titleSmall,
                                                     fontWeight = FontWeight.SemiBold,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -528,7 +532,7 @@ fun MetadataScreen(
                                             }
                                             Icon(
                                                 imageVector = if (showAdvanced) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                                contentDescription = if (showAdvanced) "Collapse" else "Expand",
+                                                contentDescription = if (showAdvanced) stringResource(R.string.cd_collapse) else stringResource(R.string.cd_expand),
                                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
@@ -549,7 +553,7 @@ fun MetadataScreen(
                                                     OutlinedTextField(
                                                         value = editCreator,
                                                         onValueChange = { editCreator = it },
-                                                        label = { Text("Creator") },
+                                                        label = { Text(stringResource(R.string.label_creator)) },
                                                         modifier = Modifier.fillMaxWidth(),
                                                         singleLine = true
                                                     )
@@ -557,36 +561,36 @@ fun MetadataScreen(
                                                     OutlinedTextField(
                                                         value = editProducer,
                                                         onValueChange = { editProducer = it },
-                                                        label = { Text("Producer") },
+                                                        label = { Text(stringResource(R.string.label_producer)) },
                                                         modifier = Modifier.fillMaxWidth(),
                                                         singleLine = true
                                                     )
                                                 } else {
                                                     MetadataRow(
-                                                        label = "Creator",
-                                                        value = metadata!!.creator ?: "Unknown"
+                                                        label = stringResource(R.string.label_creator),
+                                                        value = metadata!!.creator ?: stringResource(R.string.metadata_unknown)
                                                     )
                                                     MetadataRow(
-                                                        label = "Producer",
-                                                        value = metadata!!.producer ?: "Unknown"
+                                                        label = stringResource(R.string.label_producer),
+                                                        value = metadata!!.producer ?: stringResource(R.string.metadata_unknown)
                                                     )
                                                 }
                                                 
                                                 MetadataRow(
-                                                    label = "Created",
-                                                    value = metadata!!.creationDate ?: "Unknown"
+                                                    label = stringResource(R.string.label_created),
+                                                    value = metadata!!.creationDate ?: stringResource(R.string.metadata_unknown)
                                                 )
                                                 MetadataRow(
-                                                    label = "Modified",
-                                                    value = metadata!!.modificationDate ?: "Unknown"
+                                                    label = stringResource(R.string.label_modified),
+                                                    value = metadata!!.modificationDate ?: stringResource(R.string.metadata_unknown)
                                                 )
                                                 MetadataRow(
-                                                    label = "PDF Version",
-                                                    value = metadata!!.pdfVersion ?: "Unknown"
+                                                    label = stringResource(R.string.label_pdf_version),
+                                                    value = metadata!!.pdfVersion ?: stringResource(R.string.metadata_unknown)
                                                 )
                                                 MetadataRow(
-                                                    label = "Encrypted",
-                                                    value = if (metadata!!.isEncrypted) "Yes" else "No"
+                                                    label = stringResource(R.string.label_encrypted),
+                                                    value = if (metadata!!.isEncrypted) stringResource(R.string.label_yes) else stringResource(R.string.label_no)
                                                 )
                                             }
                                         }
@@ -618,7 +622,7 @@ fun MetadataScreen(
                             ) {
                                 OperationProgress(
                                     progress = progress,
-                                    message = "Updating metadata..."
+                                    message = stringResource(R.string.metadata_updating_progress)
                                 )
                             }
                         }
@@ -639,7 +643,7 @@ fun MetadataScreen(
                     when {
                         selectedFile == null -> {
                             ActionButton(
-                                text = "Select PDF",
+                                text = stringResource(R.string.action_select_pdf),
                                 onClick = {
                                     pickPdfLauncher.launch(arrayOf("application/pdf"))
                                 },
@@ -656,7 +660,7 @@ fun MetadataScreen(
                             Spacer(modifier = Modifier.height(12.dp))
                             
                             ActionButton(
-                                text = "Save Changes",
+                                text = stringResource(R.string.action_save_changes),
                                 onClick = {
                                     if (useCustomLocation) {
                                         val fileName = FileManager.generateOutputFileName("updated")
@@ -671,7 +675,7 @@ fun MetadataScreen(
                         }
                         else -> {
                             ActionButton(
-                                text = "Select Another PDF",
+                                text = stringResource(R.string.action_select_another_pdf),
                                 onClick = {
                                     pickPdfLauncher.launch(arrayOf("application/pdf"))
                                 },
@@ -688,7 +692,7 @@ fun MetadataScreen(
     if (showResult) {
         ResultDialog(
             isSuccess = resultSuccess,
-            title = if (resultSuccess) "Update Complete" else "Update Failed",
+            title = if (resultSuccess) stringResource(R.string.metadata_update_complete) else stringResource(R.string.metadata_update_failed),
             message = resultMessage,
             onDismiss = { 
                 showResult = false
@@ -697,7 +701,7 @@ fun MetadataScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }

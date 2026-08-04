@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -255,7 +258,7 @@ fun CompressScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Compress PDF",
+                title = stringResource(R.string.tool_compress_pdf),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -274,8 +277,8 @@ fun CompressScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.Compress,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF file to reduce its file size",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.compress_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -322,7 +325,7 @@ fun CompressScreen(
                                     IconButton(onClick = { selectedFile = null }) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
-                                            contentDescription = "Remove",
+                                            contentDescription = stringResource(R.string.action_remove),
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
                                     }
@@ -547,7 +550,7 @@ fun CompressScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }

@@ -132,6 +132,7 @@
     <string name="desc_lock_pdf">Schützen Sie Ihr PDF mit Passwort</string>
     <string name="desc_sign">Ihre Signatur hinzufügen</string>
     <string name="desc_view_pdf">PDF öffnen und anzeigen</string>
+    <string name="tool_view_pdf">PDF anzeigen</string>
 
 
     <string name="merge_title">PDFs zusammenführen</string>
@@ -337,4 +338,252 @@
 
 <string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string>    <string name="action_search">Suchen</string>
     <string name="settings_no_languages_found">Keine Sprachen gefunden</string>
+
+    <!-- PDF Viewer additions -->
+    <string name="pdf_stop_search">Suche stoppen</string>
+    <string name="pdf_open_with">Öffnen mit...</string>
+    <string name="pdf_reset_zoom">Zoom zurücksetzen</string>
+    <string name="pdf_print">Drucken</string>
+    <string name="pdf_clear_all_annotations">Alle Anmerkungen löschen</string>
+    <string name="pdf_clear_all_dialog_title">Alle Anmerkungen löschen?</string>
+    <string name="pdf_compress_this">Diese PDF komprimieren</string>
+    <string name="pdf_add_watermark_option">Wasserzeichen hinzufügen</string>
+    <string name="pdf_saving_annotations">Anmerkungen werden gespeichert… %1$d%%</string>
+    <string name="pdf_tool_pan">Verschieben</string>
+    <string name="pdf_tool_eraser">Radiergummi</string>
+    <string name="pdf_brush_size">Pinselgröße</string>
+    <string name="pdf_undo">Rückgängig</string>
+    <string name="pdf_select_color">Farbe auswählen</string>
+    <string name="pdf_opening">PDF wird geöffnet...</string>
+    <string name="pdf_opening_pages">PDF wird geöffnet... (%1$d Seiten)</string>
+    <string name="pdf_large_file_warning">Große PDF - kann einen Moment dauern</string>
+    <string name="pdf_unable_to_open">PDF kann nicht geöffnet werden</string>
+    <string name="pdf_failed_to_render_page">Seite %1$d konnte nicht gerendert werden</string>
+    <string name="pdf_copied_to_clipboard">Kopiert!</string>
+    <string name="pdf_selection_highlighted">Auswahl hervorgehoben</string>
+    <string name="pdf_enter_page_number_range">Seitennummer eingeben (1-%1$d)</string>
+    <string name="pdf_password_required">Passwort erforderlich</string>
+    <string name="pdf_password_incorrect_retry">Falsches Passwort. Bitte erneut versuchen.</string>
+    <string name="pdf_password_protected_enter">Diese PDF ist passwortgeschützt. Bitte geben Sie das Passwort ein.</string>
+    <string name="pdf_no_app_found">Keine App zum Öffnen von PDFs gefunden</string>
+    <string name="pdf_thickness_highlighter">Textmarker-Dicke</string>
+    <string name="pdf_thickness_marker">Stift-Dicke</string>
+    <string name="pdf_thickness_underline">Unterstreichungs-Dicke</string>
+    <string name="pdf_thickness_eraser">Radiergummigröße</string>
+    <string name="pdf_px_unit">%1$d px</string>
+    <string name="action_done_editing">Fertig</string>
+    <string name="action_edit">Bearbeiten</string>
+    <string name="action_copy">Kopieren</string>
+    <string name="action_go">Los</string>
+    <string name="action_go_back">Zurück</string>
+    <string name="action_retry">Wiederholen</string>
+    <string name="action_clear_all">Alle löschen</string>
+    <string name="cd_done_editing">Bearbeitung abschließen</string>
+    <string name="cd_edit">Bearbeiten</string>
+    <string name="cd_more_options">Weitere Optionen</string>
+    <string name="cd_save_annotations">Anmerkungen speichern</string>
+    <string name="cd_page_number">Seite %1$d</string>
+    <string name="cd_selected">Ausgewählt</string>
+    <string name="color_yellow">Gelb</string>
+    <string name="color_green">Grün</string>
+    <string name="color_cyan">Türkis</string>
+    <string name="color_pink">Rosa</string>
+    <string name="color_red">Rot</string>
+    <string name="color_blue">Blau</string>
+    <string name="color_brown">Braun</string>
+    <string name="color_black">Schwarz</string>
+
+    <!-- Metadata Screen additions -->
+    <string name="metadata_no_pdf_selected">Keine PDF ausgewählt</string>
+    <string name="metadata_no_pdf_selected_subtitle">Wählen Sie eine PDF-Datei aus, um deren Metadaten anzuzeigen</string>
+    <string name="metadata_pages_and_size">%1$d Seiten • %2$s</string>
+    <string name="metadata_strip_banner_title">Dokument-Metadaten entfernen</string>
+    <string name="metadata_strip_banner_subtitle">Entfernen Sie alle versteckten Tracking-Details vor dem Teilen.</string>
+    <string name="metadata_strip_all">Alle entfernen</string>
+    <string name="metadata_basic_title">Basis-Metadaten</string>
+    <string name="label_title">Titel</string>
+    <string name="label_author">Autor</string>
+    <string name="label_subject">Thema</string>
+    <string name="label_keywords">Schlüsselwörter</string>
+    <string name="metadata_keywords_placeholder">Durch Kommas getrennte Schlüsselwörter</string>
+    <string name="metadata_not_set">Nicht festgelegt</string>
+    <string name="metadata_advanced_properties">Erweiterte Eigenschaften</string>
+    <string name="cd_collapse">Einklappen</string>
+    <string name="cd_expand">Ausklappen</string>
+    <string name="label_creator">Ersteller</string>
+    <string name="label_producer">Produzent</string>
+    <string name="metadata_unknown">Unbekannt</string>
+    <string name="label_created">Erstellt am</string>
+    <string name="label_modified">Geändert am</string>
+    <string name="label_pdf_version">PDF-Version</string>
+    <string name="label_encrypted">Verschlüsselt</string>
+    <string name="label_yes">Ja</string>
+    <string name="label_no">Nein</string>
+    <string name="metadata_updating_progress">Metadaten werden aktualisiert...</string>
+    <string name="metadata_updated_success">Metadaten erfolgreich aktualisiert</string>
+    <string name="metadata_update_failed">Aktualisierung fehlgeschlagen</string>
+    <string name="metadata_stripping_failed">Entfernung fehlgeschlagen</string>
+    <string name="metadata_cannot_create_output">Ausgabedatei kann nicht erstellt werden</string>
+    <string name="metadata_saved_to">%1$s
+
+Gespeichert unter: %2$s</string>
+    <string name="metadata_stripped_saved_to">Alle Metadaten zum Schutz der Privatsphäre erfolgreich entfernt.
+
+Gespeichert unter: %1$s</string>
+    <string name="action_select_pdf">PDF auswählen</string>
+    <string name="action_save_changes">Änderungen speichern</string>
+    <string name="action_select_another_pdf">Wählen Sie eine andere PDF</string>
+    <string name="metadata_update_complete">Aktualisierung abgeschlossen</string>
+
+    <!-- Scan to PDF Screen additions -->
+    <string name="scan_add_images">Bilder hinzufügen</string>
+    <string name="scan_camera">Kamera</string>
+    <string name="scan_gallery">Galerie</string>
+    <string name="scan_pages_count">Seiten (%1$d)</string>
+    <string name="action_crop">Zuschneiden</string>
+    <string name="scan_page_size">Seitengröße</string>
+    <string name="scan_color_mode">Farbmodus</string>
+    <string name="scan_enhance_contrast">Kontrast verbessern</string>
+    <string name="scan_creating_pdf">PDF wird erstellt... %1$d%%</string>
+    <string name="scan_pdf_created">PDF erstellt!</string>
+    <string name="scan_pages_scanned">%1$d Seiten</string>
+    <string name="scan_create_pdf">PDF erstellen</string>
+    <string name="scan_more_documents">Weitere Dokumente scannen</string>
+    <string name="cd_capture">Aufnehmen</string>
+
+    <!-- Group 1 additions (Annotation, OCR, Watermark, Security, Sign) -->
+    <string name="annotate_title">PDF annotieren</string>
+    <string name="annotate_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um Anmerkungen hinzuzufügen</string>
+    <string name="label_stamp_type">Stempeltyp</string>
+    <string name="label_width">Breite</string>
+    <string name="label_height">Höhe</string>
+    <string name="action_add_annotation">Anmerkung hinzufügen</string>
+    <string name="ocr_title">OCR - Text extrahieren</string>
+    <string name="ocr_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um Text mit OCR zu extrahieren</string>
+    <string name="ocr_markdown_view">Markdown-Ansicht</string>
+    <string name="ocr_raw_text">Rohtext</string>
+    <string name="ocr_reader_title">Reader für extrahierte Dokumente</string>
+    <string name="watermark_title">Wasserzeichen hinzufügen</string>
+    <string name="watermark_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um ein Wasserzeichen hinzuzufügen</string>
+    <string name="watermark_label_text">Wasserzeichen-Text</string>
+    <string name="watermark_label_opacity">Deckkraft</string>
+    <string name="watermark_label_rotation">Drehung</string>
+    <string name="security_title">PDF schützen</string>
+    <string name="security_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um ein Passwort festzulegen</string>
+    <string name="security_confirm_password">Passwort bestätigen</string>
+    <string name="security_allow_printing">Drucken erlauben</string>
+    <string name="security_allow_copying">Kopieren erlauben</string>
+    <string name="security_allow_editing">Bearbeiten erlauben</string>
+    <string name="sign_title">PDF unterschreiben</string>
+    <string name="sign_no_pdf_subtitle">Wählen Sie eine PDF-Datei zum Unterschreiben aus</string>
+    <string name="sign_add_date">Datum hinzufügen</string>
+    <string name="sign_add_name">Name hinzufügen</string>
+    <string name="sign_your_name">Ihr Name</string>
+
+    <!-- Group 2 additions (Convert, ImageTools, Split, HistorySidebar) -->
+    <string name="convert_title">Bilder zu PDF</string>
+    <string name="convert_no_images_subtitle">Wählen Sie Bilder aus, um ein PDF-Dokument zu erstellen</string>
+    <string name="action_add_more_images">Weitere Bilder hinzufügen</string>
+    <string name="imgtools_title">Bild-Werkzeuge</string>
+    <string name="imgtools_custom_size">Benutzerdefinierte Größe verwenden</string>
+    <string name="imgtools_aspect_ratio">Seitenverhältnis beibehalten</string>
+    <string name="imgtools_target_resolution">Zielauflösung</string>
+    <string name="split_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um sie in einzelne Dokumente zu teilen</string>
+    <string name="history_title">Verlauf</string>
+    <string name="history_empty_title">Kein Verlauf vorhanden</string>
+    <string name="history_empty_subtitle">Verarbeitete Dokumente werden hier angezeigt</string>
+    <string name="history_clear_all">Verlauf löschen</string>
+    <string name="history_clear_dialog_title">Verlauf löschen?</string>
+    <string name="history_clear_dialog_message">Dadurch werden alle Einträge aus Ihrem Verlauf entfernt.</string>
+    <string name="history_view_all_files">Alle %1$d Dateien anzeigen</string>
+    <string name="history_open_file">Datei öffnen</string>
+    <string name="history_open_gallery">Galerie öffnen</string>
+
+    <!-- Group 3 additions (FillForms, HtmlToPdf, PdfToImage, Flatten, Organize, Rotate) -->
+    <string name="fill_title">PDF-Formulare ausfüllen</string>
+    <string name="fill_no_pdf_subtitle">Wählen Sie ein PDF-Formular aus, um Felder auszufüllen</string>
+    <string name="fill_analyzing_fields">Formularfelder werden analysiert...</string>
+    <string name="fill_filling_form">Formular wird ausgefüllt... %1$d%%</string>
+    <string name="fill_save_filled">Ausgefülltes Formular speichern</string>
+    <string name="fill_another_form">Weiteres Formular ausfüllen</string>
+    <string name="html_title">HTML zu PDF</string>
+    <string name="html_from_url">Von URL</string>
+    <string name="html_from_html">Von HTML</string>
+    <string name="html_website_url">Website-URL</string>
+    <string name="html_content_label">HTML-Inhalt</string>
+    <string name="html_basic_template">Basis</string>
+    <string name="html_invoice_template">Rechnung</string>
+    <string name="pdf2img_title">PDF zu Bildern</string>
+    <string name="pdf2img_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um ihre Seiten in Bilder umzuwandeln</string>
+    <string name="action_ok">OK</string>
+    <string name="flatten_title">PDF reduzieren (Flatten)</string>
+    <string name="flatten_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um Anmerkungen und Formulare zu reduzieren</string>
+    <string name="flatten_progress">PDF wird reduziert... %1$d%%</string>
+    <string name="flatten_another_pdf">Weitere PDF reduzieren</string>
+    <string name="organize_title">Seiten organisieren</string>
+    <string name="organize_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um Seiten zu entfernen oder neu anzuordnen</string>
+    <string name="organize_remove_pages">Seiten entfernen</string>
+    <string name="organize_reorder_pages">Seiten extrahieren/neu anordnen</string>
+    <string name="action_select_all">Alle</string>
+    <string name="action_select_none">Keine</string>
+    <string name="rotate_title">Seiten drehen</string>
+    <string name="rotate_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um ihre Seiten zu drehen</string>
+    <string name="rotate_all_pages">Alle Seiten</string>
+    <string name="rotate_select_pages">Seiten auswählen</string>
+
+    <!-- Group 4 additions (Files, Compress, Repair, Extract, PageNumber, Licenses) -->
+    <string name="files_clear_dialog_title">Zuletzt verwendete Dateien löschen?</string>
+    <string name="files_clear_dialog_message">Dadurch werden alle Dateien aus Ihrem Verlauf entfernt. Die eigentlichen Dateien werden nicht gelöscht.</string>
+    <string name="compress_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um deren Größe zu reduzieren</string>
+    <string name="action_share_all">Alle teilen</string>
+    <string name="repair_title">PDF reparieren</string>
+    <string name="repair_no_pdf_subtitle">Wählen Sie eine PDF-Datei zum Diagnose- und Reparaturvorgang aus</string>
+    <string name="repair_analyzing_structure">PDF-Struktur wird analysiert...</string>
+    <string name="extract_title">Text extrahieren</string>
+    <string name="extract_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um Textinhalte zu extrahieren</string>
+    <string name="pagenum_title">Seitenzahlen</string>
+    <string name="pagenum_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um Seitenzahlen hinzuzufügen</string>
+    <string name="licenses_title">Open-Source-Lizenzen</string>
+    <string name="cd_open_link">Link öffnen</string>
+
+    <!-- Pass 2 additions -->
+    <string name="security_password_info">Dieses Passwort wird zum Öffnen der PDF-Datei benötigt</string>
+    <string name="security_reenter_password">Passwort erneut eingeben</string>
+    <string name="security_passwords_mismatch">Passwörter stimmen nicht überein</string>
+    <string name="cd_toggle_visibility">Sichtbarkeit umschalten</string>
+    <string name="sign_another_pdf">Weitere PDF unterschreiben</string>
+    <string name="convert_no_images_title">Keine Bilder ausgewählt</string>
+    <string name="action_move_first">Erste</string>
+    <string name="action_move_last">Letzte</string>
+    <string name="imgtools_target_format">Zielformat</string>
+    <string name="split_switch_mode">Modus wechseln</string>
+    <string name="split_all_pages_title">PDF teilen - Alle Seiten</string>
+    <string name="split_placeholder">z. B. 1, 3, 5-8, 10</string>
+    <string name="action_change">Ändern</string>
+    <string name="action_reset">Zurücksetzen</string>
+
+    <!-- Final cleanup additions -->
+    <string name="annotate_add_another">Weitere Anmerkung hinzufügen</string>
+    <string name="ocr_progress">OCR-Verarbeitung... %1$d%%</string>
+    <string name="ocr_process_another">Weitere PDF verarbeiten</string>
+    <string name="watermark_font_size">Schriftgröße: %1$d</string>
+    <string name="watermark_image_selected">Bild ausgewählt</string>
+    <string name="watermark_select_image">Bild auswählen</string>
+    <string name="watermark_opacity_val">Deckkraft: %1$d%%</string>
+    <string name="watermark_rotation_val">Drehung: %1$d°</string>
+    <string name="watermark_progress">Wasserzeichen wird hinzugefügt... %1$d%%</string>
+    <string name="watermark_another_pdf">Weitere PDF mit Wasserzeichen versehen</string>
+    <string name="sign_progress">Unterschrift wird hinzugefügt... %1$d%%</string>
+
+    <!-- Last few additions -->
+    <string name="annotate_progress">Anmerkungen werden angewendet... %1$d%%</string>
+    <string name="annotate_save_pdf">Annotierte PDF speichern</string>
+    <string name="annotate_another_pdf">Weitere PDF annotieren</string>
+
+    <!-- Fix missing keys additions -->
+    <string name="label_page_number">Seitennummer</string>
+    <string name="label_color">Farbe</string>
+    <string name="split_from">Von</string>
+    <string name="split_to">Bis</string>
+    <string name="split_page_numbers">Seitennummern</string>
 </resources>

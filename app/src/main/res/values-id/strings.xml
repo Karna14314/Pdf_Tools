@@ -131,11 +131,12 @@
     <string name="desc_delete_pages">Hapus halaman dari PDF</string>
     <string name="desc_compress_image">Kurangi ukuran file gambar</string>
     <string name="desc_resize_image">Ubah dimensi gambar</string>
-    <string name="desc_convert_format">JPEG �?? WebP</string>
+    <string name="desc_convert_format">JPEG &#x2194; WebP</string>
     <string name="desc_strip_metadata">Hapus data EXIF</string>
     <string name="desc_lock_pdf">Lindungi PDF Anda dengan kata sandi</string>
     <string name="desc_sign">Tambahkan tanda tangan Anda</string>
     <string name="desc_view_pdf">Buka dan lihat PDF</string>
+    <string name="tool_view_pdf">Lihat PDF</string>
 
     <!-- Merge Screen -->
     <string name="merge_title">Gabungkan PDF</string>
@@ -240,7 +241,7 @@
     <string name="settings_clear_cache">Hapus Tembolok?</string>
     <string name="settings_clear_cache_message">Ini akan menghapus file-file sementara dan data cache. PDF Anda yang disimpan tidak akan terpengaruh.</string>
     <string name="settings_cache_cleared">Cache berhasil dibersihkan</string>
-    <string name="settings_about_title">Tentang Perangkat PDF</string>
+    <string name="settings_about_title">Tentang PDF Toolkit</string>
     <string name="settings_about_description">PDF Toolkit adalah alat PDF offline yang kuat yang membantu Anda mengelola dokumen PDF dengan cepat dan efisien.</string>
     <string name="settings_about_features">Fitur:</string>
     <string name="settings_about_feature_1">Gabungkan, Pisahkan, Kompres PDF</string>
@@ -251,10 +252,10 @@
     <string name="settings_about_version">Versi</string>
     <string name="settings_about_build">Membangun</string>
     <string name="settings_about_made_with">Dibuat dengan</string>
-    <string name="settings_about_kotlin_compose">Kotlin &amp; Penulisan Jetpack</string>
+    <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack Compose</string>
     <string name="settings_app_name">PDF Toolkit</string>
     <string name="settings_made_with_love">Dibuat dengan ❤️ untuk produktivitas</string>
-    <string name="settings_copyright">© 2026 Perangkat PDF</string>
+    <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">Pilih Bahasa</string>
     <string name="settings_language_changed">Bahasa berubah</string>
 
@@ -292,7 +293,7 @@
     <string name="feature_request_placeholder">Fitur apa yang ingin Anda lihat?</string>
 
     <!-- Bug Report -->
-    <string name="bug_report_subject">[Laporan Bug] Perangkat PDF</string>
+    <string name="bug_report_subject">[Laporan Bug] PDF Toolkit</string>
     <string name="bug_report_template">Deskripsi Bug:\n[Tolong jelaskan masalah yang Anda temui]\n\nLangkah-Langkah untuk Mereproduksi:\n1. \n2. \n3. \n\nPerilaku yang Diharapkan:\n[Apa yang Anda perkirakan akan terjadi?]\n\nPerilaku Sebenarnya:\n[Apa yang sebenarnya terjadi?]</string>
 
     <!-- Error Messages -->
@@ -341,4 +342,252 @@
 
     <string name="action_search">Cari</string>
     <string name="settings_no_languages_found">Tidak ada bahasa yang ditemukan</string>
+
+    <!-- PDF Viewer additions -->
+    <string name="pdf_stop_search">Hentikan pencarian</string>
+    <string name="pdf_open_with">Buka dengan...</string>
+    <string name="pdf_reset_zoom">Reset Zoom</string>
+    <string name="pdf_print">Cetak</string>
+    <string name="pdf_clear_all_annotations">Hapus semua anotasi</string>
+    <string name="pdf_clear_all_dialog_title">Hapus semua anotasi?</string>
+    <string name="pdf_compress_this">Kompres PDF ini</string>
+    <string name="pdf_add_watermark_option">Tambah Watermark</string>
+    <string name="pdf_saving_annotations">Menyimpan anotasi… %1$d%%</string>
+    <string name="pdf_tool_pan">Geser</string>
+    <string name="pdf_tool_eraser">Penghapus</string>
+    <string name="pdf_brush_size">Ukuran Kuas</string>
+    <string name="pdf_undo">Urungkan</string>
+    <string name="pdf_select_color">Pilih Warna</string>
+    <string name="pdf_opening">Membuka PDF...</string>
+    <string name="pdf_opening_pages">Membuka PDF... (%1$d halaman)</string>
+    <string name="pdf_large_file_warning">PDF besar - mungkin butuh waktu</string>
+    <string name="pdf_unable_to_open">Gagal membuka PDF</string>
+    <string name="pdf_failed_to_render_page">Gagal menampilkan halaman %1$d</string>
+    <string name="pdf_copied_to_clipboard">Tersalin!</string>
+    <string name="pdf_selection_highlighted">Pilihan disorot</string>
+    <string name="pdf_enter_page_number_range">Masukkan nomor halaman (1-%1$d)</string>
+    <string name="pdf_password_required">Kata Sandi Diperlukan</string>
+    <string name="pdf_password_incorrect_retry">Kata sandi salah. Silakan coba lagi.</string>
+    <string name="pdf_password_protected_enter">PDF ini dilindungi kata sandi. Masukkan kata sandi untuk membuka.</string>
+    <string name="pdf_no_app_found">Tidak ada aplikasi untuk membuka PDF</string>
+    <string name="pdf_thickness_highlighter">Ketebalan Penyorot</string>
+    <string name="pdf_thickness_marker">Ketebalan Spidol</string>
+    <string name="pdf_thickness_underline">Ketebalan Garis Bawah</string>
+    <string name="pdf_thickness_eraser">Ukuran Penghapus</string>
+    <string name="pdf_px_unit">%1$d px</string>
+    <string name="action_done_editing">Selesai Edit</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_copy">Salin</string>
+    <string name="action_go">Buka</string>
+    <string name="action_go_back">Kembali</string>
+    <string name="action_retry">Coba Lagi</string>
+    <string name="action_clear_all">Hapus Semua</string>
+    <string name="cd_done_editing">Selesai Mengedit</string>
+    <string name="cd_edit">Edit</string>
+    <string name="cd_more_options">Opsi Lainnya</string>
+    <string name="cd_save_annotations">Simpan Anotasi</string>
+    <string name="cd_page_number">Halaman %1$d</string>
+    <string name="cd_selected">Dipilih</string>
+    <string name="color_yellow">Kuning</string>
+    <string name="color_green">Hijau</string>
+    <string name="color_cyan">Sian</string>
+    <string name="color_pink">Merah Muda</string>
+    <string name="color_red">Merah</string>
+    <string name="color_blue">Biru</string>
+    <string name="color_brown">Cokelat</string>
+    <string name="color_black">Hitam</string>
+
+    <!-- Metadata Screen additions -->
+    <string name="metadata_no_pdf_selected">Tidak Ada PDF Dipilih</string>
+    <string name="metadata_no_pdf_selected_subtitle">Pilih file PDF untuk melihat metadatanya</string>
+    <string name="metadata_pages_and_size">%1$d halaman • %2$s</string>
+    <string name="metadata_strip_banner_title">Hapus Metadata Dokumen</string>
+    <string name="metadata_strip_banner_subtitle">Hapus semua detail pelacakan tersembunyi sebelum dibagikan.</string>
+    <string name="metadata_strip_all">Hapus Semua</string>
+    <string name="metadata_basic_title">Metadata Dasar</string>
+    <string name="label_title">Judul</string>
+    <string name="label_author">Penulis</string>
+    <string name="label_subject">Subjek</string>
+    <string name="label_keywords">Kata Kunci</string>
+    <string name="metadata_keywords_placeholder">Kata kunci dipisahkan koma</string>
+    <string name="metadata_not_set">Belum diatur</string>
+    <string name="metadata_advanced_properties">Properti Lanjutan</string>
+    <string name="cd_collapse">Ciutkan</string>
+    <string name="cd_expand">Bentangkan</string>
+    <string name="label_creator">Pembuat</string>
+    <string name="label_producer">Produsen</string>
+    <string name="metadata_unknown">Tidak diketahui</string>
+    <string name="label_created">Dibuat</string>
+    <string name="label_modified">Diubah</string>
+    <string name="label_pdf_version">Versi PDF</string>
+    <string name="label_encrypted">Terenkripsi</string>
+    <string name="label_yes">Ya</string>
+    <string name="label_no">Tidak</string>
+    <string name="metadata_updating_progress">Memperbarui metadata...</string>
+    <string name="metadata_updated_success">Metadata berhasil diperbarui</string>
+    <string name="metadata_update_failed">Pembaruan gagal</string>
+    <string name="metadata_stripping_failed">Penghapusan metadata gagal</string>
+    <string name="metadata_cannot_create_output">Tidak dapat membuat file keluaran</string>
+    <string name="metadata_saved_to">%1$s
+
+Disimpan ke: %2$s</string>
+    <string name="metadata_stripped_saved_to">Semua metadata berhasil dihapus demi privasi.
+
+Disimpan ke: %1$s</string>
+    <string name="action_select_pdf">Pilih PDF</string>
+    <string name="action_save_changes">Simpan Perubahan</string>
+    <string name="action_select_another_pdf">Pilih PDF Lain</string>
+    <string name="metadata_update_complete">Pembaruan Selesai</string>
+
+    <!-- Scan to PDF Screen additions -->
+    <string name="scan_add_images">Tambah Gambar</string>
+    <string name="scan_camera">Kamera</string>
+    <string name="scan_gallery">Galeri</string>
+    <string name="scan_pages_count">Halaman (%1$d)</string>
+    <string name="action_crop">Potong</string>
+    <string name="scan_page_size">Ukuran Halaman</string>
+    <string name="scan_color_mode">Mode Warna</string>
+    <string name="scan_enhance_contrast">Tingkatkan Kontras</string>
+    <string name="scan_creating_pdf">Membuat PDF... %1$d%%</string>
+    <string name="scan_pdf_created">PDF Berhasil Dibuat!</string>
+    <string name="scan_pages_scanned">%1$d halaman</string>
+    <string name="scan_create_pdf">Buat PDF</string>
+    <string name="scan_more_documents">Pindai Dokumen Lain</string>
+    <string name="cd_capture">Ambil Foto</string>
+
+    <!-- Group 1 additions (Annotation, OCR, Watermark, Security, Sign) -->
+    <string name="annotate_title">Annotasi PDF</string>
+    <string name="annotate_no_pdf_subtitle">Pilih file PDF untuk menambahkan anotasi</string>
+    <string name="label_stamp_type">Jenis Stempel</string>
+    <string name="label_width">Lebar</string>
+    <string name="label_height">Tinggi</string>
+    <string name="action_add_annotation">Tambah Anotasi</string>
+    <string name="ocr_title">OCR - Ekstrak Teks</string>
+    <string name="ocr_no_pdf_subtitle">Pilih file PDF untuk mengekstrak teks dengan OCR</string>
+    <string name="ocr_markdown_view">Tampilan Markdown</string>
+    <string name="ocr_raw_text">Teks Mentah</string>
+    <string name="ocr_reader_title">Pembaca Dokumen Diekstrak</string>
+    <string name="watermark_title">Tambah Watermark</string>
+    <string name="watermark_no_pdf_subtitle">Pilih file PDF untuk menambahkan watermark</string>
+    <string name="watermark_label_text">Teks Watermark</string>
+    <string name="watermark_label_opacity">Opasitas</string>
+    <string name="watermark_label_rotation">Rotasi</string>
+    <string name="security_title">Lindungi PDF</string>
+    <string name="security_no_pdf_subtitle">Pilih file PDF untuk mengatur kata sandi</string>
+    <string name="security_confirm_password">Konfirmasi Kata Sandi</string>
+    <string name="security_allow_printing">Izinkan Mencetak</string>
+    <string name="security_allow_copying">Izinkan Menyalin</string>
+    <string name="security_allow_editing">Izinkan Mengedit</string>
+    <string name="sign_title">Tanda Tangan PDF</string>
+    <string name="sign_no_pdf_subtitle">Pilih file PDF untuk ditandatangani</string>
+    <string name="sign_add_date">Tambah Tanggal</string>
+    <string name="sign_add_name">Tambah Nama</string>
+    <string name="sign_your_name">Nama Anda</string>
+
+    <!-- Group 2 additions (Convert, ImageTools, Split, HistorySidebar) -->
+    <string name="convert_title">Gambar ke PDF</string>
+    <string name="convert_no_images_subtitle">Pilih gambar untuk membuat dokumen PDF</string>
+    <string name="action_add_more_images">Tambah Gambar Lagi</string>
+    <string name="imgtools_title">Alat Gambar</string>
+    <string name="imgtools_custom_size">Gunakan Ukuran Kustom</string>
+    <string name="imgtools_aspect_ratio">Pertahankan Rasio Aspek</string>
+    <string name="imgtools_target_resolution">Resolusi Target</string>
+    <string name="split_no_pdf_subtitle">Pilih file PDF untuk dipisahkan menjadi dokumen terpisah</string>
+    <string name="history_title">Riwayat</string>
+    <string name="history_empty_title">Tidak Ada Riwayat</string>
+    <string name="history_empty_subtitle">Dokumen yang diproses akan muncul di sini</string>
+    <string name="history_clear_all">Hapus Riwayat</string>
+    <string name="history_clear_dialog_title">Hapus Riwayat?</string>
+    <string name="history_clear_dialog_message">Ini akan menghapus semua entri dari riwayat Anda.</string>
+    <string name="history_view_all_files">Lihat Semua %1$d File</string>
+    <string name="history_open_file">Buka File</string>
+    <string name="history_open_gallery">Buka Galeri</string>
+
+    <!-- Group 3 additions (FillForms, HtmlToPdf, PdfToImage, Flatten, Organize, Rotate) -->
+    <string name="fill_title">Isi Formulir PDF</string>
+    <string name="fill_no_pdf_subtitle">Pilih formulir PDF untuk mengisi bidang</string>
+    <string name="fill_analyzing_fields">Menganalisis bidang formulir...</string>
+    <string name="fill_filling_form">Mengisi formulir... %1$d%%</string>
+    <string name="fill_save_filled">Simpan Formulir Terisi</string>
+    <string name="fill_another_form">Isi Formulir Lain</string>
+    <string name="html_title">HTML ke PDF</string>
+    <string name="html_from_url">Dari URL</string>
+    <string name="html_from_html">Dari HTML</string>
+    <string name="html_website_url">URL Situs Web</string>
+    <string name="html_content_label">Konten HTML</string>
+    <string name="html_basic_template">Dasar</string>
+    <string name="html_invoice_template">Faktur</string>
+    <string name="pdf2img_title">PDF ke Gambar</string>
+    <string name="pdf2img_no_pdf_subtitle">Pilih file PDF untuk mengonversi halamannya ke gambar</string>
+    <string name="action_ok">OK</string>
+    <string name="flatten_title">Ratakan PDF (Flatten)</string>
+    <string name="flatten_no_pdf_subtitle">Pilih file PDF untuk meratakan anotasi dan formulir</string>
+    <string name="flatten_progress">Meratakan PDF... %1$d%%</string>
+    <string name="flatten_another_pdf">Ratakan PDF Lain</string>
+    <string name="organize_title">Atur Halaman</string>
+    <string name="organize_no_pdf_subtitle">Pilih PDF untuk menghapus atau mengurutkan ulang halaman</string>
+    <string name="organize_remove_pages">Hapus Halaman</string>
+    <string name="organize_reorder_pages">Ekstrak/Urutkan Halaman</string>
+    <string name="action_select_all">Semua</string>
+    <string name="action_select_none">Tidak Ada</string>
+    <string name="rotate_title">Putar Halaman</string>
+    <string name="rotate_no_pdf_subtitle">Pilih file PDF untuk memutar halamannya</string>
+    <string name="rotate_all_pages">Semua Halaman</string>
+    <string name="rotate_select_pages">Pilih Halaman</string>
+
+    <!-- Group 4 additions (Files, Compress, Repair, Extract, PageNumber, Licenses) -->
+    <string name="files_clear_dialog_title">Hapus File Terbaru?</string>
+    <string name="files_clear_dialog_message">Ini akan menghapus semua file dari riwayat Anda. File sebenarnya tidak akan dihapus.</string>
+    <string name="compress_no_pdf_subtitle">Pilih file PDF untuk mengurangi ukurannya</string>
+    <string name="action_share_all">Bagikan Semua</string>
+    <string name="repair_title">Perbaiki PDF</string>
+    <string name="repair_no_pdf_subtitle">Pilih PDF untuk mendiagnosis dan memperbaiki</string>
+    <string name="repair_analyzing_structure">Menganalisis struktur PDF...</string>
+    <string name="extract_title">Ekstrak Teks</string>
+    <string name="extract_no_pdf_subtitle">Pilih PDF untuk mengekstrak konten teks</string>
+    <string name="pagenum_title">Nomor Halaman</string>
+    <string name="pagenum_no_pdf_subtitle">Pilih PDF untuk menambahkan nomor halaman</string>
+    <string name="licenses_title">Lisensi Sumber Terbuka</string>
+    <string name="cd_open_link">Buka tautan</string>
+
+    <!-- Pass 2 additions -->
+    <string name="security_password_info">Kata sandi ini akan diperlukan untuk membuka PDF</string>
+    <string name="security_reenter_password">Masukkan kembali kata sandi</string>
+    <string name="security_passwords_mismatch">Kata sandi tidak cocok</string>
+    <string name="cd_toggle_visibility">Beralih visibilitas</string>
+    <string name="sign_another_pdf">Tanda Tangan PDF Lain</string>
+    <string name="convert_no_images_title">Tidak Ada Gambar Dipilih</string>
+    <string name="action_move_first">Pertama</string>
+    <string name="action_move_last">Terakhir</string>
+    <string name="imgtools_target_format">Format Target</string>
+    <string name="split_switch_mode">Ubah Mode</string>
+    <string name="split_all_pages_title">Pisahkan PDF - Semua Halaman</string>
+    <string name="split_placeholder">mis., 1, 3, 5-8, 10</string>
+    <string name="action_change">Ubah</string>
+    <string name="action_reset">Reset</string>
+
+    <!-- Final cleanup additions -->
+    <string name="annotate_add_another">Tambah Anotasi Lain</string>
+    <string name="ocr_progress">Memproses dengan OCR... %1$d%%</string>
+    <string name="ocr_process_another">Proses PDF Lain</string>
+    <string name="watermark_font_size">Ukuran Font: %1$d</string>
+    <string name="watermark_image_selected">Gambar dipilih</string>
+    <string name="watermark_select_image">Pilih Gambar</string>
+    <string name="watermark_opacity_val">Opasitas: %1$d%%</string>
+    <string name="watermark_rotation_val">Rotasi: %1$d°</string>
+    <string name="watermark_progress">Menambahkan watermark... %1$d%%</string>
+    <string name="watermark_another_pdf">Beri Watermark PDF Lain</string>
+    <string name="sign_progress">Menambahkan tanda tangan... %1$d%%</string>
+
+    <!-- Last few additions -->
+    <string name="annotate_progress">Menerapkan anotasi... %1$d%%</string>
+    <string name="annotate_save_pdf">Simpan PDF Dianotasi</string>
+    <string name="annotate_another_pdf">Anotasi PDF Lain</string>
+
+    <!-- Fix missing keys additions -->
+    <string name="label_page_number">Nomor Halaman</string>
+    <string name="label_color">Warna</string>
+    <string name="split_from">Dari</string>
+    <string name="split_to">Ke</string>
+    <string name="split_page_numbers">Nomor Halaman</string>
 </resources>

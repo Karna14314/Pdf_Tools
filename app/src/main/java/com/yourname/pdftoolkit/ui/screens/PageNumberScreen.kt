@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -174,7 +177,7 @@ fun PageNumberScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Page Numbers",
+                title = stringResource(R.string.pagenum_title),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -193,8 +196,8 @@ fun PageNumberScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.FormatListNumbered,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF to add page numbers",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.pagenum_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -471,7 +474,7 @@ fun PageNumberScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }

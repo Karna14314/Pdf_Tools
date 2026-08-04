@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
@@ -284,7 +287,7 @@ fun ImageToolsScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Image Tools",
+                title = stringResource(R.string.imgtools_title),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -468,7 +471,7 @@ fun ImageToolsScreen(
                                     IconButton(onClick = { selectedImages = emptyList() }) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
-                                            contentDescription = "Clear",
+                                            contentDescription = stringResource(R.string.action_clear),
                                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
                                     }
@@ -536,7 +539,7 @@ fun ImageToolsScreen(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Text("Use Custom Size", modifier = Modifier.weight(1f))
+                                                Text(stringResource(R.string.imgtools_custom_size), modifier = Modifier.weight(1f))
                                                 Switch(
                                                     checked = useCustomSize,
                                                     onCheckedChange = { useCustomSize = it }
@@ -551,14 +554,14 @@ fun ImageToolsScreen(
                                                     OutlinedTextField(
                                                         value = customWidth,
                                                         onValueChange = { customWidth = it.filter { c -> c.isDigit() } },
-                                                        label = { Text("Width") },
+                                                        label = { Text(stringResource(R.string.label_width)) },
                                                         modifier = Modifier.weight(1f),
                                                         singleLine = true
                                                     )
                                                     OutlinedTextField(
                                                         value = customHeight,
                                                         onValueChange = { customHeight = it.filter { c -> c.isDigit() } },
-                                                        label = { Text("Height") },
+                                                        label = { Text(stringResource(R.string.label_height)) },
                                                         modifier = Modifier.weight(1f),
                                                         singleLine = true
                                                     )
@@ -568,14 +571,14 @@ fun ImageToolsScreen(
                                                     modifier = Modifier.fillMaxWidth(),
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
-                                                    Text("Maintain Aspect Ratio", modifier = Modifier.weight(1f))
+                                                    Text(stringResource(R.string.imgtools_aspect_ratio), modifier = Modifier.weight(1f))
                                                     Switch(
                                                         checked = maintainAspectRatio,
                                                         onCheckedChange = { maintainAspectRatio = it }
                                                     )
                                                 }
                                             } else {
-                                                Text("Target Resolution", style = MaterialTheme.typography.bodySmall)
+                                                Text(stringResource(R.string.imgtools_target_resolution), style = MaterialTheme.typography.bodySmall)
                                                 LazyRow(
                                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                                 ) {
@@ -601,7 +604,7 @@ fun ImageToolsScreen(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 horizontalArrangement = Arrangement.SpaceBetween
                                             ) {
-                                                Text("Quality")
+                                                Text(stringResource(R.string.label_quality))
                                                 Text(
                                                     "${compressionQuality.toInt()}%",
                                                     fontWeight = FontWeight.Bold,
@@ -640,7 +643,7 @@ fun ImageToolsScreen(
                                         }
                                         
                                         ImageOperation.CONVERT -> {
-                                            Text("Target Format")
+                                            Text(stringResource(R.string.imgtools_target_format))
                                             LazyRow(
                                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                                             ) {
@@ -660,7 +663,7 @@ fun ImageToolsScreen(
                                                     modifier = Modifier.fillMaxWidth(),
                                                     horizontalArrangement = Arrangement.SpaceBetween
                                                 ) {
-                                                    Text("Quality")
+                                                    Text(stringResource(R.string.label_quality))
                                                     Text(
                                                         "${compressionQuality.toInt()}%",
                                                         fontWeight = FontWeight.Bold,
@@ -844,18 +847,18 @@ fun ImageToolsScreen(
                     ) {
                         Icon(Icons.Default.PhotoLibrary, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Open Gallery")
+                        Text(stringResource(R.string.history_open_gallery))
                     }
                 } else {
                     TextButton(onClick = { showResult = false }) {
-                        Text("OK")
+                        Text(stringResource(R.string.action_ok))
                     }
                 }
             },
             dismissButton = {
                 if (resultSuccess) {
                     TextButton(onClick = { showResult = false }) {
-                        Text("Close")
+                        Text(stringResource(R.string.action_close))
                     }
                 }
             }

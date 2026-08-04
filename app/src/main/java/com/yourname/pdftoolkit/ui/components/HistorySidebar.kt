@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
@@ -85,7 +88,7 @@ fun HistoryMenuButton(
     ) {
         Icon(
             imageVector = Icons.Default.Menu,
-            contentDescription = "Open History",
+            contentDescription = stringResource(R.string.nav_open_history),
             tint = MaterialTheme.colorScheme.onSurface
         )
     }
@@ -176,7 +179,7 @@ fun HistorySidebar(
                             IconButton(onClick = onClose) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Close",
+                                    contentDescription = stringResource(R.string.action_close),
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                             }
@@ -203,7 +206,7 @@ fun HistorySidebar(
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Clear All")
+                                Text(stringResource(R.string.action_clear_all))
                             }
                         }
                     }
@@ -304,8 +307,8 @@ fun HistorySidebar(
                     tint = MaterialTheme.colorScheme.error
                 )
             },
-            title = { Text("Clear History?") },
-            text = { Text("This will remove all history entries. This action cannot be undone.") },
+            title = { Text(stringResource(R.string.history_clear_dialog_title)) },
+            text = { Text(stringResource(R.string.history_clear_dialog_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -319,12 +322,12 @@ fun HistorySidebar(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Clear")
+                    Text(stringResource(R.string.action_clear))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearConfirmation = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -463,7 +466,7 @@ private fun HistoryItem(
                     IconButton(onClick = { showMenu = true }) {
                         Icon(
                             Icons.Default.MoreVert,
-                            contentDescription = "More options",
+                            contentDescription = stringResource(R.string.cd_more_options),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -479,7 +482,7 @@ private fun HistoryItem(
                             // View all files option for multi-output entries
                             if (hasMultipleOutputs) {
                                 DropdownMenuItem(
-                                    text = { Text("View All ${entry.outputFileUris.size} Files") },
+                                    text = { Text(stringResource(R.string.history_view_all_files, entry.outputFileUris.size)) },
                                     leadingIcon = { 
                                         Icon(
                                             Icons.Default.Collections, 
@@ -565,7 +568,7 @@ private fun HistoryItem(
                         }
                         
                         DropdownMenuItem(
-                            text = { Text("Delete") },
+                            text = { Text(stringResource(R.string.action_delete)) },
                             leadingIcon = { 
                                 Icon(
                                     Icons.Default.Delete, 

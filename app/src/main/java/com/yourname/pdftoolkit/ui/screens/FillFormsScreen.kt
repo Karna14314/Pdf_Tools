@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -197,10 +200,10 @@ fun FillFormsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Fill PDF Forms") },
+                title = { Text(stringResource(R.string.tool_fill_forms)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -255,7 +258,7 @@ fun FillFormsScreen(
                                 }
                             }
                             IconButton(onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Change")
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
                             }
                         }
                     } else {
@@ -265,7 +268,7 @@ fun FillFormsScreen(
                         ) {
                             Icon(Icons.Default.FileOpen, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Select PDF")
+                            Text(stringResource(R.string.action_select_pdf))
                         }
                     }
                 }
@@ -285,7 +288,7 @@ fun FillFormsScreen(
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Analyzing form fields...")
+                        Text(stringResource(R.string.fill_analyzing_fields))
                     }
                 }
             }
@@ -407,7 +410,7 @@ fun FillFormsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         CircularProgressIndicator()
-                        Text("Filling form... ${state.progress}%")
+                        Text(stringResource(R.string.fill_filling_form, state.progress))
                         LinearProgressIndicator(
                             progress = state.progress / 100f,
                             modifier = Modifier.fillMaxWidth()
@@ -451,7 +454,7 @@ fun FillFormsScreen(
                             ) {
                                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Open")
+                                Text(stringResource(R.string.action_open))
                             }
                         }
                     }
@@ -492,7 +495,7 @@ fun FillFormsScreen(
             ) {
                 Icon(Icons.Default.Edit, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Save Filled Form")
+                Text(stringResource(R.string.fill_save_filled))
             }
             
             // Reset Button
@@ -503,7 +506,7 @@ fun FillFormsScreen(
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Fill Another Form")
+                    Text(stringResource(R.string.fill_another_form))
                 }
             }
         }

@@ -1,5 +1,9 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import com.yourname.pdftoolkit.R
+
+import androidx.compose.ui.res.stringResource
+
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
@@ -251,10 +255,10 @@ fun ScanToPdfScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Scan to PDF") },
+                    title = { Text(stringResource(R.string.tool_scan_to_pdf)) },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                         }
                     }
                 )
@@ -280,7 +284,7 @@ fun ScanToPdfScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Add Images",
+                            text = stringResource(R.string.scan_add_images),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -301,7 +305,7 @@ fun ScanToPdfScreen(
                             ) {
                                 Icon(Icons.Default.CameraAlt, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Camera")
+                                Text(stringResource(R.string.scan_camera))
                             }
                             
                             OutlinedButton(
@@ -310,7 +314,7 @@ fun ScanToPdfScreen(
                             ) {
                                 Icon(Icons.Default.Image, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Gallery")
+                                Text(stringResource(R.string.scan_gallery))
                             }
                         }
                     }
@@ -334,12 +338,12 @@ fun ScanToPdfScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Pages (${state.selectedImages.size})",
+                                    text = stringResource(R.string.scan_pages_count, state.selectedImages.size),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 TextButton(onClick = { viewModel.clearImages() }) {
-                                    Text("Clear All")
+                                    Text(stringResource(R.string.action_clear_all))
                                 }
                             }
                             
@@ -365,7 +369,7 @@ fun ScanToPdfScreen(
                                     ) {
                                         Image(
                                             painter = rememberAsyncImagePainter(state.selectedImages[index]),
-                                            contentDescription = "Page ${index + 1}",
+                                            contentDescription = stringResource(R.string.cd_page_number, index + 1),
                                             modifier = Modifier.fillMaxSize(),
                                             contentScale = ContentScale.Crop
                                         )
@@ -401,7 +405,7 @@ fun ScanToPdfScreen(
                                         ) {
                                             Icon(
                                                 Icons.Default.Crop,
-                                                contentDescription = "Crop",
+                                                contentDescription = stringResource(R.string.action_crop),
                                                 tint = MaterialTheme.colorScheme.onPrimary,
                                                 modifier = Modifier.size(14.dp)
                                             )
@@ -420,7 +424,7 @@ fun ScanToPdfScreen(
                                         ) {
                                             Icon(
                                                 Icons.Default.Close,
-                                                contentDescription = "Remove",
+                                                contentDescription = stringResource(R.string.action_remove),
                                                 tint = MaterialTheme.colorScheme.onError,
                                                 modifier = Modifier.size(16.dp)
                                             )
@@ -444,13 +448,13 @@ fun ScanToPdfScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "Settings",
+                            text = stringResource(R.string.action_settings),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
                         
                         // Page Size
-                        Text("Page Size", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.scan_page_size), style = MaterialTheme.typography.bodyMedium)
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(ScanPageSize.entries) { size ->
                                 FilterChip(
@@ -462,7 +466,7 @@ fun ScanToPdfScreen(
                         }
                         
                         // Color Mode
-                        Text("Color Mode", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.scan_color_mode), style = MaterialTheme.typography.bodyMedium)
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(ScanColorMode.entries) { mode ->
                                 FilterChip(
@@ -474,7 +478,7 @@ fun ScanToPdfScreen(
                         }
                         
                         // Quality
-                        Text("Quality", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.label_quality), style = MaterialTheme.typography.bodyMedium)
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(ScanQuality.entries) { quality ->
                                 FilterChip(
@@ -490,7 +494,7 @@ fun ScanToPdfScreen(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Enhance Contrast", modifier = Modifier.weight(1f))
+                            Text(stringResource(R.string.scan_enhance_contrast), modifier = Modifier.weight(1f))
                             Switch(
                                 checked = state.enhanceContrast,
                                 onCheckedChange = { viewModel.toggleEnhanceContrast() }
@@ -513,7 +517,7 @@ fun ScanToPdfScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             CircularProgressIndicator()
-                            Text("Creating PDF... ${state.progress}%")
+                            Text(stringResource(R.string.scan_creating_pdf, state.progress))
                             LinearProgressIndicator(
                                 progress = state.progress / 100f,
                                 modifier = Modifier.fillMaxWidth()
@@ -542,12 +546,12 @@ fun ScanToPdfScreen(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    "PDF Created!",
+                                    stringResource(R.string.scan_pdf_created),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
-                                    "${state.pagesScanned} pages",
+                                    stringResource(R.string.scan_pages_scanned, state.pagesScanned),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
@@ -567,7 +571,7 @@ fun ScanToPdfScreen(
                     ) {
                         Icon(Icons.Default.OpenInNew, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Open PDF")
+                        Text(stringResource(R.string.action_open_pdf))
                     }
                 }
                 
@@ -607,7 +611,7 @@ fun ScanToPdfScreen(
                 ) {
                     Icon(Icons.Default.PictureAsPdf, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Create PDF")
+                    Text(stringResource(R.string.scan_create_pdf))
                 }
                 
                 // Reset Button
@@ -618,7 +622,7 @@ fun ScanToPdfScreen(
                     ) {
                         Icon(Icons.Default.Refresh, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Scan More Documents")
+                        Text(stringResource(R.string.scan_more_documents))
                     }
                 }
             }
@@ -690,7 +694,7 @@ private fun CameraScreen(
                 onClick = onClose,
                 containerColor = MaterialTheme.colorScheme.surface
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_close))
             }
             
             // Capture button
@@ -722,7 +726,7 @@ private fun CameraScreen(
             ) {
                 Icon(
                     Icons.Default.CameraAlt,
-                    contentDescription = "Capture",
+                    contentDescription = stringResource(R.string.cd_capture),
                     modifier = Modifier.size(32.dp)
                 )
             }

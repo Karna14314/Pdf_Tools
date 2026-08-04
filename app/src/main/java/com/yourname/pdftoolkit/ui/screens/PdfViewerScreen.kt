@@ -1,5 +1,9 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import com.yourname.pdftoolkit.R
+
+import androidx.compose.ui.res.stringResource
+
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -90,7 +94,7 @@ import androidx.compose.ui.platform.testTag
 @Composable
 fun PdfViewerScreen(
     pdfUri: Uri?,
-    pdfName: String = "PDF Document",
+    pdfName: String = stringResource(R.string.pdf_document_default_name),
     onNavigateBack: () -> Unit,
     onNavigateToTool: ((String, Uri?, String?) -> Unit)? = null,
     viewModel: PdfViewerViewModel = viewModel()
@@ -221,7 +225,7 @@ fun PdfViewerScreen(
         when (val state = saveState) {
             is SaveState.Success -> {
                 SafUriManager.addRecentFile(context, state.uri)
-                Toast.makeText(context, "Annotations saved successfully!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.pdf_annotations_saved), Toast.LENGTH_SHORT).show()
             }
             is SaveState.Error -> {
                 Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
@@ -289,7 +293,7 @@ fun PdfViewerScreen(
                             OutlinedTextField(
                                 value = searchState.query,
                                 onValueChange = { viewModel.search(it) },
-                                placeholder = { Text("Search in PDF...") },
+                                placeholder = { Text(stringResource(R.string.pdf_search_placeholder)) },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -309,7 +313,7 @@ fun PdfViewerScreen(
                                             ) {
                                                 Icon(
                                                     Icons.Default.Stop,
-                                                    contentDescription = "Stop Search",
+                                                    contentDescription = stringResource(R.string.cd_stop_search),
                                                     tint = MaterialTheme.colorScheme.error
                                                 )
                                             }
@@ -319,7 +323,7 @@ fun PdfViewerScreen(
                                             Text(
                                                 text = if (searchState.matches.isNotEmpty())
                                                     "${searchState.currentMatchIndex + 1}/${searchState.matches.size}"
-                                                else if (!searchState.isLoading && searchState.query.length >= 2) "No matches" else "",
+                                                else if (!searchState.isLoading && searchState.query.length >= 2) stringResource(R.string.pdf_search_no_matches) else "",
                                                 style = MaterialTheme.typography.labelMedium,
                                                 color = if (searchState.matches.isNotEmpty())
                                                     MaterialTheme.colorScheme.primary
@@ -335,22 +339,22 @@ fun PdfViewerScreen(
                                 viewModel.clearSearch()
                                 viewModel.setTool(PdfTool.None)
                             }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Close search")
+                                Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_close_search))
                             }
                         },
                         actions = {
                             // Navigate search results
                             if (searchState.matches.isNotEmpty()) {
                                 IconButton(onClick = { viewModel.prevMatch() }) {
-                                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Previous")
+                                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.action_previous))
                                 }
                                 IconButton(onClick = { viewModel.nextMatch() }) {
-                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Next")
+                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.action_next))
                                 }
                             }
                             if (searchState.query.isNotEmpty()) {
                                 IconButton(onClick = { viewModel.search("") }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear search")
+                                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.cd_clear_search))
                                 }
                             }
                         },
@@ -373,7 +377,7 @@ fun PdfViewerScreen(
                         },
                         navigationIcon = {
                             IconButton(onClick = onNavigateBack) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                                Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                             }
                         },
                         actions = {
@@ -382,7 +386,7 @@ fun PdfViewerScreen(
                                 viewModel.setTool(PdfTool.Search)
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             }) {
-                                Icon(Icons.Default.Search, contentDescription = "Search")
+                                Icon(Icons.Default.Search, contentDescription = stringResource(R.string.pdf_search))
                             }
                             
                             val isEditMode = toolState is PdfTool.Edit
@@ -404,7 +408,7 @@ fun PdfViewerScreen(
                                     ) {
                                         Icon(
                                             Icons.Default.Save,
-                                            contentDescription = "Save Annotations",
+                                            contentDescription = stringResource(R.string.cd_save_annotations),
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
@@ -424,7 +428,7 @@ fun PdfViewerScreen(
                             ) {
                                 Icon(
                                     if (isEditMode) Icons.Default.Check else Icons.Default.Edit,
-                                    contentDescription = if (isEditMode) "Done Editing" else "Edit",
+                                    contentDescription = if (isEditMode) stringResource(R.string.cd_done_editing) else stringResource(R.string.cd_edit),
                                     tint = if (isEditMode) MaterialTheme.colorScheme.primary else LocalContentColor.current
                                 )
                             }
@@ -433,7 +437,7 @@ fun PdfViewerScreen(
                         Box {
                             var showMenu by remember { mutableStateOf(false) }
                             IconButton(onClick = { showMenu = true }) {
-                                Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                                Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.cd_more_options))
                             }
                             DropdownMenu(
                             expanded = showMenu,
@@ -441,7 +445,7 @@ fun PdfViewerScreen(
                         ) {
                             if (pdfUri != null) {
                                 DropdownMenuItem(
-                                    text = { Text("Share") },
+                                    text = { Text(stringResource(R.string.pdf_share)) },
                                     leadingIcon = { Icon(Icons.Default.Share, null) },
                                     onClick = {
                                         showMenu = false
@@ -449,7 +453,7 @@ fun PdfViewerScreen(
                                     }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("Open with...") },
+                                    text = { Text(stringResource(R.string.pdf_open_with)) },
                                     leadingIcon = { Icon(Icons.Default.OpenInNew, null) },
                                     onClick = {
                                         showMenu = false
@@ -460,7 +464,7 @@ fun PdfViewerScreen(
                             }
                             if (totalPages > 1) {
                                 DropdownMenuItem(
-                                    text = { Text("Go to Page") },
+                                    text = { Text(stringResource(R.string.pdf_go_to_page)) },
                                     leadingIcon = { Icon(Icons.Default.ViewList, null) },
                                     onClick = {
                                         showMenu = false
@@ -469,7 +473,7 @@ fun PdfViewerScreen(
                                 )
                             }
                             DropdownMenuItem(
-                                text = { Text("Reset Zoom") },
+                                text = { Text(stringResource(R.string.pdf_reset_zoom)) },
                                 leadingIcon = { Icon(Icons.Default.FitScreen, null) },
                                 onClick = {
                                     showMenu = false
@@ -480,7 +484,7 @@ fun PdfViewerScreen(
                             )
                             if (pdfUri != null) {
                                 DropdownMenuItem(
-                                    text = { Text("Print") },
+                                    text = { Text(stringResource(R.string.pdf_print)) },
                                     leadingIcon = { Icon(Icons.Default.Print, null) },
                                     onClick = {
                                         showMenu = false
@@ -491,7 +495,7 @@ fun PdfViewerScreen(
                             if (annotations.isNotEmpty()) {
                                 Divider()
                                 DropdownMenuItem(
-                                    text = { Text("Clear All Annotations") },
+                                    text = { Text(stringResource(R.string.pdf_clear_all_annotations)) },
                                     leadingIcon = { Icon(Icons.Default.ClearAll, null) },
                                     onClick = {
                                         showMenu = false
@@ -502,7 +506,7 @@ fun PdfViewerScreen(
                             Divider()
                             // Tools navigation
                             DropdownMenuItem(
-                                text = { Text("Compress this PDF") },
+                                text = { Text(stringResource(R.string.pdf_compress_this)) },
                                 leadingIcon = { Icon(Icons.Default.Compress, null) },
                                 onClick = {
                                     showMenu = false
@@ -510,7 +514,7 @@ fun PdfViewerScreen(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Add Watermark") },
+                                text = { Text(stringResource(R.string.pdf_add_watermark_option)) },
                                 leadingIcon = { Icon(Icons.Default.WaterDrop, null) },
                                 onClick = {
                                     showMenu = false
@@ -733,7 +737,7 @@ fun PdfViewerScreen(
                              )
                              Spacer(modifier = Modifier.height(16.dp))
                              Text(
-                                 text = "Saving Annotations... ${(currentSaveState.progress * 100).toInt()}%",
+                                 text = stringResource(R.string.pdf_saving_annotations, (currentSaveState.progress * 100).toInt()),
                                  style = MaterialTheme.typography.titleMedium
                              )
                          }
@@ -747,8 +751,8 @@ fun PdfViewerScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Clear All Annotations?") },
-            text = { Text("This will remove all highlights and drawings. This action cannot be undone.") },
+            title = { Text(stringResource(R.string.pdf_clear_all_dialog_title)) },
+            text = { Text(stringResource(R.string.pdf_clear_annotations_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -756,12 +760,12 @@ fun PdfViewerScreen(
                         showClearDialog = false
                     }
                 ) {
-                    Text("Clear All", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.action_clear_all), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -835,7 +839,7 @@ private fun AnnotationToolbar(
         ) {
             ToolButton(
                 icon = Icons.Default.PanTool,
-                label = "Pan",
+                label = stringResource(R.string.pdf_tool_pan),
                 isSelected = selectedTool == AnnotationTool.NONE,
                 onClick = {
                     onToolSelected(AnnotationTool.NONE)
@@ -844,7 +848,7 @@ private fun AnnotationToolbar(
             )
             ToolButton(
                 icon = Icons.Default.Highlight,
-                label = "Highlight",
+                label = stringResource(R.string.pdf_highlighter),
                 isSelected = selectedTool == AnnotationTool.HIGHLIGHTER,
                 onClick = {
                     onToolSelected(AnnotationTool.HIGHLIGHTER)
@@ -853,7 +857,7 @@ private fun AnnotationToolbar(
             )
             ToolButton(
                 icon = Icons.Default.Gesture,
-                label = "Marker",
+                label = stringResource(R.string.pdf_marker),
                 isSelected = selectedTool == AnnotationTool.MARKER,
                 onClick = {
                     onToolSelected(AnnotationTool.MARKER)
@@ -862,7 +866,7 @@ private fun AnnotationToolbar(
             )
             ToolButton(
                 icon = Icons.Default.FormatUnderlined,
-                label = "Underline",
+                label = stringResource(R.string.pdf_underline),
                 isSelected = selectedTool == AnnotationTool.UNDERLINE,
                 onClick = {
                     onToolSelected(AnnotationTool.UNDERLINE)
@@ -871,7 +875,7 @@ private fun AnnotationToolbar(
             )
             ToolButton(
                 icon = Icons.Default.AutoFixHigh,
-                label = "Eraser",
+                label = stringResource(R.string.pdf_tool_eraser),
                 isSelected = selectedTool == AnnotationTool.ERASER,
                 onClick = {
                     onToolSelected(AnnotationTool.ERASER)
@@ -893,7 +897,7 @@ private fun AnnotationToolbar(
             ) {
                 Icon(
                     Icons.Default.Tune,
-                    contentDescription = "Brush Size",
+                    contentDescription = stringResource(R.string.pdf_brush_size),
                     tint = if (selectedTool != AnnotationTool.NONE) LocalContentColor.current else LocalContentColor.current.copy(alpha = 0.38f)
                 )
             }
@@ -903,7 +907,7 @@ private fun AnnotationToolbar(
             ) {
                 Icon(
                     Icons.Default.Undo,
-                    contentDescription = "Undo",
+                    contentDescription = stringResource(R.string.pdf_undo),
                     tint = if (canUndo) LocalContentColor.current else LocalContentColor.current.copy(alpha = 0.38f)
                 )
             }
@@ -958,19 +962,19 @@ private fun ColorPickerDialog(
     onDismiss: () -> Unit
 ) {
     val colors = listOf(
-        Color.Yellow to "Yellow",
-        Color.Green to "Green",
-        Color.Cyan to "Cyan",
-        Color.Magenta to "Pink",
-        Color.Red to "Red",
-        Color.Blue to "Blue",
-        Color(0xFF614700) to "Brown",
-        Color.Black to "Black"
+        Color.Yellow to stringResource(R.string.color_yellow),
+        Color.Green to stringResource(R.string.color_green),
+        Color.Cyan to stringResource(R.string.color_cyan),
+        Color.Magenta to stringResource(R.string.color_pink),
+        Color.Red to stringResource(R.string.color_red),
+        Color.Blue to stringResource(R.string.color_blue),
+        Color(0xFF614700) to stringResource(R.string.color_brown),
+        Color.Black to stringResource(R.string.color_black)
     )
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Select Color") },
+        title = { Text(stringResource(R.string.pdf_select_color)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -1005,7 +1009,7 @@ private fun ColorPickerDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
@@ -1035,7 +1039,7 @@ private fun ColorOption(
             if (isSelected) {
                 Icon(
                     Icons.Default.Check,
-                    contentDescription = "Selected",
+                    contentDescription = stringResource(R.string.cd_selected),
                     modifier = Modifier.padding(12.dp),
                     tint = Color.Black.copy(alpha = 0.7f)
                 )
@@ -1063,9 +1067,9 @@ private fun LoadingState(totalPages: Int? = null) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = if (totalPages != null && totalPages > 0) {
-                "Opening PDF... ($totalPages pages)"
+                stringResource(R.string.pdf_opening_pages, totalPages)
             } else {
-                "Opening PDF..."
+                stringResource(R.string.pdf_opening)
             },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1073,7 +1077,7 @@ private fun LoadingState(totalPages: Int? = null) {
         if (totalPages != null && totalPages > 50) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Large PDF - may take a moment",
+                text = stringResource(R.string.pdf_large_file_warning),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
@@ -1101,7 +1105,7 @@ private fun ErrorState(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Unable to open PDF",
+            text = stringResource(R.string.pdf_unable_to_open),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.SemiBold
         )
@@ -1113,7 +1117,7 @@ private fun ErrorState(
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = onGoBack) {
-            Text("Go Back")
+            Text(stringResource(R.string.action_go_back))
         }
     }
 }
@@ -1440,7 +1444,7 @@ private fun PdfPageWithAnnotations(
                     // PDF page image
                     Image(
                         bitmap = bitmap!!.asImageBitmap(),
-                        contentDescription = "Page ${pageIndex + 1}",
+                        contentDescription = stringResource(R.string.cd_page_number, pageIndex + 1),
                         modifier = Modifier
                             .fillMaxWidth(),
                         contentScale = ContentScale.FillWidth
@@ -1464,7 +1468,7 @@ private fun PdfPageWithAnnotations(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Failed to render page ${pageIndex + 1}",
+                            text = stringResource(R.string.pdf_failed_to_render_page, pageIndex + 1),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onErrorContainer
                         )
@@ -1475,7 +1479,7 @@ private fun PdfPageWithAnnotations(
                                 containerColor = MaterialTheme.colorScheme.error
                             )
                         ) {
-                            Text("Retry")
+                            Text(stringResource(R.string.action_retry))
                         }
                     }
                 }
@@ -1694,14 +1698,14 @@ private fun PdfPageWithAnnotations(
                                     val selectedText = currentPositions.subList(selectStartCharIndex, selectEndCharIndex)
                                         .joinToString("") { it.unicode }
                                     clipboardManager.setText(AnnotatedString(selectedText))
-                                    Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.pdf_copied_to_clipboard), Toast.LENGTH_SHORT).show()
                                     onSelectionChange(-1, -1, -1)
                                 },
                                 contentPadding = PaddingValues(horizontal = 8.dp)
                             ) {
-                                Icon(Icons.Default.ContentCopy, contentDescription = "Copy", modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.ContentCopy, contentDescription = stringResource(R.string.action_copy), modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Copy", style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.action_copy), style = MaterialTheme.typography.bodySmall)
                             }
                             
                             Box(
@@ -1737,14 +1741,14 @@ private fun PdfPageWithAnnotations(
                                             )
                                         )
                                     }
-                                    Toast.makeText(context, "Selection Highlighted", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.pdf_selection_highlighted), Toast.LENGTH_SHORT).show()
                                     onSelectionChange(-1, -1, -1)
                                 },
                                 contentPadding = PaddingValues(horizontal = 8.dp)
                             ) {
-                                Icon(Icons.Default.BorderColor, contentDescription = "Highlight", modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.BorderColor, contentDescription = stringResource(R.string.pdf_highlighter), modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Highlight", style = MaterialTheme.typography.bodySmall)
+                                Text(stringResource(R.string.pdf_highlighter), style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }
@@ -1911,11 +1915,11 @@ private fun PageSelectorDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Go to Page") },
+        title = { Text(stringResource(R.string.pdf_go_to_page)) },
         text = {
             Column {
                 Text(
-                    text = "Enter page number (1-$totalPages)",
+                    text = stringResource(R.string.pdf_enter_page_number_range, totalPages),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -1937,12 +1941,12 @@ private fun PageSelectorDialog(
                     }
                 }
             ) {
-                Text("Go")
+                Text(stringResource(R.string.action_go))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
@@ -1958,26 +1962,26 @@ private fun PasswordDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Password Required") },
+        title = { Text(stringResource(R.string.pdf_password_required)) },
         text = {
             Column {
                 if (isError) {
                     Text(
-                        text = "Incorrect password. Please try again.",
+                        text = stringResource(R.string.pdf_password_incorrect_retry),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 Text(
-                    text = "This PDF is password protected. Please enter the password to open it.",
+                    text = stringResource(R.string.pdf_password_protected_enter),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password") },
+                    label = { Text(stringResource(R.string.label_password)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
@@ -1990,12 +1994,12 @@ private fun PasswordDialog(
                 onClick = { onConfirm(password) },
                 enabled = password.isNotEmpty()
             ) {
-                Text("Open")
+                Text(stringResource(R.string.action_open))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.action_cancel))
             }
         }
     )
@@ -2019,11 +2023,11 @@ private fun sharePdf(context: Context, pdfUri: Uri) {
             putExtra(Intent.EXTRA_STREAM, shareUri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        val chooser = Intent.createChooser(shareIntent, "Share PDF")
+        val chooser = Intent.createChooser(shareIntent, context.getString(R.string.pdf_share))
         context.startActivity(chooser)
     } catch (e: Exception) {
         android.util.Log.e("PdfViewerScreen", "Share failed", e)
-        Toast.makeText(context, "Unable to share PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "${context.getString(R.string.pdf_unable_to_open)}: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -2045,13 +2049,13 @@ private fun openWithExternalApp(context: Context, pdfUri: Uri) {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        val chooser = Intent.createChooser(intent, "Open with")
+        val chooser = Intent.createChooser(intent, context.getString(R.string.pdf_open_with))
         context.startActivity(chooser)
     } catch (e: android.content.ActivityNotFoundException) {
-        Toast.makeText(context, "No app found to open PDF", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.pdf_no_app_found), Toast.LENGTH_SHORT).show()
     } catch (e: Exception) {
         android.util.Log.e("PdfViewerScreen", "Open with failed", e)
-        Toast.makeText(context, "Unable to open PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "${context.getString(R.string.pdf_unable_to_open)}: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -2188,25 +2192,25 @@ private fun ThicknessSliderPanel(
             currentWidth = highlighterWidth
             onWidthChange = onHighlighterWidthChange
             valueRange = 5f..50f
-            title = "Highlighter Thickness"
+            title = stringResource(R.string.pdf_thickness_highlighter)
         }
         AnnotationTool.MARKER -> {
             currentWidth = markerWidth
             onWidthChange = onMarkerWidthChange
             valueRange = 2f..25f
-            title = "Marker Thickness"
+            title = stringResource(R.string.pdf_thickness_marker)
         }
         AnnotationTool.UNDERLINE -> {
             currentWidth = underlineWidth
             onWidthChange = onUnderlineWidthChange
             valueRange = 1f..12f
-            title = "Underline Thickness"
+            title = stringResource(R.string.pdf_thickness_underline)
         }
         AnnotationTool.ERASER -> {
             currentWidth = eraserWidth
             onWidthChange = onEraserWidthChange
             valueRange = 5f..50f
-            title = "Eraser Size"
+            title = stringResource(R.string.pdf_thickness_eraser)
         }
         else -> return
     }
@@ -2236,7 +2240,7 @@ private fun ThicknessSliderPanel(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "${currentWidth.roundToInt()} px",
+                    text = stringResource(R.string.pdf_px_unit, currentWidth.roundToInt()),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary

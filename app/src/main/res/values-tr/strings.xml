@@ -13,20 +13,20 @@
     <string name="action_close">Kapat</string>
     <string name="action_compress">Sıkıştır</string>
     <string name="action_delete">Silmek</string>
-    <string name="action_done">Tamamlamak</string>
+    <string name="action_done">Tamamla</string>
     <string name="action_merge">Birleştir</string>
     <string name="action_next">Sonraki</string>
     <string name="action_open">Aç</string>
     <string name="action_open_pdf">PDF\'yi aç</string>
     <string name="action_previous">Öncesi</string>
     <string name="action_processing">İşleme...</string>
-    <string name="action_remove">Kaldırmak</string>
-    <string name="action_save">Kaydetmek</string>
+    <string name="action_remove">Kaldır</string>
+    <string name="action_save">Kaydet</string>
     <string name="action_save_as">Farklı Kaydet</string>
     <string name="action_select">Seçme</string>
     <string name="action_settings">Ayarlar</string>
-    <string name="action_split">Bölmek</string>
-    <string name="action_submit">Göndermek</string>
+    <string name="action_split">Böl</string>
+    <string name="action_submit">Gönder</string>
     <string name="action_view">Görüntüle</string>
     <string name="action_navigate">Gezin</string>
     <string name="action_move_up">Yukarı taşı</string>
@@ -131,11 +131,12 @@
     <string name="desc_delete_pages">Sayfaları PDF\'den kaldır</string>
     <string name="desc_compress_image">Resim dosyası boyutunu azaltın</string>
     <string name="desc_resize_image">Resim boyutlarını değiştir</string>
-    <string name="desc_convert_format">JPEG�?? WebP</string>
+    <string name="desc_convert_format">JPEG &#x2194; WebP</string>
     <string name="desc_strip_metadata">EXIF verilerini kaldır</string>
     <string name="desc_lock_pdf">PDF\'nizi şifreyle koruyun</string>
     <string name="desc_sign">İmzanızı ekleyin</string>
     <string name="desc_view_pdf">PDF\'yi açın ve görüntüleyin</string>
+    <string name="tool_view_pdf">PDF Görüntüle</string>
 
     <!-- Merge Screen -->
     <string name="merge_title">PDF\'leri birleştir</string>
@@ -240,8 +241,8 @@
     <string name="settings_clear_cache">Önbellek temizlensin mi?</string>
     <string name="settings_clear_cache_message">Bu, geçici dosyaları ve önbelleğe alınmış verileri siler. Kaydedilen PDF\'leriniz etkilenmeyecektir.</string>
     <string name="settings_cache_cleared">Önbellek başarıyla temizlendi</string>
-    <string name="settings_about_title">PDF Araç Seti Hakkında</string>
-    <string name="settings_about_description">PDF Araç Takımı, PDF belgelerini hızlı ve verimli bir şekilde yönetmenize yardımcı olan güçlü, çevrimdışı bir PDF aracıdır.</string>
+    <string name="settings_about_title">PDF Toolkit Hakkında</string>
+    <string name="settings_about_description">PDF Toolkit, PDF belgelerini hızlı ve verimli bir şekilde yönetmenize yardımcı olan güçlü, çevrimdışı bir PDF aracıdır.</string>
     <string name="settings_about_features">Özellikler:</string>
     <string name="settings_about_feature_1">PDF\'leri Birleştir, Böl, Sıkıştır</string>
     <string name="settings_about_feature_2">Görüntülere/görüntülerden dönüştürme</string>
@@ -251,10 +252,10 @@
     <string name="settings_about_version">Sürüm</string>
     <string name="settings_about_build">Derleme</string>
     <string name="settings_about_made_with">İle yapıldı</string>
-    <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack Oluşturma</string>
+    <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack Compose</string>
     <string name="settings_app_name">PDF Toolkit</string>
     <string name="settings_made_with_love">Verimlilik için ❤️ ile tasarlandı</string>
-    <string name="settings_copyright">© 2026 PDF Araç Takımı</string>
+    <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">Dil Seçiniz</string>
     <string name="settings_language_changed">Dil değiştirildi</string>
 
@@ -273,7 +274,7 @@
     <string name="image_format_jpeg_desc">Evrensel uyumluluk</string>
 
     <!-- Theme Modes -->
-    <string name="theme_light">Işık</string>
+    <string name="theme_light">Açık</string>
     <string name="theme_dark">Karanlık</string>
     <string name="theme_system">Sistem Varsayılanı</string>
     <string name="theme_light_desc">Her zaman açık temayı kullan</string>
@@ -282,7 +283,7 @@
 
     <!-- Feature Request -->
     <string name="feature_request_title">Özellik Talep Edin</string>
-    <string name="feature_request_description">PDF Araç Setini geliştirmemize yardımcı olmak için fikrinizi paylaşın!</string>
+    <string name="feature_request_description">PDF Toolkit\'i geliştirmemize yardımcı olmak için fikrinizi paylaşın!</string>
     <string name="feature_request_category">Kategori</string>
     <string name="feature_request_category_feature">Özellik</string>
     <string name="feature_request_category_improvement">Gelişim</string>
@@ -292,7 +293,7 @@
     <string name="feature_request_placeholder">Hangi özelliği görmek istersiniz?</string>
 
     <!-- Bug Report -->
-    <string name="bug_report_subject">[Hata Raporu] PDF Araç Seti</string>
+    <string name="bug_report_subject">[Hata Raporu] PDF Toolkit</string>
     <string name="bug_report_template">Hata Açıklaması:\n[Lütfen karşılaştığınız sorunu açıklayın]\n\nYeniden Oluşturma Adımları:\n1. \n2. \n3. \n\nBeklenen Davranış:\n[Ne olmasını bekliyordunuz?]\n\nGerçek Davranış:\n[Gerçekte ne oldu?]</string>
 
     <!-- Error Messages -->
@@ -341,4 +342,252 @@
 
     <string name="action_search">Ara</string>
     <string name="settings_no_languages_found">Dil bulunamadı</string>
+
+    <!-- PDF Viewer additions -->
+    <string name="pdf_stop_search">Aramayı durdur</string>
+    <string name="pdf_open_with">Birlikte aç...</string>
+    <string name="pdf_reset_zoom">Yakınlaştırmayı sıfırla</string>
+    <string name="pdf_print">Yazdır</string>
+    <string name="pdf_clear_all_annotations">Tüm açıklamaları temizle</string>
+    <string name="pdf_clear_all_dialog_title">Tüm açıklamalar temizlensin mi?</string>
+    <string name="pdf_compress_this">Bu PDF\'i sıkıştır</string>
+    <string name="pdf_add_watermark_option">Filigran ekle</string>
+    <string name="pdf_saving_annotations">Açıklamalar kaydediliyor… %1$d%%</string>
+    <string name="pdf_tool_pan">Kaydır</string>
+    <string name="pdf_tool_eraser">Silgi</string>
+    <string name="pdf_brush_size">Fırça boyutu</string>
+    <string name="pdf_undo">Geri al</string>
+    <string name="pdf_select_color">Renk seç</string>
+    <string name="pdf_opening">PDF açılıyor...</string>
+    <string name="pdf_opening_pages">PDF açılıyor... (%1$d sayfa)</string>
+    <string name="pdf_large_file_warning">Büyük PDF - biraz zaman alabilir</string>
+    <string name="pdf_unable_to_open">PDF açılamadı</string>
+    <string name="pdf_failed_to_render_page">%1$d. sayfa yüklenemedi</string>
+    <string name="pdf_copied_to_clipboard">Kopyalandı!</string>
+    <string name="pdf_selection_highlighted">Seçim vurgulandı</string>
+    <string name="pdf_enter_page_number_range">Sayfa numarası girin (1-%1$d)</string>
+    <string name="pdf_password_required">Parola gerekli</string>
+    <string name="pdf_password_incorrect_retry">Yanlış parola. Lütfen tekrar deneyin.</string>
+    <string name="pdf_password_protected_enter">Bu PDF parola korumalıdır. Açmak için parolayı girin.</string>
+    <string name="pdf_no_app_found">PDF açmak için uygulama bulunamadı</string>
+    <string name="pdf_thickness_highlighter">Vurgulayıcı kalınlığı</string>
+    <string name="pdf_thickness_marker">İşaretleyici kalınlığı</string>
+    <string name="pdf_thickness_underline">Alt çizgi kalınlığı</string>
+    <string name="pdf_thickness_eraser">Silgi boyutu</string>
+    <string name="pdf_px_unit">%1$d px</string>
+    <string name="action_done_editing">Düzenleme bitti</string>
+    <string name="action_edit">Düzenle</string>
+    <string name="action_copy">Kopyala</string>
+    <string name="action_go">Git</string>
+    <string name="action_go_back">Geri</string>
+    <string name="action_retry">Tekrar dene</string>
+    <string name="action_clear_all">Tümünü temizle</string>
+    <string name="cd_done_editing">Düzenlemeyi tamamla</string>
+    <string name="cd_edit">Düzenle</string>
+    <string name="cd_more_options">Diğer seçenekler</string>
+    <string name="cd_save_annotations">Açıklamaları kaydet</string>
+    <string name="cd_page_number">Sayfa %1$d</string>
+    <string name="cd_selected">Seçildi</string>
+    <string name="color_yellow">Sarı</string>
+    <string name="color_green">Yeşil</string>
+    <string name="color_cyan">Açık Mavi</string>
+    <string name="color_pink">Pembe</string>
+    <string name="color_red">Kırmızı</string>
+    <string name="color_blue">Mavi</string>
+    <string name="color_brown">Kahverengi</string>
+    <string name="color_black">Siyah</string>
+
+    <!-- Metadata Screen additions -->
+    <string name="metadata_no_pdf_selected">PDF Seçilmedi</string>
+    <string name="metadata_no_pdf_selected_subtitle">Üst verilerini görüntülemek için bir PDF dosyası seçin</string>
+    <string name="metadata_pages_and_size">%1$d sayfa • %2$s</string>
+    <string name="metadata_strip_banner_title">Belge Üst Verilerini Temizle</string>
+    <string name="metadata_strip_banner_subtitle">Paylaşmadan önce tüm gizli izleme ayrıntılarını kaldırın.</string>
+    <string name="metadata_strip_all">Tümünü Temizle</string>
+    <string name="metadata_basic_title">Temel Üst Veriler</string>
+    <string name="label_title">Başlık</string>
+    <string name="label_author">Yazar</string>
+    <string name="label_subject">Konu</string>
+    <string name="label_keywords">Anahtar Kelimeler</string>
+    <string name="metadata_keywords_placeholder">Virgülle ayrılmış anahtar kelimeler</string>
+    <string name="metadata_not_set">Ayarlanmadı</string>
+    <string name="metadata_advanced_properties">Gelişmiş Özellikler</string>
+    <string name="cd_collapse">Daralt</string>
+    <string name="cd_expand">Genişlet</string>
+    <string name="label_creator">Oluşturan</string>
+    <string name="label_producer">Üretici</string>
+    <string name="metadata_unknown">Bilinmiyor</string>
+    <string name="label_created">Oluşturulma</string>
+    <string name="label_modified">Değiştirilme</string>
+    <string name="label_pdf_version">PDF Sürümü</string>
+    <string name="label_encrypted">Şifreli</string>
+    <string name="label_yes">Evet</string>
+    <string name="label_no">Hayır</string>
+    <string name="metadata_updating_progress">Üst veriler güncelleniyor...</string>
+    <string name="metadata_updated_success">Üst veriler başarıyla güncellendi</string>
+    <string name="metadata_update_failed">Güncelleme başarısız</string>
+    <string name="metadata_stripping_failed">Temizleme başarısız</string>
+    <string name="metadata_cannot_create_output">Çıktı dosyası oluşturulamadı</string>
+    <string name="metadata_saved_to">%1$s
+
+Kaydedildi: %2$s</string>
+    <string name="metadata_stripped_saved_to">Gizlilik için tüm üst veriler başarıyla temizlendi.
+
+Kaydedildi: %1$s</string>
+    <string name="action_select_pdf">PDF Seç</string>
+    <string name="action_save_changes">Değişiklikleri Kaydet</string>
+    <string name="action_select_another_pdf">Başka PDF Seç</string>
+    <string name="metadata_update_complete">Güncelleme Tamamlandı</string>
+
+    <!-- Scan to PDF Screen additions -->
+    <string name="scan_add_images">Görüntü Ekle</string>
+    <string name="scan_camera">Kamera</string>
+    <string name="scan_gallery">Galeri</string>
+    <string name="scan_pages_count">Sayfalar (%1$d)</string>
+    <string name="action_crop">Kırp</string>
+    <string name="scan_page_size">Sayfa Boyutu</string>
+    <string name="scan_color_mode">Renk Modu</string>
+    <string name="scan_enhance_contrast">Karşıtlığı Artır</string>
+    <string name="scan_creating_pdf">PDF Oluşturuluyor... %1$d%%</string>
+    <string name="scan_pdf_created">PDF Oluşturuldu!</string>
+    <string name="scan_pages_scanned">%1$d sayfa</string>
+    <string name="scan_create_pdf">PDF Oluştur</string>
+    <string name="scan_more_documents">Daha Fazla Belge Taraması</string>
+    <string name="cd_capture">Fotoğraf Çek</string>
+
+    <!-- Group 1 additions (Annotation, OCR, Watermark, Security, Sign) -->
+    <string name="annotate_title">PDF Açıklama Ekle</string>
+    <string name="annotate_no_pdf_subtitle">Açıklama eklemek için bir PDF dosyası seçin</string>
+    <string name="label_stamp_type">Damga Türü</string>
+    <string name="label_width">Genişlik</string>
+    <string name="label_height">Yükseklik</string>
+    <string name="action_add_annotation">Açıklama Ekle</string>
+    <string name="ocr_title">OCR - Metin Çıkar</string>
+    <string name="ocr_no_pdf_subtitle">OCR ile metin çıkarmak için bir PDF dosyası seçin</string>
+    <string name="ocr_markdown_view">Markdown Görünümü</string>
+    <string name="ocr_raw_text">Ham Metin</string>
+    <string name="ocr_reader_title">Çıkarılan Belge Okuyucusu</string>
+    <string name="watermark_title">Filigran Ekle</string>
+    <string name="watermark_no_pdf_subtitle">Filigran eklemek için bir PDF dosyası seçin</string>
+    <string name="watermark_label_text">Filigran Metni</string>
+    <string name="watermark_label_opacity">Opaklık</string>
+    <string name="watermark_label_rotation">Döndürme</string>
+    <string name="security_title">PDF Koru</string>
+    <string name="security_no_pdf_subtitle">Parola koymak için bir PDF dosyası seçin</string>
+    <string name="security_confirm_password">Parolayı Doğrula</string>
+    <string name="security_allow_printing">Yazdırmaya İzin Ver</string>
+    <string name="security_allow_copying">Kopyalamaya İzin Ver</string>
+    <string name="security_allow_editing">Düzenlemeye İzin Ver</string>
+    <string name="sign_title">PDF İmzala</string>
+    <string name="sign_no_pdf_subtitle">İmzalamak için bir PDF dosyası seçin</string>
+    <string name="sign_add_date">Tarih Ekle</string>
+    <string name="sign_add_name">İsim Ekle</string>
+    <string name="sign_your_name">Adınız</string>
+
+    <!-- Group 2 additions (Convert, ImageTools, Split, HistorySidebar) -->
+    <string name="convert_title">Görüntüleri PDF Yap</string>
+    <string name="convert_no_images_subtitle">PDF belgesi oluşturmak için görüntüler seçin</string>
+    <string name="action_add_more_images">Daha Fazla Görüntü Ekle</string>
+    <string name="imgtools_title">Görüntü Araçları</string>
+    <string name="imgtools_custom_size">Özel Boyut Kullan</string>
+    <string name="imgtools_aspect_ratio">En Boy Oranını Koru</string>
+    <string name="imgtools_target_resolution">Hedef Çözünürlük</string>
+    <string name="split_no_pdf_subtitle">Ayrı belgelere bölmek için bir PDF dosyası seçin</string>
+    <string name="history_title">Geçmiş</string>
+    <string name="history_empty_title">Geçmiş Boş</string>
+    <string name="history_empty_subtitle">İşlenen belgeler burada görünecektir</string>
+    <string name="history_clear_all">Geçmişi Temizle</string>
+    <string name="history_clear_dialog_title">Geçmiş Temizlensin mi?</string>
+    <string name="history_clear_dialog_message">Bu işlem geçmişteki tüm kayıtları silecektir.</string>
+    <string name="history_view_all_files">Tüm %1$d Dosyayı Göster</string>
+    <string name="history_open_file">Dosyayı Aç</string>
+    <string name="history_open_gallery">Galeriyi Aç</string>
+
+    <!-- Group 3 additions (FillForms, HtmlToPdf, PdfToImage, Flatten, Organize, Rotate) -->
+    <string name="fill_title">PDF Formlarını Doldur</string>
+    <string name="fill_no_pdf_subtitle">Alanları doldurmak için bir PDF formu seçin</string>
+    <string name="fill_analyzing_fields">Form alanları analiz ediliyor...</string>
+    <string name="fill_filling_form">Form dolduruluyor... %1$d%%</string>
+    <string name="fill_save_filled">Doldurulan Formu Kaydet</string>
+    <string name="fill_another_form">Başka Bir Form Doldur</string>
+    <string name="html_title">HTML\'den PDF\'e</string>
+    <string name="html_from_url">URL\'den</string>
+    <string name="html_from_html">HTML\'den</string>
+    <string name="html_website_url">Web Sitesi URL\'si</string>
+    <string name="html_content_label">HTML İçeriği</string>
+    <string name="html_basic_template">Temel</string>
+    <string name="html_invoice_template">Fatura</string>
+    <string name="pdf2img_title">PDF\'yi Görüntüye Dönüştür</string>
+    <string name="pdf2img_no_pdf_subtitle">Sayfalarını görüntüye dönüştürmek için bir PDF dosyası seçin</string>
+    <string name="action_ok">Tamam</string>
+    <string name="flatten_title">PDF Düzleştir (Flatten)</string>
+    <string name="flatten_no_pdf_subtitle">Açıklamaları ve formları birleştirmek için bir PDF dosyası seçin</string>
+    <string name="flatten_progress">PDF düzleştiriliyor... %1$d%%</string>
+    <string name="flatten_another_pdf">Başka Bir PDF Düzleştir</string>
+    <string name="organize_title">Sayfaları Düzenle</string>
+    <string name="organize_no_pdf_subtitle">Sayfaları silmek veya yeniden sıralamak için bir PDF seçin</string>
+    <string name="organize_remove_pages">Sayfaları Sil</string>
+    <string name="organize_reorder_pages">Sayfaları Çıkar/Sırala</string>
+    <string name="action_select_all">Tümü</string>
+    <string name="action_select_none">Hiçbiri</string>
+    <string name="rotate_title">Sayfaları Döndür</string>
+    <string name="rotate_no_pdf_subtitle">Sayfalarını döndürmek için bir PDF dosyası seçin</string>
+    <string name="rotate_all_pages">Tüm Sayfalar</string>
+    <string name="rotate_select_pages">Sayfa Seç</string>
+
+    <!-- Group 4 additions (Files, Compress, Repair, Extract, PageNumber, Licenses) -->
+    <string name="files_clear_dialog_title">Son Dosyalar Temizlensin mi?</string>
+    <string name="files_clear_dialog_message">Bu işlem tüm dosyaları geçmişinizden kaldıracaktır. Gerçek dosyalar silinmeyecektir.</string>
+    <string name="compress_no_pdf_subtitle">Boyutunu küçültmek için bir PDF dosyası seçin</string>
+    <string name="action_share_all">Tümünü Paylaş</string>
+    <string name="repair_title">PDF Onar</string>
+    <string name="repair_no_pdf_subtitle">Teşhis ve onarım için bir PDF seçin</string>
+    <string name="repair_analyzing_structure">PDF yapısı analiz ediliyor...</string>
+    <string name="extract_title">Metin Çıkar</string>
+    <string name="extract_no_pdf_subtitle">Metin içeriğini çıkarmak için bir PDF seçin</string>
+    <string name="pagenum_title">Sayfa Numaraları</string>
+    <string name="pagenum_no_pdf_subtitle">Sayfa numarası eklemek için bir PDF seçin</string>
+    <string name="licenses_title">Açık Kaynak Lisansları</string>
+    <string name="cd_open_link">Bağlantıyı aç</string>
+
+    <!-- Pass 2 additions -->
+    <string name="security_password_info">Bu parola PDF dosyasını açmak için gereklidir</string>
+    <string name="security_reenter_password">Parolayı tekrar girin</string>
+    <string name="security_passwords_mismatch">Parolalar eşleşmiyor</string>
+    <string name="cd_toggle_visibility">Görünürlüğü değiştir</string>
+    <string name="sign_another_pdf">Başka Bir PDF İmzala</string>
+    <string name="convert_no_images_title">Görüntü Seçilmedi</string>
+    <string name="action_move_first">İlk</string>
+    <string name="action_move_last">Son</string>
+    <string name="imgtools_target_format">Hedef Format</string>
+    <string name="split_switch_mode">Modu Değiştir</string>
+    <string name="split_all_pages_title">PDF Böl - Tüm Sayfalar</string>
+    <string name="split_placeholder">ör., 1, 3, 5-8, 10</string>
+    <string name="action_change">Değiştir</string>
+    <string name="action_reset">Sıfırla</string>
+
+    <!-- Final cleanup additions -->
+    <string name="annotate_add_another">Başka Bir Açıklama Ekle</string>
+    <string name="ocr_progress">OCR ile işleniyor... %1$d%%</string>
+    <string name="ocr_process_another">Başka Bir PDF İşle</string>
+    <string name="watermark_font_size">Yazı Boyutu: %1$d</string>
+    <string name="watermark_image_selected">Görüntü seçildi</string>
+    <string name="watermark_select_image">Görüntü Seç</string>
+    <string name="watermark_opacity_val">Opaklık: %1$d%%</string>
+    <string name="watermark_rotation_val">Döndürme: %1$d°</string>
+    <string name="watermark_progress">Filigran ekleniyor... %1$d%%</string>
+    <string name="watermark_another_pdf">Başka Bir PDF\'ye Filigran Ekle</string>
+    <string name="sign_progress">İmza ekleniyor... %1$d%%</string>
+
+    <!-- Last few additions -->
+    <string name="annotate_progress">Açıklamalar uygulanıyor... %1$d%%</string>
+    <string name="annotate_save_pdf">Açıklamalı PDF\'yi Kaydet</string>
+    <string name="annotate_another_pdf">Başka Bir PDF\'ye Açıklama Ekle</string>
+
+    <!-- Fix missing keys additions -->
+    <string name="label_page_number">Sayfa Numarası</string>
+    <string name="label_color">Renk</string>
+    <string name="split_from">Başlangıç</string>
+    <string name="split_to">Bitiş</string>
+    <string name="split_page_numbers">Sayfa Numaraları</string>
 </resources>

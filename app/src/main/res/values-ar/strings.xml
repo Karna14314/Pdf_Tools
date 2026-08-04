@@ -131,11 +131,12 @@
     <string name="desc_delete_pages">إزالة الصفحات من PDF</string>
     <string name="desc_compress_image">تقليل حجم ملف الصورة</string>
     <string name="desc_resize_image">تغيير أبعاد الصورة</string>
-    <string name="desc_convert_format">جى بي إي جي ؟؟ ويب بي</string>
+    <string name="desc_convert_format">JPEG &#x2194; WebP</string>
     <string name="desc_strip_metadata">إزالة بيانات EXIF</string>
     <string name="desc_lock_pdf">حماية كلمة المرور لملف PDF الخاص بك</string>
     <string name="desc_sign">أضف توقيعك</string>
     <string name="desc_view_pdf">فتح وعرض PDF</string>
+    <string name="tool_view_pdf">عرض PDF</string>
 
     <!-- Merge Screen -->
     <string name="merge_title">دمج ملفات PDF</string>
@@ -240,7 +241,7 @@
     <string name="settings_clear_cache">مسح ذاكرة التخزين المؤقت؟</string>
     <string name="settings_clear_cache_message">سيؤدي هذا إلى حذف الملفات المؤقتة والبيانات المخزنة مؤقتًا. لن تتأثر ملفات PDF المحفوظة الخاصة بك.</string>
     <string name="settings_cache_cleared">تم مسح ذاكرة التخزين المؤقت بنجاح</string>
-    <string name="settings_about_title">حول مجموعة أدوات PDF</string>
+    <string name="settings_about_title">حول PDF Toolkit</string>
     <string name="settings_about_description">PDF Toolkit هي أداة PDF قوية وغير متصلة بالإنترنت تساعدك على إدارة مستندات PDF بسرعة وكفاءة.</string>
     <string name="settings_about_features">سمات:</string>
     <string name="settings_about_feature_1">دمج وتقسيم وضغط ملفات PDF</string>
@@ -251,10 +252,10 @@
     <string name="settings_about_version">إصدار</string>
     <string name="settings_about_build">الإصدار</string>
     <string name="settings_about_made_with">صنع مع</string>
-    <string name="settings_about_kotlin_compose">كوتلين وأمبير. جيتباك يؤلف</string>
+    <string name="settings_about_kotlin_compose">Kotlin و Jetpack Compose</string>
     <string name="settings_app_name">PDF Toolkit</string>
     <string name="settings_made_with_love">مصنوع باستخدام ❤️ للإنتاجية</string>
-    <string name="settings_copyright">© 2026 مجموعة أدوات PDF</string>
+    <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">اختر اللغة</string>
     <string name="settings_language_changed">تغيرت اللغة</string>
 
@@ -282,7 +283,7 @@
 
     <!-- Feature Request -->
     <string name="feature_request_title">طلب ميزة</string>
-    <string name="feature_request_description">شارك بفكرتك لمساعدتنا في تحسين مجموعة أدوات PDF!</string>
+    <string name="feature_request_description">شارك بفكرتك لمساعدتنا في تحسين PDF Toolkit!</string>
     <string name="feature_request_category">فئة</string>
     <string name="feature_request_category_feature">ميزة</string>
     <string name="feature_request_category_improvement">تحسين</string>
@@ -292,7 +293,7 @@
     <string name="feature_request_placeholder">ما هي الميزة التي ترغب في رؤيتها؟</string>
 
     <!-- Bug Report -->
-    <string name="bug_report_subject">[تقرير الأخطاء] مجموعة أدوات PDF</string>
+    <string name="bug_report_subject">[تقرير الأخطاء] PDF Toolkit</string>
     <string name="bug_report_template">وصف الخطأ:\n[الرجاء وصف المشكلة التي واجهتها]\n\nخطوات إعادة الإنتاج:\n1. \n2. \n3. \n\nالسلوك المتوقع:\n[ماذا كنت تتوقع أن يحدث؟]\n\nالسلوك الفعلي:\n[ماذا حدث بالفعل؟]</string>
 
     <!-- Error Messages -->
@@ -341,4 +342,252 @@
 
     <string name="action_search">بحث</string>
     <string name="settings_no_languages_found">لم يتم العثور على لغات</string>
+
+    <!-- PDF Viewer additions -->
+    <string name="pdf_stop_search">إيقاف البحث</string>
+    <string name="pdf_open_with">...فتح باستخدام</string>
+    <string name="pdf_reset_zoom">إعادة ضبط التكبير</string>
+    <string name="pdf_print">طباعة</string>
+    <string name="pdf_clear_all_annotations">مسح جميع التوضيحات</string>
+    <string name="pdf_clear_all_dialog_title">مسح جميع التوضيحات؟</string>
+    <string name="pdf_compress_this">ضغط هذا المستند</string>
+    <string name="pdf_add_watermark_option">إضافة علامة مائية</string>
+    <string name="pdf_saving_annotations">جاري حفظ التوضيحات… %1$d%%</string>
+    <string name="pdf_tool_pan">تحريك</string>
+    <string name="pdf_tool_eraser">ممحاة</string>
+    <string name="pdf_brush_size">حجم الفرشاة</string>
+    <string name="pdf_undo">تراجع</string>
+    <string name="pdf_select_color">تحديد اللون</string>
+    <string name="pdf_opening">...جاري فتح PDF</string>
+    <string name="pdf_opening_pages">(صفحة %1$d) ...جاري فتح PDF</string>
+    <string name="pdf_large_file_warning">ملف كبير - قد يستغرق لحظة</string>
+    <string name="pdf_unable_to_open">تعذر فتح PDF</string>
+    <string name="pdf_failed_to_render_page">%1$d فشل عرض الصفحة</string>
+    <string name="pdf_copied_to_clipboard">!تم النسخ</string>
+    <string name="pdf_selection_highlighted">تم تمييز التحديد</string>
+    <string name="pdf_enter_page_number_range">أدخل رقم الصفحة (1-%1$d)</string>
+    <string name="pdf_password_required">كلمة المرور مطلوبة</string>
+    <string name="pdf_password_incorrect_retry">.كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى</string>
+    <string name="pdf_password_protected_enter">.هذا المستند محمي بكلمة مرور. يرجى إدخال كلمة المرور لفتحه</string>
+    <string name="pdf_no_app_found">لم يتم العثور على تطبيق لفتح PDF</string>
+    <string name="pdf_thickness_highlighter">سمك القلم المظلل</string>
+    <string name="pdf_thickness_marker">سمك القلم المميز</string>
+    <string name="pdf_thickness_underline">سمك التسطير</string>
+    <string name="pdf_thickness_eraser">حجم الممحاة</string>
+    <string name="pdf_px_unit">%1$d بكسل</string>
+    <string name="action_done_editing">تم التعديل</string>
+    <string name="action_edit">تعديل</string>
+    <string name="action_copy">نسخ</string>
+    <string name="action_go">انتقال</string>
+    <string name="action_go_back">الرجوع</string>
+    <string name="action_retry">إعادة المحاولة</string>
+    <string name="action_clear_all">مسح الكل</string>
+    <string name="cd_done_editing">تم التعديل</string>
+    <string name="cd_edit">تعديل</string>
+    <string name="cd_more_options">خيارات إضافية</string>
+    <string name="cd_save_annotations">حفظ التوضيحات</string>
+    <string name="cd_page_number">%1$d الصفحة</string>
+    <string name="cd_selected">محدد</string>
+    <string name="color_yellow">أصفر</string>
+    <string name="color_green">أخضر</string>
+    <string name="color_cyan">سماوي</string>
+    <string name="color_pink">وردي</string>
+    <string name="color_red">أحمر</string>
+    <string name="color_blue">أزرق</string>
+    <string name="color_brown">بني</string>
+    <string name="color_black">أسود</string>
+
+    <!-- Metadata Screen additions -->
+    <string name="metadata_no_pdf_selected">لم يتم تحديد مستند PDF</string>
+    <string name="metadata_no_pdf_selected_subtitle">حدد ملف PDF لعرض بياناته الوصفية</string>
+    <string name="metadata_pages_and_size">%2$s • صفحة %1$d</string>
+    <string name="metadata_strip_banner_title">تجريد البيانات الوصفية للمستند</string>
+    <string name="metadata_strip_banner_subtitle">إزالة جميع التفاصيل الخفية للتتبع قبل المشاركة.</string>
+    <string name="metadata_strip_all">تجريد الكل</string>
+    <string name="metadata_basic_title">البيانات الوصفية الأساسية</string>
+    <string name="label_title">العنوان</string>
+    <string name="label_author">المؤلف</string>
+    <string name="label_subject">الموضوع</string>
+    <string name="label_keywords">الكلمات المفتاحية</string>
+    <string name="metadata_keywords_placeholder">كلمات مفتاحية مفصولة بفواصل</string>
+    <string name="metadata_not_set">غير محدد</string>
+    <string name="metadata_advanced_properties">الخصائص المتقدمة</string>
+    <string name="cd_collapse">طي</string>
+    <string name="cd_expand">توسيع</string>
+    <string name="label_creator">المنشئ</string>
+    <string name="label_producer">المنتج</string>
+    <string name="metadata_unknown">غير معروف</string>
+    <string name="label_created">تاريخ الإنشاء</string>
+    <string name="label_modified">تاريخ التعديل</string>
+    <string name="label_pdf_version">إصدار PDF</string>
+    <string name="label_encrypted">مشفر</string>
+    <string name="label_yes">نعم</string>
+    <string name="label_no">لا</string>
+    <string name="metadata_updating_progress">...جاري تحديث البيانات الوصفية</string>
+    <string name="metadata_updated_success">تم تحديث البيانات الوصفية بنجاح</string>
+    <string name="metadata_update_failed">فشل التحديث</string>
+    <string name="metadata_stripping_failed">فشل التجريد</string>
+    <string name="metadata_cannot_create_output">تعذر إنشاء ملف الإخراج</string>
+    <string name="metadata_saved_to">%2$s :تم الحفظ في
+
+%1$s</string>
+    <string name="metadata_stripped_saved_to">%1$s :تم تجريد جميع البيانات الوصفية بنجاح من أجل الخصوصية.
+
+تم الحفظ في</string>
+    <string name="action_select_pdf">تحديد مستند PDF</string>
+    <string name="action_save_changes">حفظ التغييرات</string>
+    <string name="action_select_another_pdf">تحديد مستند PDF آخر</string>
+    <string name="metadata_update_complete">اكتمل التحديث</string>
+
+    <!-- Scan to PDF Screen additions -->
+    <string name="scan_add_images">إضافة صور</string>
+    <string name="scan_camera">الكاميرا</string>
+    <string name="scan_gallery">المعرض</string>
+    <string name="scan_pages_count">الصفحات (%1$d)</string>
+    <string name="action_crop">قص</string>
+    <string name="scan_page_size">حجم الصفحة</string>
+    <string name="scan_color_mode">وضع الألوان</string>
+    <string name="scan_enhance_contrast">تحسين التباين</string>
+    <string name="scan_creating_pdf">جاري إنشاء PDF... %1$d%%</string>
+    <string name="scan_pdf_created">!تم إنشاء PDF</string>
+    <string name="scan_pages_scanned">%1$d صفحات</string>
+    <string name="scan_create_pdf">إنشاء PDF</string>
+    <string name="scan_more_documents">مسح المزيد من المستندات</string>
+    <string name="cd_capture">التقاط</string>
+
+    <!-- Group 1 additions (Annotation, OCR, Watermark, Security, Sign) -->
+    <string name="annotate_title">إضافة توضيحات للـ PDF</string>
+    <string name="annotate_no_pdf_subtitle">حدد ملف PDF لإضافة توضيحات</string>
+    <string name="label_stamp_type">نوع الختم</string>
+    <string name="label_width">العرض</string>
+    <string name="label_height">الارتفاع</string>
+    <string name="action_add_annotation">إضافة توضيح</string>
+    <string name="ocr_title">التعرف الضوئي على النصوص - استخراج النص</string>
+    <string name="ocr_no_pdf_subtitle">حدد ملف PDF لاستخراج النص بالتعرف الضوئي</string>
+    <string name="ocr_markdown_view">عرض ماركداون</string>
+    <string name="ocr_raw_text">النص الخام</string>
+    <string name="ocr_reader_title">قارئ المستندات المستخرجة</string>
+    <string name="watermark_title">إضافة علامة مائية</string>
+    <string name="watermark_no_pdf_subtitle">حدد ملف PDF لإضافة علامة مائية</string>
+    <string name="watermark_label_text">نص العلامة المائية</string>
+    <string name="watermark_label_opacity">الشفافية</string>
+    <string name="watermark_label_rotation">التدوير</string>
+    <string name="security_title">حماية مستند PDF</string>
+    <string name="security_no_pdf_subtitle">حدد ملف PDF لتعيين كلمة مرور</string>
+    <string name="security_confirm_password">تأكيد كلمة المرور</string>
+    <string name="security_allow_printing">السماح بالطباعة</string>
+    <string name="security_allow_copying">السماح بالنسخ</string>
+    <string name="security_allow_editing">السماح بالتعديل</string>
+    <string name="sign_title">توقيع مستند PDF</string>
+    <string name="sign_no_pdf_subtitle">حدد ملف PDF لتوقيعه</string>
+    <string name="sign_add_date">إضافة تاريخ</string>
+    <string name="sign_add_name">إضافة اسم</string>
+    <string name="sign_your_name">اسمك</string>
+
+    <!-- Group 2 additions (Convert, ImageTools, Split, HistorySidebar) -->
+    <string name="convert_title">تحويل الصور إلى PDF</string>
+    <string name="convert_no_images_subtitle">حدد الصور لإنشاء مستند PDF</string>
+    <string name="action_add_more_images">إضافة المزيد من الصور</string>
+    <string name="imgtools_title">أدوات الصور</string>
+    <string name="imgtools_custom_size">استخدام حجم مخصص</string>
+    <string name="imgtools_aspect_ratio">الحفاظ على نسبة الارتفاع إلى العرض</string>
+    <string name="imgtools_target_resolution">الدقة المستهدفة</string>
+    <string name="split_no_pdf_subtitle">حدد ملف PDF لتقسيمه إلى مستندات منفصلة</string>
+    <string name="history_title">السجل</string>
+    <string name="history_empty_title">لا يوجد سجل حديث</string>
+    <string name="history_empty_subtitle">ستظهر المستندات المعالجة هنا</string>
+    <string name="history_clear_all">مسح السجل</string>
+    <string name="history_clear_dialog_title">مسح السجل؟</string>
+    <string name="history_clear_dialog_message">سيؤدي هذا إلى إزالة جميع الإدخالات من السجل الخاص بك.</string>
+    <string name="history_view_all_files">عرض جميع الملفات (%1$d)</string>
+    <string name="history_open_file">فتح الملف</string>
+    <string name="history_open_gallery">فتح المعرض</string>
+
+    <!-- Group 3 additions (FillForms, HtmlToPdf, PdfToImage, Flatten, Organize, Rotate) -->
+    <string name="fill_title">تعبئة نماذج PDF</string>
+    <string name="fill_no_pdf_subtitle">حدد نموذج PDF لتعبئة الحقول</string>
+    <string name="fill_analyzing_fields">جاري تحليل حقول النموذج...</string>
+    <string name="fill_filling_form">جاري تعبئة النموذج... %1$d%%</string>
+    <string name="fill_save_filled">حفظ النموذج المعبأ</string>
+    <string name="fill_another_form">تعبئة نموذج آخر</string>
+    <string name="html_title">تحويل HTML إلى PDF</string>
+    <string name="html_from_url">من رابط URL</string>
+    <string name="html_from_html">من نص HTML</string>
+    <string name="html_website_url">رابط الموقع</string>
+    <string name="html_content_label">محتوى HTML</string>
+    <string name="html_basic_template">أساسي</string>
+    <string name="html_invoice_template">فاتورة</string>
+    <string name="pdf2img_title">تحويل PDF إلى صور</string>
+    <string name="pdf2img_no_pdf_subtitle">حدد ملف PDF لتحويل صفحاته إلى صور</string>
+    <string name="action_ok">موافق</string>
+    <string name="flatten_title">تسطيح ملف PDF</string>
+    <string name="flatten_no_pdf_subtitle">حدد ملف PDF لتسطيح التوضيحات والحقول</string>
+    <string name="flatten_progress">جاري تسطيح PDF... %1$d%%</string>
+    <string name="flatten_another_pdf">تسطيح ملف PDF آخر</string>
+    <string name="organize_title">تنظيم الصفحات</string>
+    <string name="organize_no_pdf_subtitle">حدد ملف PDF لإزالة أو إعادة ترتيب الصفحات</string>
+    <string name="organize_remove_pages">إزالة الصفحات</string>
+    <string name="organize_reorder_pages">استخراج/إعادة ترتيب الصفحات</string>
+    <string name="action_select_all">الكل</string>
+    <string name="action_select_none">لا شيء</string>
+    <string name="rotate_title">تدوير الصفحات</string>
+    <string name="rotate_no_pdf_subtitle">حدد ملف PDF لتدوير صفحاته</string>
+    <string name="rotate_all_pages">كل الصفحات</string>
+    <string name="rotate_select_pages">تحديد الصفحات</string>
+
+    <!-- Group 4 additions (Files, Compress, Repair, Extract, PageNumber, Licenses) -->
+    <string name="files_clear_dialog_title">مسح الملفات الأخيرة؟</string>
+    <string name="files_clear_dialog_message">سيؤدي هذا إلى إزالة جميع الملفات من السجل الأخير. لن يتم حذف الملفات الفعليه.</string>
+    <string name="compress_no_pdf_subtitle">حدد ملف PDF لتقليل حجمه</string>
+    <string name="action_share_all">مشاركة الكل</string>
+    <string name="repair_title">إصلاح ملف PDF</string>
+    <string name="repair_no_pdf_subtitle">حدد ملف PDF لتشخيصه وإصلاحه</string>
+    <string name="repair_analyzing_structure">جاري تحليل بنية PDF...</string>
+    <string name="extract_title">استخراج النص</string>
+    <string name="extract_no_pdf_subtitle">حدد ملف PDF لاستخراج محتوى النص</string>
+    <string name="pagenum_title">أرقام الصفحات</string>
+    <string name="pagenum_no_pdf_subtitle">حدد ملف PDF لإضافة أرقام الصفحات</string>
+    <string name="licenses_title">تراخيص المصدر المفتوح</string>
+    <string name="cd_open_link">فتح الرابط</string>
+
+    <!-- Pass 2 additions -->
+    <string name="security_password_info">ستكون كلمة المرور هذه مطلوبة لفتح ملف PDF</string>
+    <string name="security_reenter_password">أعد إدخال كلمة المرور</string>
+    <string name="security_passwords_mismatch">كلمتا المرور غير متطابقتين</string>
+    <string name="cd_toggle_visibility">تبديل الرؤية</string>
+    <string name="sign_another_pdf">توقيع ملف PDF آخر</string>
+    <string name="convert_no_images_title">لم يتم تحديد صور</string>
+    <string name="action_move_first">الأول</string>
+    <string name="action_move_last">الأخير</string>
+    <string name="imgtools_target_format">التنسيق المستهدف</string>
+    <string name="split_switch_mode">تبديل الوضع</string>
+    <string name="split_all_pages_title">تقسيم PDF - كل الصفحات</string>
+    <string name="split_placeholder">مثال: 1، 3، 5-8، 10</string>
+    <string name="action_change">تغيير</string>
+    <string name="action_reset">إعادة ضبط</string>
+
+    <!-- Final cleanup additions -->
+    <string name="annotate_add_another">إضافة توضيح آخر</string>
+    <string name="ocr_progress">جاري المعالجة بالتعرف الضوئي... %1$d%%</string>
+    <string name="ocr_process_another">معالجة ملف PDF آخر</string>
+    <string name="watermark_font_size">حجم الخط: %1$d</string>
+    <string name="watermark_image_selected">تم تحديد الصورة</string>
+    <string name="watermark_select_image">تحديد صورة</string>
+    <string name="watermark_opacity_val">الشفافية: %1$d%%</string>
+    <string name="watermark_rotation_val">التدوير: %1$d°</string>
+    <string name="watermark_progress">جاري إضافة العلامة المائية... %1$d%%</string>
+    <string name="watermark_another_pdf">إضافة علامة مائية لـ PDF آخر</string>
+    <string name="sign_progress">جاري إضافة التوقيع... %1$d%%</string>
+
+    <!-- Last few additions -->
+    <string name="annotate_progress">جاري تطبيق التوضيحات... %1$d%%</string>
+    <string name="annotate_save_pdf">حفظ ملف PDF الموضح</string>
+    <string name="annotate_another_pdf">توضيح ملف PDF آخر</string>
+
+    <!-- Fix missing keys additions -->
+    <string name="label_page_number">رقم الصفحة</string>
+    <string name="label_color">اللون</string>
+    <string name="split_from">من</string>
+    <string name="split_to">إلى</string>
+    <string name="split_page_numbers">أرقام الصفحات</string>
 </resources>

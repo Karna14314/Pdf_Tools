@@ -541,7 +541,7 @@ fun getAllTools(): List<ToolItem> = listOf(
     // SECTION 6: VIEW & EXPORT
     ToolItem(
         id = "view_pdf",
-        titleResId = R.string.tool_view_metadata,
+        titleResId = R.string.tool_view_pdf,
         descResId = R.string.desc_view_pdf,
         icon = Icons.Default.PictureAsPdf,
         section = ToolSection.VIEW_EXPORT,

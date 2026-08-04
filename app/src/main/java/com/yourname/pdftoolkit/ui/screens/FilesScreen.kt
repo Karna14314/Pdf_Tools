@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -260,11 +263,11 @@ fun FilesScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.DeleteSweep,
-                        contentDescription = "Clear History",
+                        contentDescription = stringResource(R.string.history_clear_all),
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Clear")
+                    Text(stringResource(R.string.action_clear))
                 }
             }
         }
@@ -358,9 +361,9 @@ fun FilesScreen(
         AlertDialog(
             onDismissRequest = { showClearHistoryDialog = false },
             icon = { Icon(Icons.Default.DeleteSweep, contentDescription = null) },
-            title = { Text("Clear Recent Files?") },
+            title = { Text(stringResource(R.string.files_clear_dialog_title)) },
             text = {
-                Text("This will remove all files from your recent history. The actual files will not be deleted.")
+                Text(stringResource(R.string.files_clear_dialog_message))
             },
             confirmButton = {
                 Button(
@@ -372,12 +375,12 @@ fun FilesScreen(
                         }
                     }
                 ) {
-                    Text("Clear")
+                    Text(stringResource(R.string.action_clear))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearHistoryDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )

@@ -13,7 +13,7 @@
     <string name="action_close">閉じる</string>
     <string name="action_compress">圧縮する</string>
     <string name="action_delete">消去</string>
-    <string name="action_done">終わり</string>
+    <string name="action_done">完了</string>
     <string name="action_merge">マージ</string>
     <string name="action_next">次</string>
     <string name="action_open">開く</string>
@@ -25,9 +25,9 @@
     <string name="action_save_as">名前を付けて保存</string>
     <string name="action_select">選択</string>
     <string name="action_settings">設定</string>
-    <string name="action_split">スプリット</string>
-    <string name="action_submit">提出する</string>
-    <string name="action_view">ビュー</string>
+    <string name="action_split">分割</string>
+    <string name="action_submit">送信</string>
+    <string name="action_view">表示</string>
     <string name="action_navigate">ナビゲート</string>
     <string name="action_move_up">上に移動</string>
     <string name="action_move_down">下に移動</string>
@@ -60,7 +60,7 @@
     <string name="category_optimize">最適化する</string>
     <string name="category_quick_actions">クイックアクション</string>
     <string name="category_image_tools">画像ツール</string>
-    <string name="category_view_export">閲覧・閲覧輸出</string>
+    <string name="category_view_export">表示と書き出し</string>
 
     <!-- Tool Names - Organize -->
     <string name="tool_merge_pdfs">PDFを結合する</string>
@@ -131,11 +131,12 @@
     <string name="desc_delete_pages">PDF からページを削除する</string>
     <string name="desc_compress_image">画像ファイルのサイズを減らす</string>
     <string name="desc_resize_image">画像の寸法を変更する</string>
-    <string name="desc_convert_format">JPEG・・・？？ WebP</string>
+    <string name="desc_convert_format">JPEG &#x2194; WebP</string>
     <string name="desc_strip_metadata">EXIFデータを削除する</string>
     <string name="desc_lock_pdf">PDF をパスワードで保護する</string>
     <string name="desc_sign">署名を追加</string>
     <string name="desc_view_pdf">PDFを開いて表示する</string>
+    <string name="tool_view_pdf">PDFを表示</string>
 
     <!-- Merge Screen -->
     <string name="merge_title">PDFを結合する</string>
@@ -240,7 +241,7 @@
     <string name="settings_clear_cache">キャッシュをクリアしますか?</string>
     <string name="settings_clear_cache_message">これにより、一時ファイルとキャッシュされたデータが削除されます。保存した PDF は影響を受けません。</string>
     <string name="settings_cache_cleared">キャッシュが正常にクリアされました</string>
-    <string name="settings_about_title">PDF ツールキットについて</string>
+    <string name="settings_about_title">PDF Toolkit について</string>
     <string name="settings_about_description">PDF Toolkit は、PDF ドキュメントを迅速かつ効率的に管理できる強力なオフライン PDF ツールです。</string>
     <string name="settings_about_features">特徴：</string>
     <string name="settings_about_feature_1">PDF の結合、分割、圧縮</string>
@@ -254,7 +255,7 @@
     <string name="settings_about_kotlin_compose">Kotlin とJetpack Compose</string>
     <string name="settings_app_name">PDF Toolkit</string>
     <string name="settings_made_with_love">生産性を高める❤️で作られています</string>
-    <string name="settings_copyright">© 2026 PDF ツールキット</string>
+    <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">言語の選択</string>
     <string name="settings_language_changed">言語が変更されました</string>
 
@@ -292,7 +293,7 @@
     <string name="feature_request_placeholder">どのような機能が欲しいですか?</string>
 
     <!-- Bug Report -->
-    <string name="bug_report_subject">[バグレポート] PDF ツールキット</string>
+    <string name="bug_report_subject">[バグレポート] PDF Toolkit</string>
     <string name="bug_report_template">バグの説明:\n[発生した問題について説明してください]\n\n再現手順:\n1. \n2. \n3. \n\n期待される動作:\n[何が起こると予想していましたか?]\n\n実際の動作:\n[実際には何が起こりましたか?]</string>
 
     <!-- Error Messages -->
@@ -341,4 +342,252 @@
 
     <string name="action_search">検索</string>
     <string name="settings_no_languages_found">言語が見つかりません</string>
+
+    <!-- PDF Viewer additions -->
+    <string name="pdf_stop_search">検索を停止</string>
+    <string name="pdf_open_with">他のアプリで開く...</string>
+    <string name="pdf_reset_zoom">ズームをリセット</string>
+    <string name="pdf_print">印刷</string>
+    <string name="pdf_clear_all_annotations">すべての注釈を消去</string>
+    <string name="pdf_clear_all_dialog_title">すべての注釈を消去しますか？</string>
+    <string name="pdf_compress_this">このPDFを圧縮</string>
+    <string name="pdf_add_watermark_option">透かしを追加</string>
+    <string name="pdf_saving_annotations">注釈を保存中… %1$d%%</string>
+    <string name="pdf_tool_pan">移動</string>
+    <string name="pdf_tool_eraser">消しゴム</string>
+    <string name="pdf_brush_size">ブラシサイズ</string>
+    <string name="pdf_undo">元に戻す</string>
+    <string name="pdf_select_color">色を選択</string>
+    <string name="pdf_opening">PDFを開いています...</string>
+    <string name="pdf_opening_pages">PDFを開いています... (%1$d ページ)</string>
+    <string name="pdf_large_file_warning">サイズが大きいPDFです - 時間がかかる場合があります</string>
+    <string name="pdf_unable_to_open">PDFを開けません</string>
+    <string name="pdf_failed_to_render_page">ページ %1$d の描画に失敗しました</string>
+    <string name="pdf_copied_to_clipboard">コピーしました！</string>
+    <string name="pdf_selection_highlighted">選択範囲をハイライトしました</string>
+    <string name="pdf_enter_page_number_range">ページ番号を入力 (1-%1$d)</string>
+    <string name="pdf_password_required">パスワードが必要です</string>
+    <string name="pdf_password_incorrect_retry">パスワードが正しくありません。もう一度お試しください。</string>
+    <string name="pdf_password_protected_enter">このPDFはパスワードで保護されています。パスワードを入力してください。</string>
+    <string name="pdf_no_app_found">PDFを開くアプリが見つかりません</string>
+    <string name="pdf_thickness_highlighter">ハイライトの太さ</string>
+    <string name="pdf_thickness_marker">マーカーの太さ</string>
+    <string name="pdf_thickness_underline">下線の太さ</string>
+    <string name="pdf_thickness_eraser">消しゴムのサイズ</string>
+    <string name="pdf_px_unit">%1$d px</string>
+    <string name="action_done_editing">編集完了</string>
+    <string name="action_edit">編集</string>
+    <string name="action_copy">コピー</string>
+    <string name="action_go">移動</string>
+    <string name="action_go_back">戻る</string>
+    <string name="action_retry">再試行</string>
+    <string name="action_clear_all">すべて消去</string>
+    <string name="cd_done_editing">編集完了</string>
+    <string name="cd_edit">編集</string>
+    <string name="cd_more_options">その他のオプション</string>
+    <string name="cd_save_annotations">注釈を保存</string>
+    <string name="cd_page_number">%1$d ページ</string>
+    <string name="cd_selected">選択中</string>
+    <string name="color_yellow">黄色</string>
+    <string name="color_green">緑</string>
+    <string name="color_cyan">シアン</string>
+    <string name="color_pink">ピンク</string>
+    <string name="color_red">赤</string>
+    <string name="color_blue">青</string>
+    <string name="color_brown">茶色</string>
+    <string name="color_black">黒</string>
+
+    <!-- Metadata Screen additions -->
+    <string name="metadata_no_pdf_selected">PDFが選択されていません</string>
+    <string name="metadata_no_pdf_selected_subtitle">メタデータを表示するPDFファイルを選択してください</string>
+    <string name="metadata_pages_and_size">%1$d ページ • %2$s</string>
+    <string name="metadata_strip_banner_title">ドキュメントのメタデータを削除</string>
+    <string name="metadata_strip_banner_subtitle">共有前に隠されたトラッキング情報を消去します。</string>
+    <string name="metadata_strip_all">すべて削除</string>
+    <string name="metadata_basic_title">基本メタデータ</string>
+    <string name="label_title">タイトル</string>
+    <string name="label_author">作成者</string>
+    <string name="label_subject">サブジェクト</string>
+    <string name="label_keywords">キーワード</string>
+    <string name="metadata_keywords_placeholder">カンマ区切りのキーワード</string>
+    <string name="metadata_not_set">未設定</string>
+    <string name="metadata_advanced_properties">詳細プロパティ</string>
+    <string name="cd_collapse">折りたたむ</string>
+    <string name="cd_expand">展開する</string>
+    <string name="label_creator">作成ツール</string>
+    <string name="label_producer">PDF変換</string>
+    <string name="metadata_unknown">不明</string>
+    <string name="label_created">作成日時</string>
+    <string name="label_modified">更新日時</string>
+    <string name="label_pdf_version">PDFバージョン</string>
+    <string name="label_encrypted">暗号化</string>
+    <string name="label_yes">はい</string>
+    <string name="label_no">いいえ</string>
+    <string name="metadata_updating_progress">メタデータを更新中...</string>
+    <string name="metadata_updated_success">メタデータを更新しました</string>
+    <string name="metadata_update_failed">更新に失敗しました</string>
+    <string name="metadata_stripping_failed">削除に失敗しました</string>
+    <string name="metadata_cannot_create_output">出力ファイルを作成できません</string>
+    <string name="metadata_saved_to">%1$s
+
+保存先: %2$s</string>
+    <string name="metadata_stripped_saved_to">プライバシー保護のためすべてのメタデータを削除しました。
+
+保存先: %1$s</string>
+    <string name="action_select_pdf">PDFを選択</string>
+    <string name="action_save_changes">変更を保存</string>
+    <string name="action_select_another_pdf">別のPDFを選択</string>
+    <string name="metadata_update_complete">更新完了</string>
+
+    <!-- Scan to PDF Screen additions -->
+    <string name="scan_add_images">画像を追加</string>
+    <string name="scan_camera">カメラ</string>
+    <string name="scan_gallery">ギャラリー</string>
+    <string name="scan_pages_count">ページ (%1$d)</string>
+    <string name="action_crop">トリミング</string>
+    <string name="scan_page_size">用紙サイズ</string>
+    <string name="scan_color_mode">カラーモード</string>
+    <string name="scan_enhance_contrast">コントラストの強調</string>
+    <string name="scan_creating_pdf">PDFを作成中... %1$d%%</string>
+    <string name="scan_pdf_created">PDFを作成しました！</string>
+    <string name="scan_pages_scanned">%1$d ページ</string>
+    <string name="scan_create_pdf">PDFを作成</string>
+    <string name="scan_more_documents">他のドキュメントをスキャン</string>
+    <string name="cd_capture">撮影</string>
+
+    <!-- Group 1 additions (Annotation, OCR, Watermark, Security, Sign) -->
+    <string name="annotate_title">PDFに注釈を شه追加</string>
+    <string name="annotate_no_pdf_subtitle">注釈を追加するPDFファイルを選択してください</string>
+    <string name="label_stamp_type">スタンプの種類</string>
+    <string name="label_width">幅</string>
+    <string name="label_height">高さ</string>
+    <string name="action_add_annotation">注釈を追加</string>
+    <string name="ocr_title">OCR - テキスト抽出</string>
+    <string name="ocr_no_pdf_subtitle">OCRでテキストを抽出するPDFファイルを選択してください</string>
+    <string name="ocr_markdown_view">Markdown表示</string>
+    <string name="ocr_raw_text">テキスト表示</string>
+    <string name="ocr_reader_title">抽出ドキュメントリーダー</string>
+    <string name="watermark_title">透かしを追加</string>
+    <string name="watermark_no_pdf_subtitle">透かしを追加するPDFファイルを選択してください</string>
+    <string name="watermark_label_text">透かしテキスト</string>
+    <string name="watermark_label_opacity">不透明度</string>
+    <string name="watermark_label_rotation">回転</string>
+    <string name="security_title">PDFの保護</string>
+    <string name="security_no_pdf_subtitle">パスワードを設定するPDFファイルを選択してください</string>
+    <string name="security_confirm_password">パスワードの確認</string>
+    <string name="security_allow_printing">印刷を許可</string>
+    <string name="security_allow_copying">コピーを許可</string>
+    <string name="security_allow_editing">編集を許可</string>
+    <string name="sign_title">PDFに署名</string>
+    <string name="sign_no_pdf_subtitle">署名するPDFファイルを選択してください</string>
+    <string name="sign_add_date">日付を追加</string>
+    <string name="sign_add_name">名前を追加</string>
+    <string name="sign_your_name">お名前</string>
+
+    <!-- Group 2 additions (Convert, ImageTools, Split, HistorySidebar) -->
+    <string name="convert_title">画像をPDFに変換</string>
+    <string name="convert_no_images_subtitle">PDFを作成する画像を選択してください</string>
+    <string name="action_add_more_images">画像を追加</string>
+    <string name="imgtools_title">画像ツール</string>
+    <string name="imgtools_custom_size">カスタムサイズを使用</string>
+    <string name="imgtools_aspect_ratio">アスペクト比を維持</string>
+    <string name="imgtools_target_resolution">ターゲット解像度</string>
+    <string name="split_no_pdf_subtitle">分割するPDFファイルを選択してください</string>
+    <string name="history_title">履歴</string>
+    <string name="history_empty_title">履歴はありません</string>
+    <string name="history_empty_subtitle">処理されたドキュメントがここに表示されます</string>
+    <string name="history_clear_all">履歴を消去</string>
+    <string name="history_clear_dialog_title">履歴を消去しますか？</string>
+    <string name="history_clear_dialog_message">履歴からすべてのエントリが削除されます。</string>
+    <string name="history_view_all_files">すべての %1$d 件の displayed ファイルを表示</string>
+    <string name="history_open_file">ファイルを開く</string>
+    <string name="history_open_gallery">ギャラリーを開く</string>
+
+    <!-- Group 3 additions (FillForms, HtmlToPdf, PdfToImage, Flatten, Organize, Rotate) -->
+    <string name="fill_title">PDFフォームに入力</string>
+    <string name="fill_no_pdf_subtitle">フィールドに入力するPDFフォームを選択してください</string>
+    <string name="fill_analyzing_fields">フォームフィールドを解析中...</string>
+    <string name="fill_filling_form">フォームに入力中... %1$d%%</string>
+    <string name="fill_save_filled">入力済みフォームを保存</string>
+    <string name="fill_another_form">別のフォームに入力</string>
+    <string name="html_title">HTMLをPDFに変換</string>
+    <string name="html_from_url">URLから</string>
+    <string name="html_from_html">HTMLから</string>
+    <string name="html_website_url">WebサイトのURL</string>
+    <string name="html_content_label">HTMLコンテンツ</string>
+    <string name="html_basic_template">基本</string>
+    <string name="html_invoice_template">請求書</string>
+    <string name="pdf2img_title">PDFを画像に変換</string>
+    <string name="pdf2img_no_pdf_subtitle">ページを画像に変換するPDFファイルを選択してください</string>
+    <string name="action_ok">OK</string>
+    <string name="flatten_title">PDFの平坦化 (Flatten)</string>
+    <string name="flatten_no_pdf_subtitle">注釈とフォームを平坦化するPDFファイルを選択してください</string>
+    <string name="flatten_progress">PDFを平坦化中... %1$d%%</string>
+    <string name="flatten_another_pdf">別のPDFを平坦化</string>
+    <string name="organize_title">ページの整理</string>
+    <string name="organize_no_pdf_subtitle">ページを削除または並べ替えるPDFを選択してください</string>
+    <string name="organize_remove_pages">ページを削除</string>
+    <string name="organize_reorder_pages">ページの抽出/並べ替え</string>
+    <string name="action_select_all">すべて</string>
+    <string name="action_select_none">選択解除</string>
+    <string name="rotate_title">ページの回転</string>
+    <string name="rotate_no_pdf_subtitle">ページを回転するPDFファイルを選択してください</string>
+    <string name="rotate_all_pages">すべてのページ</string>
+    <string name="rotate_select_pages">ページを選択</string>
+
+    <!-- Group 4 additions (Files, Compress, Repair, Extract, PageNumber, Licenses) -->
+    <string name="files_clear_dialog_title">最近のファイルを消去しますか？</string>
+    <string name="files_clear_dialog_message">最近の履歴からすべてのファイルが削除されます。実際のファイルは削除されません。</string>
+    <string name="compress_no_pdf_subtitle">サイズを削減するPDFファイルを選択してください</string>
+    <string name="action_share_all">すべて共有</string>
+    <string name="repair_title">PDFの修復</string>
+    <string name="repair_no_pdf_subtitle">診断と修復を行うPDFを選択してください</string>
+    <string name="repair_analyzing_structure">PDF構造を解析中...</string>
+    <string name="extract_title">テキスト抽出</string>
+    <string name="extract_no_pdf_subtitle">テキスト内容を抽出するPDFを選択してください</string>
+    <string name="pagenum_title">ページ番号</string>
+    <string name="pagenum_no_pdf_subtitle">ページ番号を追加するPDFを選択してください</string>
+    <string name="licenses_title">オープンソースライセンス</string>
+    <string name="cd_open_link">リンクを開く</string>
+
+    <!-- Pass 2 additions -->
+    <string name="security_password_info">このパスワードはPDFを開く際に必要です</string>
+    <string name="security_reenter_password">パスワードを再入力</string>
+    <string name="security_passwords_mismatch">パスワードが一致しません</string>
+    <string name="cd_toggle_visibility">表示を切り替え</string>
+    <string name="sign_another_pdf">別のPDFに署名</string>
+    <string name="convert_no_images_title">画像が選択されていません</string>
+    <string name="action_move_first">最初へ</string>
+    <string name="action_move_last">最後へ</string>
+    <string name="imgtools_target_format">ターゲットフォーマット</string>
+    <string name="split_switch_mode">モード切り替え</string>
+    <string name="split_all_pages_title">PDF分割 - すべてのページ</string>
+    <string name="split_placeholder">例: 1, 3, 5-8, 10</string>
+    <string name="action_change">変更</string>
+    <string name="action_reset">リセット</string>
+
+    <!-- Final cleanup additions -->
+    <string name="annotate_add_another">別の注釈を追加</string>
+    <string name="ocr_progress">OCR処理中... %1$d%%</string>
+    <string name="ocr_process_another">別のPDFを処理</string>
+    <string name="watermark_font_size">フォントサイズ: %1$d</string>
+    <string name="watermark_image_selected">画像が選択されました</string>
+    <string name="watermark_select_image">画像を選択</string>
+    <string name="watermark_opacity_val">不透明度: %1$d%%</string>
+    <string name="watermark_rotation_val">回転: %1$d°</string>
+    <string name="watermark_progress">透かしを追加中... %1$d%%</string>
+    <string name="watermark_another_pdf">別のPDFに透かしを追加</string>
+    <string name="sign_progress">署名を追加中... %1$d%%</string>
+
+    <!-- Last few additions -->
+    <string name="annotate_progress">注釈を適用中... %1$d%%</string>
+    <string name="annotate_save_pdf">注釈付きPDFを保存</string>
+    <string name="annotate_another_pdf">別のPDFに注釈を追加</string>
+
+    <!-- Fix missing keys additions -->
+    <string name="label_page_number">ページ番号</string>
+    <string name="label_color">色</string>
+    <string name="split_from">から</string>
+    <string name="split_to">まで</string>
+    <string name="split_page_numbers">ページ番号</string>
 </resources>

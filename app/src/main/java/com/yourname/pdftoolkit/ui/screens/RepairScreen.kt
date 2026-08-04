@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -190,7 +193,7 @@ fun RepairScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Repair PDF",
+                title = stringResource(R.string.tool_repair_pdf),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -209,8 +212,8 @@ fun RepairScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.Build,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF to diagnose and repair",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.repair_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -262,7 +265,7 @@ fun RepairScreen(
                                             strokeWidth = 2.dp
                                         )
                                         Spacer(modifier = Modifier.width(12.dp))
-                                        Text("Analyzing PDF structure...")
+                                        Text(stringResource(R.string.repair_analyzing_structure))
                                     }
                                 }
                             }
@@ -400,7 +403,7 @@ fun RepairScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }

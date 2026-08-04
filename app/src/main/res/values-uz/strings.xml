@@ -44,7 +44,7 @@
 
     <!-- Home Screen -->
     <string name="home_title">PDF Toolkit</string>
-    <string name="home_subtitle">Barcha PDF &amp; tasvir vositalari bir joyda</string>
+    <string name="home_subtitle">Kuchli PDF va rasm asboblari.</string>
     <string name="fab_open_pdf">PDF-ni oching</string>
 
     <!-- Navigation -->
@@ -131,11 +131,12 @@
     <string name="desc_delete_pages">PDF-dan sahifalarni olib tashlang</string>
     <string name="desc_compress_image">Tasvir fayli hajmini kamaytiring</string>
     <string name="desc_resize_image">Rasm o\'lchamlarini o\'zgartirish</string>
-    <string name="desc_convert_format">JPEG ?? WebP</string>
+    <string name="desc_convert_format">JPEG &#x2194; WebP</string>
     <string name="desc_strip_metadata">EXIF ma\'lumotlarini olib tashlang</string>
     <string name="desc_lock_pdf">PDF faylingizni parol bilan himoyalang</string>
     <string name="desc_sign">Imzo qo\'shing</string>
     <string name="desc_view_pdf">PDF-ni oching va ko\'ring</string>
+    <string name="tool_view_pdf">PDF-ni ko\'rish</string>
 
     <!-- Merge Screen -->
     <string name="merge_title">PDF-fayllarni birlashtirish</string>
@@ -240,7 +241,7 @@
     <string name="settings_clear_cache">Kesh tozalansinmi?</string>
     <string name="settings_clear_cache_message">Bu vaqtinchalik fayllar va keshlangan ma\'lumotlarni o\'chiradi. Saqlangan PDF-fayllaringizga ta\'sir qilmaydi.</string>
     <string name="settings_cache_cleared">Kesh muvaffaqiyatli tozalandi</string>
-    <string name="settings_about_title">PDF asboblar to\'plami haqida</string>
+    <string name="settings_about_title">PDF Toolkit haqida</string>
     <string name="settings_about_description">PDF Toolkit - bu PDF hujjatlarini tez va samarali boshqarishga yordam beradigan kuchli, oflayn PDF vositasi.</string>
     <string name="settings_about_features">Xususiyatlari:</string>
     <string name="settings_about_feature_1">PDF-fayllarni birlashtirish, ajratish, siqish</string>
@@ -254,7 +255,7 @@
     <string name="settings_about_kotlin_compose">Kotlin &amp; Jetpack Compose</string>
     <string name="settings_app_name">PDF Toolkit</string>
     <string name="settings_made_with_love">Samaradorlik uchun ❤️ bilan yaratilgan</string>
-    <string name="settings_copyright">© 2026 PDF asboblar to\'plami</string>
+    <string name="settings_copyright">© 2026 PDF Toolkit</string>
     <string name="settings_select_language">Tilni tanlang</string>
     <string name="settings_language_changed">Til o\'zgartirildi</string>
 
@@ -273,7 +274,7 @@
     <string name="image_format_jpeg_desc">Universal muvofiqlik</string>
 
     <!-- Theme Modes -->
-    <string name="theme_light">Nur</string>
+    <string name="theme_light">Yorug\'</string>
     <string name="theme_dark">Qorong\'i</string>
     <string name="theme_system">Tizim standarti</string>
     <string name="theme_light_desc">Har doim engil mavzudan foydalaning</string>
@@ -282,7 +283,7 @@
 
     <!-- Feature Request -->
     <string name="feature_request_title">Xususiyatni so\'rash</string>
-    <string name="feature_request_description">PDF asboblar to\'plamini yaxshilashga yordam berish uchun fikringizni o\'rtoqlashing!</string>
+    <string name="feature_request_description">PDF Toolkit\'ni yaxshilashga yordam berish uchun fikringizni o\'rtoqlashing!</string>
     <string name="feature_request_category">Turkum</string>
     <string name="feature_request_category_feature">Xususiyat</string>
     <string name="feature_request_category_improvement">Yaxshilash</string>
@@ -292,7 +293,7 @@
     <string name="feature_request_placeholder">Qaysi xususiyatni ko\'rishni xohlaysiz?</string>
 
     <!-- Bug Report -->
-    <string name="bug_report_subject">[Xatolik hisoboti] PDF asboblar to\'plami</string>
+    <string name="bug_report_subject">[Xatolik hisoboti] PDF Toolkit</string>
     <string name="bug_report_template">Xato tavsifi:\n[Iltimos, duch kelgan muammoni tavsiflab bering]\n\nKo‘paytirish bosqichlari:\n1. \n2. \n3. \n\nKutilayotgan xatti-harakatlar:\n[Nima bo‘lishini kutgan edingiz?]\n\nHaqiqiy xatti-harakatlar:\n[Aslida nima bo‘ldi?]</string>
 
     <!-- Error Messages -->
@@ -341,4 +342,252 @@
 
     <string name="action_search">Qidirish</string>
     <string name="settings_no_languages_found">Tillar topilmadi</string>
+
+    <!-- PDF Viewer additions -->
+    <string name="pdf_stop_search">Qidiruvni to\'xtatish</string>
+    <string name="pdf_open_with">Boshqa ilovada ochish...</string>
+    <string name="pdf_reset_zoom">Masshtabni tiklash</string>
+    <string name="pdf_print">Chop etish</string>
+    <string name="pdf_clear_all_annotations">Barcha izohlarni o\'chirish</string>
+    <string name="pdf_clear_all_dialog_title">Barcha izohlar o\'chirilsinmi?</string>
+    <string name="pdf_compress_this">Ushbu PDF-ni siqish</string>
+    <string name="pdf_add_watermark_option">Suv belgisini qo\'shish</string>
+    <string name="pdf_saving_annotations">Izohlar saqlanmoqda… %1$d%%</string>
+    <string name="pdf_tool_pan">Surish</string>
+    <string name="pdf_tool_eraser">O\'chirgich</string>
+    <string name="pdf_brush_size">Mo\'yqalam hajmi</string>
+    <string name="pdf_undo">Bekor qilish</string>
+    <string name="pdf_select_color">Rangni tanlash</string>
+    <string name="pdf_opening">PDF ochilmoqda...</string>
+    <string name="pdf_opening_pages">PDF ochilmoqda... (%1$d sahifa)</string>
+    <string name="pdf_large_file_warning">Katta PDF - biroz vaqt olishi mumkin</string>
+    <string name="pdf_unable_to_open">PDF-ni ochib bo\'lmadi</string>
+    <string name="pdf_failed_to_render_page">%1$d-sahifani ko\'rsatishda xatolik</string>
+    <string name="pdf_copied_to_clipboard">Nusxalandi!</string>
+    <string name="pdf_selection_highlighted">Tanlangan matn ajratildi</string>
+    <string name="pdf_enter_page_number_range">Sahifa raqamini kiriting (1-%1$d)</string>
+    <string name="pdf_password_required">Parol talab qilinadi</string>
+    <string name="pdf_password_incorrect_retry">Noto\'g\'ri parol. Qaytadan urinib ko\'ring.</string>
+    <string name="pdf_password_protected_enter">Ushbu PDF parol bilan himoyalangan. Ochish uchun parolni kiriting.</string>
+    <string name="pdf_no_app_found">PDF-ni ochish uchun ilova topilmadi</string>
+    <string name="pdf_thickness_highlighter">Ajratgich qalinligi</string>
+    <string name="pdf_thickness_marker">Marker qalinligi</string>
+    <string name="pdf_thickness_underline">Tagiga chizish qalinligi</string>
+    <string name="pdf_thickness_eraser">O\'chirgich hajmi</string>
+    <string name="pdf_px_unit">%1$d px</string>
+    <string name="action_done_editing">Tahrirlash tugadi</string>
+    <string name="action_edit">Tahrirlash</string>
+    <string name="action_copy">Nusxalash</string>
+    <string name="action_go">O\'tish</string>
+    <string name="action_go_back">Orqaga</string>
+    <string name="action_retry">Qaytadan urinish</string>
+    <string name="action_clear_all">Barchasini o\'chirish</string>
+    <string name="cd_done_editing">Tahrirlashni yakunlash</string>
+    <string name="cd_edit">Tahrirlash</string>
+    <string name="cd_more_options">Qo\'shimcha opsiyalar</string>
+    <string name="cd_save_annotations">Izohlarni saqlash</string>
+    <string name="cd_page_number">%1$d-sahifa</string>
+    <string name="cd_selected">Tanlangan</string>
+    <string name="color_yellow">Sariq</string>
+    <string name="color_green">Yashil</string>
+    <string name="color_cyan">Havorang</string>
+    <string name="color_pink">Pushti</string>
+    <string name="color_red">Qizil</string>
+    <string name="color_blue">Ko\'k</string>
+    <string name="color_brown">Jigarrang</string>
+    <string name="color_black">Qora</string>
+
+    <!-- Metadata Screen additions -->
+    <string name="metadata_no_pdf_selected">PDF Tanlanmagan</string>
+    <string name="metadata_no_pdf_selected_subtitle">Meta-ma\'lumotlarini ko\'rish uchun PDF faylni tanlang</string>
+    <string name="metadata_pages_and_size">%1$d sahifa • %2$s</string>
+    <string name="metadata_strip_banner_title">Hujjat Meta-ma\'lumotlarini O\'chirish</string>
+    <string name="metadata_strip_banner_subtitle">Ulashishdan oldin barcha yashirin kuzatuv tafsilotlarini o\'chiring.</string>
+    <string name="metadata_strip_all">Barchasini O\'chirish</string>
+    <string name="metadata_basic_title">Asosiy Meta-ma\'lumotlar</string>
+    <string name="label_title">Sarlavha</string>
+    <string name="label_author">Muallif</string>
+    <string name="label_subject">Mavzu</string>
+    <string name="label_keywords">Kalit so\'zlar</string>
+    <string name="metadata_keywords_placeholder">Vergul bilan ajratilgan kalit so\'zlar</string>
+    <string name="metadata_not_set">O\'rnatilmagan</string>
+    <string name="metadata_advanced_properties">Qo\'shimcha Xususiyatlar</string>
+    <string name="cd_collapse">Yig\'ish</string>
+    <string name="cd_expand">Yoyish</string>
+    <string name="label_creator">Yaratuvchi</string>
+    <string name="label_producer">Ishlab chiqaruvchi</string>
+    <string name="metadata_unknown">Noma\'lum</string>
+    <string name="label_created">Yaratilgan</string>
+    <string name="label_modified">O\'zgartirilgan</string>
+    <string name="label_pdf_version">PDF Versiyasi</string>
+    <string name="label_encrypted">Shifrlangan</string>
+    <string name="label_yes">Ha</string>
+    <string name="label_no">Yo\'q</string>
+    <string name="metadata_updating_progress">Meta-ma\'lumotlar yangilanmoqda...</string>
+    <string name="metadata_updated_success">Meta-ma\'lumotlar muvaffaqiyatli yangilandi</string>
+    <string name="metadata_update_failed">Yangilash muvaffaqiyatsiz tugadi</string>
+    <string name="metadata_stripping_failed">O\'chirish muvaffaqiyatsiz tugadi</string>
+    <string name="metadata_cannot_create_output">Chiqish faylini yaratib bo\'lmadi</string>
+    <string name="metadata_saved_to">%1$s
+
+Saqlandi: %2$s</string>
+    <string name="metadata_stripped_saved_to">Maxfiylik uchun barcha meta-ma\'lumotlar muvaffaqiyatli o\'chirildi.
+
+Saqlandi: %1$s</string>
+    <string name="action_select_pdf">PDF Tanlash</string>
+    <string name="action_save_changes">O\'zgarishlarni Saqlash</string>
+    <string name="action_select_another_pdf">Boshqa PDF Tanlash</string>
+    <string name="metadata_update_complete">Yangilash Yakunlandi</string>
+
+    <!-- Scan to PDF Screen additions -->
+    <string name="scan_add_images">Rasm Qo\'shish</string>
+    <string name="scan_camera">Kamera</string>
+    <string name="scan_gallery">Galereya</string>
+    <string name="scan_pages_count">Sahifalar (%1$d)</string>
+    <string name="action_crop">Qirqish</string>
+    <string name="scan_page_size">Sahifa Hajmi</string>
+    <string name="scan_color_mode">Rang Rejimi</string>
+    <string name="scan_enhance_contrast">Kontrastni Oshirish</string>
+    <string name="scan_creating_pdf">PDF Yaratilmoqda... %1$d%%</string>
+    <string name="scan_pdf_created">PDF Yaratildi!</string>
+    <string name="scan_pages_scanned">%1$d sahifa</string>
+    <string name="scan_create_pdf">PDF Yaratish</string>
+    <string name="scan_more_documents">Yana Hujjatlarni Skanerlash</string>
+    <string name="cd_capture">Rasmga Olish</string>
+
+    <!-- Group 1 additions (Annotation, OCR, Watermark, Security, Sign) -->
+    <string name="annotate_title">PDF-ga Izoh Qo\'shish</string>
+    <string name="annotate_no_pdf_subtitle">Izohlar qo\'shish uchun PDF faylni tanlang</string>
+    <string name="label_stamp_type">Muhr Turi</string>
+    <string name="label_width">Kengligi</string>
+    <string name="label_height">Balandligi</string>
+    <string name="action_add_annotation">Izoh Qo\'shish</string>
+    <string name="ocr_title">OCR - Matnni Ajratish</string>
+    <string name="ocr_no_pdf_subtitle">OCR yordamida matnni ajratish uchun PDF faylni tanlang</string>
+    <string name="ocr_markdown_view">Markdown Ko\'rinishi</string>
+    <string name="ocr_raw_text">Oddiy Matn</string>
+    <string name="ocr_reader_title">Ajratib Olingan Hujjat O\'quvchisi</string>
+    <string name="watermark_title">Suv Belgisini Qo\'shish</string>
+    <string name="watermark_no_pdf_subtitle">Suv belgisini qo\'shish uchun PDF faylni tanlang</string>
+    <string name="watermark_label_text">Suv Belgisi Matni</string>
+    <string name="watermark_label_opacity">Shaffoflik</string>
+    <string name="watermark_label_rotation">Burilish</string>
+    <string name="security_title">PDF-ni Himoyalash</string>
+    <string name="security_no_pdf_subtitle">Parol o\'rnatish uchun PDF faylni tanlang</string>
+    <string name="security_confirm_password">Parolni Tasdiqlang</string>
+    <string name="security_allow_printing">Chop Etishga Ruxsat Berish</string>
+    <string name="security_allow_copying">Nusxalashga Ruxsat Berish</string>
+    <string name="security_allow_editing">Tahrirlashga Ruxsat Berish</string>
+    <string name="sign_title">PDF-ga Imzo Chekish</string>
+    <string name="sign_no_pdf_subtitle">Imzo chekish uchun PDF faylni tanlang</string>
+    <string name="sign_add_date">Sana Qo\'shish</string>
+    <string name="sign_add_name">Ism Qo\'shish</string>
+    <string name="sign_your_name">Ismingiz</string>
+
+    <!-- Group 2 additions (Convert, ImageTools, Split, HistorySidebar) -->
+    <string name="convert_title">Rasmlarni PDF ga O\'tkazish</string>
+    <string name="convert_no_images_subtitle">PDF hujjat yaratish uchun rasmlarni tanlang</string>
+    <string name="action_add_more_images">Yana Rasmlar Qo\'shish</string>
+    <string name="imgtools_title">Rasm Asboblari</string>
+    <string name="imgtools_custom_size">Maxsus Hajm Ishlatish</string>
+    <string name="imgtools_aspect_ratio">Nisbatni Saqlash</string>
+    <string name="imgtools_target_resolution">Maqsadli Tinqlik</string>
+    <string name="split_no_pdf_subtitle">Alohida hujjatlarga bo\'lish uchun PDF faylni tanlang</string>
+    <string name="history_title">Tarix</string>
+    <string name="history_empty_title">Tarix Bo\'sh</string>
+    <string name="history_empty_subtitle">Ishlangan hujjatlar bu yerda ko\'rinadi</string>
+    <string name="history_clear_all">Tarixni Tozalash</string>
+    <string name="history_clear_dialog_title">Tarix Tozalansinmi?</string>
+    <string name="history_clear_dialog_message">Bu tarixingizdagi barcha yozuvlarni o\'chirib tashlaydi.</string>
+    <string name="history_view_all_files">Barcha %1$d Faylni Ko\'rish</string>
+    <string name="history_open_file">Faylni Ochish</string>
+    <string name="history_open_gallery">Galereyani Ochish</string>
+
+    <!-- Group 3 additions (FillForms, HtmlToPdf, PdfToImage, Flatten, Organize, Rotate) -->
+    <string name="fill_title">PDF Shakllarni To\'ldirish</string>
+    <string name="fill_no_pdf_subtitle">Maydonlarni to\'ldirish uchun PDF shaklni tanlang</string>
+    <string name="fill_analyzing_fields">Shakl maydonlari tahlil qilinmoqda...</string>
+    <string name="fill_filling_form">Shakl to\'ldirilmoqda... %1$d%%</string>
+    <string name="fill_save_filled">To\'ldirilgan Shaklni Saqlash</string>
+    <string name="fill_another_form">Boshqa Shaklni To\'ldirish</string>
+    <string name="html_title">HTML ni PDF ga O\'tkazish</string>
+    <string name="html_from_url">URL dan</string>
+    <string name="html_from_html">HTML dan</string>
+    <string name="html_website_url">Veb-sayt URL manzili</string>
+    <string name="html_content_label">HTML Tarkibi</string>
+    <string name="html_basic_template">Oddiy</string>
+    <string name="html_invoice_template">Hisob-faktura</string>
+    <string name="pdf2img_title">PDF ni Rasmlarga O\'tkazish</string>
+    <string name="pdf2img_no_pdf_subtitle">Sahifalarini rasmlarga o\'tkazish uchun PDF faylni tanlang</string>
+    <string name="action_ok">OK</string>
+    <string name="flatten_title">PDF ni Birlashtirish (Flatten)</string>
+    <string name="flatten_no_pdf_subtitle">Izohlar va shakllarni birlashtirish uchun PDF faylni tanlang</string>
+    <string name="flatten_progress">PDF birlashtirilmoqda... %1$d%%</string>
+    <string name="flatten_another_pdf">Boshqa PDF ni Birlashtirish</string>
+    <string name="organize_title">Sahifalarni Tartiblash</string>
+    <string name="organize_no_pdf_subtitle">Sahifalarni o\'chirish yoki qayta tartiblash uchun PDF faylni tanlang</string>
+    <string name="organize_remove_pages">Sahifalarni O\'chirish</string>
+    <string name="organize_reorder_pages">Sahifalarni Ajratish/Tartiblash</string>
+    <string name="action_select_all">Barchasi</string>
+    <string name="action_select_none">Hech biri</string>
+    <string name="rotate_title">Sahifalarni Burish</string>
+    <string name="rotate_no_pdf_subtitle">Sahifalarini burish uchun PDF faylni tanlang</string>
+    <string name="rotate_all_pages">Barcha Sahifalar</string>
+    <string name="rotate_select_pages">Sahifalarni Tanlash</string>
+
+    <!-- Group 4 additions (Files, Compress, Repair, Extract, PageNumber, Licenses) -->
+    <string name="files_clear_dialog_title">So\'nggi Fayllar Tozalansinmi?</string>
+    <string name="files_clear_dialog_message">Bu barcha fayllarni tarixingizdan olib tashlaydi. Asl fayllar o\'chirib tashlanmaydi.</string>
+    <string name="compress_no_pdf_subtitle">Hajmini kamaytirish uchun PDF faylni tanlang</string>
+    <string name="action_share_all">Barchasini Ulashish</string>
+    <string name="repair_title">PDF ni Ta\'mirlash</string>
+    <string name="repair_no_pdf_subtitle">Tashxis va ta\'mirlash uchun PDF ni tanlang</string>
+    <string name="repair_analyzing_structure">PDF tuzilishi tahlil qilinmoqda...</string>
+    <string name="extract_title">Matnni Ajratish</string>
+    <string name="extract_no_pdf_subtitle">Matn tarkibini ajratish uchun PDF ni tanlang</string>
+    <string name="pagenum_title">Sahifa Raqamlari</string>
+    <string name="pagenum_no_pdf_subtitle">Sahifa raqamlarini qo\'shish uchun PDF ni tanlang</string>
+    <string name="licenses_title">Ochiq Manbali Litsenziyalar</string>
+    <string name="cd_open_link">Havolani ochish</string>
+
+    <!-- Pass 2 additions -->
+    <string name="security_password_info">Bu parol PDF ni ochish uchun kerak bo\'ladi</string>
+    <string name="security_reenter_password">Parolni qayta kiriting</string>
+    <string name="security_passwords_mismatch">Parollar mos kelmadi</string>
+    <string name="cd_toggle_visibility">Ko\'rinishni o\'zgartirish</string>
+    <string name="sign_another_pdf">Boshqa PDF ga Imzo Chekish</string>
+    <string name="convert_no_images_title">Rasmlar Tanlanmadi</string>
+    <string name="action_move_first">Birinchi</string>
+    <string name="action_move_last">Oxirgi</string>
+    <string name="imgtools_target_format">Maqsadli Format</string>
+    <string name="split_switch_mode">Rejimni O\'zgartirish</string>
+    <string name="split_all_pages_title">PDF ni Bo\'lish - Barcha Sahifalar</string>
+    <string name="split_placeholder">masalan, 1, 3, 5-8, 10</string>
+    <string name="action_change">O\'zgartirish</string>
+    <string name="action_reset">Tiklash</string>
+
+    <!-- Final cleanup additions -->
+    <string name="annotate_add_another">Yana Izoh Qo\'shish</string>
+    <string name="ocr_progress">OCR bilan ishlanmoqda... %1$d%%</string>
+    <string name="ocr_process_another">Boshqa PDF ni Ishlash</string>
+    <string name="watermark_font_size">Shrift Hajmi: %1$d</string>
+    <string name="watermark_image_selected">Rasm tanlandi</string>
+    <string name="watermark_select_image">Rasm Tanlash</string>
+    <string name="watermark_opacity_val">Shaffoflik: %1$d%%</string>
+    <string name="watermark_rotation_val">Burilish: %1$d°</string>
+    <string name="watermark_progress">Suv belgisi qo\'shilmoqda... %1$d%%</string>
+    <string name="watermark_another_pdf">Boshqa PDF ga Suv Belgisi Qo\'shish</string>
+    <string name="sign_progress">Imzo qo\'shilmoqda... %1$d%%</string>
+
+    <!-- Last few additions -->
+    <string name="annotate_progress">Izohlar qo\'llanilmoqda... %1$d%%</string>
+    <string name="annotate_save_pdf">Izohli PDF ni Saqlash</string>
+    <string name="annotate_another_pdf">Boshqa PDF ga Izoh Qo\'shish</string>
+
+    <!-- Fix missing keys additions -->
+    <string name="label_page_number">Sahifa Raqami</string>
+    <string name="label_color">Rang</string>
+    <string name="split_from">Dan</string>
+    <string name="split_to">Gacha</string>
+    <string name="split_page_numbers">Sahifa Raqamlari</string>
 </resources>

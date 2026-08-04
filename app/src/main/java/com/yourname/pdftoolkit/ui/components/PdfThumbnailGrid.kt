@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -95,7 +98,7 @@ fun PdfThumbnailGrid(
             if (isSel) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Selected",
+                    contentDescription = stringResource(R.string.cd_selected),
                     tint = Color.White,
                     modifier = Modifier.size(14.dp)
                 )

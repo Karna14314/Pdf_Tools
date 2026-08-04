@@ -132,6 +132,7 @@
     <string name="desc_lock_pdf">用密码保护您的PDF</string>
     <string name="desc_sign">添加您的签名</string>
     <string name="desc_view_pdf">打开并查看PDF</string>
+    <string name="tool_view_pdf">查看PDF</string>
 
 
     <string name="merge_title">合并PDF</string>
@@ -337,4 +338,252 @@
 
 <string name="tool_image_compress">Compress Image</string><string name="tool_image_resize">Resize Image</string><string name="tool_image_convert">Convert Format</string><string name="tool_image_metadata">Strip Metadata</string>    <string name="action_search">搜索</string>
     <string name="settings_no_languages_found">未找到语言</string>
+
+    <!-- PDF Viewer additions -->
+    <string name="pdf_stop_search">停止搜索</string>
+    <string name="pdf_open_with">打开方式...</string>
+    <string name="pdf_reset_zoom">重置缩放</string>
+    <string name="pdf_print">打印</string>
+    <string name="pdf_clear_all_annotations">清除所有批注</string>
+    <string name="pdf_clear_all_dialog_title">清除所有批注？</string>
+    <string name="pdf_compress_this">压缩此 PDF</string>
+    <string name="pdf_add_watermark_option">添加水印</string>
+    <string name="pdf_saving_annotations">正在保存批注… %1$d%%</string>
+    <string name="pdf_tool_pan">平移</string>
+    <string name="pdf_tool_eraser">橡皮擦</string>
+    <string name="pdf_brush_size">画笔大小</string>
+    <string name="pdf_undo">撤销</string>
+    <string name="pdf_select_color">选择颜色</string>
+    <string name="pdf_opening">正在打开 PDF...</string>
+    <string name="pdf_opening_pages">正在打开 PDF... (%1$d 页)</string>
+    <string name="pdf_large_file_warning">大型 PDF - 可能需要一些时间</string>
+    <string name="pdf_unable_to_open">无法打开 PDF</string>
+    <string name="pdf_failed_to_render_page">无法渲染第 %1$d 页</string>
+    <string name="pdf_copied_to_clipboard">已复制！</string>
+    <string name="pdf_selection_highlighted">已突出显示所选内容</string>
+    <string name="pdf_enter_page_number_range">输入页码 (1-%1$d)</string>
+    <string name="pdf_password_required">需要密码</string>
+    <string name="pdf_password_incorrect_retry">密码错误，请重试。</string>
+    <string name="pdf_password_protected_enter">此 PDF 受密码保护，请输入密码以打开。</string>
+    <string name="pdf_no_app_found">未找到打开 PDF 的应用</string>
+    <string name="pdf_thickness_highlighter">荧光笔粗细</string>
+    <string name="pdf_thickness_marker">标记笔粗细</string>
+    <string name="pdf_thickness_underline">下划线粗细</string>
+    <string name="pdf_thickness_eraser">橡皮擦大小</string>
+    <string name="pdf_px_unit">%1$d 像素</string>
+    <string name="action_done_editing">完成编辑</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_copy">复制</string>
+    <string name="action_go">前往</string>
+    <string name="action_go_back">返回</string>
+    <string name="action_retry">重试</string>
+    <string name="action_clear_all">清除全部</string>
+    <string name="cd_done_editing">完成编辑</string>
+    <string name="cd_edit">编辑</string>
+    <string name="cd_more_options">更多选项</string>
+    <string name="cd_save_annotations">保存批注</string>
+    <string name="cd_page_number">第 %1$d 页</string>
+    <string name="cd_selected">已选择</string>
+    <string name="color_yellow">黄色</string>
+    <string name="color_green">绿色</string>
+    <string name="color_cyan">青色</string>
+    <string name="color_pink">粉色</string>
+    <string name="color_red">红色</string>
+    <string name="color_blue">蓝色</string>
+    <string name="color_brown">棕色</string>
+    <string name="color_black">黑色</string>
+
+    <!-- Metadata Screen additions -->
+    <string name="metadata_no_pdf_selected">未选择 PDF</string>
+    <string name="metadata_no_pdf_selected_subtitle">选择一个 PDF 文件以查看其元数据</string>
+    <string name="metadata_pages_and_size">%1$d 页 • %2$s</string>
+    <string name="metadata_strip_banner_title">清除文档元数据</string>
+    <string name="metadata_strip_banner_subtitle">在共享前删除所有隐藏的追踪详细信息。</string>
+    <string name="metadata_strip_all">清除全部</string>
+    <string name="metadata_basic_title">基本元数据</string>
+    <string name="label_title">标题</string>
+    <string name="label_author">作者</string>
+    <string name="label_subject">主题</string>
+    <string name="label_keywords">关键字</string>
+    <string name="metadata_keywords_placeholder">逗号分隔的关键字</string>
+    <string name="metadata_not_set">未设置</string>
+    <string name="metadata_advanced_properties">高级属性</string>
+    <string name="cd_collapse">折叠</string>
+    <string name="cd_expand">展开</string>
+    <string name="label_creator">创建工具</string>
+    <string name="label_producer">PDF 制作程序</string>
+    <string name="metadata_unknown">未知</string>
+    <string name="label_created">创建时间</string>
+    <string name="label_modified">修改时间</string>
+    <string name="label_pdf_version">PDF 版本</string>
+    <string name="label_encrypted">已加密</string>
+    <string name="label_yes">是</string>
+    <string name="label_no">否</string>
+    <string name="metadata_updating_progress">正在更新元数据...</string>
+    <string name="metadata_updated_success">元数据更新成功</string>
+    <string name="metadata_update_failed">更新失败</string>
+    <string name="metadata_stripping_failed">清除失败</string>
+    <string name="metadata_cannot_create_output">无法创建输出文件</string>
+    <string name="metadata_saved_to">%1$s
+
+已保存至：%2$s</string>
+    <string name="metadata_stripped_saved_to">出于隐私保护，已成功清除所有元数据。
+
+已保存至：%1$s</string>
+    <string name="action_select_pdf">选择 PDF</string>
+    <string name="action_save_changes">保存更改</string>
+    <string name="action_select_another_pdf">选择其他 PDF</string>
+    <string name="metadata_update_complete">更新完成</string>
+
+    <!-- Scan to PDF Screen additions -->
+    <string name="scan_add_images">添加图片</string>
+    <string name="scan_camera">相机</string>
+    <string name="scan_gallery">相册</string>
+    <string name="scan_pages_count">页数 (%1$d)</string>
+    <string name="action_crop">裁剪</string>
+    <string name="scan_page_size">页面大小</string>
+    <string name="scan_color_mode">色彩模式</string>
+    <string name="scan_enhance_contrast">增强对比度</string>
+    <string name="scan_creating_pdf">正在生成 PDF... %1$d%%</string>
+    <string name="scan_pdf_created">PDF 已生成！</string>
+    <string name="scan_pages_scanned">%1$d 页</string>
+    <string name="scan_create_pdf">生成 PDF</string>
+    <string name="scan_more_documents">扫描更多文档</string>
+    <string name="cd_capture">拍照</string>
+
+    <!-- Group 1 additions (Annotation, OCR, Watermark, Security, Sign) -->
+    <string name="annotate_title">批注 PDF</string>
+    <string name="annotate_no_pdf_subtitle">选择一个 PDF 文件以添加批注</string>
+    <string name="label_stamp_type">印章类型</string>
+    <string name="label_width">宽度</string>
+    <string name="label_height">高度</string>
+    <string name="action_add_annotation">添加批注</string>
+    <string name="ocr_title">OCR - 提取文本</string>
+    <string name="ocr_no_pdf_subtitle">选择一个 PDF 文件以使用 OCR 提取文本</string>
+    <string name="ocr_markdown_view">Markdown 视图</string>
+    <string name="ocr_raw_text">原始文本</string>
+    <string name="ocr_reader_title">已提取文档阅读器</string>
+    <string name="watermark_title">添加水印</string>
+    <string name="watermark_no_pdf_subtitle">选择一个 PDF 文件以添加水印</string>
+    <string name="watermark_label_text">水印文本</string>
+    <string name="watermark_label_opacity">不透明度</string>
+    <string name="watermark_label_rotation">旋转角度</string>
+    <string name="security_title">加密保护 PDF</string>
+    <string name="security_no_pdf_subtitle">选择一个 PDF 文件以设置密码</string>
+    <string name="security_confirm_password">确认密码</string>
+    <string name="security_allow_printing">允许打印</string>
+    <string name="security_allow_copying">允许复制</string>
+    <string name="security_allow_editing">允许编辑</string>
+    <string name="sign_title">签署 PDF</string>
+    <string name="sign_no_pdf_subtitle">选择一个 PDF 文件以进行签署</string>
+    <string name="sign_add_date">添加日期</string>
+    <string name="sign_add_name">添加姓名</string>
+    <string name="sign_your_name">您的姓名</string>
+
+    <!-- Group 2 additions (Convert, ImageTools, Split, HistorySidebar) -->
+    <string name="convert_title">图片转 PDF</string>
+    <string name="convert_no_images_subtitle">选择图片以创建 PDF 文档</string>
+    <string name="action_add_more_images">添加更多图片</string>
+    <string name="imgtools_title">图片工具</string>
+    <string name="imgtools_custom_size">使用自定义尺寸</string>
+    <string name="imgtools_aspect_ratio">保持宽高比</string>
+    <string name="imgtools_target_resolution">目标分辨率</string>
+    <string name="split_no_pdf_subtitle">选择一个 PDF 文件拆分为多个独立文档</string>
+    <string name="history_title">历史记录</string>
+    <string name="history_empty_title">暂无历史记录</string>
+    <string name="history_empty_subtitle">已处理的文档将在此处显示</string>
+    <string name="history_clear_all">清空历史记录</string>
+    <string name="history_clear_dialog_title">清空历史记录？</string>
+    <string name="history_clear_dialog_message">这将从您的历史记录中删除所有条目。</string>
+    <string name="history_view_all_files">查看全部 %1$d 个文件</string>
+    <string name="history_open_file">打开文件</string>
+    <string name="history_open_gallery">打开相册</string>
+
+    <!-- Group 3 additions (FillForms, HtmlToPdf, PdfToImage, Flatten, Organize, Rotate) -->
+    <string name="fill_title">填写 PDF 表单</string>
+    <string name="fill_no_pdf_subtitle">选择一个 PDF 表单以填写字段</string>
+    <string name="fill_analyzing_fields">正在分析表单字段...</string>
+    <string name="fill_filling_form">正在填写表单... %1$d%%</string>
+    <string name="fill_save_filled">保存已填写的表单</string>
+    <string name="fill_another_form">填写另一个表单</string>
+    <string name="html_title">HTML 转 PDF</string>
+    <string name="html_from_url">来自 URL</string>
+    <string name="html_from_html">来自 HTML</string>
+    <string name="html_website_url">网站 URL</string>
+    <string name="html_content_label">HTML 内容</string>
+    <string name="html_basic_template">基础</string>
+    <string name="html_invoice_template">发票</string>
+    <string name="pdf2img_title">PDF 转图片</string>
+    <string name="pdf2img_no_pdf_subtitle">选择一个 PDF 文件将其页面转换为图片</string>
+    <string name="action_ok">确定</string>
+    <string name="flatten_title">拼合 PDF (Flatten)</string>
+    <string name="flatten_no_pdf_subtitle">选择一个 PDF 文件以拼合批注和表单</string>
+    <string name="flatten_progress">正在拼合 PDF... %1$d%%</string>
+    <string name="flatten_another_pdf">拼合另一个 PDF</string>
+    <string name="organize_title">组织页面</string>
+    <string name="organize_no_pdf_subtitle">选择一个 PDF 以删除或重新排列页面</string>
+    <string name="organize_remove_pages">删除页面</string>
+    <string name="organize_reorder_pages">提取/重排页面</string>
+    <string name="action_select_all">全选</string>
+    <string name="action_select_none">不选</string>
+    <string name="rotate_title">旋转页面</string>
+    <string name="rotate_no_pdf_subtitle">选择一个 PDF 文件以旋转其页面</string>
+    <string name="rotate_all_pages">所有页面</string>
+    <string name="rotate_select_pages">选择页面</string>
+
+    <!-- Group 4 additions (Files, Compress, Repair, Extract, PageNumber, Licenses) -->
+    <string name="files_clear_dialog_title">清空最近文件？</string>
+    <string name="files_clear_dialog_message">这将从您的最近历史中移除所有文件。实际文件不会被删除。</string>
+    <string name="compress_no_pdf_subtitle">选择一个 PDF 文件以减小其体积</string>
+    <string name="action_share_all">分享全部</string>
+    <string name="repair_title">修复 PDF</string>
+    <string name="repair_no_pdf_subtitle">选择一个 PDF 以诊断并修复</string>
+    <string name="repair_analyzing_structure">正在分析 PDF 结构...</string>
+    <string name="extract_title">提取文本</string>
+    <string name="extract_no_pdf_subtitle">选择一个 PDF 以提取文本内容</string>
+    <string name="pagenum_title">页码</string>
+    <string name="pagenum_no_pdf_subtitle">选择一个 PDF 以添加页码</string>
+    <string name="licenses_title">开源许可证</string>
+    <string name="cd_open_link">打开链接</string>
+
+    <!-- Pass 2 additions -->
+    <string name="security_password_info">打开此 PDF 时将需要此密码</string>
+    <string name="security_reenter_password">再次输入密码</string>
+    <string name="security_passwords_mismatch">密码不匹配</string>
+    <string name="cd_toggle_visibility">切换密码可见性</string>
+    <string name="sign_another_pdf">签署另一个 PDF</string>
+    <string name="convert_no_images_title">未选择图片</string>
+    <string name="action_move_first">移至顶部</string>
+    <string name="action_move_last">移至底部</string>
+    <string name="imgtools_target_format">目标格式</string>
+    <string name="split_switch_mode">切换模式</string>
+    <string name="split_all_pages_title">拆分 PDF - 所有页面</string>
+    <string name="split_placeholder">例如 1, 3, 5-8, 10</string>
+    <string name="action_change">更改</string>
+    <string name="action_reset">重置</string>
+
+    <!-- Final cleanup additions -->
+    <string name="annotate_add_another">添加另一个批注</string>
+    <string name="ocr_progress">正在进行 OCR 处理... %1$d%%</string>
+    <string name="ocr_process_another">处理另一个 PDF</string>
+    <string name="watermark_font_size">字号：%1$d</string>
+    <string name="watermark_image_selected">已选择图片</string>
+    <string name="watermark_select_image">选择图片</string>
+    <string name="watermark_opacity_val">不透明度：%1$d%%</string>
+    <string name="watermark_rotation_val">旋转角度：%1$d°</string>
+    <string name="watermark_progress">正在添加水印... %1$d%%</string>
+    <string name="watermark_another_pdf">为另一个 PDF 添加水印</string>
+    <string name="sign_progress">正在添加签名... %1$d%%</string>
+
+    <!-- Last few additions -->
+    <string name="annotate_progress">正在应用批注... %1$d%%</string>
+    <string name="annotate_save_pdf">保存已批注的 PDF</string>
+    <string name="annotate_another_pdf">批注另一个 PDF</string>
+
+    <!-- Fix missing keys additions -->
+    <string name="label_page_number">页码</string>
+    <string name="label_color">颜色</string>
+    <string name="split_from">从</string>
+    <string name="split_to">至</string>
+    <string name="split_page_numbers">页码范围</string>
 </resources>

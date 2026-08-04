@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -216,7 +219,7 @@ fun RotateScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Rotate Pages",
+                title = stringResource(R.string.tool_rotate_pages),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -235,8 +238,8 @@ fun RotateScreen(
                 if (selectedFile == null) {
                     EmptyState(
                         icon = Icons.Default.RotateRight,
-                        title = "No PDF Selected",
-                        subtitle = "Select a PDF file to rotate its pages",
+                        title = stringResource(R.string.metadata_no_pdf_selected),
+                        subtitle = stringResource(R.string.rotate_no_pdf_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -285,7 +288,7 @@ fun RotateScreen(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove",
+                                        contentDescription = stringResource(R.string.action_remove),
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
@@ -337,7 +340,7 @@ fun RotateScreen(
                             FilterChip(
                                 selected = rotateAllPages,
                                 onClick = { rotateAllPages = true },
-                                label = { Text("All Pages") },
+                                label = { Text(stringResource(R.string.rotate_all_pages)) },
                                 leadingIcon = if (rotateAllPages) {
                                     { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                                 } else null,
@@ -347,7 +350,7 @@ fun RotateScreen(
                             FilterChip(
                                 selected = !rotateAllPages,
                                 onClick = { rotateAllPages = false },
-                                label = { Text("Select Pages") },
+                                label = { Text(stringResource(R.string.rotate_select_pages)) },
                                 leadingIcon = if (!rotateAllPages) {
                                     { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
                                 } else null,
@@ -371,7 +374,7 @@ fun RotateScreen(
                                 )
                                 
                                 TextButton(onClick = { selectedPages = emptySet() }) {
-                                    Text("Clear")
+                                    Text(stringResource(R.string.action_clear))
                                 }
                             }
                             
@@ -519,7 +522,7 @@ fun RotateScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }

@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.graphics.Color
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -307,10 +310,10 @@ fun AnnotationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Annotate PDF") },
+                title = { Text(stringResource(R.string.tool_annotate_pdf)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
@@ -367,7 +370,7 @@ fun AnnotationScreen(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             IconButton(onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Change")
+                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
                             }
                         }
                     } else {
@@ -377,7 +380,7 @@ fun AnnotationScreen(
                         ) {
                             Icon(Icons.Default.FileOpen, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Select PDF")
+                            Text(stringResource(R.string.action_select_pdf))
                         }
                     }
                 }
@@ -446,7 +449,7 @@ fun AnnotationScreen(
                                 if (page > 0) viewModel.setPageIndex(page - 1)
                             }
                         },
-                        label = { Text("Page Number") },
+                        label = { Text(stringResource(R.string.label_page_number)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -461,7 +464,7 @@ fun AnnotationScreen(
                         OutlinedTextField(
                             value = state.annotationText,
                             onValueChange = { viewModel.setAnnotationText(it) },
-                            label = { Text("Text") },
+                            label = { Text(stringResource(R.string.watermark_label_text)) },
                             modifier = Modifier.fillMaxWidth(),
                             maxLines = 3
                         )
@@ -470,7 +473,7 @@ fun AnnotationScreen(
                     // Stamp type selection
                     AnimatedVisibility(visible = state.selectedType == AnnotationTypeOption.STAMP) {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Stamp Type", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.label_stamp_type), style = MaterialTheme.typography.bodyMedium)
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 items(StampType.entries) { stamp ->
                                     FilterChip(
@@ -488,7 +491,7 @@ fun AnnotationScreen(
                         visible = state.selectedType != AnnotationTypeOption.STAMP
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Color", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.label_color), style = MaterialTheme.typography.bodyMedium)
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 items(colorOptions) { (color, name) ->
                                     Box(
@@ -546,7 +549,7 @@ fun AnnotationScreen(
                             onValueChange = { value ->
                                 value.toFloatOrNull()?.let { viewModel.setSize(it, state.height) }
                             },
-                            label = { Text("Width") },
+                            label = { Text(stringResource(R.string.label_width)) },
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
@@ -555,7 +558,7 @@ fun AnnotationScreen(
                             onValueChange = { value ->
                                 value.toFloatOrNull()?.let { viewModel.setSize(state.width, it) }
                             },
-                            label = { Text("Height") },
+                            label = { Text(stringResource(R.string.label_height)) },
                             modifier = Modifier.weight(1f),
                             singleLine = true
                         )
@@ -568,7 +571,7 @@ fun AnnotationScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Add Annotation")
+                        Text(stringResource(R.string.action_add_annotation))
                     }
                 }
             }
@@ -596,7 +599,7 @@ fun AnnotationScreen(
                                 fontWeight = FontWeight.SemiBold
                             )
                             TextButton(onClick = { viewModel.clearAnnotations() }) {
-                                Text("Clear All")
+                                Text(stringResource(R.string.action_clear_all))
                             }
                         }
                         
@@ -621,7 +624,7 @@ fun AnnotationScreen(
                                     IconButton(onClick = { viewModel.removeAnnotation(index) }) {
                                         Icon(
                                             Icons.Default.Delete,
-                                            contentDescription = "Remove",
+                                            contentDescription = stringResource(R.string.action_remove),
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -646,7 +649,7 @@ fun AnnotationScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         CircularProgressIndicator()
-                        Text("Applying annotations... ${state.progress}%")
+                        Text(stringResource(R.string.annotate_progress, state.progress))
                         LinearProgressIndicator(
                             progress = state.progress / 100f,
                             modifier = Modifier.fillMaxWidth()
@@ -690,7 +693,7 @@ fun AnnotationScreen(
                             ) {
                                 Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Open")
+                                Text(stringResource(R.string.action_open))
                             }
                         }
                     }
@@ -735,7 +738,7 @@ fun AnnotationScreen(
             ) {
                 Icon(Icons.Default.Save, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Save Annotated PDF")
+                Text(stringResource(R.string.annotate_save_pdf))
             }
             
             // Reset Button
@@ -746,7 +749,7 @@ fun AnnotationScreen(
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Annotate Another PDF")
+                    Text(stringResource(R.string.annotate_another_pdf))
                 }
             }
         }

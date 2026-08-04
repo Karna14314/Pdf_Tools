@@ -1,5 +1,8 @@
 package com.yourname.pdftoolkit.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.yourname.pdftoolkit.R
+
 import android.app.Activity
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -250,7 +253,7 @@ fun ConvertScreen(
     Scaffold(
         topBar = {
             ToolTopBar(
-                title = "Convert Images",
+                title = stringResource(R.string.convert_title),
                 onNavigateBack = onNavigateBack
             )
         }
@@ -269,8 +272,8 @@ fun ConvertScreen(
                 if (selectedImages.isEmpty()) {
                     EmptyState(
                         icon = Icons.Default.Image,
-                        title = "No Images Selected",
-                        subtitle = "Select one or more images to convert to PDF",
+                        title = stringResource(R.string.convert_no_images_title),
+                        subtitle = stringResource(R.string.convert_no_images_subtitle),
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -314,7 +317,7 @@ fun ConvertScreen(
                                                 selectedItemIndex = null
                                             }
                                         ) {
-                                            Text("Reset")
+                                            Text(stringResource(R.string.action_reset))
                                         }
                                     }
                                     TextButton(
@@ -323,7 +326,7 @@ fun ConvertScreen(
                                             selectedItemIndex = null
                                         }
                                     ) {
-                                        Text("Clear All")
+                                        Text(stringResource(R.string.action_clear_all))
                                     }
                                 }
                             }
@@ -413,7 +416,7 @@ fun ConvertScreen(
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Add More Images")
+                                Text(stringResource(R.string.action_add_more_images))
                             }
                         }
                         
@@ -613,7 +616,7 @@ fun ConvertScreen(
             onAction = resultUri?.let { uri ->
                 { scope.launch(Dispatchers.IO) { FileOpener.openPdf(context, uri) } }
             },
-            actionText = "Open PDF"
+            actionText = stringResource(R.string.action_open_pdf)
         )
     }
 }
@@ -731,11 +734,11 @@ private fun ImagePreviewCard(
                     ) {
                         if (onCrop != null) {
                             IconButton(onClick = onCrop, modifier = Modifier.size(28.dp)) {
-                                Icon(Icons.Default.Crop, contentDescription = "Crop", modifier = Modifier.size(18.dp))
+                                Icon(Icons.Default.Crop, contentDescription = stringResource(R.string.action_crop), modifier = Modifier.size(18.dp))
                             }
                         }
                         IconButton(onClick = onRemove, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.Delete, contentDescription = "Remove", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.action_remove), tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
                         }
                     }
                     // Row 2: Navigation
@@ -744,16 +747,16 @@ private fun ImagePreviewCard(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         IconButton(onClick = onMoveToFirst, enabled = canMoveUp, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.KeyboardDoubleArrowUp, contentDescription = "First", modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.KeyboardDoubleArrowUp, contentDescription = stringResource(R.string.action_move_first), modifier = Modifier.size(18.dp))
                         }
                         IconButton(onClick = onMoveUp, enabled = canMoveUp, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Up", modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.action_move_up), modifier = Modifier.size(18.dp))
                         }
                         IconButton(onClick = onMoveDown, enabled = canMoveDown, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Down", modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.action_move_down), modifier = Modifier.size(18.dp))
                         }
                         IconButton(onClick = onMoveToLast, enabled = canMoveDown, modifier = Modifier.size(28.dp)) {
-                            Icon(Icons.Default.KeyboardDoubleArrowDown, contentDescription = "Last", modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.KeyboardDoubleArrowDown, contentDescription = stringResource(R.string.action_move_last), modifier = Modifier.size(18.dp))
                         }
                     }
                 }
