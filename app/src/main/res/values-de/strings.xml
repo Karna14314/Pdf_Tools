@@ -586,4 +586,14 @@ Gespeichert unter: %1$s</string>
     <string name="split_from">Von</string>
     <string name="split_to">Bis</string>
     <string name="split_page_numbers">Seitennummern</string>
+    <string name="fill_select_pdf">Select PDF Form</string>
+    <string name="fill_no_form_fields_found">No Form Fields Found</string>
+    <string name="fill_no_fillable_fields_found">This PDF doesn\'t contain fillable form fields.</string>
+    <string name="fill_fields_found">%1$d fillable fields found</string>
+    <string name="fill_form_fields_title">Form Fields</string>
+    <string name="fill_flatten_after_filling">Flatten After Filling</string>
+    <string name="fill_make_non_editable">Make fields non-editable</string>
+    <string name="fill_form_filled">Form Filled!</string>
+    <string name="fill_fields_updated">%1$d fields updated</string>
+    <string name="fill_no_editable_fields">This form has no editable fields</string>
 </resources>
