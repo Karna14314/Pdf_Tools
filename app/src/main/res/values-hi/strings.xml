@@ -586,14 +586,14 @@
     <string name="split_from">से</string>
     <string name="split_to">तक</string>
     <string name="split_page_numbers">पृष्ठ संख्याएं</string>
-    <string name="fill_select_pdf">Select PDF Form</string>
-    <string name="fill_no_form_fields_found">No Form Fields Found</string>
-    <string name="fill_no_fillable_fields_found">This PDF doesn\'t contain fillable form fields.</string>
-    <string name="fill_fields_found">%1$d fillable fields found</string>
-    <string name="fill_form_fields_title">Form Fields</string>
-    <string name="fill_flatten_after_filling">Flatten After Filling</string>
-    <string name="fill_make_non_editable">Make fields non-editable</string>
-    <string name="fill_form_filled">Form Filled!</string>
-    <string name="fill_fields_updated">%1$d fields updated</string>
-    <string name="fill_no_editable_fields">This form has no editable fields</string>
+    <string name="fill_select_pdf">PDF फ़ॉर्म चुनें</string>
+    <string name="fill_no_form_fields_found">कोई फ़ॉर्म फ़ील्ड नहीं मिला</string>
+    <string name="fill_no_fillable_fields_found">इस PDF में भरने योग्य फ़ॉर्म फ़ील्ड नहीं हैं।</string>
+    <string name="fill_fields_found">%1$d भरने योग्य फ़ील्ड मिले</string>
+    <string name="fill_form_fields_title">फ़ॉर्म फ़ील्ड</string>
+    <string name="fill_flatten_after_filling">भरने के बाद फ़्लैट करें</string>
+    <string name="fill_make_non_editable">फ़ील्ड को संपादन योग्य न बनाएं</string>
+    <string name="fill_form_filled">फ़ॉर्म भर गया!</string>
+    <string name="fill_fields_updated">%1$d फ़ील्ड अपडेट किए गए</string>
+    <string name="fill_no_editable_fields">इस फ़ॉर्म में कोई संपादन योग्य फ़ील्ड नहीं है</string>
 </resources>

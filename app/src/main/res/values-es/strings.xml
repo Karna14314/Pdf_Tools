@@ -590,14 +590,14 @@ Guardado en: %1$s</string>
     <string name="split_from">Desde</string>
     <string name="split_to">Hasta</string>
     <string name="split_page_numbers">Números de página</string>
-    <string name="fill_select_pdf">Select PDF Form</string>
-    <string name="fill_no_form_fields_found">No Form Fields Found</string>
-    <string name="fill_no_fillable_fields_found">This PDF doesn\'t contain fillable form fields.</string>
-    <string name="fill_fields_found">%1$d fillable fields found</string>
-    <string name="fill_form_fields_title">Form Fields</string>
-    <string name="fill_flatten_after_filling">Flatten After Filling</string>
-    <string name="fill_make_non_editable">Make fields non-editable</string>
-    <string name="fill_form_filled">Form Filled!</string>
-    <string name="fill_fields_updated">%1$d fields updated</string>
-    <string name="fill_no_editable_fields">This form has no editable fields</string>
+    <string name="fill_select_pdf">Seleccionar formulario PDF</string>
+    <string name="fill_no_form_fields_found">No se encontraron campos de formulario</string>
+    <string name="fill_no_fillable_fields_found">Este PDF no contiene campos de formulario rellenables.</string>
+    <string name="fill_fields_found">%1$d campos rellenables encontrados</string>
+    <string name="fill_form_fields_title">Campos de formulario</string>
+    <string name="fill_flatten_after_filling">Acoplar después de rellenar</string>
+    <string name="fill_make_non_editable">Hacer campos no editables</string>
+    <string name="fill_form_filled">¡Formulario rellenado!</string>
+    <string name="fill_fields_updated">%1$d campos actualizados</string>
+    <string name="fill_no_editable_fields">Este formulario no tiene campos editables</string>
 </resources>

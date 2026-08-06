@@ -590,14 +590,14 @@
     <string name="split_from">Dan</string>
     <string name="split_to">Çenli</string>
     <string name="split_page_numbers">Sahypa belgileri</string>
-    <string name="fill_select_pdf">Select PDF Form</string>
-    <string name="fill_no_form_fields_found">No Form Fields Found</string>
-    <string name="fill_no_fillable_fields_found">This PDF doesn\'t contain fillable form fields.</string>
-    <string name="fill_fields_found">%1$d fillable fields found</string>
-    <string name="fill_form_fields_title">Form Fields</string>
-    <string name="fill_flatten_after_filling">Flatten After Filling</string>
-    <string name="fill_make_non_editable">Make fields non-editable</string>
-    <string name="fill_form_filled">Form Filled!</string>
-    <string name="fill_fields_updated">%1$d fields updated</string>
-    <string name="fill_no_editable_fields">This form has no editable fields</string>
+    <string name="fill_select_pdf">PDF formany saýlaň</string>
+    <string name="fill_no_form_fields_found">Forma meýdanlary tapylmady</string>
+    <string name="fill_no_fillable_fields_found">Bu PDF-de dolduryp bolýan forma meýdanlary ýok.</string>
+    <string name="fill_fields_found">%1$d dolduryp bolýan meýdan tapyldy</string>
+    <string name="fill_form_fields_title">Forma meýdanlary</string>
+    <string name="fill_flatten_after_filling">Dolduransoň tekizläň</string>
+    <string name="fill_make_non_editable">Meýdanlary üýtgedip bolmaýan ediň</string>
+    <string name="fill_form_filled">Forma dolduryldy!</string>
+    <string name="fill_fields_updated">%1$d meýdan täzelendi</string>
+    <string name="fill_no_editable_fields">Bu formada üýtgedip bolýan meýdan ýok</string>
 </resources>
