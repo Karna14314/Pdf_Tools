@@ -496,6 +496,14 @@ fun getAllTools(): List<ToolItem> = listOf(
         screen = Screen.SignPdf
     ),
     ToolItem(
+        id = "fill_forms",
+        titleResId = R.string.tool_fill_forms,
+        descResId = R.string.desc_fill_forms,
+        icon = Icons.Default.EditNote,
+        section = ToolSection.SECURITY,
+        screen = Screen.FillForms
+    ),
+    ToolItem(
         id = "flatten",
         titleResId = R.string.tool_flatten_pdf,
         descResId = R.string.desc_flatten_pdf,
