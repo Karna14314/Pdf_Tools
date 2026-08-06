@@ -228,7 +228,7 @@ fun FillFormsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "Select PDF Form",
+                        text = stringResource(R.string.fill_select_pdf),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -251,7 +251,7 @@ fun FillFormsScreen(
                                 )
                                 if (state.hasForm) {
                                     Text(
-                                        text = "${state.fillableFields} fillable fields found",
+                                        text = stringResource(R.string.fill_fields_found, state.fillableFields),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.primary
                                     )
@@ -313,12 +313,12 @@ fun FillFormsScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                "No Form Fields Found",
+                                stringResource(R.string.fill_no_form_fields_found),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                "This PDF doesn't contain fillable form fields.",
+                                stringResource(R.string.fill_no_fillable_fields_found),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -326,9 +326,38 @@ fun FillFormsScreen(
                 }
             }
             
+            // No Editable Fields Validation Gap
+            AnimatedVisibility(visible = !state.isAnalyzing && state.sourceUri != null && state.hasForm && state.fillableFields == 0) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                stringResource(R.string.fill_no_editable_fields),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+            }
+
             // Form Fields
             AnimatedVisibility(
-                visible = !state.isAnalyzing && state.hasForm && state.fields.isNotEmpty(),
+                visible = !state.isAnalyzing && state.hasForm && state.fields.isNotEmpty() && state.fillableFields > 0,
                 modifier = Modifier.weight(1f)
             ) {
                 Card(
@@ -341,7 +370,7 @@ fun FillFormsScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "Form Fields",
+                            text = stringResource(R.string.fill_form_fields_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -379,11 +408,11 @@ fun FillFormsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Flatten After Filling",
+                                stringResource(R.string.fill_flatten_after_filling),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                "Make fields non-editable",
+                                stringResource(R.string.fill_make_non_editable),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -439,12 +468,12 @@ fun FillFormsScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Form Filled!",
+                                stringResource(R.string.fill_form_filled),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                "${state.fieldsUpdated} fields updated",
+                                stringResource(R.string.fill_fields_updated, state.fieldsUpdated),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }

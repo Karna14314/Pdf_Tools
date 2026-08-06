@@ -590,4 +590,14 @@ Kaydedildi: %1$s</string>
     <string name="split_from">Başlangıç</string>
     <string name="split_to">Bitiş</string>
     <string name="split_page_numbers">Sayfa Numaraları</string>
+    <string name="fill_select_pdf">PDF Formu Seç</string>
+    <string name="fill_no_form_fields_found">Form Alanı Bulunamadı</string>
+    <string name="fill_no_fillable_fields_found">Bu PDF doldurulabilir form alanları içermiyor.</string>
+    <string name="fill_fields_found">%1$d doldurulabilir alan bulundu</string>
+    <string name="fill_form_fields_title">Form Alanları</string>
+    <string name="fill_flatten_after_filling">Doldurduktan Sonra Düzleştir</string>
+    <string name="fill_make_non_editable">Alanları düzenlenemez yap</string>
+    <string name="fill_form_filled">Form Dolduruldu!</string>
+    <string name="fill_fields_updated">%1$d alan güncellendi</string>
+    <string name="fill_no_editable_fields">Bu formda düzenlenebilir alan yok</string>
 </resources>

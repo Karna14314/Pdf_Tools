@@ -152,11 +152,21 @@ class PdfFormFiller {
             var fillableCount = 0
             
             for (field in acroForm.fieldTree) {
-                val formField = convertToFormField(field)
-                fields.add(formField)
-                
-                if (!formField.isReadOnly) {
-                    fillableCount++
+                try {
+                    val formField = convertToFormField(field)
+                    fields.add(formField)
+
+                    if (!formField.isReadOnly) {
+                        fillableCount++
+                    }
+                } catch (e: Exception) {
+                    val formField = FormField.UnknownField(
+                        name = field.fullyQualifiedName ?: "Unknown",
+                        fieldType = "Error",
+                        isReadOnly = true,
+                        isRequired = false
+                    )
+                    fields.add(formField)
                 }
             }
             
@@ -304,6 +314,15 @@ class PdfFormFiller {
         val isReadOnly = field.isReadOnly
         val isRequired = field.isRequired
         
+        if (field.javaClass.simpleName == "PDSignatureField") {
+            return FormField.UnknownField(
+                name = name,
+                fieldType = "Signature",
+                isReadOnly = true,
+                isRequired = isRequired
+            )
+        }
+
         return when (field) {
             is PDTextField -> {
                 FormField.TextField(

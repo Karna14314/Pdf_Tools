@@ -590,4 +590,14 @@
     <string name="split_from">시작</string>
     <string name="split_to">끝</string>
     <string name="split_page_numbers">페이지 번호</string>
+    <string name="fill_select_pdf">PDF 양식 선택</string>
+    <string name="fill_no_form_fields_found">양식 필드를 찾을 수 없음</string>
+    <string name="fill_no_fillable_fields_found">이 PDF에는 입력 가능한 양식 필드가 없습니다.</string>
+    <string name="fill_fields_found">%1$d개의 입력 가능한 필드 찾음</string>
+    <string name="fill_form_fields_title">양식 필드</string>
+    <string name="fill_flatten_after_filling">입력 후 병합</string>
+    <string name="fill_make_non_editable">필드를 편집할 수 없게 만들기</string>
+    <string name="fill_form_filled">양식 입력 완료!</string>
+    <string name="fill_fields_updated">%1$d개의 필드 업데이트됨</string>
+    <string name="fill_no_editable_fields">이 양식에는 편집 가능한 필드가 없습니다</string>
 </resources>

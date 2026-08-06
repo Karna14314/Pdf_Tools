@@ -586,4 +586,14 @@ Gespeichert unter: %1$s</string>
     <string name="split_from">Von</string>
     <string name="split_to">Bis</string>
     <string name="split_page_numbers">Seitennummern</string>
+    <string name="fill_select_pdf">PDF-Formular auswählen</string>
+    <string name="fill_no_form_fields_found">Keine Formularfelder gefunden</string>
+    <string name="fill_no_fillable_fields_found">Diese PDF-Datei enthält keine ausfüllbaren Formularfelder.</string>
+    <string name="fill_fields_found">%1$d ausfüllbare Felder gefunden</string>
+    <string name="fill_form_fields_title">Formularfelder</string>
+    <string name="fill_flatten_after_filling">Nach dem Ausfüllen reduzieren</string>
+    <string name="fill_make_non_editable">Felder nicht bearbeitbar machen</string>
+    <string name="fill_form_filled">Formular ausgefüllt!</string>
+    <string name="fill_fields_updated">%1$d Felder aktualisiert</string>
+    <string name="fill_no_editable_fields">Dieses Formular hat keine bearbeitbaren Felder</string>
 </resources>

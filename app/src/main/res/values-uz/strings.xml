@@ -590,4 +590,14 @@ Saqlandi: %1$s</string>
     <string name="split_from">Dan</string>
     <string name="split_to">Gacha</string>
     <string name="split_page_numbers">Sahifa Raqamlari</string>
+    <string name="fill_select_pdf">PDF shaklini tanlang</string>
+    <string name="fill_no_form_fields_found">Shakl maydonlari topilmadi</string>
+    <string name="fill_no_fillable_fields_found">Ushbu PDF-da to\'ldiriladigan shakl maydonlari yo\'q.</string>
+    <string name="fill_fields_found">%1$d to\'ldiriladigan maydon topildi</string>
+    <string name="fill_form_fields_title">Shakl maydonlari</string>
+    <string name="fill_flatten_after_filling">To\'ldirgandan so\'ng tekislash</string>
+    <string name="fill_make_non_editable">Maydonlarni tahrirlab bo\'lmaydigan qilish</string>
+    <string name="fill_form_filled">Shakl to\'ldirildi!</string>
+    <string name="fill_fields_updated">%1$d maydon yangilandi</string>
+    <string name="fill_no_editable_fields">Ushbu shaklda tahrirlanadigan maydonlar yo\'q</string>
 </resources>

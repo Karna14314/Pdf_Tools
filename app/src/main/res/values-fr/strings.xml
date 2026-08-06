@@ -590,4 +590,14 @@ Enregistré dans : %1$s</string>
     <string name="split_from">De</string>
     <string name="split_to">À</string>
     <string name="split_page_numbers">Numéros de page</string>
+    <string name="fill_select_pdf">Sélectionner un formulaire PDF</string>
+    <string name="fill_no_form_fields_found">Aucun champ de formulaire trouvé</string>
+    <string name="fill_no_fillable_fields_found">Ce PDF ne contient pas de champs de formulaire remplissables.</string>
+    <string name="fill_fields_found">%1$d champs remplissables trouvés</string>
+    <string name="fill_form_fields_title">Champs de formulaire</string>
+    <string name="fill_flatten_after_filling">Aplatir après remplissage</string>
+    <string name="fill_make_non_editable">Rendre les champs non modifiables</string>
+    <string name="fill_form_filled">Formulaire rempli !</string>
+    <string name="fill_fields_updated">%1$d champs mis à jour</string>
+    <string name="fill_no_editable_fields">Ce formulaire n\'a pas de champs modifiables</string>
 </resources>

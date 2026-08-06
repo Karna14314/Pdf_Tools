@@ -590,4 +590,14 @@
     <string name="split_from">من</string>
     <string name="split_to">إلى</string>
     <string name="split_page_numbers">أرقام الصفحات</string>
+    <string name="fill_select_pdf">تحديد نموذج PDF</string>
+    <string name="fill_no_form_fields_found">لم يتم العثور على حقول نموذج</string>
+    <string name="fill_no_fillable_fields_found">لا يحتوي ملف PDF هذا على حقول نماذج قابلة للتعبئة.</string>
+    <string name="fill_fields_found">تم العثور على %1$d حقول قابلة للتعبئة</string>
+    <string name="fill_form_fields_title">حقول النموذج</string>
+    <string name="fill_flatten_after_filling">تسطيح بعد التعبئة</string>
+    <string name="fill_make_non_editable">جعل الحقول غير قابلة للتحرير</string>
+    <string name="fill_form_filled">تم تعبئة النموذج!</string>
+    <string name="fill_fields_updated">تم تحديث %1$d حقول</string>
+    <string name="fill_no_editable_fields">لا يحتوي هذا النموذج على حقول قابلة للتحرير</string>
 </resources>

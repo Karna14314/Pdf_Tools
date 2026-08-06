@@ -590,4 +590,14 @@ Guardado en: %1$s</string>
     <string name="split_from">Desde</string>
     <string name="split_to">Hasta</string>
     <string name="split_page_numbers">Números de página</string>
+    <string name="fill_select_pdf">Seleccionar formulario PDF</string>
+    <string name="fill_no_form_fields_found">No se encontraron campos de formulario</string>
+    <string name="fill_no_fillable_fields_found">Este PDF no contiene campos de formulario rellenables.</string>
+    <string name="fill_fields_found">%1$d campos rellenables encontrados</string>
+    <string name="fill_form_fields_title">Campos de formulario</string>
+    <string name="fill_flatten_after_filling">Acoplar después de rellenar</string>
+    <string name="fill_make_non_editable">Hacer campos no editables</string>
+    <string name="fill_form_filled">¡Formulario rellenado!</string>
+    <string name="fill_fields_updated">%1$d campos actualizados</string>
+    <string name="fill_no_editable_fields">Este formulario no tiene campos editables</string>
 </resources>

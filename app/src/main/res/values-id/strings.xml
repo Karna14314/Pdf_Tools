@@ -590,4 +590,14 @@ Disimpan ke: %1$s</string>
     <string name="split_from">Dari</string>
     <string name="split_to">Ke</string>
     <string name="split_page_numbers">Nomor Halaman</string>
+    <string name="fill_select_pdf">Pilih Formulir PDF</string>
+    <string name="fill_no_form_fields_found">Tidak Ada Kolom Formulir Ditemukan</string>
+    <string name="fill_no_fillable_fields_found">PDF ini tidak berisi kolom formulir yang dapat diisi.</string>
+    <string name="fill_fields_found">%1$d kolom yang dapat diisi ditemukan</string>
+    <string name="fill_form_fields_title">Kolom Formulir</string>
+    <string name="fill_flatten_after_filling">Ratakan Setelah Mengisi</string>
+    <string name="fill_make_non_editable">Jadikan kolom tidak dapat diedit</string>
+    <string name="fill_form_filled">Formulir Terisi!</string>
+    <string name="fill_fields_updated">%1$d kolom diperbarui</string>
+    <string name="fill_no_editable_fields">Formulir ini tidak memiliki kolom yang dapat diedit</string>
 </resources>
