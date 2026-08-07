@@ -39,7 +39,7 @@
 
 ---
 
-## � Get it on Android
+## 📱 Get it on Android
 
 <p align="center">
   <a href="https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit">
@@ -67,8 +67,8 @@
 - **HTML to PDF** — Direct webpage to PDF conversion
 - **Scan to PDF** — Camera-based document scanning with automatic edge detection
 
-### �️ Editing & Annotation
-- **Annotate** — Highlight, draw, and markup PDFs with AndroidX Ink
+### ✏️ Editing & Annotation
+- **Annotate** — Highlight, draw, and markup PDFs with custom Canvas layering
 - **Sign PDF** — Add digital signatures to documents
 - **Fill Forms** — Complete PDF forms on the go
 - **Flatten PDF** — Make forms and annotations permanent
@@ -81,10 +81,10 @@
 - **No internet permission** — Completely offline capable
 - **No data collection or tracking**
 
-### � OCR & Text
+### 🔤 OCR & Text
 - **Extract Text** — Pull text content from PDF pages
+- **ML Kit OCR** — Play Store flavor (on-device, smaller APK)
 - **Tesseract OCR** — F-Droid and opensource flavors (100% open source)
-- **ML Kit OCR** — Play Store flavor (smaller APK, 40MB runtime download)
 
 ### 🖼️ Image Tools
 - **Compress Images** — Optimize file sizes
@@ -114,9 +114,9 @@ All flavors are **privacy-first** with no ads, no analytics, and no proprietary 
 | **UI Framework** | Jetpack Compose (Material Design 3) |
 | **Architecture** | MVVM + Clean Architecture |
 | **PDF Processing** | PdfBox-Android, Android PdfRenderer |
-| **Annotations** | AndroidX Ink Library |
+| **Annotations** | Custom Canvas + BlendMode layering |
 | **OCR (Play Store)** | Google ML Kit |
-| **OCR (F-Droid)** | Tesseract (tess-two) |
+| **OCR (F-Droid / Opensource)** | Tesseract (tesseract4android) |
 | **Camera** | CameraX |
 | **Images** | Coil, Glide, uCrop |
 | **Database** | Room |
