@@ -79,13 +79,12 @@ jobs:
               continue
             fi
             
-            echo "Deleting release and tag: $TAG"
-            
-            # Delete the release
+            # Delete the release assets if needed, BUT preserve Git tag for F-Droid reproducibility
             gh release delete "$TAG" --yes || echo "Failed to delete release $TAG"
             
-            # Delete the tag from remote
-            git push origin --delete "$TAG" || echo "Failed to delete tag $TAG from remote"
+            # NOTE: Git tags MUST NEVER be deleted from remote.
+            # F-Droid checkupdates and build recipes require permanent Git tags.
+            echo "Preserving Git tag $TAG for F-Droid compatibility"
             
             DELETED_COUNT=$((DELETED_COUNT + 1))
             

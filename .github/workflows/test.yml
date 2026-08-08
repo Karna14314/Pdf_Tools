@@ -143,9 +143,7 @@ jobs:
       - name: Build PlayStore Release (unsigned)
         run: |
           # Build without signing to verify ProGuard doesn't break anything
-          ./gradlew :app:assemblePlaystoreRelease --continue \
-            -PAPP_VERSION_CODE=99999 \
-            -PAPP_VERSION_NAME="9.9.9-test"
+          ./gradlew :app:assemblePlaystoreRelease --continue
         continue-on-error: true
         
       - name: Verify APK Output

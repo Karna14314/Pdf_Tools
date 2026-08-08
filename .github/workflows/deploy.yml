@@ -19,13 +19,6 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
-    env:
-      # Offset to ensure version codes exceed any previously uploaded ones
-      # Current Play Store version is 51, so starting from 52
-      VERSION_CODE_OFFSET: 52
-      # Major.Minor prefix for versionName (versionName = VERSION_PREFIX.BUILD_NUMBER)
-      VERSION_PREFIX: '1.3'
 
     steps:
       # ════════════════════════════════════════════════════════════════════════════════
@@ -34,10 +27,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for commit log generation
+          fetch-depth: 0
 
       # ════════════════════════════════════════════════════════════════════════════════
-      # 2. Set up Java (required for Android/Gradle)
+      # 2. Set up Java
       # ════════════════════════════════════════════════════════════════════════════════
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -47,37 +40,23 @@ jobs:
           cache: gradle
 
       # ════════════════════════════════════════════════════════════════════════════════
-      # 3. Compute Version Code and Version Name
+      # 3. Read Version Code and Version Name from gradle.properties (Sole Source of Truth)
       # ════════════════════════════════════════════════════════════════════════════════
-      - name: Compute Version
+      - name: Read Version from gradle.properties
         id: version
-        env:
-          OFFSET: ${{ env.VERSION_CODE_OFFSET }}
-          RUN_NUM: ${{ github.run_number }}
-          PREFIX: ${{ env.VERSION_PREFIX }}
         run: |
-          # Use shell arithmetic with defaults
-          OFFSET=${OFFSET:-52}
-          RUN_NUM=${RUN_NUM:-1}
-          PREFIX=${PREFIX:-1.3}
+          VERSION_CODE=$(grep '^APP_VERSION_CODE=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
+          VERSION_NAME=$(grep '^APP_VERSION_NAME=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
           
-          echo "DEBUG: OFFSET='$OFFSET', RUN_NUM='$RUN_NUM', PREFIX='$PREFIX'"
-          
-          BUILD_NUMBER=$(( RUN_NUM + OFFSET ))
-          VERSION_NAME="${PREFIX}.${BUILD_NUMBER}"
-          
-          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "BUILD_NUMBER=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUTPUT
-          echo "APP_VERSION_CODE=$BUILD_NUMBER" >> $GITHUB_ENV
+          echo "APP_VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
           echo "APP_VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
           
           echo "================================================"
-          echo "Computed versionCode: $BUILD_NUMBER (Run: $RUN_NUM + Offset: $OFFSET)"
-          echo "Computed versionName: $VERSION_NAME"
+          echo "Read versionCode: $VERSION_CODE from gradle.properties"
+          echo "Read versionName: $VERSION_NAME from gradle.properties"
           echo "================================================"
-
-      # ════════════════════════════════════════════════════════════════════════════════
-      # 4. Generate Release Notes
       # ════════════════════════════════════════════════════════════════════════════════
       - name: Generate Release Notes
         id: generate-notes
@@ -157,9 +136,7 @@ jobs:
           CI: true
         run: |
           echo "Building AAB — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
-          ./gradlew bundlePlaystoreRelease \
-            -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
-            -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
+          ./gradlew bundlePlaystoreRelease
 
       - name: Build Play Store APK
         env:
@@ -172,9 +149,7 @@ jobs:
           CI: true
         run: |
           echo "Building Play Store APK — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
-          ./gradlew assemblePlaystoreRelease \
-            -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
-            -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
+          ./gradlew assemblePlaystoreRelease
 
       - name: Build Open Source APK
         env:
@@ -187,9 +162,7 @@ jobs:
           CI: true
         run: |
           echo "Building Open Source APK — versionCode=${{ env.APP_VERSION_CODE }}, versionName=${{ env.APP_VERSION_NAME }}"
-          ./gradlew assembleOpensourceRelease \
-            -PAPP_VERSION_CODE=${{ env.APP_VERSION_CODE }} \
-            -PAPP_VERSION_NAME=${{ env.APP_VERSION_NAME }}
+          ./gradlew assembleOpensourceRelease
 
       # ════════════════════════════════════════════════════════════════════════════════
       # 9. Verify Build Outputs
