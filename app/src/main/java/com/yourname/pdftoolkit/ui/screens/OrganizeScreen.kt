@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -372,7 +373,7 @@ fun OrganizeScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -399,7 +400,7 @@ fun OrganizeScreen(
                                 if (useCustomLocation) {
                                     val baseName = selectedFile!!.name.removeSuffix(".pdf")
                                     val suffix = if (isRemoveMode) "_edited" else "_extracted"
-                                    saveFileLauncher.launch("${baseName}${suffix}.pdf")
+                                    saveFileLauncher.safeLaunch("${baseName}${suffix}.pdf", context)
                                 } else {
                                     organizeWithDefaultLocation()
                                 }

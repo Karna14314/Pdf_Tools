@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import android.graphics.Bitmap
 import android.net.Uri
@@ -494,7 +495,7 @@ fun ReorderScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -512,7 +513,7 @@ fun ReorderScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val baseName = selectedFile!!.name.removeSuffix(".pdf")
-                                    saveFileLauncher.launch("${baseName}_reordered.pdf")
+                                    saveFileLauncher.safeLaunch("${baseName}_reordered.pdf", context)
                                 } else {
                                     reorderWithDefaultLocation()
                                 }

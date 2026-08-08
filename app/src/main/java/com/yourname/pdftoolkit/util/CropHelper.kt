@@ -256,7 +256,21 @@ object CropHelper {
             aspectRatio = aspectRatio,
             maxSize = maxSize
         )
-        activity.startActivityForResult(intent, requestCode)
+        try {
+            activity.startActivityForResult(intent, requestCode)
+        } catch (e: android.content.ActivityNotFoundException) {
+            android.widget.Toast.makeText(
+                activity,
+                "No image cropping app available on this device.",
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(
+                activity,
+                "Unable to start image cropper: ${e.message}",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
     }
     
     /**

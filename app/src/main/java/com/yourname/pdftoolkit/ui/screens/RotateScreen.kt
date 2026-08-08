@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -483,7 +484,7 @@ fun RotateScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -494,7 +495,7 @@ fun RotateScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val fileName = FileManager.generateOutputFileName("rotated")
-                                    savePdfLauncher.launch(fileName)
+                                    savePdfLauncher.safeLaunch(fileName, context)
                                 } else {
                                     rotateWithDefaultLocation()
                                 }

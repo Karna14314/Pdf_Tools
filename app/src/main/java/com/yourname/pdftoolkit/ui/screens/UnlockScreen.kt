@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -412,7 +413,7 @@ fun UnlockScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -430,7 +431,7 @@ fun UnlockScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val baseName = selectedFile!!.name.removeSuffix(".pdf")
-                                    saveFileLauncher.launch("${baseName}_unlocked.pdf")
+                                    saveFileLauncher.safeLaunch("${baseName}_unlocked.pdf", context)
                                 } else {
                                     unlockWithDefaultLocation()
                                 }

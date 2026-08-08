@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -244,13 +245,13 @@ fun FlattenScreen(
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            IconButton(onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) }) {
+                            IconButton(onClick = { pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context) }) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
                             }
                         }
                     } else {
                         OutlinedButton(
-                            onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) },
+                            onClick = { pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Default.FileOpen, contentDescription = null)
@@ -504,7 +505,7 @@ fun FlattenScreen(
             Button(
                 onClick = {
                     val fileName = "flattened_${System.currentTimeMillis()}.pdf"
-                    saveDocumentLauncher.launch(fileName)
+                    saveDocumentLauncher.safeLaunch(fileName, context)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = state.sourceUri != null && !state.isProcessing

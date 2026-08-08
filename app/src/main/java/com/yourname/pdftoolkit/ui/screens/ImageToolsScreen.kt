@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -798,7 +799,7 @@ fun ImageToolsScreen(
                         ActionButton(
                             text = "Select Images",
                             onClick = {
-                                pickImagesLauncher.launch(arrayOf("image/*"))
+                                pickImagesLauncher.safeLaunch(arrayOf("image/*"), context)
                             },
                             icon = Icons.Default.Photo
                         )

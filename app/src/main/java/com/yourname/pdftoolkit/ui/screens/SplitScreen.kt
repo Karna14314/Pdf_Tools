@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -566,7 +567,7 @@ fun SplitScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -591,7 +592,7 @@ fun SplitScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val fileName = FileManager.generateOutputFileName("split")
-                                    savePdfLauncher.launch(fileName)
+                                    savePdfLauncher.safeLaunch(fileName, context)
                                 } else {
                                     splitWithDefaultLocation()
                                 }

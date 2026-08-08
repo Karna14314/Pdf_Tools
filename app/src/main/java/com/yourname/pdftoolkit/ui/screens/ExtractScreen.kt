@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -372,7 +373,7 @@ fun ExtractScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -382,7 +383,7 @@ fun ExtractScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val fileName = FileManager.generateOutputFileName("extracted")
-                                    savePdfLauncher.launch(fileName)
+                                    savePdfLauncher.safeLaunch(fileName, context)
                                 } else {
                                     extractWithDefaultLocation()
                                 }

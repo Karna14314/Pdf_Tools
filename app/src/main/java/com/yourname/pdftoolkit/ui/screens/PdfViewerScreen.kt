@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import com.yourname.pdftoolkit.R
 
@@ -402,7 +403,7 @@ fun PdfViewerScreen(
                                     IconButton(
                                         onClick = {
                                             val fileName = "annotated_${pdfName}_${System.currentTimeMillis()}.pdf"
-                                            saveDocumentLauncher.launch(fileName)
+                                            saveDocumentLauncher.safeLaunch(fileName, context)
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         }
                                     ) {

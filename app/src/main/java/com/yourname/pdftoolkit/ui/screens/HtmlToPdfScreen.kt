@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -480,7 +481,7 @@ fun HtmlToPdfScreen(
                                     }
                                     InputMode.HTML -> "html_document_${System.currentTimeMillis()}.pdf"
                                 }
-                                saveFileLauncher.launch(fileName)
+                                saveFileLauncher.safeLaunch(fileName, context)
                             } else {
                                 convertWithDefaultLocation()
                             }

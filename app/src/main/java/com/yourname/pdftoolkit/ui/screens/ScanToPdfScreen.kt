@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import com.yourname.pdftoolkit.R
 
@@ -298,7 +299,7 @@ fun ScanToPdfScreen(
                                     if (hasCameraPermission) {
                                         viewModel.setShowCamera(true)
                                     } else {
-                                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                                        permissionLauncher.safeLaunch(Manifest.permission.CAMERA, context)
                                     }
                                 },
                                 modifier = Modifier.weight(1f)
@@ -309,7 +310,7 @@ fun ScanToPdfScreen(
                             }
                             
                             OutlinedButton(
-                                onClick = { imagePickerLauncher.launch(arrayOf("image/*")) },
+                                onClick = { imagePickerLauncher.safeLaunch(arrayOf("image/*"), context) },
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Icon(Icons.Default.Image, contentDescription = null)
@@ -364,7 +365,7 @@ fun ScanToPdfScreen(
                                                     aspectRatio = null,
                                                     maxSize = 2048
                                                 )
-                                                cropLauncher.launch(cropIntent)
+                                                cropLauncher.safeLaunch(cropIntent, context)
                                             }
                                     ) {
                                         Image(
@@ -393,7 +394,7 @@ fun ScanToPdfScreen(
                                                     aspectRatio = null,
                                                     maxSize = 2048
                                                 )
-                                                cropLauncher.launch(cropIntent)
+                                                cropLauncher.safeLaunch(cropIntent, context)
                                             },
                                             modifier = Modifier
                                                 .align(Alignment.BottomEnd)
@@ -604,7 +605,7 @@ fun ScanToPdfScreen(
                 Button(
                     onClick = {
                         val fileName = "scanned_${System.currentTimeMillis()}.pdf"
-                        saveDocumentLauncher.launch(fileName)
+                        saveDocumentLauncher.safeLaunch(fileName, context)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = state.selectedImages.isNotEmpty() && !state.isProcessing

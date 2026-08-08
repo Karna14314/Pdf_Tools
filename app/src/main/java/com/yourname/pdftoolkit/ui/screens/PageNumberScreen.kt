@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -429,7 +430,7 @@ fun PageNumberScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -447,7 +448,7 @@ fun PageNumberScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val baseName = selectedFile!!.name.removeSuffix(".pdf")
-                                    saveFileLauncher.launch("${baseName}_numbered.pdf")
+                                    saveFileLauncher.safeLaunch("${baseName}_numbered.pdf", context)
                                 } else {
                                     addNumbersWithDefaultLocation()
                                 }

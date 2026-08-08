@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -304,13 +305,13 @@ fun OcrScreen(
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            IconButton(onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) }) {
+                            IconButton(onClick = { pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context) }) {
                                 Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
                             }
                         }
                     } else {
                         OutlinedButton(
-                            onClick = { pdfPickerLauncher.launch(arrayOf("application/pdf")) },
+                            onClick = { pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Icon(Icons.Default.FileOpen, contentDescription = null)
@@ -510,9 +511,9 @@ fun OcrScreen(
                                 FilledTonalButton(
                                     onClick = {
                                         if (state.viewFormat == OcrViewFormat.MARKDOWN) {
-                                            saveMarkdownLauncher.launch("extracted_markdown_${System.currentTimeMillis()}.md")
+                                            saveMarkdownLauncher.safeLaunch("extracted_markdown_${System.currentTimeMillis()}.md", context)
                                         } else {
-                                            saveTextLauncher.launch("extracted_text_${System.currentTimeMillis()}.txt")
+                                            saveTextLauncher.safeLaunch("extracted_text_${System.currentTimeMillis()}.txt", context)
                                         }
                                     },
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
@@ -713,7 +714,7 @@ fun OcrScreen(
                         OcrMode.EXTRACT_TEXT -> viewModel.extractText(context)
                         OcrMode.MAKE_SEARCHABLE -> {
                             val fileName = "searchable_${System.currentTimeMillis()}.pdf"
-                            saveDocumentLauncher.launch(fileName)
+                            saveDocumentLauncher.safeLaunch(fileName, context)
                         }
                     }
                 },
@@ -772,9 +773,9 @@ fun OcrScreen(
                                 }
                                 IconButton(onClick = {
                                     if (state.viewFormat == OcrViewFormat.MARKDOWN) {
-                                        saveMarkdownLauncher.launch("extracted_markdown_${System.currentTimeMillis()}.md")
+                                        saveMarkdownLauncher.safeLaunch("extracted_markdown_${System.currentTimeMillis()}.md", context)
                                     } else {
-                                        saveTextLauncher.launch("extracted_text_${System.currentTimeMillis()}.txt")
+                                        saveTextLauncher.safeLaunch("extracted_text_${System.currentTimeMillis()}.txt", context)
                                     }
                                 }) {
                                     Icon(Icons.Default.Save, contentDescription = stringResource(R.string.pdf_save))

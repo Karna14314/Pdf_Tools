@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -247,7 +248,7 @@ fun MergeScreen(
                             
                             OutlinedButton(
                                 onClick = {
-                                    pickPdfsLauncher.launch(arrayOf("application/pdf"))
+                                    pickPdfsLauncher.safeLaunch(arrayOf("application/pdf"), context)
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -329,7 +330,7 @@ fun MergeScreen(
                         ActionButton(
                             text = stringResource(R.string.merge_add_pdfs),
                             onClick = {
-                                pickPdfsLauncher.launch(arrayOf("application/pdf"))
+                                pickPdfsLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -339,7 +340,7 @@ fun MergeScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val fileName = FileManager.generateOutputFileName("merged")
-                                    savePdfLauncher.launch(fileName)
+                                    savePdfLauncher.safeLaunch(fileName, context)
                                 } else {
                                     mergeWithDefaultLocation()
                                 }

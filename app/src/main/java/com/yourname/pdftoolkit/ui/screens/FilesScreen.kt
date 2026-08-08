@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -180,7 +181,7 @@ fun FilesScreen(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ),
             onClick = {
-                documentPickerLauncher.launch(pdfMimeTypes)
+                documentPickerLauncher.safeLaunch(pdfMimeTypes, context)
             }
         ) {
             Row(

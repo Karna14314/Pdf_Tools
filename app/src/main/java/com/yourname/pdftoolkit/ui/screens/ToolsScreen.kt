@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import android.content.Intent
 import android.net.Uri
@@ -187,7 +188,7 @@ fun ToolsScreen(
                         onToolClick = { tool ->
                             if (tool.screen == Screen.Home && tool.id == "view_pdf") {
                                 // Special handling for View PDF
-                                pdfPickerLauncher.launch(arrayOf("application/pdf"))
+                                pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context)
                             } else {
                                 // Check if this is an image tool that needs special routing
                                 val imageToolIds = listOf("image_compress", "image_resize", "image_convert", "image_metadata")

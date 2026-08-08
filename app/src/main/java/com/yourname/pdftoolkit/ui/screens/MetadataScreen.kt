@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import com.yourname.pdftoolkit.R
 
@@ -645,7 +646,7 @@ fun MetadataScreen(
                             ActionButton(
                                 text = stringResource(R.string.action_select_pdf),
                                 onClick = {
-                                    pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                    pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                                 },
                                 icon = Icons.Default.FolderOpen
                             )
@@ -664,7 +665,7 @@ fun MetadataScreen(
                                 onClick = {
                                     if (useCustomLocation) {
                                         val fileName = FileManager.generateOutputFileName("updated")
-                                        savePdfLauncher.launch(fileName)
+                                        savePdfLauncher.safeLaunch(fileName, context)
                                     } else {
                                         saveWithDefaultLocation()
                                     }
@@ -677,7 +678,7 @@ fun MetadataScreen(
                             ActionButton(
                                 text = stringResource(R.string.action_select_another_pdf),
                                 onClick = {
-                                    pickPdfLauncher.launch(arrayOf("application/pdf"))
+                                    pickPdfLauncher.safeLaunch(arrayOf("application/pdf"), context)
                                 },
                                 icon = Icons.Default.FolderOpen
                             )

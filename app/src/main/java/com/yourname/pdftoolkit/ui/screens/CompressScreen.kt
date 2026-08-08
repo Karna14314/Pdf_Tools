@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -505,7 +506,7 @@ fun CompressScreen(
                         ActionButton(
                             text = "Select PDF",
                             onClick = {
-                                pickPdfLauncher.launch("application/pdf")
+                                pickPdfLauncher.safeLaunch("application/pdf", context)
                             },
                             icon = Icons.Default.FolderOpen
                         )
@@ -523,7 +524,7 @@ fun CompressScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val fileName = FileManager.generateOutputFileName("compressed")
-                                    savePdfLauncher.launch(fileName)
+                                    savePdfLauncher.safeLaunch(fileName, context)
                                 } else {
                                     compressWithDefaultLocation()
                                 }

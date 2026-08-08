@@ -1,4 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
+import com.yourname.pdftoolkit.util.safeLaunch
 
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
@@ -362,7 +363,7 @@ fun ConvertScreen(
                                         aspectRatio = null, // Free crop
                                         maxSize = 2048
                                     )
-                                    cropLauncher.launch(cropIntent)
+                                    cropLauncher.safeLaunch(cropIntent, context)
                                 },
                                 onSelect = {
                                     selectedItemIndex = if (selectedItemIndex == index) null else index
@@ -410,7 +411,7 @@ fun ConvertScreen(
                         item(span = { GridItemSpan(3) }) {
                             OutlinedButton(
                                 onClick = {
-                                    pickImagesLauncher.launch(arrayOf("image/*"))
+                                    pickImagesLauncher.safeLaunch(arrayOf("image/*"), context)
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -571,7 +572,7 @@ fun ConvertScreen(
                         ActionButton(
                             text = "Select Images",
                             onClick = {
-                                pickImagesLauncher.launch(arrayOf("image/*"))
+                                pickImagesLauncher.safeLaunch(arrayOf("image/*"), context)
                             },
                             icon = Icons.Default.Image
                         )
@@ -589,7 +590,7 @@ fun ConvertScreen(
                             onClick = {
                                 if (useCustomLocation) {
                                     val fileName = FileManager.generateOutputFileName("images")
-                                    savePdfLauncher.launch(fileName)
+                                    savePdfLauncher.safeLaunch(fileName, context)
                                 } else {
                                     convertWithDefaultLocation()
                                 }
