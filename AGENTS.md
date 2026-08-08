@@ -65,6 +65,13 @@ If the upstream uses Gradle properties for versions, set `UpdateCheckData` to re
 
 This tells `fdroid checkupdates --auto` how to extract version code/name for each tag.
 
+### How F-Droid Auto-Updates Work (No Manual GitLab MRs Needed)
+
+1. **GitHub is the single push target:** All code and version tag updates are pushed strictly to GitHub (`https://github.com/Karna14314/Pdf_Tools.git`). No manual pushes or GitLab Merge Requests on `fdroiddata` are needed for future app releases.
+2. **Tag-based automatic update detection:** F-Droid's scheduled server bot (`checkupdates --auto`) periodically inspects release tags on GitHub (e.g., `v1.3.210`, `v1.4.0`).
+3. **Static property parsing:** F-Droid reads `APP_VERSION_CODE` and `APP_VERSION_NAME` directly from `gradle.properties` in that tag using `UpdateCheckData`.
+4. **Automatic build & release:** F-Droid automatically generates the build recipe, compiles the APK from your GitHub source, and delivers the update to F-Droid client app users.
+
 ### CI hygiene: permissions + codequality.json
 
 - `fdroidserver` warns if `config.yml` permissions are not `0600`.
