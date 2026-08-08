@@ -216,7 +216,8 @@ object SafUriManager {
     suspend fun addRecentFile(
         context: Context,
         uri: Uri,
-        intentFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        intentFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION,
+        customName: String? = null
     ): PersistedFile? = withContext(Dispatchers.IO) {
         try {
             migrateIfNeeded(context)
@@ -225,8 +226,11 @@ object SafUriManager {
             takePersistablePermission(context, uri, intentFlags)
             
             // Get file metadata
-            val (name, size, mimeType) = getFileMetadata(context, uri)
-                ?: return@withContext null
+            val metadata = getFileMetadata(context, uri)
+            val queriedName = metadata?.first ?: uri.lastPathSegment ?: "document.pdf"
+            val name = if (!customName.isNullOrBlank()) customName else queriedName
+            val size = metadata?.second ?: 0L
+            val mimeType = metadata?.third ?: "application/pdf"
             
             val persistedFile = PersistedFile(
                 uriString = uri.toString(),

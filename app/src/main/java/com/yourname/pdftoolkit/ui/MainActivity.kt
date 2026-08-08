@@ -248,6 +248,12 @@ class MainActivity : AppCompatActivity() {
 
                     pdfUriState?.value = accessibleUri
                     pdfNameState?.value = pendingPdfName
+
+                    // Add to recent files for history and later access
+                    activityScope.launch(Dispatchers.IO) {
+                        val cleanName = if (fileName.endsWith(".pdf", ignoreCase = true)) fileName else "$fileName.pdf"
+                        SafUriManager.addRecentFile(applicationContext, accessibleUri, intent.flags, customName = cleanName)
+                    }
                 }
                 return
             }
@@ -312,7 +318,14 @@ class MainActivity : AppCompatActivity() {
         
         // If persistable permission failed, copy to cache as fallback
         Log.d(TAG, "Persistable permission not available, copying to cache")
-        return copyToCache(uri, fileName)
+        val cachedUri = copyToCache(uri, fileName)
+        if (cachedUri != null) {
+            activityScope.launch(Dispatchers.IO) {
+                val cleanName = if (fileName.endsWith(".pdf", ignoreCase = true)) fileName else "$fileName.pdf"
+                SafUriManager.addRecentFile(applicationContext, cachedUri, intent.flags, customName = cleanName)
+            }
+        }
+        return cachedUri
     }
     
     /**
@@ -430,14 +443,25 @@ class MainActivity : AppCompatActivity() {
     }
     
     /**
-     * Clean cached files older than 1 hour.
+     * Clean cached files older than 1 hour, unless preserved in recent files.
      */
     private fun cleanOldCachedFiles(cacheDir: File) {
         try {
             val oneHourAgo = System.currentTimeMillis() - (60 * 60 * 1000)
-            cacheDir.listFiles()?.forEach { file ->
-                if (file.lastModified() < oneHourAgo) {
-                    file.delete()
+            val dao = com.yourname.pdftoolkit.data.local.AppDatabase.getDatabase(applicationContext).recentFilesDao()
+            activityScope.launch(Dispatchers.IO) {
+                val recentUris = try {
+                    dao.getAll().map { it.uriString }
+                } catch (e: Exception) {
+                    emptyList()
+                }
+                cacheDir.listFiles()?.forEach { file ->
+                    if (file.lastModified() < oneHourAgo) {
+                        val isRecent = recentUris.any { it.contains(file.name) }
+                        if (!isRecent) {
+                            file.delete()
+                        }
+                    }
                 }
             }
         } catch (e: Exception) {
