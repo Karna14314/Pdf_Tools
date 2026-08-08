@@ -1,67 +1,41 @@
 # Versioning Strategy
 
-This project uses **dynamic CI/CD versioning** to eliminate version conflicts and streamline deployments.
+This project uses **static versioning via `gradle.properties`** as the single source of truth for both local development and CI/CD distribution pipelines.
 
-## How It Works
+---
 
-### Version Code
-- Computed automatically: `github.run_number + VERSION_CODE_OFFSET`
-- Never stored in git
-- Always increments (GitHub's run_number never decreases)
-- Example: Run #5 with offset 52 → versionCode = 57
+## Single Source of Truth
 
-### Version Name
-- Format: `VERSION_PREFIX.versionCode`
-- Example: `1.3.57` (prefix: 1.3, code: 57)
-- Automatically matches the version code
+Version codes and version names are declared strictly in `gradle.properties`:
 
-### Configuration
-Edit `.github/workflows/deploy.yml`:
-```yaml
-env:
-  VERSION_CODE_OFFSET: 52  # Current Play Store version
-  VERSION_PREFIX: '1.3'     # Major.Minor prefix
+```properties
+# F-Droid & Application version properties
+APP_VERSION_CODE=210
+APP_VERSION_NAME=1.3.210
 ```
 
-## Benefits
-
-✅ **No Git Conflicts**: Versions never committed, no merge conflicts  
-✅ **Auto-Incrementing**: Guaranteed unique version codes  
-✅ **Parallel Branches**: Multiple branches can build without collisions  
-✅ **Simpler Workflow**: No manual version bumps needed
-
-## Skip CI
-
-To skip CI/CD on a commit, include one of these in your commit message:
-- `[skip ci]`
-- `[ci skip]`
-- `[no ci]`
-- `[skip actions]`
-- `[actions skip]`
-
-Example:
-```bash
-git commit -m "docs: update README [skip ci]"
+`app/build.gradle.kts` consumes these properties directly for all build flavors:
+```kotlin
+defaultConfig {
+    versionCode = project.property("APP_VERSION_CODE").toString().toInt()
+    versionName = project.property("APP_VERSION_NAME").toString()
+}
 ```
 
-## Local Development
+---
 
-Local builds use default versions:
-- versionCode: 1
-- versionName: "1.0.0-local"
+## Release Workflow
 
-These won't conflict with Play Store releases.
+When publishing a new release:
+1. Update `APP_VERSION_CODE` and `APP_VERSION_NAME` in `gradle.properties`.
+2. Commit the bump: `git commit -am "chore: bump version to X.Y.Z"`.
+3. Tag the release: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`.
+4. Push: `git push origin master --tags`.
 
-## Manual Builds
+---
 
-Use the "Build Release AAB" workflow with custom inputs:
-1. Go to Actions → Build Release AAB → Run workflow
-2. Enter custom version name and code (optional)
-3. Download the AAB artifact
+## Distribution Alignment
 
-## Migration Notes
-
-- Removed `VERSION` and `VERSION_CODE` files (no longer needed)
-- Removed hardcoded versions from `build.gradle.kts`
-- CI/CD now computes versions dynamically
-- No more version increment commits after deployments
+- **GitHub Actions (`deploy.yml`):** Reads `APP_VERSION_CODE` and `APP_VERSION_NAME` from `gradle.properties` during checkout. No CLI overrides are applied.
+- **F-Droid (`metadata/com.yourname.pdftoolkit.yml`):** `fdroid checkupdates` parses `gradle.properties` inside Git tags (`UpdateCheckMode: Tags`).
+- **Fastlane (`fastlane/metadata/android/en-US/changelogs/`):** Release notes are supplied in `changelogs/<versionCode>.txt`.

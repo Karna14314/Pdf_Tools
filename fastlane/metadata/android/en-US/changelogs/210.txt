@@ -1,0 +1,6 @@
+PDF Toolkit v1.3.210 release:
+• Storage Access Framework (SAF) hardening to prevent crashes on devices without document providers
+• OCR text extraction and processing performance improvements
+• Synchronized F-Droid and Play Store release versioning architecture
+• Stability fixes for PDF viewer annotations and page rendering
+• General UI responsiveness and bug fixes
