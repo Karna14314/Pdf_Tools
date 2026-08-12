@@ -25,6 +25,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], manifest = Config.NONE)
@@ -69,6 +70,67 @@ class PdfCompressorTest {
         val outputDoc = PDDocument.load(outputFile)
         assertEquals(1, outputDoc.numberOfPages)
         outputDoc.close()
+    }
+
+    @Test
+    fun testCompressPdfToTargetSize_Success() = runBlocking {
+        // Create a large PDF
+        val inputFile = File(context.cacheDir, "test_target_size.pdf")
+        createLargeTestPdf(inputFile, pages = 100)
+
+        val originalSize = inputFile.length()
+        // Given that it can reach 31609 bytes, lets use 40000 bytes
+        val targetSize = 40000L
+
+        val outputFile = File(context.cacheDir, "test_target_output.pdf")
+        val outputStream = FileOutputStream(outputFile)
+
+        val result = pdfCompressor.compressPdfToTargetSize(
+            context = context,
+            inputUri = Uri.fromFile(inputFile),
+            outputStream = outputStream,
+            targetSizeBytes = targetSize
+        )
+
+        outputStream.close()
+
+        if (result.isFailure) {
+            println("Error: " + result.exceptionOrNull()?.message)
+        }
+        assertTrue("Target size compression should succeed", result.isSuccess)
+
+        val compressionResult = result.getOrNull()!!
+        assertTrue(compressionResult.compressedSize <= targetSize)
+
+        val outputDoc = PDDocument.load(outputFile)
+        assertEquals(100, outputDoc.numberOfPages)
+        outputDoc.close()
+    }
+
+    @Test
+    fun testCompressPdfToTargetSize_Failure() = runBlocking {
+        val inputFile = File(context.cacheDir, "test_target_size_fail.pdf")
+        createTestPdf(inputFile)
+
+        // Extremely small target size impossible to reach
+        val targetSize = 10L
+
+        val outputFile = File(context.cacheDir, "test_target_output_fail.pdf")
+        val outputStream = FileOutputStream(outputFile)
+
+        val result = pdfCompressor.compressPdfToTargetSize(
+            context = context,
+            inputUri = Uri.fromFile(inputFile),
+            outputStream = outputStream,
+            targetSizeBytes = targetSize
+        )
+
+        outputStream.close()
+
+        assertTrue("Target size compression should fail with exception", result.isFailure)
+
+        val exception = result.exceptionOrNull()
+        assertTrue(exception is TargetSizeNotReachedException)
     }
 
     @Test

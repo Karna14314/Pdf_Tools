@@ -116,6 +116,173 @@ class PdfCompressor {
      * @param onProgress Progress callback (0.0 to 1.0)
      * @return CompressionResult with size statistics
      */
+
+    /**
+     * Iteratively compress a PDF file to reach a target size.
+     * Uses binary search to find the highest quality (lowest qualityPercent) that meets the target size.
+     * Capped at 6-8 iterations.
+     */
+    suspend fun compressPdfToTargetSize(
+        context: Context,
+        inputUri: Uri,
+        outputStream: OutputStream,
+        targetSizeBytes: Long,
+        onProgress: (Float) -> Unit = {}
+    ): Result<CompressionResult> = withContext(Dispatchers.IO) {
+        val startTime = System.currentTimeMillis()
+        var tempFile: File? = null
+        val cacheDir = File(context.cacheDir, "compress_cache")
+        if (!cacheDir.exists()) cacheDir.mkdirs()
+
+        try {
+            ensureActive()
+            onProgress(0.05f)
+
+            tempFile = File(cacheDir, "temp_target_compress_${System.currentTimeMillis()}.pdf")
+            context.contentResolver.openInputStream(inputUri)?.use { input ->
+                FileOutputStream(tempFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return@withContext Result.failure(IllegalStateException("Cannot open input file"))
+
+            val originalSize = tempFile.length()
+            if (originalSize <= targetSizeBytes) {
+                onProgress(1.0f)
+                tempFile.inputStream().use { it.copyTo(outputStream) }
+                outputStream.flush()
+                return@withContext Result.success(
+                    CompressionResult(
+                        originalSize = originalSize,
+                        compressedSize = originalSize,
+                        compressionRatio = 1f,
+                        timeTakenMs = System.currentTimeMillis() - startTime,
+                        pagesProcessed = countPages(tempFile),
+                        strategyUsed = CompressionStrategy.IMAGE_OPTIMIZATION
+                    )
+                )
+            }
+
+            // Binary search setup
+            var low = 0 // Best quality
+            var high = 100 // Max compression
+            var bestFile: File? = null
+            var bestQuality = -1
+            var bestSize = Long.MAX_VALUE
+            var bestStrategy = CompressionStrategy.IMAGE_OPTIMIZATION
+            val maxIterations = 6
+            var iterationCount = 0
+
+            while (low <= high && iterationCount < maxIterations) {
+                ensureActive()
+                val mid = (low + high) / 2
+                iterationCount++
+
+                val currentProgress = 0.05f + 0.85f * (iterationCount.toFloat() / maxIterations)
+                onProgress(currentProgress)
+
+                val iterationFile = File(cacheDir, "iter_${iterationCount}_${System.currentTimeMillis()}.pdf")
+                val profile = profileFromSlider(mid) ?: profileFromLevel(CompressionLevel.MEDIUM)
+
+                var currentStrategy = CompressionStrategy.IMAGE_OPTIMIZATION
+                var optFile = tryImageOptimization(context, tempFile, profile, {})
+
+                val isOptInefficient = optFile != null && optFile.length() > originalSize * 0.85f
+
+                // Decide if we should fall back to rerender for this iteration
+                val shouldTryRerender = mid > 60
+
+                if (shouldTryRerender && (optFile == null || isOptInefficient)) {
+                    val rerender = tryFullRerender(context, tempFile, profile, {})
+                    if (rerender != null && (optFile == null || rerender.length() < optFile.length())) {
+                        optFile?.delete()
+                        optFile = rerender
+                        currentStrategy = CompressionStrategy.FULL_RERENDER
+                    } else {
+                        rerender?.delete()
+                    }
+                }
+
+                if (optFile != null) {
+                    val currentSize = optFile.length()
+
+                    if (currentSize <= targetSizeBytes) {
+                        // Success for this target size. We can try for better quality (lower mid)
+                        if (bestFile != null && bestFile != tempFile) bestFile.delete()
+                        bestFile = optFile
+                        bestQuality = mid
+                        bestSize = currentSize
+                        bestStrategy = currentStrategy
+                        high = mid - 1
+                    } else {
+                        // We need more compression (higher mid)
+                        if (bestFile == null || currentSize < bestSize) {
+                            // Keep it as a fallback in case we can't reach the target
+                            if (bestFile != null && bestFile != tempFile) bestFile.delete()
+                            bestFile = optFile
+                            bestSize = currentSize
+                            bestQuality = mid
+                            bestStrategy = currentStrategy
+                        } else {
+                            optFile.delete()
+                        }
+                        low = mid + 1
+                    }
+                } else {
+                    // Compression failed for this parameter, try more compression
+                    low = mid + 1
+                }
+            }
+
+            onProgress(0.95f)
+
+            if (bestFile != null) {
+                bestFile.inputStream().use { it.copyTo(outputStream) }
+                outputStream.flush()
+                onProgress(1.0f)
+
+                val isTargetReached = bestSize <= targetSizeBytes
+
+                return@withContext if (isTargetReached) {
+                    Result.success(
+                        CompressionResult(
+                            originalSize = originalSize,
+                            compressedSize = bestSize,
+                            compressionRatio = bestSize.toFloat() / originalSize,
+                            timeTakenMs = System.currentTimeMillis() - startTime,
+                            pagesProcessed = countPages(bestFile),
+                            strategyUsed = bestStrategy
+                        )
+                    )
+                } else {
+                    // Let the caller handle the failure or fallback
+                    Result.failure(
+                        TargetSizeNotReachedException(
+                            message = "Could not reach target size. Smallest possible size is ${bestSize} bytes.",
+                            smallestAchievableSize = bestSize,
+                            fallbackFile = bestFile,
+                            originalSize = originalSize,
+                            strategyUsed = bestStrategy,
+                            pagesProcessed = countPages(bestFile)
+                        )
+                    )
+                }
+            } else {
+                return@withContext Result.failure(IllegalStateException("Compression failed at all levels."))
+            }
+
+        } catch (e: Exception) {
+            return@withContext Result.failure(e)
+        } finally {
+            tempFile?.delete()
+            // Clean up any remaining iteration files in cacheDir that start with temp_target_compress or iter_
+            cacheDir.listFiles()?.forEach { file ->
+                if (file.name.startsWith("iter_") || file.name.startsWith("temp_target_compress_")) {
+                    file.delete()
+                }
+            }
+        }
+    }
+
     suspend fun compressPdf(
         context: Context,
         inputUri: Uri,
@@ -701,3 +868,13 @@ class PdfCompressor {
         )
     }
 }
+
+
+class TargetSizeNotReachedException(
+    message: String,
+    val smallestAchievableSize: Long,
+    val fallbackFile: File,
+    val originalSize: Long,
+    val strategyUsed: CompressionStrategy,
+    val pagesProcessed: Int
+) : Exception(message)

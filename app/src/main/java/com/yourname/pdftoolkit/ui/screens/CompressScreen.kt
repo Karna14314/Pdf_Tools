@@ -1,6 +1,5 @@
 package com.yourname.pdftoolkit.ui.screens
 import com.yourname.pdftoolkit.util.safeLaunch
-
 import androidx.compose.ui.res.stringResource
 import com.yourname.pdftoolkit.R
 
@@ -28,12 +27,19 @@ import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.CompressionLevel
 import com.yourname.pdftoolkit.domain.operations.PdfCompressor
+import com.yourname.pdftoolkit.domain.operations.TargetSizeNotReachedException
 import com.yourname.pdftoolkit.ui.components.*
 import com.yourname.pdftoolkit.util.FileOpener
 import com.yourname.pdftoolkit.util.OutputFolderManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+
+enum class CompressionMode {
+    LEVEL,
+    TARGET_SIZE
+}
 
 /**
  * Screen for compressing PDF files.
@@ -52,6 +58,10 @@ fun CompressScreen(
     // State
     var selectedFile by remember { mutableStateOf<PdfFileInfo?>(null) }
     var compressionSliderValue by remember { mutableStateOf(50f) }
+    var compressionMode by remember { mutableStateOf(CompressionMode.LEVEL) }
+    var targetSizeValue by remember { mutableStateOf("") }
+    var targetSizeUnit by remember { mutableStateOf("KB") }
+
     // Derive CompressionLevel from slider position
     val compressionLevel = when {
         compressionSliderValue < 25f -> CompressionLevel.LOW
@@ -95,14 +105,30 @@ fun CompressScreen(
                     
                     val outputStream = context.contentResolver.openOutputStream(outputUri)
                     if (outputStream != null) {
-                        val result = pdfCompressor.compressPdf(
-                            context = context,
-                            inputUri = file.uri,
-                            outputStream = outputStream,
-                            level = compressionLevel,
-                            qualityPercent = compressionSliderValue.toInt(),
-                            onProgress = { progress = it }
-                        )
+
+                        val result = if (compressionMode == CompressionMode.LEVEL) {
+                            pdfCompressor.compressPdf(
+                                context = context,
+                                inputUri = file.uri,
+                                outputStream = outputStream,
+                                level = compressionLevel,
+                                qualityPercent = compressionSliderValue.toInt(),
+                                onProgress = { progress = it }
+                            )
+                        } else {
+                            val targetBytes = targetSizeValue.toDoubleOrNull()?.let {
+                                (it * if (targetSizeUnit == "MB") 1024 * 1024 else 1024).toLong()
+                            } ?: 0L
+
+                            pdfCompressor.compressPdfToTargetSize(
+                                context = context,
+                                inputUri = file.uri,
+                                outputStream = outputStream,
+                                targetSizeBytes = targetBytes,
+                                onProgress = { progress = it }
+                            )
+                        }
+
                         
                         outputStream.close()
                         
@@ -144,8 +170,19 @@ fun CompressScreen(
                                 selectedFile = null
                             },
                             onFailure = { error ->
-                                resultSuccess = false
-                                resultMessage = error.message ?: "Compression failed"
+                                if (error is TargetSizeNotReachedException) {
+                                    resultSuccess = true
+                                    resultUri = copyToViewerCache(context, outputUri) ?: outputUri
+                                    resultMessage = buildString {
+                                        append("Target size not reached.\n\n")
+                                        append("Target: $targetSizeValue $targetSizeUnit\n")
+                                        append("Achieved: ${FileManager.formatFileSize(error.smallestAchievableSize)}\n\n")
+                                        append("Note: The file was compressed to the smallest possible size without destroying its contents.")
+                                    }
+                                } else {
+                                    resultSuccess = false
+                                    resultMessage = error.message ?: "Compression failed"
+                                }
                             }
                         )
                     } else {
@@ -173,14 +210,29 @@ fun CompressScreen(
                     val outputResult = OutputFolderManager.createOutputStream(context, fileName)
                     
                     if (outputResult != null) {
-                        val compressResult = pdfCompressor.compressPdf(
-                            context = context,
-                            inputUri = originalFile.uri,
-                            outputStream = outputResult.outputStream,
-                            level = compressionLevel,
-                            qualityPercent = compressionSliderValue.toInt(),
-                            onProgress = { progress = it }
-                        )
+                        val compressResult = if (compressionMode == CompressionMode.LEVEL) {
+                            pdfCompressor.compressPdf(
+                                context = context,
+                                inputUri = originalFile.uri,
+                                outputStream = outputResult.outputStream,
+                                level = compressionLevel,
+                                qualityPercent = compressionSliderValue.toInt(),
+                                onProgress = { progress = it }
+                            )
+                        } else {
+                            val targetBytes = targetSizeValue.toDoubleOrNull()?.let {
+                                (it * if (targetSizeUnit == "MB") 1024 * 1024 else 1024).toLong()
+                            } ?: 0L
+
+                            pdfCompressor.compressPdfToTargetSize(
+                                context = context,
+                                inputUri = originalFile.uri,
+                                outputStream = outputResult.outputStream,
+                                targetSizeBytes = targetBytes,
+                                onProgress = { progress = it }
+                            )
+                        }
+
                         
                         outputResult.outputStream.close()
                         
@@ -210,8 +262,19 @@ fun CompressScreen(
                                 Triple(true, message, outputResult.outputFile.contentUri)
                             },
                             onFailure = { error ->
-                                outputResult.outputFile.file.delete()
-                                Triple(false, error.message ?: "Compression failed", null)
+                                if (error is TargetSizeNotReachedException) {
+                                    val message = buildString {
+                                        append("Target size not reached.\n\n")
+                                        append("Target: $targetSizeValue $targetSizeUnit\n")
+                                        append("Achieved: ${FileManager.formatFileSize(error.smallestAchievableSize)}\n\n")
+                                        append("Note: The file was compressed to the smallest possible size without destroying its contents.\n\n")
+                                        append("Saved to: ${OutputFolderManager.getOutputFolderPath(context)}/${outputResult.outputFile.fileName}")
+                                    }
+                                    Triple(true, message, outputResult.outputFile.contentUri)
+                                } else {
+                                    outputResult.outputFile.file.delete()
+                                    Triple(false, error.message ?: "Compression failed", null)
+                                }
                             }
                         )
                     } else {
@@ -334,7 +397,7 @@ fun CompressScreen(
                             }
                         }
                         
-                        // Compression level slider
+                        // Compression options
                         item {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
@@ -347,11 +410,29 @@ fun CompressScreen(
                                         .fillMaxWidth()
                                         .padding(16.dp)
                                 ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
+                                    TabRow(
+                                        selectedTabIndex = if (compressionMode == CompressionMode.LEVEL) 0 else 1,
+                                        containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                                        modifier = Modifier.padding(bottom = 16.dp)
                                     ) {
+                                        Tab(
+                                            selected = compressionMode == CompressionMode.LEVEL,
+                                            onClick = { compressionMode = CompressionMode.LEVEL },
+                                            text = { Text("Compression Level") }
+                                        )
+                                        Tab(
+                                            selected = compressionMode == CompressionMode.TARGET_SIZE,
+                                            onClick = { compressionMode = CompressionMode.TARGET_SIZE },
+                                            text = { Text("Target Size") }
+                                        )
+                                    }
+
+                                    if (compressionMode == CompressionMode.LEVEL) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
                                         Text(
                                             text = "Compression Level",
                                             style = MaterialTheme.typography.titleSmall,
@@ -413,19 +494,90 @@ fun CompressScreen(
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
+                                } else {
+                                    OutlinedTextField(
+                                        value = targetSizeValue,
+                                        onValueChange = { newValue ->
+                                            if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                                targetSizeValue = newValue
+                                            }
+                                        },
+                                        label = { Text("Target Size") },
+                                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                                        ),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        trailingIcon = {
+                                            var expanded by remember { mutableStateOf(false) }
+                                            Box {
+                                                TextButton(onClick = { expanded = true }) {
+                                                    Text(targetSizeUnit)
+                                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                                                }
+                                                DropdownMenu(
+                                                    expanded = expanded,
+                                                    onDismissRequest = { expanded = false }
+                                                ) {
+                                                    DropdownMenuItem(
+                                                        text = { Text("KB") },
+                                                        onClick = { targetSizeUnit = "KB"; expanded = false }
+                                                    )
+                                                    DropdownMenuItem(
+                                                        text = { Text("MB") },
+                                                        onClick = { targetSizeUnit = "MB"; expanded = false }
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    )
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    val targetSizeBytes = targetSizeValue.toDoubleOrNull()?.let {
+                                        (it * if (targetSizeUnit == "MB") 1024 * 1024 else 1024).toLong()
+                                    }
+
+                                    val fileExceedsError = selectedFile != null && targetSizeBytes != null && targetSizeBytes >= selectedFile!!.size
+
+                                    if (fileExceedsError) {
+                                        Text(
+                                            text = "Target size must be less than original file size.",
+                                            color = MaterialTheme.colorScheme.error,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                    // Quick select chips
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        val presets = listOf("50 KB", "100 KB", "200 KB", "500 KB", "1 MB")
+                                        presets.forEach { preset ->
+                                            val parts = preset.split(" ")
+                                            val value = parts[0]
+                                            val unit = parts[1]
+
+                                            FilterChip(
+                                                selected = targetSizeValue == value && targetSizeUnit == unit,
+                                                onClick = {
+                                                    targetSizeValue = value
+                                                    targetSizeUnit = unit
+                                                },
+                                                label = { Text(preset, style = MaterialTheme.typography.bodySmall) }
+                                            )
+                                        }
+                                    }
                                 }
+                            }
                             }
                         }
                         
                         // Estimated result
                         item {
-                            val estimatedSize = selectedFile?.let { file ->
-                                pdfCompressor.estimateCompressedSize(
-                                    file.size,
-                                    compressionSliderValue.toInt()
-                                )
-                            } ?: 0L
-                            
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
@@ -445,17 +597,38 @@ fun CompressScreen(
                                     )
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column {
-                                        Text(
-                                            text = "Estimated Result",
-                                            style = MaterialTheme.typography.labelLarge,
-                                            fontWeight = FontWeight.Medium,
-                                            color = MaterialTheme.colorScheme.onTertiaryContainer
-                                        )
-                                        Text(
-                                            text = "File size: ~${FileManager.formatFileSize(estimatedSize)}",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
-                                        )
+                                        if (compressionMode == CompressionMode.LEVEL) {
+                                            val estimatedSize = selectedFile?.let { file ->
+                                                pdfCompressor.estimateCompressedSize(
+                                                    file.size,
+                                                    compressionSliderValue.toInt()
+                                                )
+                                            } ?: 0L
+
+                                            Text(
+                                                text = "Estimated Result",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                fontWeight = FontWeight.Medium,
+                                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                                            )
+                                            Text(
+                                                text = "File size: ~${FileManager.formatFileSize(estimatedSize)}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                                            )
+                                        } else {
+                                            Text(
+                                                text = "Target Size Optimization",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                fontWeight = FontWeight.Medium,
+                                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                                            )
+                                            Text(
+                                                text = "Will compress to the smallest quality needed to fit under ${targetSizeValue.ifEmpty { "X" }} $targetSizeUnit",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -522,6 +695,9 @@ fun CompressScreen(
                         ActionButton(
                             text = "Compress PDF",
                             onClick = {
+                                if (compressionMode == CompressionMode.TARGET_SIZE && targetSizeValue.isEmpty()) {
+                                    return@ActionButton
+                                }
                                 if (useCustomLocation) {
                                     val fileName = FileManager.generateOutputFileName("compressed")
                                     savePdfLauncher.safeLaunch(fileName, context)
@@ -530,6 +706,7 @@ fun CompressScreen(
                                 }
                             },
                             isLoading = isProcessing,
+                            enabled = if (compressionMode == CompressionMode.TARGET_SIZE) targetSizeValue.isNotEmpty() else true,
                             icon = Icons.Default.Compress
                         )
                     }
