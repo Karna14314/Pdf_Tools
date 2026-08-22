@@ -12,6 +12,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.yourname.pdftoolkit.data.FileManager
 import com.yourname.pdftoolkit.data.HistoryManager
@@ -27,6 +29,7 @@ import com.yourname.pdftoolkit.data.SafUriManager
 import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.data.PdfFileInfo
 import com.yourname.pdftoolkit.domain.operations.CompressionLevel
+import com.yourname.pdftoolkit.domain.operations.CompressionMode
 import com.yourname.pdftoolkit.domain.operations.PdfCompressor
 import com.yourname.pdftoolkit.ui.components.*
 import com.yourname.pdftoolkit.util.FileOpener
@@ -51,7 +54,11 @@ fun CompressScreen(
     
     // State
     var selectedFile by remember { mutableStateOf<PdfFileInfo?>(null) }
+    // "Normal" is the user-facing name for our automatic hybrid strategy.
+    var compressionMode by remember { mutableStateOf(CompressionMode.HYBRID) }
     var compressionSliderValue by remember { mutableStateOf(50f) }
+    var targetSizeText by remember { mutableStateOf("") }
+    
     // Derive CompressionLevel from slider position
     val compressionLevel = when {
         compressionSliderValue < 25f -> CompressionLevel.LOW
@@ -59,6 +66,13 @@ fun CompressScreen(
         compressionSliderValue < 75f -> CompressionLevel.HIGH
         else -> CompressionLevel.MAXIMUM
     }
+    
+    // Parse target size input to bytes (null when invalid/empty)
+    val targetSizeBytes: Long? = targetSizeText.toDoubleOrNull()?.let { value ->
+        (value * 1024L).toLong().takeIf { it > 0 }
+    }
+    val targetInputValid = compressionMode != CompressionMode.TARGET_SIZE || targetSizeBytes != null
+
     var isProcessing by remember { mutableStateOf(false) }
     var progress by remember { mutableStateOf(0f) }
     var showResult by remember { mutableStateOf(false) }
@@ -95,14 +109,28 @@ fun CompressScreen(
                     
                     val outputStream = context.contentResolver.openOutputStream(outputUri)
                     if (outputStream != null) {
-                        val result = pdfCompressor.compressPdf(
-                            context = context,
-                            inputUri = file.uri,
-                            outputStream = outputStream,
-                            level = compressionLevel,
-                            qualityPercent = compressionSliderValue.toInt(),
-                            onProgress = { progress = it }
-                        )
+                        val resolvedTargetBytes = if (compressionMode == CompressionMode.TARGET_SIZE) {
+                            targetSizeBytes
+                        } else null
+                        
+                        val result = if (resolvedTargetBytes != null) {
+                            pdfCompressor.compressPdfToTargetSize(
+                                context = context,
+                                inputUri = file.uri,
+                                outputStream = outputStream,
+                                targetBytes = resolvedTargetBytes,
+                                onProgress = { progress = it }
+                            ).mapCatching { it.base }
+                        } else {
+                            pdfCompressor.compressPdf(
+                                context = context,
+                                inputUri = file.uri,
+                                outputStream = outputStream,
+                                level = compressionLevel,
+                                qualityPercent = compressionSliderValue.toInt(),
+                                onProgress = { progress = it }
+                            )
+                        }
                         
                         outputStream.close()
                         
@@ -122,7 +150,26 @@ fun CompressScreen(
                                 // CreateDocument URIs lose read permission after the operation
                                 val cachedUri = copyToViewerCache(context, outputUri)
                                 
-                                if (savedBytes > 0) {
+                                if (resolvedTargetBytes != null) {
+                                    val missedTarget = actualCompressedSize > resolvedTargetBytes
+                                    resultSuccess = true
+                                    resultUri = cachedUri ?: outputUri
+                                    resultMessage = buildString {
+                                        if (missedTarget) {
+                                            append("Target could not be reached.\n\n")
+                                            append("Requested Size: ${FileManager.formatFileSize(resolvedTargetBytes)}\n")
+                                            append("Achieved Size: ${compressedInfo?.formattedSize ?: "Unknown"}\n\n")
+                                            append("The best achievable output has been saved.")
+                                        } else {
+                                            append("Compression successful!\n\n")
+                                            append("Requested Size: ${FileManager.formatFileSize(resolvedTargetBytes)}\n")
+                                            append("Achieved Size: ${compressedInfo?.formattedSize ?: "Unknown"}\n")
+                                            if (savedBytes > 0) {
+                                                append("\nSaved: ${FileManager.formatFileSize(savedBytes)} ($savedPercent%)")
+                                            }
+                                        }
+                                    }
+                                } else if (savedBytes > 0) {
                                     resultSuccess = true
                                     resultUri = cachedUri ?: outputUri
                                     resultMessage = buildString {
@@ -166,6 +213,8 @@ fun CompressScreen(
             isProcessing = true
             progress = 0f
             val originalFile = selectedFile!!
+            val isTargetMode = compressionMode == CompressionMode.TARGET_SIZE
+            val resolvedTargetBytes = if (isTargetMode) targetSizeBytes else null
             
             val result = withContext(Dispatchers.IO) {
                 try {
@@ -173,14 +222,24 @@ fun CompressScreen(
                     val outputResult = OutputFolderManager.createOutputStream(context, fileName)
                     
                     if (outputResult != null) {
-                        val compressResult = pdfCompressor.compressPdf(
-                            context = context,
-                            inputUri = originalFile.uri,
-                            outputStream = outputResult.outputStream,
-                            level = compressionLevel,
-                            qualityPercent = compressionSliderValue.toInt(),
-                            onProgress = { progress = it }
-                        )
+                        val compressResult = if (resolvedTargetBytes != null) {
+                            pdfCompressor.compressPdfToTargetSize(
+                                context = context,
+                                inputUri = originalFile.uri,
+                                outputStream = outputResult.outputStream,
+                                targetBytes = resolvedTargetBytes,
+                                onProgress = { progress = it }
+                            ).mapCatching { it.base }
+                        } else {
+                            pdfCompressor.compressPdf(
+                                context = context,
+                                inputUri = originalFile.uri,
+                                outputStream = outputResult.outputStream,
+                                level = compressionLevel,
+                                qualityPercent = compressionSliderValue.toInt(),
+                                onProgress = { progress = it }
+                            )
+                        }
                         
                         outputResult.outputStream.close()
                         
@@ -194,7 +253,20 @@ fun CompressScreen(
                                 } else 0
                                 
                                 val message = buildString {
-                                    if (savedBytes > 0) {
+                                    if (resolvedTargetBytes != null && compressedSize > resolvedTargetBytes) {
+                                        append("Target could not be reached.\n\n")
+                                        append("Requested Size: ${FileManager.formatFileSize(resolvedTargetBytes)}\n")
+                                        append("Achieved Size: ${FileManager.formatFileSize(compressedSize)}\n\n")
+                                        append("The best achievable output has been saved.\n\n")
+                                    } else if (resolvedTargetBytes != null) {
+                                        append("Compression successful!\n\n")
+                                        append("Requested Size: ${FileManager.formatFileSize(resolvedTargetBytes)}\n")
+                                        append("Achieved Size: ${FileManager.formatFileSize(compressedSize)}\n")
+                                        if (savedBytes > 0) {
+                                            append("Saved: ${FileManager.formatFileSize(savedBytes)} ($savedPercent%)\n")
+                                        }
+                                        append("\n")
+                                    } else if (savedBytes > 0) {
                                         append("Compression successful!\n\n")
                                         append("Before: ${originalFile.formattedSize}\n")
                                         append("After: ${FileManager.formatFileSize(compressedSize)}\n")
@@ -237,7 +309,11 @@ fun CompressScreen(
                     inputFileName = originalFile.name,
                     outputFileUri = result.third,
                     outputFileName = "compressed_${originalFile.name}",
-                    details = "Compressed from ${originalFile.formattedSize}"
+                    details = if (isTargetMode) {
+                        "Compressed from ${originalFile.formattedSize} (target size)"
+                    } else {
+                        "Compressed from ${originalFile.formattedSize}"
+                    }
                 )
             } else if (!resultSuccess) {
                 HistoryManager.recordFailure(
@@ -334,7 +410,7 @@ fun CompressScreen(
                             }
                         }
                         
-                        // Compression level slider
+                        // Mode selector
                         item {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
@@ -347,115 +423,198 @@ fun CompressScreen(
                                         .fillMaxWidth()
                                         .padding(16.dp)
                                 ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "Compression Level",
-                                            style = MaterialTheme.typography.titleSmall,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                        Surface(
-                                            shape = MaterialTheme.shapes.small,
-                                            color = MaterialTheme.colorScheme.primary
-                                        ) {
-                                            Text(
-                                                text = when (compressionLevel) {
-                                                    CompressionLevel.LOW -> "Low"
-                                                    CompressionLevel.MEDIUM -> "Medium"
-                                                    CompressionLevel.HIGH -> "High"
-                                                    CompressionLevel.MAXIMUM -> "Maximum"
-                                                },
-                                                style = MaterialTheme.typography.labelMedium,
-                                                fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colorScheme.onPrimary,
-                                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                                            )
-                                        }
-                                    }
-                                    
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    
                                     Text(
-                                        text = when (compressionLevel) {
-                                            CompressionLevel.LOW -> "Best quality, minor size reduction"
-                                            CompressionLevel.MEDIUM -> "Good balance of quality and size"
-                                            CompressionLevel.HIGH -> "Smaller file, reduced quality"
-                                            CompressionLevel.MAXIMUM -> "Smallest file, lowest quality"
-                                        },
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        text = "Compression Mode",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.SemiBold
                                     )
                                     
                                     Spacer(modifier = Modifier.height(12.dp))
                                     
-                                    Slider(
-                                        value = compressionSliderValue,
-                                        onValueChange = { compressionSliderValue = it },
-                                        valueRange = 0f..100f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
+                                        FilterChip(
+                                            selected = compressionMode == CompressionMode.HYBRID,
+                                            onClick = { compressionMode = CompressionMode.HYBRID },
+                                            label = { Text("Normal") },
+                                            leadingIcon = if (compressionMode == CompressionMode.HYBRID) {
+                                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                            } else null,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        
+                                        FilterChip(
+                                            selected = compressionMode == CompressionMode.TARGET_SIZE,
+                                            onClick = { compressionMode = CompressionMode.TARGET_SIZE },
+                                            label = { Text("Target Size") },
+                                            leadingIcon = if (compressionMode == CompressionMode.TARGET_SIZE) {
+                                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                                            } else null,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    
+                                    Text(
+                                        text = if (compressionMode == CompressionMode.HYBRID) {
+                                            "Automatically balances quality and file size"
+                                        } else {
+                                            "Compress as much as needed to fit under this size"
+                                        },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // Hybrid mode: compression level slider
+                        if (compressionMode == CompressionMode.HYBRID) {
+                            item {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "Compression Level",
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                            Surface(
+                                                shape = MaterialTheme.shapes.small,
+                                                color = MaterialTheme.colorScheme.primary
+                                            ) {
+                                                Text(
+                                                    text = when (compressionLevel) {
+                                                        CompressionLevel.LOW -> "Low"
+                                                        CompressionLevel.MEDIUM -> "Medium"
+                                                        CompressionLevel.HIGH -> "High"
+                                                        CompressionLevel.MAXIMUM -> "Maximum"
+                                                    },
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = MaterialTheme.colorScheme.onPrimary,
+                                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                                )
+                                            }
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        
                                         Text(
-                                            text = "Better quality",
+                                            text = when (compressionLevel) {
+                                                CompressionLevel.LOW -> "Best quality, minor size reduction"
+                                                CompressionLevel.MEDIUM -> "Good balance of quality and size"
+                                                CompressionLevel.HIGH -> "Smaller file, reduced quality"
+                                                CompressionLevel.MAXIMUM -> "Smallest file, lowest quality"
+                                            },
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
-                                        Text(
-                                            text = "Smaller file",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        
+                                        Slider(
+                                            value = compressionSliderValue,
+                                            onValueChange = { compressionSliderValue = it },
+                                            valueRange = 0f..100f,
+                                            modifier = Modifier.fillMaxWidth()
                                         )
+                                        
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                text = "Better quality",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = "Smaller file",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                         
-                        // Estimated result
-                        item {
-                            val estimatedSize = selectedFile?.let { file ->
-                                pdfCompressor.estimateCompressedSize(
-                                    file.size,
-                                    compressionSliderValue.toInt()
-                                )
-                            } ?: 0L
-                            
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Speed,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onTertiaryContainer
+                        // Target size mode: numeric target input
+                        if (compressionMode == CompressionMode.TARGET_SIZE) {
+                            item {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                                     )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column {
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
                                         Text(
-                                            text = "Estimated Result",
-                                            style = MaterialTheme.typography.labelLarge,
-                                            fontWeight = FontWeight.Medium,
-                                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                                            text = "Target File Size",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.SemiBold
                                         )
+                                        
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        
                                         Text(
-                                            text = "File size: ~${FileManager.formatFileSize(estimatedSize)}",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
+                                            text = "Enter the maximum size you need for this PDF",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
+                                        
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            OutlinedTextField(
+                                                value = targetSizeText,
+                                                onValueChange = { newValue ->
+                                                    if (newValue.length <= 7 && newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                                        targetSizeText = newValue
+                                                    }
+                                                },
+                                                label = { Text("Target size (KB)") },
+                                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                                singleLine = true,
+                                                isError = targetSizeText.isNotEmpty() && targetSizeBytes == null,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            
+                                        }
+                                        
+                                        if (targetSizeText.isNotEmpty() && targetSizeBytes == null) {
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(
+                                                text = "Enter a valid number greater than 0",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.error
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -529,6 +688,7 @@ fun CompressScreen(
                                     compressWithDefaultLocation()
                                 }
                             },
+                            enabled = targetInputValid,
                             isLoading = isProcessing,
                             icon = Icons.Default.Compress
                         )
@@ -555,8 +715,6 @@ fun CompressScreen(
         )
     }
 }
-
-// CompressionLevelOption removed - replaced by slider UI above
 
 /**
  * Copy a URI to the viewer cache directory and return a FileProvider URI.
