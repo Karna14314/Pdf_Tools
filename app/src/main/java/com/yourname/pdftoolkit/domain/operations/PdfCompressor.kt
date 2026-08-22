@@ -38,6 +38,14 @@ enum class CompressionLevel(val dpi: Float, val jpegQuality: Float, val descript
 }
 
 /**
+ * Compression mode determines the compression strategy.
+ */
+enum class CompressionMode {
+    HYBRID,      // Current behavior: image optimization + optional rerender fallback
+    TARGET_SIZE  // Progressively compress until the target is reached or no smaller result remains
+}
+
+/**
  * Compression strategy based on PDF content analysis.
  */
 enum class CompressionStrategy {
@@ -60,6 +68,15 @@ data class CompressionResult(
     val savedPercentage: Float get() = if (originalSize > 0) (savedBytes.toFloat() / originalSize) * 100 else 0f
     val wasReduced: Boolean get() = compressedSize < originalSize
 }
+
+/**
+ * Result of a target-size compression operation.
+ */
+data class TargetSizeResult(
+    val base: CompressionResult,
+    val targetBytes: Long,
+    val targetAchieved: Boolean
+)
 
 data class CompressionProfile(
     val dpi: Float,
@@ -347,8 +364,13 @@ class PdfCompressor {
             }
 
             // Fall back to re-rendering if image optimization failed or was highly inefficient
-            val shouldTryRerender = level == CompressionLevel.HIGH || level == CompressionLevel.MAXIMUM || (qualityPercent ?: 50) > 60
-            if (shouldTryRerender && (resultFile == null || isOptInefficient)) {
+            // A scan can be a single large page image or use nested resources, neither of
+            // which the structural pass is guaranteed to improve.  Always evaluate the
+            // raster fallback when that pass did not produce a worthwhile smaller file.
+            val shouldTryRerender = resultFile == null || isOptInefficient ||
+                level == CompressionLevel.HIGH || level == CompressionLevel.MAXIMUM ||
+                (qualityPercent ?: 50) > 60
+            if (shouldTryRerender) {
                 onProgress(0.55f)
                 val rerender = tryFullRerender(context, tempFile, profile) { p ->
                     onProgress(0.55f + p * 0.40f)
@@ -382,6 +404,7 @@ class PdfCompressor {
             onProgress(1.0f)
 
             val compressedSize = finalFile.length()
+            val pagesProcessed = countPages(finalFile)
             if (resultFile != null && resultFile != tempFile) resultFile.delete()
 
             return@withContext Result.success(CompressionResult(
@@ -389,7 +412,7 @@ class PdfCompressor {
                 compressedSize = compressedSize,
                 compressionRatio = if (originalSize > 0) compressedSize.toFloat() / originalSize else 1f,
                 timeTakenMs = System.currentTimeMillis() - startTime,
-                pagesProcessed = countPages(finalFile),
+                pagesProcessed = pagesProcessed,
                 strategyUsed = strategyUsed
             ))
             
@@ -866,6 +889,183 @@ class PdfCompressor {
             jpegQuality = jpegQuality.coerceIn(0.35f, 0.92f),
             scaleFactor = scaleFactor.coerceIn(0.55f, 1.0f)
         )
+    }
+
+    /** Compress PDF to a target file size using progressively stronger profiles. */
+    suspend fun compressPdfToTargetSize(
+        context: Context,
+        inputUri: Uri,
+        outputStream: OutputStream,
+        targetBytes: Long,
+        onProgress: (Float) -> Unit = {}
+    ): Result<TargetSizeResult> = withContext(Dispatchers.IO) {
+        val startTime = System.currentTimeMillis()
+        var tempFile: File? = null
+
+        try {
+            ensureActive()
+            onProgress(0.05f)
+
+            // Create a temp file to avoid loading everything into memory
+            val cacheDir = File(context.cacheDir, "compress_cache")
+            if (!cacheDir.exists()) cacheDir.mkdirs()
+            tempFile = File(cacheDir, "temp_compress_${System.currentTimeMillis()}.pdf")
+
+            // Copy URI content to temp file
+            context.contentResolver.openInputStream(inputUri)?.use { input ->
+                FileOutputStream(tempFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return@withContext Result.failure(
+                IllegalStateException("Cannot open input file")
+            )
+
+            val originalSize = tempFile.length()
+
+            // Skip for very small files
+            if (originalSize < 10 * 1024) {
+                onProgress(1.0f)
+                tempFile.inputStream().use { it.copyTo(outputStream) }
+                outputStream.flush()
+                val baseResult = CompressionResult(
+                    originalSize = originalSize,
+                    compressedSize = originalSize,
+                    compressionRatio = 1f,
+                    timeTakenMs = System.currentTimeMillis() - startTime,
+                    pagesProcessed = countPages(tempFile),
+                    strategyUsed = CompressionStrategy.IMAGE_OPTIMIZATION
+                )
+                return@withContext Result.success(TargetSizeResult(
+                    base = baseResult,
+                    targetBytes = targetBytes,
+                    targetAchieved = originalSize <= targetBytes
+                ))
+            }
+
+            onProgress(0.10f)
+
+            // Try increasingly aggressive profiles. A single estimate cannot reliably hit a
+            // byte target because PDFs differ radically in image content and encoding.
+            val targetRatio = if (originalSize > 0) targetBytes.toFloat() / originalSize else 1f
+            val profiles = profilesForTargetRatio(targetRatio)
+            var resultFile: File? = null
+            var strategyUsed = CompressionStrategy.IMAGE_OPTIMIZATION
+
+            for (index in profiles.indices) {
+                val profile = profiles[index]
+                currentCoroutineContext().ensureActive()
+                val progressStart = 0.10f + (0.80f * index / profiles.size)
+                val progressSpan = 0.80f / profiles.size
+
+                val opt = tryImageOptimization(context, tempFile, profile) { p ->
+                    onProgress(progressStart + p * progressSpan * 0.45f)
+                }
+                if (opt != null && opt.length() < (resultFile?.length() ?: originalSize)) {
+                    resultFile?.delete()
+                    resultFile = opt
+                    strategyUsed = CompressionStrategy.IMAGE_OPTIMIZATION
+                } else {
+                    opt?.delete()
+                }
+
+                // Re-rendering is essential for large scanned or single-page image PDFs;
+                // their image data can be nested or already encoded efficiently.
+                if ((resultFile?.length() ?: originalSize) > targetBytes) {
+                    val rerender = tryFullRerender(context, tempFile, profile) { p ->
+                        onProgress(progressStart + progressSpan * (0.45f + p * 0.55f))
+                    }
+                    if (rerender != null && rerender.length() < (resultFile?.length() ?: originalSize)) {
+                        resultFile?.delete()
+                        resultFile = rerender
+                        strategyUsed = CompressionStrategy.FULL_RERENDER
+                    } else {
+                        rerender?.delete()
+                    }
+                }
+
+                if ((resultFile?.length() ?: originalSize) <= targetBytes) break
+            }
+
+            onProgress(0.95f)
+
+            val finalFile = resultFile ?: tempFile
+            finalFile.inputStream().use { it.copyTo(outputStream) }
+            outputStream.flush()
+
+            onProgress(1.0f)
+
+            val compressedSize = finalFile.length()
+            val pagesProcessed = countPages(finalFile)
+            if (resultFile != null && resultFile != tempFile) resultFile.delete()
+
+            val baseResult = CompressionResult(
+                originalSize = originalSize,
+                compressedSize = compressedSize,
+                compressionRatio = if (originalSize > 0) compressedSize.toFloat() / originalSize else 1f,
+                timeTakenMs = System.currentTimeMillis() - startTime,
+                pagesProcessed = pagesProcessed,
+                strategyUsed = strategyUsed
+            )
+
+            return@withContext Result.success(TargetSizeResult(
+                base = baseResult,
+                targetBytes = targetBytes,
+                targetAchieved = compressedSize <= targetBytes
+            ))
+
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: OutOfMemoryError) {
+            Result.failure(
+                IllegalStateException(
+                    "Compression failed due to low memory. Try closing other apps or lowering compression level.",
+                    e
+                )
+            )
+        } catch (e: Exception) {
+            Result.failure(
+                IllegalStateException(
+                    e.message ?: "Compression failed. The PDF may be encrypted or unsupported.",
+                    e
+                )
+            )
+        } finally {
+            tempFile?.delete()
+        }
+    }
+
+    /**
+     * Create a compression profile based on the target size ratio.
+     * targetRatio = targetBytes / originalSize (0.0 to 1.0+)
+     */
+    private fun profileFromTargetRatio(targetRatio: Float): CompressionProfile {
+        val clampedRatio = targetRatio.coerceIn(0.1f, 1.0f)
+        // Invert: smaller target ratio = more aggressive compression
+        val aggression = 1f - clampedRatio // 0.0 (mild) to ~0.9 (aggressive)
+
+        // Map aggression to profile parameters
+        // aggression 0.0 -> quality like LOW (dpi 150, q 0.85, scale 1.0)
+        // aggression 0.9 -> quality like MAXIMUM (dpi 85, q 0.40, scale 0.55)
+        val dpi = (150f - 65f * aggression).coerceIn(85f, 150f)
+        val jpegQuality = (0.85f - 0.45f * aggression).coerceIn(0.40f, 0.85f)
+        val scaleFactor = (1.0f - 0.45f * aggression).coerceIn(0.55f, 1.0f)
+
+        return CompressionProfile(
+            dpi = dpi,
+            jpegQuality = jpegQuality,
+            scaleFactor = scaleFactor
+        )
+    }
+
+    /** Profiles used for a requested size, from quality-preserving to hard fallback. */
+    private fun profilesForTargetRatio(targetRatio: Float): List<CompressionProfile> {
+        val initial = profileFromTargetRatio(targetRatio)
+        return listOf(
+            initial,
+            CompressionProfile(85f, 0.40f, 0.55f),
+            CompressionProfile(65f, 0.28f, 0.42f),
+            CompressionProfile(45f, 0.18f, 0.30f)
+        ).distinct()
     }
 }
 
