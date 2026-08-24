@@ -260,8 +260,8 @@
     <string name="language_spanish">Español</string>
     <string name="language_hindi">हिन्दी</string>
     <string name="language_chinese">中文</string>
-    <string name="language_portuguese">TODO: Português (Brasil)</string>
-    <string name="language_german">TODO: Deutsch</string>
+    <string name="language_portuguese">葡萄牙语（巴西）</string>
+    <string name="language_german">德语</string>
 
 
     <string name="image_format_webp">WebP (推荐)</string>
