@@ -49,6 +49,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.NonCancellable
 
 data class PageTextData(val text: String, val positions: List<TextPosition>)
 
@@ -1156,7 +1158,7 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
                 }
             } else throw e
         }
-        viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
+        GlobalScope.launch(Dispatchers.IO + NonCancellable + exceptionHandler) {
             synchronized(activeBitmaps) {
                 uiBitmapRefs.values.forEach { if (!it.isRecycled) it.recycle() }
                 uiBitmapRefs.clear()
