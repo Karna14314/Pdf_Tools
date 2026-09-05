@@ -32,9 +32,6 @@
   </a>
   <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android" alt="Platform">
   <img src="https://img.shields.io/github/last-commit/Karna14314/Pdf_Tools?style=flat&color=orange" alt="Last Commit">
-  <a href="https://oosmetrics.com/repo/Karna14314/Pdf_Tools">
-    <img src="https://api.oosmetrics.com/api/v1/badge/achievement/ae7516ca-85f2-4c6f-a679-149537b637d8.svg" alt="oosmetrics">
-  </a>
 </p>
 
 ---

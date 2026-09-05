@@ -2,6 +2,7 @@ package com.yourname.pdftoolkit.domain.operations
 
 import android.content.Context
 import android.net.Uri
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -48,7 +49,7 @@ class PdfRotator {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = document.numberOfPages
             
             if (totalPages == 0) {
@@ -61,7 +62,7 @@ class PdfRotator {
                 ensureActive()
                 val page = document.getPage(pageIndex)
                 val currentRotation = page.rotation
-                val newRotation = (currentRotation + angle.degrees) % 360
+                val newRotation = ((currentRotation + angle.degrees) % 360 + 360) % 360
                 page.rotation = newRotation
                 
                 onProgress((pageIndex + 1).toFloat() / totalPages)
@@ -97,6 +98,27 @@ class PdfRotator {
         outputStream: OutputStream,
         rotations: Map<Int, RotationAngle>,
         onProgress: (Float) -> Unit = {}
+    ): Result<Int> {
+        val degreesMap = rotations.mapValues { it.value.degrees }
+        return rotateSpecificPagesWithDegrees(context, inputUri, outputStream, degreesMap, onProgress)
+    }
+
+    /**
+     * Rotate specific pages in a PDF using exact degree values.
+     *
+     * @param context Android context
+     * @param inputUri URI of the PDF to rotate
+     * @param outputStream Output stream for the rotated PDF
+     * @param rotations Map of page numbers (1-indexed) to rotation degrees (e.g. 90, 180, 270)
+     * @param onProgress Progress callback (0.0 to 1.0)
+     * @return Number of pages rotated
+     */
+    suspend fun rotateSpecificPagesWithDegrees(
+        context: Context,
+        inputUri: Uri,
+        outputStream: OutputStream,
+        rotations: Map<Int, Int>,
+        onProgress: (Float) -> Unit = {}
     ): Result<Int> = withContext(Dispatchers.IO) {
         var document: PDDocument? = null
         
@@ -106,7 +128,7 @@ class PdfRotator {
                     IllegalStateException("Cannot open input file")
                 )
             
-            document = PDDocument.load(inputStream)
+            document = PDDocument.load(inputStream, MemoryUsageSetting.setupTempFileOnly())
             val totalPages = document.numberOfPages
             
             // Validate page numbers
@@ -118,13 +140,22 @@ class PdfRotator {
             }
             
             var rotatedCount = 0
-            rotations.entries.forEachIndexed { index, (pageNum, angle) ->
+            if (rotations.isEmpty()) {
+                document.save(outputStream)
+                outputStream.flush()
+                return@withContext Result.success(0)
+            }
+
+            rotations.entries.forEachIndexed { index, (pageNum, degrees) ->
                 ensureActive()
-                val page = document.getPage(pageNum - 1) // 0-indexed
-                val currentRotation = page.rotation
-                val newRotation = (currentRotation + angle.degrees) % 360
-                page.rotation = newRotation
-                rotatedCount++
+                val normDegrees = ((degrees % 360) + 360) % 360
+                if (normDegrees != 0) {
+                    val page = document.getPage(pageNum - 1) // 0-indexed
+                    val currentRotation = page.rotation
+                    val newRotation = ((currentRotation + normDegrees) % 360 + 360) % 360
+                    page.rotation = newRotation
+                    rotatedCount++
+                }
                 
                 onProgress((index + 1).toFloat() / rotations.size)
             }
