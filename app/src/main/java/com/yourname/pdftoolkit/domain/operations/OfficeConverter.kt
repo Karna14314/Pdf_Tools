@@ -89,7 +89,8 @@ class OfficeConverter {
                             val lines = mutableListOf<CellLine>()
                             for (para in cell.paragraphs) {
                                 val isHeading = para.styleID?.lowercase()?.contains("heading") == true ||
-                                        para.runs.firstOrNull()?.fontSize ?: 0 > 14
+                                        // getFontSize() returns whole points
+                                        (para.runs.firstOrNull()?.fontSize ?: 0) > 14
 
                                 for (run in para.runs) {
                                     val font = when {
@@ -99,6 +100,7 @@ class OfficeConverter {
                                         else -> PDType1Font.HELVETICA
                                     }
                                     val fontSizeHalfPoints = run.fontSize
+                                    // getFontSize() already returns whole points
                                     val fontSize = if (fontSizeHalfPoints > 0) (fontSizeHalfPoints.toFloat()) else (if (isHeading) fontSizeHeading else fontSizeNormal)
                                     val leading = fontSize * 1.4f
                                     val runText = run.getText(0) ?: ""
@@ -178,7 +180,8 @@ class OfficeConverter {
                 if (bodyElement is org.apache.poi.xwpf.usermodel.XWPFParagraph) {
                     val paragraph = bodyElement
                     val isHeading = paragraph.styleID?.lowercase()?.contains("heading") == true ||
-                            paragraph.runs.firstOrNull()?.fontSize ?: 0 > 14
+                            // getFontSize() returns whole points
+                            (paragraph.runs.firstOrNull()?.fontSize ?: 0) > 14
                     
                     var xCursor = margin
 
@@ -259,6 +262,7 @@ class OfficeConverter {
                         val runText = run.getText(0) ?: ""
                         if (runText.isNotEmpty()) {
                             val fontSizeHalfPoints = run.fontSize
+                            // getFontSize() already returns whole points
                             val actualFontSize = if (fontSizeHalfPoints > 0) (fontSizeHalfPoints.toFloat()) else (if (isHeading) fontSizeHeading else fontSizeNormal)
                             val leading = actualFontSize * 1.4f
                             val font = when {
@@ -317,8 +321,8 @@ class OfficeConverter {
                         }
                     }
 
-                    val lastLeading = (if (isHeading) fontSizeHeading else fontSizeNormal) * 1.4f
-                    yPosition -= (lastLeading + 6f)
+                val lastLeading = (if (isHeading) fontSizeHeading else fontSizeNormal) * 1.4f
+                yPosition -= (lastLeading + 3f)
                     // Next paragraph always starts at the left margin (prevents
                     // mid-line continuation that wasted vertical space / pages)
                     xCursor = margin
