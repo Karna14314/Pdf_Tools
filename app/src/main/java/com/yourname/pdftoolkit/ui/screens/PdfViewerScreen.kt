@@ -293,6 +293,10 @@ fun PdfViewerScreen(
     
     Scaffold(
         modifier = Modifier.nestedScroll(nestedScrollConnection),
+        // Single inset owner: AppNavigation's outer Scaffold already pads for
+        // the status bar, so don't consume it a second time here (Omnisuite
+        // has no outer Scaffold, which is why it shows no top gap).
+        contentWindowInsets = WindowInsets(0.dp),
         topBar = {
             AnimatedVisibility(
                 visible = showControls,
@@ -1372,7 +1376,7 @@ private fun PdfPagesContent(
                 userScrollEnabled = (!isEditMode || selectedTool == AnnotationTool.NONE) && scale <= 1f,
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                contentPadding = PaddingValues(top = 8.dp, bottom = 8.dp + extraBottomPaddingDp)
+                contentPadding = PaddingValues(top = 0.dp, bottom = 8.dp + extraBottomPaddingDp)
             ) {
                 items(
                     count = totalPages,

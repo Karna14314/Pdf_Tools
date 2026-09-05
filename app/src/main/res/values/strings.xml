@@ -151,6 +151,14 @@
     <string name="doc_unsupported">Only .docx and .doc files are supported</string>
     <string name="doc_access_expired">Access to this file expired. Please open it again from storage.</string>
 
+    <!-- Tools search & favorites -->
+    <string name="tools_search_hint">Search tools…</string>
+    <string name="tools_favorites">Favorites</string>
+    <string name="tools_search_results">Results</string>
+    <string name="tools_search_empty">No tools match your search</string>
+    <string name="tools_add_favorite">Add to favorites</string>
+    <string name="tools_remove_favorite">Remove from favorites</string>
+
     <!-- Smart Scan (ML Kit, Play flavor) -->
     <string name="scan_smart_scan">Smart Scan (Auto Borders)</string>
     <string name="scan_smart_scan_hint">Automatically detects page edges with editable borders and saves straight to PDF.</string>

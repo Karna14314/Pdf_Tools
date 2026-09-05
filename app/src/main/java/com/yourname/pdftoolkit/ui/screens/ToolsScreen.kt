@@ -10,6 +10,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -49,6 +50,25 @@ fun getToolSections(): List<ToolSectionData> {
 }
 
 data class ToolSectionData(val title: String)
+
+/**
+ * Favorite tool ids persisted in SharedPreferences as a string set.
+ */
+private const val FAVORITE_TOOLS_PREFS = "favorite_tools_prefs"
+private const val FAVORITE_TOOLS_KEY = "favorite_tool_ids"
+
+private fun loadFavoriteToolIds(context: android.content.Context): Set<String> {
+    return context.getSharedPreferences(FAVORITE_TOOLS_PREFS, android.content.Context.MODE_PRIVATE)
+        .getStringSet(FAVORITE_TOOLS_KEY, emptySet())
+        .orEmpty()
+}
+
+private fun saveFavoriteToolIds(context: android.content.Context, ids: Set<String>) {
+    context.getSharedPreferences(FAVORITE_TOOLS_PREFS, android.content.Context.MODE_PRIVATE)
+        .edit()
+        .putStringSet(FAVORITE_TOOLS_KEY, ids)
+        .apply()
+}
 
 // Keep for backwards compatibility
 enum class ToolSection(val title: String) {
@@ -157,7 +177,58 @@ fun ToolsScreen(
     }
     
     val allTools = getAllTools()
-    
+
+    var searchQuery by remember { mutableStateOf("") }
+    var favoriteIds by remember { mutableStateOf(loadFavoriteToolIds(context)) }
+    var showFavoritePicker by remember { mutableStateOf(false) }
+
+    fun toggleFavorite(tool: ToolItem) {
+        val updated = if (favoriteIds.contains(tool.id)) {
+            favoriteIds - tool.id
+        } else {
+            favoriteIds + tool.id
+        }
+        favoriteIds = updated
+        saveFavoriteToolIds(context, updated)
+    }
+
+    fun handleToolClick(tool: ToolItem) {
+        if (tool.screen == Screen.Home && tool.id == "view_pdf") {
+            // Special handling for View PDF
+            pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context)
+        } else {
+            // Check if this is an image tool that needs special routing
+            val imageToolIds = listOf("image_compress", "image_resize", "image_convert", "image_metadata")
+            if (imageToolIds.contains(tool.id) && onNavigateToRoute != null) {
+                // Use route with operation parameter for image tools
+                val route = Screen.getRouteForToolId(tool.id)
+                onNavigateToRoute(route)
+            } else {
+                // Use screen object for other tools
+                onNavigateToScreen(tool.screen)
+            }
+        }
+    }
+
+    val trimmedQuery = searchQuery.trim()
+    // Derived so typing only recomputes the filtered lists instead of
+    // re-running string lookups for every card on each keystroke.
+    val searchResults by remember(trimmedQuery) {
+        derivedStateOf {
+            if (trimmedQuery.isEmpty()) {
+                emptyList()
+            } else {
+                allTools.filter { tool ->
+                    context.getString(tool.titleResId).contains(trimmedQuery, ignoreCase = true) ||
+                        context.getString(tool.descResId).contains(trimmedQuery, ignoreCase = true)
+                }
+            }
+        }
+    }
+    val favoriteTools by remember(allTools, favoriteIds) {
+        derivedStateOf { allTools.filter { favoriteIds.contains(it.id) } }
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -173,44 +244,115 @@ fun ToolsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        
-        // Sections
-        ToolSection.entries.forEach { section ->
-            val sectionTools = allTools.filter { it.section == section }
-            if (sectionTools.isNotEmpty()) {
+
+        // Search
+        item {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text(stringResource(R.string.tools_search_hint)) },
+                leadingIcon = {
+                    Icon(Icons.Default.Search, contentDescription = null)
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_cancel))
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = MaterialTheme.shapes.large,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        if (trimmedQuery.isNotEmpty()) {
+            // Search results replace sections while searching
+            item {
+                SectionHeader(title = stringResource(R.string.tools_search_results))
+            }
+
+            if (searchResults.isEmpty()) {
                 item {
-                    SectionHeader(title = getSectionTitle(section))
+                    Text(
+                        text = stringResource(R.string.tools_search_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
                 }
-                
+            } else {
                 item {
                     ToolGrid(
-                        tools = sectionTools,
-                        onToolClick = { tool ->
-                            if (tool.screen == Screen.Home && tool.id == "view_pdf") {
-                                // Special handling for View PDF
-                                pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context)
-                            } else {
-                                // Check if this is an image tool that needs special routing
-                                val imageToolIds = listOf("image_compress", "image_resize", "image_convert", "image_metadata")
-                                if (imageToolIds.contains(tool.id) && onNavigateToRoute != null) {
-                                    // Use route with operation parameter for image tools
-                                    val route = Screen.getRouteForToolId(tool.id)
-                                    onNavigateToRoute(route)
-                                } else {
-                                    // Use screen object for other tools
-                                    onNavigateToScreen(tool.screen)
-                                }
-                            }
-                        }
+                        tools = searchResults,
+                        onToolClick = ::handleToolClick
                     )
                 }
             }
+        } else {
+            // Favorites header with add button (grid auto-hidden when none)
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.tools_favorites),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { showFavoritePicker = true }) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = stringResource(R.string.tools_add_favorite)
+                        )
+                    }
+                }
+            }
+
+            if (favoriteTools.isNotEmpty()) {
+                item {
+                    ToolGrid(
+                        tools = favoriteTools,
+                        onToolClick = ::handleToolClick
+                    )
+                }
+            }
+
+            // Sections
+            ToolSection.entries.forEach { section ->
+                val sectionTools = allTools.filter { it.section == section }
+                if (sectionTools.isNotEmpty()) {
+                    item {
+                        SectionHeader(title = getSectionTitle(section))
+                    }
+
+                    item {
+                        ToolGrid(
+                            tools = sectionTools,
+                            onToolClick = ::handleToolClick
+                        )
+                    }
+                }
+            }
         }
-        
+
         // Bottom spacing
         item {
             Spacer(modifier = Modifier.height(80.dp))
         }
+    }
+
+    if (showFavoritePicker) {
+        FavoritePickerDialog(
+            allTools = allTools,
+            favoriteIds = favoriteIds,
+            onToggleFavorite = ::toggleFavorite,
+            onDismiss = { showFavoritePicker = false }
+        )
     }
 }
 
@@ -256,7 +398,7 @@ private fun ToolGrid(
 ) {
     // Use a 3-column grid for compact display
     val rows = tools.chunked(3)
-    
+
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -279,6 +421,72 @@ private fun ToolGrid(
             }
         }
     }
+}
+
+/**
+ * Picker dialog for choosing favorite tools. The tool grid itself stays
+ * untouched; all favorite management happens here.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FavoritePickerDialog(
+    allTools: List<ToolItem>,
+    favoriteIds: Set<String>,
+    onToggleFavorite: (ToolItem) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.tools_favorites)) },
+        text = {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Group rows by section for quick scanning
+                ToolSection.entries.forEach { section ->
+                    val sectionTools = allTools.filter { it.section == section }
+                    if (sectionTools.isNotEmpty()) {
+                        item(key = "header_${section.name}") {
+                            Text(
+                                text = getSectionTitle(section),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                            )
+                        }
+                        items(
+                            items = sectionTools,
+                            key = { it.id }
+                        ) { tool ->
+                            val checked = favoriteIds.contains(tool.id)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = checked,
+                                    onCheckedChange = { onToggleFavorite(tool) }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = tool.getTitle(),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.action_close))
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -317,35 +525,35 @@ private fun ToolCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Icon(
-                    imageVector = tool.icon,
-                    contentDescription = tool.getTitle(),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .size(24.dp)
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        imageVector = tool.icon,
+                        contentDescription = tool.getTitle(),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = tool.getTitle(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = tool.getTitle(),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurface
-            )
         }
     }
-}
 
 /**
  * Get all tools organized by section.
@@ -428,6 +636,14 @@ fun getAllTools(): List<ToolItem> = listOf(
         section = ToolSection.ORGANIZE,
         screen = Screen.Extract
     ),
+    ToolItem(
+        id = "print_studio",
+        titleResId = R.string.tool_print_studio,
+        descResId = R.string.desc_print_studio,
+        icon = Icons.Default.Print,
+        section = ToolSection.ORGANIZE,
+        screen = Screen.PrintStudio
+    ),
     
     // SECTION 3: CONVERT (PDF-CENTRIC)
     ToolItem(
@@ -445,6 +661,14 @@ fun getAllTools(): List<ToolItem> = listOf(
         icon = Icons.Default.CameraAlt,
         section = ToolSection.CONVERT,
         screen = Screen.ScanToPdf
+    ),
+    ToolItem(
+        id = "doc_to_pdf",
+        titleResId = R.string.tool_doc_to_pdf,
+        descResId = R.string.desc_doc_to_pdf,
+        icon = Icons.Default.Description,
+        section = ToolSection.CONVERT,
+        screen = Screen.DocToPdf
     ),
     ToolItem(
         id = "ocr",
