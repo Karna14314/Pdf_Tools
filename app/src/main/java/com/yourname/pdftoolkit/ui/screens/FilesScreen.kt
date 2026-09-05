@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -41,7 +42,8 @@ import java.util.*
  */
 enum class FileFilter(val title: String, val icon: ImageVector) {
     ALL("All", Icons.Default.Folder),
-    PDF("PDF", Icons.Default.PictureAsPdf)
+    PDF("PDF", Icons.Default.PictureAsPdf),
+    DOCS("Docs", Icons.Default.Description)
 }
 
 /**
@@ -61,18 +63,29 @@ enum class FileFilter(val title: String, val icon: ImageVector) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilesScreen(
-    onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> }
+    onOpenPdfViewer: (Uri, String) -> Unit = { _, _ -> },
+    onOpenDocViewer: (Uri, String) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+
     var selectedFilter by remember { mutableStateOf(FileFilter.ALL) }
     var recentFiles by remember { mutableStateOf<List<PersistedFile>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var showClearHistoryDialog by remember { mutableStateOf(false) }
-    
-    // Supported MIME types for document picker (PDF only)
-    val pdfMimeTypes = arrayOf("application/pdf")
+
+    // Supported MIME types for document picker (PDF + Word)
+    val docMimeTypes = arrayOf(
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword"
+    )
+
+    fun isWordFile(name: String, mimeType: String?): Boolean {
+        return mimeType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+            mimeType == "application/msword" ||
+            name.endsWith(".docx", true) || name.endsWith(".doc", true)
+    }
     
     /**
      * Copy content URI to app cache for reliable access.
@@ -116,7 +129,7 @@ fun FilesScreen(
                 if (persistedFile != null) {
                     // Update local list immediately
                     recentFiles = SafUriManager.loadRecentFiles(context)
-                    
+
                     // Open PDF files - copy to cache first for reliable access
                     if (persistedFile.mimeType == "application/pdf") {
                         // CRITICAL: Copy to cache before opening to avoid permission expiration
@@ -127,12 +140,23 @@ fun FilesScreen(
                             // Fallback to direct URI if copy fails (may fail on some devices)
                             onOpenPdfViewer(selectedUri, persistedFile.name.substringBeforeLast('.'))
                         }
+                    } else if (isWordFile(persistedFile.name, persistedFile.mimeType)) {
+                        // CRITICAL: Copy to cache before opening, same as PDFs —
+                        // stored Downloads/provider URIs lose their grant after
+                        // restart, which otherwise surfaces as Permission Denial.
+                        val cachedUri = copyUriToCache(context, selectedUri)
+                        if (cachedUri != null) {
+                            onOpenDocViewer(cachedUri, persistedFile.name)
+                        } else {
+                            // Fallback to direct URI if copy fails (may fail on some devices)
+                            onOpenDocViewer(selectedUri, persistedFile.name)
+                        }
                     }
                 } else {
                     // Fallback: try to open anyway, may fail if no permission
                     val mimeType = context.contentResolver.getType(selectedUri)
                     val name = getFileName(context, selectedUri)
-                    
+
                     if (mimeType == "application/pdf") {
                         val cachedUri = copyUriToCache(context, selectedUri)
                         if (cachedUri != null) {
@@ -140,6 +164,8 @@ fun FilesScreen(
                         } else {
                             onOpenPdfViewer(selectedUri, name)
                         }
+                    } else if (isWordFile(name, mimeType)) {
+                        onOpenDocViewer(selectedUri, name)
                     }
                 }
             }
@@ -158,6 +184,7 @@ fun FilesScreen(
         when (selectedFilter) {
             FileFilter.ALL -> recentFiles
             FileFilter.PDF -> recentFiles.filter { it.mimeType == "application/pdf" }
+            FileFilter.DOCS -> recentFiles.filter { isWordFile(it.name, it.mimeType) }
         }
     }
     
@@ -181,7 +208,7 @@ fun FilesScreen(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             ),
             onClick = {
-                documentPickerLauncher.safeLaunch(pdfMimeTypes, context)
+                documentPickerLauncher.safeLaunch(docMimeTypes, context)
             }
         ) {
             Row(
@@ -330,7 +357,7 @@ fun FilesScreen(
                                 if (uri != null) {
                                     // Update last accessed time
                                     SafUriManager.updateLastAccessed(context, file.uriString)
-                                    
+
                                     // Open PDF files only
                                     val displayName = file.name.substringBeforeLast('.')
                                     if (file.mimeType == "application/pdf") {
@@ -341,6 +368,20 @@ fun FilesScreen(
                                         } else {
                                             // Fallback to direct URI if copy fails
                                             onOpenPdfViewer(uri, displayName)
+                                        }
+                                    } else if (isWordFile(file.name, file.mimeType)) {
+                                        // CRITICAL: Copy to cache before opening, same as PDFs —
+                                        // history URIs (e.g. Downloads provider) may have
+                                        // lost their grant, causing Permission Denial.
+                                        val cachedUri = copyUriToCache(context, uri)
+                                        if (cachedUri != null) {
+                                            onOpenDocViewer(cachedUri, file.name)
+                                        } else {
+                                            Toast.makeText(
+                                                context,
+                                                context.getString(R.string.doc_access_expired),
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                         }
                                     }
                                 }

@@ -78,6 +78,8 @@
     <string name="tool_html_to_pdf">HTML to PDF</string>
     <string name="tool_extract_text">Extract Text</string>
     <string name="tool_scan_to_pdf">Scan to PDF</string>
+    <string name="tool_doc_to_pdf">Doc to PDF</string>
+    <string name="tool_view_doc">View Document</string>
     <string name="tool_ocr">OCR</string>
     <string name="tool_image_tools">Image Tools</string>
     <string name="tool_image_compress">Compress Image</string>
@@ -114,7 +116,44 @@
     <string name="desc_html_to_pdf">Convert webpage or HTML to PDF</string>
     <string name="desc_extract_text">Extract text content to TXT file</string>
     <string name="desc_scan_to_pdf">Scan documents with camera</string>
+    <string name="desc_doc_to_pdf">Convert Word documents to PDF</string>
+    <string name="desc_view_doc">Open and read Word documents</string>
     <string name="desc_ocr">Make scanned PDFs searchable</string>
+
+    <!-- Document Viewer / Doc to PDF -->
+    <string name="doc_viewer">Document Viewer</string>
+    <string name="doc_loading">Loading document…</string>
+    <string name="doc_load_error">Document Read Error</string>
+    <string name="doc_legacy_readonly">Read-only legacy .doc format. Convert to .docx for full fidelity.</string>
+    <string name="doc_search">Search</string>
+    <string name="doc_search_hint">Search text in document…</string>
+    <string name="doc_no_matches">No matches</string>
+    <string name="doc_reflow">Reflow</string>
+    <string name="doc_print_layout">Print Layout</string>
+    <string name="doc_share">Share</string>
+    <string name="doc_share_failed">Could not share document</string>
+    <string name="doc_open_in">Open in…</string>
+    <string name="doc_no_app_found">No app found to open this document</string>
+    <string name="doc_export_pdf">Export to PDF</string>
+    <string name="doc_exporting">Exporting PDF</string>
+    <string name="doc_printing">Preparing print</string>
+    <string name="doc_converting">Converting document offline…</string>
+    <string name="doc_export_success">Document exported to PDF successfully!</string>
+    <string name="doc_print">Print</string>
+    <string name="doc_print_failed">Print failed</string>
+    <string name="doc_print_unsupported">Printing is not supported for legacy .doc files</string>
+    <string name="doc_pick_file">Select Word document</string>
+    <string name="doc_no_file">No document selected</string>
+    <string name="doc_convert">Convert to PDF</string>
+    <string name="doc_convert_done">PDF created successfully!</string>
+    <string name="doc_open_pdf">Open PDF</string>
+    <string name="doc_save_copy">Save copy to custom location…</string>
+    <string name="doc_unsupported">Only .docx and .doc files are supported</string>
+    <string name="doc_access_expired">Access to this file expired. Please open it again from storage.</string>
+
+    <!-- Smart Scan (ML Kit, Play flavor) -->
+    <string name="scan_smart_scan">Smart Scan (Auto Borders)</string>
+    <string name="scan_smart_scan_hint">Automatically detects page edges with editable borders and saves straight to PDF.</string>
     <string name="desc_image_tools">Resize, compress, convert images</string>
     <string name="desc_sign_pdf">Add your signature to PDF</string>
     <string name="desc_fill_forms">Fill PDF form fields</string>
@@ -607,4 +646,8 @@ Saved to: %1$s</string>
     <string name="fill_form_filled">Form Filled!</string>
     <string name="fill_fields_updated">%1$d fields updated</string>
     <string name="fill_no_editable_fields">This form has no editable fields</string>
+
+    <!-- Print & Imposition Studio -->
+    <string name="tool_print_studio">Print Studio</string>
+    <string name="desc_print_studio">Booklets, N-up grids, cards, bleeds and crop marks</string>
 </resources>
