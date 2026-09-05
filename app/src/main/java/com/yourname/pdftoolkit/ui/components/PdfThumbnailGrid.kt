@@ -64,7 +64,9 @@ fun PdfThumbnailGrid(
     displayPages: List<Int> = (1..pageCount).toList(),
     rotationDegrees: (Int) -> Float = { 0f },
     topLeftBadge: @Composable ((Int, Int) -> Unit)? = null, // (pageNum, index)
-    topRightBadge: @Composable ((Int, Int, Boolean) -> Unit)? = null // (pageNum, index, isSelected)
+    topRightBadge: @Composable ((Int, Int, Boolean) -> Unit)? = null, // (pageNum, index, isSelected)
+    bottomLeftBadge: @Composable ((Int, Int) -> Unit)? = null,
+    bottomRightBadge: @Composable ((Int, Int) -> Unit)? = null
 ) {
     val organizer = remember { PdfOrganizer() }
     val defaultTopLeft: @Composable (Int, Int) -> Unit = { pageNum, _ ->
@@ -106,6 +108,25 @@ fun PdfThumbnailGrid(
         }
     }
 
+    val defaultBottomRight: @Composable (Int, Int) -> Unit = { pageNum, _ ->
+        val deg = ((rotationDegrees(pageNum).toInt() % 360) + 360) % 360
+        if (deg != 0) {
+            Box(
+                modifier = Modifier
+                    .padding(6.dp)
+                    .background(Color.Black.copy(alpha = 0.75f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = "$deg°",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -125,7 +146,9 @@ fun PdfThumbnailGrid(
                 onClick = { onPageSelected(selectionKey) },
                 rotationDegrees = rotationDegrees(pageNum),
                 topLeftBadge = { (topLeftBadge ?: defaultTopLeft)(pageNum, index) },
-                topRightBadge = { (topRightBadge ?: defaultTopRight)(pageNum, index, isSelected) }
+                topRightBadge = { (topRightBadge ?: defaultTopRight)(pageNum, index, isSelected) },
+                bottomLeftBadge = bottomLeftBadge?.let { { it(pageNum, index) } },
+                bottomRightBadge = { (bottomRightBadge ?: defaultBottomRight)(pageNum, index) }
             )
         }
     }
@@ -141,7 +164,9 @@ fun PdfThumbnailCard(
     modifier: Modifier = Modifier,
     rotationDegrees: Float = 0f,
     topLeftBadge: @Composable (() -> Unit)? = null,
-    topRightBadge: @Composable (() -> Unit)? = null
+    topRightBadge: @Composable (() -> Unit)? = null,
+    bottomLeftBadge: @Composable (() -> Unit)? = null,
+    bottomRightBadge: @Composable (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     var thumbnail by remember { mutableStateOf<Bitmap?>(null) }
@@ -226,6 +251,18 @@ fun PdfThumbnailCard(
             if (topRightBadge != null) {
                 Box(modifier = Modifier.align(Alignment.TopEnd)) {
                     topRightBadge()
+                }
+            }
+
+            if (bottomLeftBadge != null) {
+                Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                    bottomLeftBadge()
+                }
+            }
+
+            if (bottomRightBadge != null) {
+                Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                    bottomRightBadge()
                 }
             }
         }
