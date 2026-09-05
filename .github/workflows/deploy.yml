@@ -77,10 +77,9 @@ jobs:
           
           # Update whatsnew for Play Store listing
           cat > distribution/whatsnew/whatsnew-en-US <<EOF
-          • New Word document viewer: open and read DOCX files with print layout, search, and PDF export
-          • Tools screen now has search and a Favorites section — pin the tools you use daily
-          • Fixed image-heavy Word files sometimes never finishing loading
-          • Fixed a white strip at the top of the PDF viewer
+          • New Notes tool in PDF viewer: tap any page to add a sticky note, edit or delete anytime — notes save as standard PDF comments visible in any PDF app
+          • Fixed file sizes showing as 0B in the file list
+          • More reliable PDF compression engine
           • Stability and performance improvements
           EOF
           
