@@ -57,11 +57,15 @@ class MainActivity : AppCompatActivity() {
     private var pendingPdfUri: Uri? = null
     private var pendingPdfName: String? = null
     private var pendingIsLoading: Boolean = false
-    
+    private var pendingDocUri: Uri? = null
+    private var pendingDocName: String? = null
+
     // Compose state holders for handling intents while app is running
     private var pdfUriState: androidx.compose.runtime.MutableState<Uri?>? = null
     private var pdfNameState: androidx.compose.runtime.MutableState<String?>? = null
     private var isLoadingState: androidx.compose.runtime.MutableState<Boolean>? = null
+    private var docUriState: androidx.compose.runtime.MutableState<Uri?>? = null
+    private var docNameState: androidx.compose.runtime.MutableState<String?>? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         // Language is already applied by PdfToolkitApplication.onCreate() before any
@@ -93,10 +97,14 @@ class MainActivity : AppCompatActivity() {
                     val pdfUri = remember { mutableStateOf(pendingPdfUri) }
                     val pdfName = remember { mutableStateOf(pendingPdfName) }
                     val isLoading = remember { mutableStateOf(pendingIsLoading) }
-                    
+                    val docUri = remember { mutableStateOf(pendingDocUri) }
+                    val docName = remember { mutableStateOf(pendingDocName) }
+
                     // Store references for onNewIntent updates
                     pdfUriState = pdfUri
                     pdfNameState = pdfName
+                    docUriState = docUri
+                    docNameState = docName
                     isLoadingState = isLoading
                     
                     // Observe rating request
@@ -122,7 +130,9 @@ class MainActivity : AppCompatActivity() {
                             navController = navController,
                             modifier = Modifier.fillMaxSize(),
                             initialPdfUri = pdfUri.value,
-                            initialPdfName = pdfName.value
+                            initialPdfName = pdfName.value,
+                            initialDocUri = docUri.value,
+                            initialDocName = docName.value
                         )
                     }
                 }
@@ -154,18 +164,22 @@ class MainActivity : AppCompatActivity() {
         // Reset pending values
         pendingPdfUri = null
         pendingPdfName = null
-        
+        pendingDocUri = null
+        pendingDocName = null
+
         // Handle the new intent
         try {
             handleIntent(intent)
         } catch (e: Exception) {
             Log.e(TAG, "Error handling intent in onNewIntent", e)
         }
-        
+
         // Update Compose state to trigger navigation
-        Log.d(TAG, "onNewIntent: Updating Compose state with PDF=$pendingPdfUri, Loading=$pendingIsLoading")
+        Log.d(TAG, "onNewIntent: Updating Compose state with PDF=$pendingPdfUri, DOC=$pendingDocUri, Loading=$pendingIsLoading")
         pdfUriState?.value = pendingPdfUri
         pdfNameState?.value = pendingPdfName
+        docUriState?.value = pendingDocUri
+        docNameState?.value = pendingDocName
         isLoadingState?.value = pendingIsLoading
     }
     
@@ -216,15 +230,38 @@ class MainActivity : AppCompatActivity() {
         }
 
         val fileName = getFileName(originalUri) ?: "document.pdf"
-        
+
         Log.d(TAG, "Processing URI: $originalUri, mimeType: $mimeType, fileName: $fileName, action: ${intent.action}")
-        
+
+        // Word documents open in the document viewer
+        if (isWordUri(originalUri, mimeType)) {
+            if (intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND) {
+                val accessibleUri = runBlocking(Dispatchers.IO) {
+                    copyToCacheSynchronous(originalUri, fileName)
+                }
+                pendingIsLoading = false
+                isLoadingState?.value = false
+                if (accessibleUri == null) {
+                    Log.e(TAG, "Could not obtain access to URI: $originalUri - file will not be opened")
+                } else {
+                    pendingDocUri = accessibleUri
+                    pendingDocName = fileName
+                    docUriState?.value = accessibleUri
+                    docNameState?.value = fileName
+                    activityScope.launch(Dispatchers.IO) {
+                        SafUriManager.addRecentFile(applicationContext, accessibleUri, intent.flags, customName = fileName)
+                    }
+                }
+            }
+            return
+        }
+
         // Only handle PDF files
         if (!isPdfUri(originalUri, mimeType)) {
             Log.w(TAG, "Not a PDF file, ignoring: $mimeType")
             return
         }
-        
+
         // For ACTION_VIEW and ACTION_SEND, copy to cache immediately before returning.
         // These intent grants are temporary; deferring the copy to a coroutine can let
         // the grant expire and cause "Cannot open input stream ... Permission may have expired".
@@ -498,6 +535,19 @@ class MainActivity : AppCompatActivity() {
         if (mimeType != null && mimeType == "application/pdf") return true
 
         return uri.toString().endsWith(".pdf", ignoreCase = true)
+    }
+
+    /**
+     * Check if the URI points to a Word document.
+     */
+    private fun isWordUri(uri: Uri, mimeType: String?): Boolean {
+        if (mimeType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+            mimeType == "application/msword"
+        ) return true
+
+        val uriString = uri.toString()
+        return uriString.endsWith(".docx", ignoreCase = true) ||
+            uriString.endsWith(".doc", ignoreCase = true)
     }
     
     /**

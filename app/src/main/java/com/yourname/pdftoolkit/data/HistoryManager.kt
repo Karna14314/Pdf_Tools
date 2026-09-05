@@ -93,6 +93,8 @@ enum class OperationType(val displayName: String, val icon: String) {
     IMAGE_TOOLS("Image Tools", "photo"),
     REORDER("Reorder Pages", "swap_vert"),
     OPEN_PDF("Open PDF", "picture_as_pdf"),
+    VIEW_DOC("View Document", "description"),
+    DOC_TO_PDF("Doc to PDF", "picture_as_pdf"),
     OTHER("Other", "more_horiz")
 }
 

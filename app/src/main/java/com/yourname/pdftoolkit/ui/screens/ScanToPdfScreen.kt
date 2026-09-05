@@ -7,10 +7,21 @@ import androidx.compose.ui.res.stringResource
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.content.FileProvider
+import com.yourname.pdftoolkit.BuildConfig
+import com.yourname.pdftoolkit.scan.SmartDocScanner
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -53,6 +64,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -170,6 +182,35 @@ class ScanToPdfViewModel : ViewModel() {
     fun reset() {
         _state.value = ScanToPdfUiState()
     }
+
+    /**
+     * Record a directly-scanned PDF (e.g. ML Kit smart scan output).
+     */
+    fun setDirectPdfResult(
+        context: android.content.Context,
+        outputUri: Uri,
+        fileName: String,
+        pages: Int
+    ) {
+        viewModelScope.launch {
+            com.yourname.pdftoolkit.data.SafUriManager.addRecentFile(context, outputUri)
+            com.yourname.pdftoolkit.data.HistoryManager.recordSuccess(
+                context = context,
+                operationType = com.yourname.pdftoolkit.data.OperationType.SCAN_TO_PDF,
+                inputFileName = fileName,
+                outputFileUri = outputUri,
+                outputFileName = fileName,
+                details = "Smart-scanned $pages pages to PDF"
+            )
+            _state.value = _state.value.copy(
+                isProcessing = false,
+                isComplete = true,
+                error = null,
+                pagesScanned = pages,
+                resultUri = outputUri
+            )
+        }
+    }
 }
 
 data class ScanToPdfUiState(
@@ -226,6 +267,120 @@ fun ScanToPdfScreen(
         contract = ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
         uri?.let { viewModel.createPdf(context, it) }
+    }
+
+    // ---- ML Kit smart document scan (Play Store flavor only) ----
+    var smartScanError by remember { mutableStateOf<String?>(null) }
+    val smartScanLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val pdfUri = SmartDocScanner.parsePdfUri(result.data)
+            if (pdfUri != null) {
+                scope.launch(Dispatchers.IO) {
+                    try {
+                        val dest = File(context.cacheDir, "smartscan_${System.currentTimeMillis()}.pdf")
+                        context.contentResolver.openInputStream(pdfUri)?.use { input ->
+                            dest.outputStream().use { output -> input.copyTo(output) }
+                        }
+                        var pages = 0
+                        try {
+                            ParcelFileDescriptor.open(dest, ParcelFileDescriptor.MODE_READ_ONLY)?.use { pfd ->
+                                PdfRenderer(pfd).use { renderer -> pages = renderer.pageCount }
+                            }
+                        } catch (e: Exception) { }
+                        val contentUri = FileProvider.getUriForFile(
+                            context, "${context.packageName}.provider", dest
+                        )
+                        // Grant ourselves durable read via FileProvider; record + show result
+                        viewModel.setDirectPdfResult(
+                            context.applicationContext, contentUri, dest.name, pages
+                        )
+                    } catch (e: Exception) {
+                        smartScanError = e.localizedMessage ?: "Smart scan failed"
+                    }
+                }
+            } else {
+                smartScanError = "Smart scan returned no document"
+            }
+        }
+    }
+
+    fun launchSmartScan() {
+        val activity = context.findScanActivity()
+        if (activity == null) {
+            smartScanError = "Unable to start scanner"
+            return
+        }
+        SmartDocScanner.startScan(
+            activity = activity,
+            onLaunch = { intentSender ->
+                smartScanLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
+            },
+            onError = { e -> smartScanError = e.localizedMessage ?: "Smart scan unavailable" }
+        )
+    }
+
+    val saveCopyLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/pdf")
+    ) { uri ->
+        val resultUri = state.resultUri
+        if (uri != null && resultUri != null) {
+            scope.launch(Dispatchers.IO) {
+                try {
+                    context.contentResolver.openInputStream(resultUri)?.use { input ->
+                        context.contentResolver.openOutputStream(uri)?.use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun shareResultPdf() {
+        val resultUri = state.resultUri ?: return
+        try {
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_STREAM, resultUri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(intent, "Share Scanned PDF"))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    // First-page preview of the finished PDF
+    var resultPreview by remember(state.resultUri) { mutableStateOf<Bitmap?>(null) }
+    LaunchedEffect(state.resultUri) {
+        val uri = state.resultUri
+        if (uri != null) {
+            withContext(Dispatchers.IO) {
+                try {
+                    context.contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
+                        PdfRenderer(pfd).use { renderer ->
+                            if (renderer.pageCount > 0) {
+                                renderer.openPage(0).use { page ->
+                                    val bmp = Bitmap.createBitmap(
+                                        page.width, page.height, Bitmap.Config.ARGB_8888
+                                    )
+                                    page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                                    resultPreview = bmp
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        } else {
+            resultPreview = null
+        }
     }
     
     // Crop state
@@ -316,6 +471,59 @@ fun ScanToPdfScreen(
                                 Icon(Icons.Default.Image, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(stringResource(R.string.scan_gallery))
+                            }
+                        }
+
+                        // ML Kit smart scan: auto edge detection + editable borders (Play flavor)
+                        if (BuildConfig.HAS_MLKIT_SCANNER && SmartDocScanner.isAvailable) {
+                            Button(
+                                onClick = { launchSmartScan() },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                )
+                            ) {
+                                Icon(Icons.Default.DocumentScanner, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.scan_smart_scan))
+                            }
+                            Text(
+                                text = stringResource(R.string.scan_smart_scan_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        smartScanError?.let { errorMsg ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.Error,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        errorMsg,
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(onClick = { smartScanError = null }) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.action_remove)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -560,8 +768,22 @@ fun ScanToPdfScreen(
                     }
                 }
                 
-                // Open PDF Button (shown after success)
+                // Result preview + actions (shown after success)
                 if (state.isComplete && state.resultUri != null) {
+                    resultPreview?.let { bmp ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Image(
+                                bitmap = bmp.asImageBitmap(),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxWidth().heightIn(max = 320.dp)
+                                    .background(androidx.compose.ui.graphics.Color.White),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                    }
                     Button(
                         onClick = {
                             scope.launch(Dispatchers.IO) {
@@ -573,6 +795,29 @@ fun ScanToPdfScreen(
                         Icon(Icons.Default.OpenInNew, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(stringResource(R.string.action_open_pdf))
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = { shareResultPdf() },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.pdf_share))
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                saveCopyLauncher.safeLaunch("scanned_${System.currentTimeMillis()}.pdf", context)
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(Icons.Default.Save, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(stringResource(R.string.pdf_save))
+                        }
                     }
                 }
                 
@@ -736,4 +981,16 @@ private fun CameraScreen(
             Spacer(modifier = Modifier.size(56.dp))
         }
     }
+}
+
+/**
+ * Resolve the hosting Activity from a Compose context for scanner intents.
+ */
+private fun Context.findScanActivity(): Activity? {
+    var ctx = this
+    while (ctx is ContextWrapper) {
+        if (ctx is Activity) return ctx
+        ctx = ctx.baseContext
+    }
+    return null
 }

@@ -89,6 +89,7 @@ android {
             buildConfigField("boolean", "HAS_OCR", "true")
             buildConfigField("boolean", "USE_MLKIT_OCR", "true")
             buildConfigField("boolean", "HAS_NETWORK_URL_TO_PDF", "true")
+            buildConfigField("boolean", "HAS_MLKIT_SCANNER", "true")
         }
         
         create("fdroid") {
@@ -98,6 +99,7 @@ android {
             buildConfigField("boolean", "HAS_OCR", "true")
             buildConfigField("boolean", "USE_MLKIT_OCR", "false")
             buildConfigField("boolean", "HAS_NETWORK_URL_TO_PDF", "false")
+            buildConfigField("boolean", "HAS_MLKIT_SCANNER", "false")
         }
         
         create("opensource") {
@@ -110,6 +112,7 @@ android {
             buildConfigField("boolean", "HAS_FIREBASE", "false")
             buildConfigField("boolean", "HAS_PLAY_SERVICES", "false")
             buildConfigField("boolean", "HAS_NETWORK_URL_TO_PDF", "false")
+            buildConfigField("boolean", "HAS_MLKIT_SCANNER", "false")
         }
     }
 
@@ -179,6 +182,12 @@ android {
             excludes += "META-INF/LICENSE.md"
             excludes += "META-INF/NOTICE.md"
             excludes += "META-INF/versions/9/module-info.class"
+            // Apache POI / xmlbeans metadata clashes
+            excludes += "META-INF/LICENSE.txt"
+            excludes += "META-INF/NOTICE.txt"
+            excludes += "META-INF/*.SF"
+            excludes += "META-INF/*.DSA"
+            excludes += "META-INF/*.RSA"
         }
         // 16 KB page alignment: store native libs uncompressed & page-aligned
         jniLibs {
@@ -242,6 +251,11 @@ dependencies {
     // PDF Tools - PdfBox-Android for PDF manipulation
     implementation("com.tom-roush:pdfbox-android:2.0.27.0")
 
+    // Office documents: DOCX view + DOCX-to-PDF (Apache 2.0, FOSS-safe all flavors)
+    implementation("org.apache.poi:poi:5.2.5")
+    implementation("org.apache.poi:poi-ooxml:5.2.5")
+    implementation("org.apache.poi:poi-scratchpad:5.2.5")
+
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     
@@ -256,6 +270,7 @@ dependencies {
     // OCR Libraries - flavor-specific
     // Play Store: ML Kit (proprietary, smaller APK + 40MB runtime download)
     "playstoreImplementation"("com.google.mlkit:text-recognition:16.0.1")
+    "playstoreImplementation"("com.google.android.gms:play-services-mlkit-document-scanner:16.0.0")
     "playstoreImplementation"("com.google.android.play:review:2.0.1")
 
     // F-Droid: Tesseract (open source, larger APK but no runtime downloads)

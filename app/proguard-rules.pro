@@ -41,6 +41,7 @@
 -dontwarn javax.imageio.**
 -dontwarn sun.misc.Unsafe
 -dontwarn org.slf4j.**
+-keep class org.apache.logging.log4j.** { *; }
 -dontwarn org.apache.logging.log4j.**
 
 # ETSI XML Signature (referenced by POI but not used on Android)
