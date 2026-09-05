@@ -10,8 +10,8 @@ AutoName: PDF Toolkit
 RepoType: git
 Repo: https://github.com/Karna14314/Pdf_Tools
 
-CurrentVersion: 1.3.210
-CurrentVersionCode: 210
+CurrentVersion: 1.3.211
+CurrentVersionCode: 211
 
 Builds:
   - versionName: 1.3.175

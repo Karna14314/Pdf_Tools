@@ -280,10 +280,16 @@ object SafUriManager {
                         size = try {
                             context.contentResolver
                                 .openAssetFileDescriptor(uri, "r")
-                                ?.length ?: 0L
+                                ?.use { it.length } ?: 0L
                         } catch (e: Exception) {
                             0L
                         }
+                    }
+
+                    // Last resort: measure by streaming (handles providers
+                    // reporting UNKNOWN_LENGTH / 0, e.g. Downloads)
+                    if (size <= 0) {
+                        size = FileManager.calculateActualFileSize(context, uri)
                     }
                     
                     Triple(name, size, mimeType)
@@ -315,7 +321,18 @@ object SafUriManager {
             val uri = persistedFile.toUri()
 
             if (uri != null && canAccessUri(context, uri)) {
-                accessibleFiles.add(persistedFile)
+                if (persistedFile.size <= 0) {
+                    // Heal entries stored with 0B (provider gave no size at pick time)
+                    val freshSize = getFileMetadata(context, uri)?.second ?: 0L
+                    if (freshSize > 0) {
+                        dao.updateSize(entity.uriString, freshSize)
+                        accessibleFiles.add(persistedFile.copy(size = freshSize))
+                    } else {
+                        accessibleFiles.add(persistedFile)
+                    }
+                } else {
+                    accessibleFiles.add(persistedFile)
+                }
             } else {
                 // Release permission for inaccessible URIs
                 uri?.let { releasePersistablePermission(context, it) }

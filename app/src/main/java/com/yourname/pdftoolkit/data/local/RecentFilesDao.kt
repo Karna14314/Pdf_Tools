@@ -31,4 +31,7 @@ interface RecentFilesDao {
 
     @Query("UPDATE recent_files SET lastAccessed = :time WHERE uriString = :uriString")
     suspend fun updateLastAccessed(uriString: String, time: Long)
+
+    @Query("UPDATE recent_files SET size = :size WHERE uriString = :uriString")
+    suspend fun updateSize(uriString: String, size: Long)
 }

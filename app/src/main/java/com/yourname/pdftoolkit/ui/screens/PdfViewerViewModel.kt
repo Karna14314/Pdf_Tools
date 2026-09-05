@@ -57,9 +57,15 @@ enum class AnnotationTool(val displayName: String) {
     NONE("Select"),
     HIGHLIGHTER("Highlighter"),
     MARKER("Marker"),
-    UNDERLINE("Underline"),
+    NOTE("Note"),
     ERASER("Eraser")
 }
+
+data class TextNote(
+    val text: String,
+    val x: Float,
+    val y: Float
+)
 
 data class AnnotationStroke(
     val pageIndex: Int,
@@ -130,15 +136,15 @@ open class PdfViewerViewModel : ViewModel() {
     private val _annotations = MutableStateFlow<List<AnnotationStroke>>(emptyList())
     open val annotations: StateFlow<List<AnnotationStroke>> = _annotations.asStateFlow()
 
+    private val _textNotes = MutableStateFlow<Map<Int, List<TextNote>>>(emptyMap())
+    open val textNotes: StateFlow<Map<Int, List<TextNote>>> = _textNotes.asStateFlow()
+
     // Stroke width configurations for each drawing tool
     private val _highlighterWidth = MutableStateFlow(20f)
     open val highlighterWidth: StateFlow<Float> = _highlighterWidth.asStateFlow()
 
     private val _markerWidth = MutableStateFlow(8f)
     open val markerWidth: StateFlow<Float> = _markerWidth.asStateFlow()
-
-    private val _underlineWidth = MutableStateFlow(4f)
-    open val underlineWidth: StateFlow<Float> = _underlineWidth.asStateFlow()
 
     private val _eraserWidth = MutableStateFlow(15f)
     open val eraserWidth: StateFlow<Float> = _eraserWidth.asStateFlow()
@@ -149,10 +155,6 @@ open class PdfViewerViewModel : ViewModel() {
 
     fun setMarkerWidth(width: Float) {
         _markerWidth.value = width
-    }
-
-    fun setUnderlineWidth(width: Float) {
-        _underlineWidth.value = width
     }
 
     fun setEraserWidth(width: Float) {
@@ -301,6 +303,31 @@ open class PdfViewerViewModel : ViewModel() {
                             }
                         }
 
+                        try {
+                            val existing = mutableMapOf<Int, List<TextNote>>()
+                            for (i in 0 until pageCount) {
+                                val pg = doc.getPage(i)
+                                val w = pg.mediaBox?.width ?: 612f
+                                val h = pg.mediaBox?.height ?: 792f
+                                val notes = pg.annotations
+                                    ?.filterIsInstance<com.tom_roush.pdfbox.pdmodel.interactive.annotation.PDAnnotationText>()
+                                    ?.mapNotNull { ann ->
+                                        val contents = ann.contents ?: return@mapNotNull null
+                                        if (contents.isBlank()) return@mapNotNull null
+                                        val rect = ann.rectangle ?: return@mapNotNull null
+                                        TextNote(
+                                            text = contents,
+                                            x = (rect.lowerLeftX / w).coerceIn(0f, 1f),
+                                            y = (1f - (rect.upperRightY / h)).coerceIn(0f, 1f)
+                                        )
+                                    } ?: emptyList()
+                                if (notes.isNotEmpty()) existing[i] = notes
+                            }
+                            _textNotes.value = existing
+                        } catch (e: Exception) {
+                            Log.w("PdfViewerVM", "Failed to load existing notes", e)
+                        }
+
                         _currentPage = savedPage.coerceIn(0, pageCount - 1)
                         _uiState.value = PdfViewerUiState.Loaded(pageCount)
                     } catch (e: Exception) {
@@ -383,6 +410,16 @@ fun undoAnnotation() {
     if (currentList.isNotEmpty()) {
         currentList.removeAt(currentList.lastIndex)
         _annotations.value = currentList
+        return
+    }
+    val notes = _textNotes.value.toMutableMap()
+    for ((pageIndex, list) in notes.toList().asReversed()) {
+        if (list.isNotEmpty()) {
+            notes[pageIndex] = list.dropLast(1)
+            if (notes[pageIndex].isNullOrEmpty()) notes.remove(pageIndex)
+            _textNotes.value = notes
+            return
+        }
     }
 }
 
@@ -400,10 +437,53 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
         }
     }
     _annotations.value = currentList
+    val notes = _textNotes.value[pageIndex] ?: return
+    val remaining = notes.filter { note ->
+        eraserPoints.none { ep ->
+            val dx = note.x - ep.x
+            val dy = note.y - ep.y
+            dx * dx + dy * dy < threshold * threshold
+        }
+    }
+    if (remaining.size != notes.size) {
+        val updated = _textNotes.value.toMutableMap()
+        if (remaining.isEmpty()) updated.remove(pageIndex) else updated[pageIndex] = remaining
+        _textNotes.value = updated
+    }
 }
 
     fun clearAnnotations() {
         _annotations.value = emptyList()
+        _textNotes.value = emptyMap()
+    }
+
+    fun addTextNote(pageIndex: Int, x: Float, y: Float, text: String) {
+        if (text.isBlank()) return
+        val updated = _textNotes.value.toMutableMap()
+        val list = updated[pageIndex]?.toMutableList() ?: mutableListOf()
+        list.add(TextNote(text.trim(), x.coerceIn(0f, 1f), y.coerceIn(0f, 1f)))
+        updated[pageIndex] = list
+        _textNotes.value = updated
+    }
+
+    fun updateTextNote(pageIndex: Int, index: Int, newText: String) {
+        val list = _textNotes.value[pageIndex] ?: return
+        if (index !in list.indices) return
+        val updated = _textNotes.value.toMutableMap()
+        val mutable = list.toMutableList()
+        mutable[index] = mutable[index].copy(text = newText.trim())
+        updated[pageIndex] = mutable
+        _textNotes.value = updated
+    }
+
+    fun deleteTextNote(pageIndex: Int, index: Int) {
+        val list = _textNotes.value[pageIndex] ?: return
+        if (index !in list.indices) return
+        val updated = _textNotes.value.toMutableMap()
+        val mutable = list.toMutableList()
+        mutable.removeAt(index)
+        if (mutable.isEmpty()) updated.remove(pageIndex) else updated[pageIndex] = mutable
+        _textNotes.value = updated
     }
 
     // Bitmap cache dynamically sized to 1/8th of the device's maximum available heap memory
@@ -752,6 +832,7 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
 
     fun saveAnnotations(context: Context, outputUri: Uri) {
         val currentAnnotations = _annotations.value
+        val currentNotes = _textNotes.value
 
         val exceptionHandler = kotlinx.coroutines.CoroutineExceptionHandler { _, e ->
             if (e is OutOfMemoryError) {
@@ -784,10 +865,11 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
                         yield() // Bolt: Allow UI updates
 
                         val pageAnnotations = currentAnnotations.filter { it.pageIndex == pageIndex }
+                        val pageNotes = currentNotes[pageIndex] ?: emptyList()
                         val sourcePage = sourceDoc.getPage(pageIndex)
                         val rotation = sourcePage.rotation
 
-                        if (pageAnnotations.isEmpty()) {
+                        if (pageAnnotations.isEmpty() && pageNotes.isEmpty()) {
                             // OPTIMIZATION: Fast copy for pages without annotations
                             val importedPage = destDoc.importPage(sourcePage)
                             // PDDocument.importPage returns the imported page, which belongs to destDoc but isn't added yet
@@ -843,6 +925,9 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
                                         cs.stroke()
                                     }
                                 }
+                            }
+                            if (pageNotes.isNotEmpty()) {
+                                addTextNotesToPage(importedPage, pageNotes)
                             }
                         } else {
                             // RASTER FALLBACK: For rotated pages, use safer bitmap rasterization to guarantee alignment
@@ -953,6 +1038,9 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
                                     PDPageContentStream(destDoc, page).use { cs ->
                                         cs.drawImage(pdImage, 0f, 0f, pageWidth, pageHeight)
                                     }
+                                    if (pageNotes.isNotEmpty()) {
+                                        addTextNotesToPage(page, pageNotes)
+                                    }
                                 } finally {
                                     // Safe recycle - check if bitmap is still in use by UI
                                     safeRecycle(workingBitmap)
@@ -983,12 +1071,46 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
         }
     }
 
+    private fun addTextNotesToPage(page: PDPage, notes: List<TextNote>) {
+        try {
+            val w = page.mediaBox?.width ?: 612f
+            val h = page.mediaBox?.height ?: 792f
+            val existing = page.annotations?.filter {
+                it !is com.tom_roush.pdfbox.pdmodel.interactive.annotation.PDAnnotationText
+            }?.toMutableList() ?: mutableListOf()
+            notes.forEach { note ->
+                if (note.text.isBlank()) return@forEach
+                val ann = com.tom_roush.pdfbox.pdmodel.interactive.annotation.PDAnnotationText()
+                ann.contents = note.text
+                ann.setName(com.tom_roush.pdfbox.pdmodel.interactive.annotation.PDAnnotationText.NAME_COMMENT)
+                ann.color = com.tom_roush.pdfbox.pdmodel.graphics.color.PDColor(
+                    floatArrayOf(1f, 1f, 0f),
+                    com.tom_roush.pdfbox.pdmodel.graphics.color.PDDeviceRGB.INSTANCE
+                )
+                val sizeVal = 20f
+                val pdfX = note.x * w
+                val pdfY = (1f - note.y) * h
+                val rect = com.tom_roush.pdfbox.pdmodel.common.PDRectangle()
+                rect.lowerLeftX = pdfX
+                rect.lowerLeftY = pdfY - sizeVal
+                rect.upperRightX = pdfX + sizeVal
+                rect.upperRightY = pdfY
+                ann.rectangle = rect
+                existing.add(ann)
+            }
+            page.annotations = existing
+        } catch (e: Exception) {
+            Log.w("PdfViewerVM", "Failed to write text notes", e)
+        }
+    }
+
     private suspend fun closeDocument() {
         documentMutex.withLock {
             try {
                 // Clear any in-memory bitmap/page cache
                 bitmapCache.evictAll()
                 _annotations.value = emptyList()
+                _textNotes.value = emptyMap()
                 extractedTextCache.clear()
 
                 // GC Hint

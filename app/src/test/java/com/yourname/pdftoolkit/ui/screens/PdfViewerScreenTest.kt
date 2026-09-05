@@ -18,7 +18,7 @@ class FakePdfViewerViewModel : PdfViewerViewModel() {
     override val annotations = MutableStateFlow<List<AnnotationStroke>>(emptyList())
     override val highlighterWidth = MutableStateFlow(20f)
     override val markerWidth = MutableStateFlow(5f)
-    override val underlineWidth = MutableStateFlow(2f)
+    override val textNotes = MutableStateFlow<Map<Int, List<TextNote>>>(emptyMap())
 }
 
 @RunWith(AndroidJUnit4::class)

@@ -85,7 +85,7 @@ class PdfCompressorTest {
         val outputFile = File(context.cacheDir, "test_target_output.pdf")
         val outputStream = FileOutputStream(outputFile)
 
-        val result = pdfCompressor.compressPdfToTargetSize(
+        val result = pdfCompressor.compressPdfToTargetSizeStrict(
             context = context,
             inputUri = Uri.fromFile(inputFile),
             outputStream = outputStream,
@@ -118,7 +118,7 @@ class PdfCompressorTest {
         val outputFile = File(context.cacheDir, "test_target_output_fail.pdf")
         val outputStream = FileOutputStream(outputFile)
 
-        val result = pdfCompressor.compressPdfToTargetSize(
+        val result = pdfCompressor.compressPdfToTargetSizeStrict(
             context = context,
             inputUri = Uri.fromFile(inputFile),
             outputStream = outputStream,

@@ -1,0 +1,5 @@
+PDF Toolkit v1.3.211 release:
+• New Notes tool in PDF viewer: tap any page to add a sticky note, edit or delete anytime — notes save as standard PDF comments visible in any PDF app (replaces Underline)
+• Fixed file sizes showing as 0B in the file list
+• More reliable PDF compression engine
+• Stability and performance improvements

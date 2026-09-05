@@ -138,8 +138,11 @@ class PdfCompressor {
      * Iteratively compress a PDF file to reach a target size.
      * Uses binary search to find the highest quality (lowest qualityPercent) that meets the target size.
      * Capped at 6-8 iterations.
+     *
+     * Note: renamed from compressPdfToTargetSize to avoid a JVM signature clash with the
+     * TargetSizeResult overload below (parameter names are not part of the signature).
      */
-    suspend fun compressPdfToTargetSize(
+    suspend fun compressPdfToTargetSizeStrict(
         context: Context,
         inputUri: Uri,
         outputStream: OutputStream,

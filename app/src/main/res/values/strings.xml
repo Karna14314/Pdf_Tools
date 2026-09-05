@@ -205,6 +205,11 @@
     <string name="pdf_highlighter">Highlighter</string>
     <string name="pdf_marker">Marker</string>
     <string name="pdf_underline">Underline</string>
+    <string name="pdf_note">Note</string>
+    <string name="pdf_add_note">Add Text Note</string>
+    <string name="pdf_edit_note">Edit Comment</string>
+    <string name="pdf_note_hint">Type comment…</string>
+    <string name="pdf_place_note">Place Note</string>
     <string name="pdf_clear_annotations">Clear annotations?</string>
     <string name="pdf_clear_annotations_confirm">This will remove all annotations. This action cannot be undone.</string>
     <string name="pdf_annotations_saved">Annotations saved successfully!</string>

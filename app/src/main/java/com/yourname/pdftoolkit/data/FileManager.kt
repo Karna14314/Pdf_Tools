@@ -78,7 +78,7 @@ object FileManager {
      * Calculate actual file size by reading the file.
      * Used as fallback when ContentResolver doesn't provide size.
      */
-    private fun calculateActualFileSize(context: Context, uri: Uri): Long {
+    fun calculateActualFileSize(context: Context, uri: Uri): Long {
         return try {
             when (uri.scheme) {
                 "file" -> {

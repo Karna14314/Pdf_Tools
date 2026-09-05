@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -112,13 +113,24 @@ fun PdfViewerScreen(
     val selectedAnnotationTool by viewModel.selectedAnnotationTool.collectAsState()
     val selectedColor by viewModel.selectedColor.collectAsState()
     val annotations by viewModel.annotations.collectAsState()
+    val textNotes by viewModel.textNotes.collectAsState()
 
     // Stroke width configurations
     val highlighterWidth by viewModel.highlighterWidth.collectAsState()
     val markerWidth by viewModel.markerWidth.collectAsState()
-    val underlineWidth by viewModel.underlineWidth.collectAsState()
     val eraserWidth by viewModel.eraserWidth.collectAsState()
     var showThicknessSlider by remember { mutableStateOf(false) }
+
+    // Text note dialog state
+    var showAddNoteDialog by remember { mutableStateOf(false) }
+    var pendingNotePage by remember { mutableIntStateOf(-1) }
+    var pendingNoteX by remember { mutableFloatStateOf(0f) }
+    var pendingNoteY by remember { mutableFloatStateOf(0f) }
+    var pendingNoteText by remember { mutableStateOf("") }
+    var showEditNoteDialog by remember { mutableStateOf(false) }
+    var editNotePage by remember { mutableIntStateOf(-1) }
+    var editNoteIndex by remember { mutableIntStateOf(-1) }
+    var editNoteText by remember { mutableStateOf("") }
 
     // Text selection state
     var selectPageIndex by remember { mutableIntStateOf(-1) }
@@ -134,9 +146,9 @@ fun PdfViewerScreen(
         }
     }
 
-    // Auto-hide thickness slider when annotation tool is NONE
+    // Auto-hide thickness slider when annotation tool is NONE or NOTE
     LaunchedEffect(selectedAnnotationTool) {
-        if (selectedAnnotationTool == AnnotationTool.NONE) {
+        if (selectedAnnotationTool == AnnotationTool.NONE || selectedAnnotationTool == AnnotationTool.NOTE) {
             showThicknessSlider = false
         }
     }
@@ -178,7 +190,7 @@ fun PdfViewerScreen(
         contract = ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
         uri?.let { outputUri ->
-            if (annotations.isNotEmpty()) {
+            if (annotations.isNotEmpty() || textNotes.isNotEmpty()) {
                 viewModel.saveAnnotations(context.applicationContext, outputUri)
             }
         }
@@ -393,7 +405,7 @@ fun PdfViewerScreen(
                             val isEditMode = toolState is PdfTool.Edit
 
                             // Save annotations button (only in edit mode with annotations)
-                            if (isEditMode && annotations.isNotEmpty()) {
+                            if (isEditMode && (annotations.isNotEmpty() || textNotes.isNotEmpty())) {
                                 if (saveState is SaveState.Saving) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(24.dp),
@@ -493,7 +505,7 @@ fun PdfViewerScreen(
                                     }
                                 )
                             }
-                            if (annotations.isNotEmpty()) {
+                            if (annotations.isNotEmpty() || textNotes.isNotEmpty()) {
                                 Divider()
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.pdf_clear_all_annotations)) },
@@ -538,7 +550,7 @@ fun PdfViewerScreen(
 
                 // Brush size selection slider
                 AnimatedVisibility(
-                    visible = isEditMode && showControls && showThicknessSlider && selectedAnnotationTool != AnnotationTool.NONE,
+                    visible = isEditMode && showControls && showThicknessSlider && selectedAnnotationTool != AnnotationTool.NONE && selectedAnnotationTool != AnnotationTool.NOTE,
                     enter = fadeIn() + slideInVertically { it },
                     exit = fadeOut() + slideOutVertically { it }
                 ) {
@@ -547,11 +559,9 @@ fun PdfViewerScreen(
                         color = selectedColor,
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
-                        underlineWidth = underlineWidth,
                         eraserWidth = eraserWidth,
                         onHighlighterWidthChange = { viewModel.setHighlighterWidth(it) },
                         onMarkerWidthChange = { viewModel.setMarkerWidth(it) },
-                        onUnderlineWidthChange = { viewModel.setUnderlineWidth(it) },
                         onEraserWidthChange = { viewModel.setEraserWidth(it) }
                     )
                 }
@@ -568,7 +578,7 @@ fun PdfViewerScreen(
                         onToolSelected = { viewModel.setAnnotationTool(it) },
                         onColorPickerClick = { showColorPicker = true },
                         onUndoClick = { viewModel.undoAnnotation() },
-                        canUndo = annotations.isNotEmpty(),
+                        canUndo = annotations.isNotEmpty() || textNotes.isNotEmpty(),
                         onBrushSizeClick = { showThicknessSlider = !showThicknessSlider }
                     )
                 }
@@ -667,8 +677,21 @@ fun PdfViewerScreen(
                         onViewportSizeChange = { viewportSize = it },
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
-                        underlineWidth = underlineWidth,
                         eraserWidth = eraserWidth,
+                        textNotes = textNotes,
+                        onAddNoteTap = { pageIndex, x, y ->
+                            pendingNotePage = pageIndex
+                            pendingNoteX = x
+                            pendingNoteY = y
+                            pendingNoteText = ""
+                            showAddNoteDialog = true
+                        },
+                        onEditNoteTap = { pageIndex, index, text ->
+                            editNotePage = pageIndex
+                            editNoteIndex = index
+                            editNoteText = text
+                            showEditNoteDialog = true
+                        },
                         selectPageIndex = selectPageIndex,
                         selectStartCharIndex = selectStartCharIndex,
                         selectEndCharIndex = selectEndCharIndex,
@@ -789,11 +812,106 @@ fun PdfViewerScreen(
     if (showColorPicker) {
         ColorPickerDialog(
             selectedColor = selectedColor,
-            onColorSelected = { 
+            onColorSelected = {
                 viewModel.setColor(it)
                 showColorPicker = false
             },
             onDismiss = { showColorPicker = false }
+        )
+    }
+
+    if (showAddNoteDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showAddNoteDialog = false
+                pendingNoteText = ""
+            },
+            title = { Text(stringResource(R.string.pdf_add_note)) },
+            text = {
+                OutlinedTextField(
+                    value = pendingNoteText,
+                    onValueChange = { pendingNoteText = it },
+                    placeholder = { Text(stringResource(R.string.pdf_note_hint)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (pendingNoteText.isNotBlank() && pendingNotePage >= 0) {
+                            viewModel.addTextNote(pendingNotePage, pendingNoteX, pendingNoteY, pendingNoteText)
+                        }
+                        showAddNoteDialog = false
+                        pendingNoteText = ""
+                    }
+                ) {
+                    Text(stringResource(R.string.pdf_place_note))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showAddNoteDialog = false
+                        pendingNoteText = ""
+                    }
+                ) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
+    }
+
+    if (showEditNoteDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showEditNoteDialog = false
+                editNoteText = ""
+            },
+            title = { Text(stringResource(R.string.pdf_edit_note)) },
+            text = {
+                OutlinedTextField(
+                    value = editNoteText,
+                    onValueChange = { editNoteText = it },
+                    placeholder = { Text(stringResource(R.string.pdf_note_hint)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (editNotePage >= 0 && editNoteIndex >= 0) {
+                            viewModel.updateTextNote(editNotePage, editNoteIndex, editNoteText)
+                        }
+                        showEditNoteDialog = false
+                        editNoteText = ""
+                    }
+                ) {
+                    Text(stringResource(R.string.action_save))
+                }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(
+                        onClick = {
+                            if (editNotePage >= 0 && editNoteIndex >= 0) {
+                                viewModel.deleteTextNote(editNotePage, editNoteIndex)
+                            }
+                            showEditNoteDialog = false
+                            editNoteText = ""
+                        }
+                    ) {
+                        Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
+                    }
+                    TextButton(
+                        onClick = {
+                            showEditNoteDialog = false
+                            editNoteText = ""
+                        }
+                    ) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                }
+            }
         )
     }
     
@@ -866,11 +984,11 @@ private fun AnnotationToolbar(
                 }
             )
             ToolButton(
-                icon = Icons.Default.FormatUnderlined,
-                label = stringResource(R.string.pdf_underline),
-                isSelected = selectedTool == AnnotationTool.UNDERLINE,
+                icon = Icons.Default.PushPin,
+                label = stringResource(R.string.pdf_note),
+                isSelected = selectedTool == AnnotationTool.NOTE,
                 onClick = {
-                    onToolSelected(AnnotationTool.UNDERLINE)
+                    onToolSelected(AnnotationTool.NOTE)
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             )
@@ -1158,8 +1276,10 @@ private fun PdfPagesContent(
     // New parameters
     highlighterWidth: Float,
     markerWidth: Float,
-    underlineWidth: Float,
     eraserWidth: Float,
+    textNotes: Map<Int, List<TextNote>>,
+    onAddNoteTap: (Int, Float, Float) -> Unit,
+    onEditNoteTap: (Int, Int, String) -> Unit,
     selectPageIndex: Int,
     selectStartCharIndex: Int,
     selectEndCharIndex: Int,
@@ -1300,8 +1420,10 @@ private fun PdfPagesContent(
                         onRelease = onReleasePage,
                         highlighterWidth = highlighterWidth,
                         markerWidth = markerWidth,
-                        underlineWidth = underlineWidth,
                         eraserWidth = eraserWidth,
+                        pageNotes = textNotes[index] ?: emptyList(),
+                        onAddNoteTap = { x, y -> onAddNoteTap(index, x, y) },
+                        onEditNoteTap = { noteIndex, text -> onEditNoteTap(index, noteIndex, text) },
                         selectPageIndex = selectPageIndex,
                         selectStartCharIndex = selectStartCharIndex,
                         selectEndCharIndex = selectEndCharIndex,
@@ -1340,8 +1462,10 @@ private fun PdfPageWithAnnotations(
     // New parameters
     highlighterWidth: Float,
     markerWidth: Float,
-    underlineWidth: Float,
     eraserWidth: Float,
+    pageNotes: List<TextNote>,
+    onAddNoteTap: (Float, Float) -> Unit,
+    onEditNoteTap: (Int, String) -> Unit,
     selectPageIndex: Int,
     selectStartCharIndex: Int,
     selectEndCharIndex: Int,
@@ -1757,15 +1881,16 @@ private fun PdfPageWithAnnotations(
             }
             
             // Annotation overlay (kept same but normalized/denormalized)
-            if ((isEditMode || annotations.isNotEmpty()) && bitmap != null) {
+            if ((isEditMode || annotations.isNotEmpty() || pageNotes.isNotEmpty()) && bitmap != null) {
                 Canvas(
                     modifier = Modifier
                         .matchParentSize()
                         .then(
                             if (isEditMode && selectedTool != AnnotationTool.NONE) {
-                                Modifier.pointerInput(isEditMode, selectedTool, selectedColor, highlighterWidth, markerWidth, underlineWidth, eraserWidth) {
+                                Modifier.pointerInput(isEditMode, selectedTool, selectedColor, highlighterWidth, markerWidth, eraserWidth) {
                                     if (!isEditMode || selectedTool == AnnotationTool.NONE) return@pointerInput
-                                    
+                                    if (selectedTool == AnnotationTool.NOTE) return@pointerInput
+
                                     var localStroke = mutableListOf<Offset>()
 
                                     detectDragGestures(
@@ -1798,7 +1923,6 @@ private fun PdfPageWithAnnotations(
                                                 val rawWidth = when (selectedTool) {
                                                     AnnotationTool.HIGHLIGHTER -> highlighterWidth
                                                     AnnotationTool.MARKER -> markerWidth
-                                                    AnnotationTool.UNDERLINE -> underlineWidth
                                                     else -> markerWidth
                                                 }
                                                 
@@ -1870,7 +1994,7 @@ private fun PdfPageWithAnnotations(
                             )
                         }
                     }
-                    if (currentStroke.isNotEmpty() && selectedTool != AnnotationTool.ERASER) {
+                    if (currentStroke.isNotEmpty() && selectedTool != AnnotationTool.ERASER && selectedTool != AnnotationTool.NOTE) {
                         val path = androidx.compose.ui.graphics.Path().apply {
                             moveTo(currentStroke.first().x, currentStroke.first().y)
                             for (i in 1 until currentStroke.size) {
@@ -1880,7 +2004,6 @@ private fun PdfPageWithAnnotations(
                         val rawStrokeWidth = when (selectedTool) {
                             AnnotationTool.HIGHLIGHTER -> highlighterWidth
                             AnnotationTool.MARKER -> markerWidth
-                            AnnotationTool.UNDERLINE -> underlineWidth
                             else -> markerWidth
                         }
                         val liveBlendMode = if (selectedTool == AnnotationTool.HIGHLIGHTER) BlendMode.Multiply else BlendMode.SrcOver
@@ -1897,6 +2020,53 @@ private fun PdfPageWithAnnotations(
                                 cap = StrokeCap.Round
                             ),
                             blendMode = liveBlendMode
+                        )
+                    }
+                }
+            }
+            if (isEditMode && selectedTool == AnnotationTool.NOTE && bitmap != null) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .pointerInput(pageIndex) {
+                            detectTapGestures(
+                                onTap = { offset ->
+                                    if (size.width > 0 && size.height > 0) {
+                                        onAddNoteTap(
+                                            (offset.x / size.width).coerceIn(0f, 1f),
+                                            (offset.y / size.height).coerceIn(0f, 1f)
+                                        )
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    }
+                                }
+                            )
+                        }
+                )
+            }
+            if (pageNotes.isNotEmpty() && size.width > 0 && size.height > 0) {
+                pageNotes.forEachIndexed { noteIndex, note ->
+                    Box(
+                        modifier = Modifier
+                            .offset {
+                                IntOffset(
+                                    (note.x * size.width).roundToInt() - 12,
+                                    (note.y * size.height).roundToInt() - 12
+                                )
+                            }
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(Color.Yellow)
+                            .border(1.dp, Color(0xFF8A6D00), CircleShape)
+                            .clickable {
+                                onEditNoteTap(noteIndex, note.text)
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.PushPin,
+                            contentDescription = stringResource(R.string.pdf_note),
+                            tint = Color.Black,
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                 }
@@ -2176,11 +2346,9 @@ private fun ThicknessSliderPanel(
     color: Color,
     highlighterWidth: Float,
     markerWidth: Float,
-    underlineWidth: Float,
     eraserWidth: Float,
     onHighlighterWidthChange: (Float) -> Unit,
     onMarkerWidthChange: (Float) -> Unit,
-    onUnderlineWidthChange: (Float) -> Unit,
     onEraserWidthChange: (Float) -> Unit
 ) {
     val currentWidth: Float
@@ -2200,12 +2368,6 @@ private fun ThicknessSliderPanel(
             onWidthChange = onMarkerWidthChange
             valueRange = 2f..25f
             title = stringResource(R.string.pdf_thickness_marker)
-        }
-        AnnotationTool.UNDERLINE -> {
-            currentWidth = underlineWidth
-            onWidthChange = onUnderlineWidthChange
-            valueRange = 1f..12f
-            title = stringResource(R.string.pdf_thickness_underline)
         }
         AnnotationTool.ERASER -> {
             currentWidth = eraserWidth
@@ -2270,15 +2432,6 @@ private fun ThicknessSliderPanel(
                                 color = color.copy(alpha = 0.35f),
                                 topLeft = Offset(0f, (size.height - rectHeight) / 2f),
                                 size = androidx.compose.ui.geometry.Size(size.width, rectHeight)
-                            )
-                        } else if (tool == AnnotationTool.UNDERLINE) {
-                            val lineY = size.height - 8f
-                            drawLine(
-                                color = color,
-                                start = Offset(4f, lineY),
-                                end = Offset(size.width - 4f, lineY),
-                                strokeWidth = currentWidth,
-                                cap = StrokeCap.Round
                             )
                         } else {
                             drawCircle(
