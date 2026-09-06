@@ -366,8 +366,14 @@ fun FilesScreen(
                                         if (cachedUri != null) {
                                             onOpenPdfViewer(cachedUri, displayName)
                                         } else {
-                                            // Fallback to direct URI if copy fails
-                                            onOpenPdfViewer(uri, displayName)
+                                            // Source is gone (e.g. cleared cache copy):
+                                            // opening it would only show a parse-error
+                                            // screen, so explain instead.
+                                            Toast.makeText(
+                                                context,
+                                                context.getString(R.string.doc_access_expired),
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                         }
                                     } else if (isWordFile(file.name, file.mimeType)) {
                                         // CRITICAL: Copy to cache before opening, same as PDFs —

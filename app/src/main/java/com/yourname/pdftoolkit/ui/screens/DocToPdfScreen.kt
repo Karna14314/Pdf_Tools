@@ -324,7 +324,11 @@ fun DocToPdfScreen(
                             Button(
                                 onClick = {
                                     scope.launch(Dispatchers.IO) {
-                                        val cached = File(context.cacheDir, "doctopdf_view_${System.currentTimeMillis()}.pdf")
+                                        // Persistent app-private dir: cacheDir *.pdf files
+                                        // are wiped on app close, which broke history
+                                        // re-open of converted PDFs (error screen).
+                                        val convertedDir = File(context.filesDir, "converted").apply { mkdirs() }
+                                        val cached = File(convertedDir, "doctopdf_view_${System.currentTimeMillis()}.pdf")
                                         result.inputStream().use { input ->
                                             cached.outputStream().use { output -> input.copyTo(output) }
                                         }

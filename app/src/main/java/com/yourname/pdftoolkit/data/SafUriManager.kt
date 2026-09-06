@@ -259,6 +259,21 @@ object SafUriManager {
      */
     private fun getFileMetadata(context: Context, uri: Uri): Triple<String, Long, String>? {
         return try {
+            // Fast path: direct files (converter/share outputs) have no
+            // content provider, so query() would yield null -> permanent 0B.
+            if (uri.scheme == "file") {
+                val f = uri.path?.let { java.io.File(it) }
+                if (f != null && f.exists()) {
+                    val mime = when (f.extension.lowercase()) {
+                        "pdf" -> "application/pdf"
+                        "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        "doc" -> "application/msword"
+                        else -> context.contentResolver.getType(uri) ?: "application/octet-stream"
+                    }
+                    return Triple(f.name, f.length(), mime)
+                }
+                return null
+            }
             val mimeType = context.contentResolver.getType(uri) ?: "application/octet-stream"
             
             context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
