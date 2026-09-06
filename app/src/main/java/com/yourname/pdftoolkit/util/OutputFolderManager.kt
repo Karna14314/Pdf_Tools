@@ -140,6 +140,81 @@ object OutputFolderManager {
     }
     
     /**
+     * Publish an already-rendered file (e.g. from cache) into the public
+     * Documents/PDF Toolkit folder via MediaStore.
+     * Works under scoped storage (Android 10+) with no storage permission.
+     * Returns the MediaStore content URI and final display name, or null.
+     */
+    fun publishFileToPublicFolder(
+        context: Context,
+        source: File,
+        fileName: String,
+        mimeType: String = "application/pdf"
+    ): Pair<Uri, String>? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+        if (!source.exists()) return null
+        return try {
+            val resolver = context.contentResolver
+            val uniqueName = findUniqueMediaDisplayName(resolver, fileName)
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, uniqueName)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    "${Environment.DIRECTORY_DOCUMENTS}/$APP_FOLDER_NAME"
+                )
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+            val collection = MediaStore.Files.getContentUri("external")
+            val uri = resolver.insert(collection, values) ?: return null
+            try {
+                resolver.openOutputStream(uri)?.use { out ->
+                    source.inputStream().use { input -> input.copyTo(out) }
+                } ?: throw java.io.IOException("Cannot open output stream")
+                val done = ContentValues().apply {
+                    put(MediaStore.MediaColumns.IS_PENDING, 0)
+                }
+                resolver.update(uri, done, null, null)
+                uri to uniqueName
+            } catch (e: Exception) {
+                try {
+                    resolver.delete(uri, null, null)
+                } catch (_: Exception) { }
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun findUniqueMediaDisplayName(
+        resolver: android.content.ContentResolver,
+        fileName: String
+    ): String {
+        val base = fileName.substringBeforeLast('.')
+        val ext = fileName.substringAfterLast('.', "pdf")
+        var candidate = fileName
+        var counter = 1
+        while (counter < 1000) {
+            val exists = try {
+                resolver.query(
+                    MediaStore.Files.getContentUri("external"),
+                    arrayOf(MediaStore.MediaColumns._ID),
+                    "${MediaStore.MediaColumns.DISPLAY_NAME}=?",
+                    arrayOf(candidate),
+                    null
+                )?.use { it.count > 0 } ?: false
+            } catch (_: Exception) {
+                false
+            }
+            if (!exists) return candidate
+            candidate = "${base}_$counter.$ext"
+            counter++
+        }
+        return "${base}_${System.currentTimeMillis()}.$ext"
+    }
+
+    /**
      * Get the path to the app's output folder for display.
      */
     fun getOutputFolderPath(context: Context): String {

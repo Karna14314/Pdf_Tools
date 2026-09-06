@@ -583,11 +583,11 @@ fun PrintImpositionStudioScreen(
     }
 
     // Export Success Dialog
-    if (uiState.exportedFile != null) {
+    if (uiState.exportedUri != null) {
         ResultDialog(
             isSuccess = true,
             title = "Export Complete!",
-            message = "Imposed PDF successfully saved to Documents/PDF Toolkit:\n${uiState.exportedFile?.name}",
+            message = "Imposed PDF successfully saved to Documents/PDF Toolkit:\n${uiState.exportedName ?: uiState.exportedFile?.name}",
             onDismiss = { viewModel.clearExportResult() },
             onAction = {
                 val uri = uiState.exportedUri

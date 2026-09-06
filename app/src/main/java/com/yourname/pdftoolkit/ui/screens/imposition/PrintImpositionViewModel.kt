@@ -29,6 +29,7 @@ data class ImpositionUiState(
     val exportProgressMessage: String = "",
     val exportedFile: File? = null,
     val exportedUri: Uri? = null,
+    val exportedName: String? = null,
     val errorMessage: String? = null
 )
 
@@ -107,8 +108,6 @@ class PrintImpositionViewModel(application: Application) : AndroidViewModel(appl
             try {
                 val outName = "Imposed_${state.fileName.ifBlank { "document.pdf" }}"
                 val finalName = if (outName.endsWith(".pdf")) outName else "$outName.pdf"
-                val outputFileResult = OutputFolderManager.createOutputFile(context, finalName)
-                    ?: throw IllegalStateException("Could not create output file in PDF Toolkit folder")
 
                 val tempOut = File(context.cacheDir, "imposed_temp_${System.currentTimeMillis()}.pdf")
                 val exported = ImpositionPdfExporter.exportImposedPdf(
@@ -118,19 +117,38 @@ class PrintImpositionViewModel(application: Application) : AndroidViewModel(appl
                     outputFile = tempOut
                 )
 
-                // Copy to public folder
-                tempOut.inputStream().use { input ->
-                    outputFileResult.file.outputStream().use { output ->
-                        input.copyTo(output)
+                // Publish: MediaStore on Android 10+ (scoped storage blocks
+                // direct file creation in Documents), direct file below Q.
+                var publishedUri: Uri? = null
+                var publishedFile: File? = null
+                var publishedName: String? = null
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    val published = OutputFolderManager.publishFileToPublicFolder(
+                        context, tempOut, finalName
+                    ) ?: throw IllegalStateException("Could not save output file in PDF Toolkit folder")
+                    publishedUri = published.first
+                    publishedName = published.second
+                } else {
+                    val outputFileResult = OutputFolderManager.createOutputFile(context, finalName)
+                        ?: throw IllegalStateException("Could not create output file in PDF Toolkit folder")
+                    // Copy to public folder
+                    tempOut.inputStream().use { input ->
+                        outputFileResult.file.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
                     }
+                    publishedUri = outputFileResult.contentUri
+                    publishedFile = outputFileResult.file
+                    publishedName = outputFileResult.fileName
                 }
                 tempOut.delete()
 
                 _uiState.update {
                     it.copy(
                         isExporting = false,
-                        exportedFile = outputFileResult.file,
-                        exportedUri = outputFileResult.contentUri,
+                        exportedFile = publishedFile,
+                        exportedUri = publishedUri,
+                        exportedName = publishedName,
                         exportProgressMessage = "Export complete!"
                     )
                 }
@@ -146,6 +164,13 @@ class PrintImpositionViewModel(application: Application) : AndroidViewModel(appl
     }
 
     fun clearExportResult() {
-        _uiState.update { it.copy(exportedFile = null, errorMessage = null) }
+        _uiState.update {
+            it.copy(
+                exportedFile = null,
+                exportedUri = null,
+                exportedName = null,
+                errorMessage = null
+            )
+        }
     }
 }
