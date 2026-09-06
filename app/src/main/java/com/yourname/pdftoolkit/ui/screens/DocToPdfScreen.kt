@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import android.view.ViewGroup
+import android.webkit.WebView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -17,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,6 +38,7 @@ import com.yourname.pdftoolkit.data.HistoryManager
 import com.yourname.pdftoolkit.data.OperationType
 import com.yourname.pdftoolkit.data.SafUriManager
 import com.yourname.pdftoolkit.domain.operations.OfficeConverter
+import com.yourname.pdftoolkit.domain.operations.WebViewDocxToPdfConverter
 import com.yourname.pdftoolkit.util.FileOpener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +60,11 @@ class DocToPdfViewModel : ViewModel() {
     private val _resultFile = MutableStateFlow<File?>(null)
     val resultFile: StateFlow<File?> = _resultFile.asStateFlow()
 
-    fun convert(context: android.content.Context, source: File) {
+    fun convert(
+        context: android.content.Context,
+        source: File,
+        attachedWebView: android.webkit.WebView? = null
+    ) {
         if (_isConverting.value) return
         viewModelScope.launch {
             _isConverting.value = true
@@ -66,8 +75,20 @@ class DocToPdfViewModel : ViewModel() {
                     context.cacheDir,
                     source.nameWithoutExtension + "_${System.currentTimeMillis()}.pdf"
                 )
-                withContext(Dispatchers.IO) {
-                    converter.convertDocxToPdf(source, out, context)
+                val appContext = context.applicationContext
+                val webViewConverter = WebViewDocxToPdfConverter()
+                val isDocx = source.name.endsWith(".docx", ignoreCase = true)
+                val viewerResult = if (isDocx && attachedWebView != null) {
+                    withContext(Dispatchers.Main) {
+                        webViewConverter.convertWithWebView(source, out, attachedWebView, context)
+                    }
+                } else {
+                    webViewConverter.convertDocxToPdf(source, out, appContext)
+                }
+                if (viewerResult.isFailure) {
+                    withContext(Dispatchers.IO) {
+                        converter.convertDocxToPdf(source, out, appContext)
+                    }
                 }
                 _resultFile.value = out
             } catch (e: Exception) {
@@ -99,6 +120,7 @@ fun DocToPdfScreen(
     var sourceUri by remember { mutableStateOf<Uri?>(null) }
     var sourceFile by remember { mutableStateOf<File?>(null) }
     var sourceName by remember { mutableStateOf("") }
+    var converterWebView by remember { mutableStateOf<WebView?>(null) }
 
     val pickDocLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -189,7 +211,23 @@ fun DocToPdfScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.tool_doc_to_pdf)) },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.tool_doc_to_pdf))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = MaterialTheme.colorScheme.tertiaryContainer
+                        ) {
+                            Text(
+                                text = "Experimental",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
@@ -261,7 +299,7 @@ fun DocToPdfScreen(
             }
 
             Button(
-                onClick = { sourceFile?.let { viewModel.convert(context, it) } },
+                onClick = { sourceFile?.let { viewModel.convert(context, it, converterWebView) } },
                 enabled = sourceFile != null && !isConverting,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(14.dp)
@@ -389,6 +427,25 @@ fun DocToPdfScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
+            // Hidden WebView attached to hierarchy for accurate Chromium print conversion
+            AndroidView(
+                factory = { ctx ->
+                    WebView(ctx).apply {
+                        layoutParams = ViewGroup.LayoutParams(1080, 1920)
+                        settings.apply {
+                            javaScriptEnabled = true
+                            domStorageEnabled = true
+                            allowFileAccess = true
+                            allowContentAccess = true
+                        }
+                        converterWebView = this
+                    }
+                },
+                modifier = Modifier
+                    .size(1.dp)
+                    .alpha(0.01f)
+            )
         }
     }
 }

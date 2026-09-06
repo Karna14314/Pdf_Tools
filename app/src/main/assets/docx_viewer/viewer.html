@@ -6,6 +6,18 @@
     <script src="jszip.min.js"></script>
     <script src="docx-preview.min.js"></script>
     <style>
+        /* Metric-compatible substitutes for fonts absent on-device, so
+           wrapping and pagination match Word. Carlito mirrors Calibri,
+           Tinos mirrors Times New Roman (both OFL/Apache, offline). */
+        @font-face { font-family: 'Calibri'; src: url('fonts/Carlito-Regular.ttf'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'Calibri'; src: url('fonts/Carlito-Bold.ttf'); font-weight: 700; font-style: normal; }
+        @font-face { font-family: 'Calibri'; src: url('fonts/Carlito-Italic.ttf'); font-weight: 400; font-style: italic; }
+        @font-face { font-family: 'Calibri'; src: url('fonts/Carlito-BoldItalic.ttf'); font-weight: 700; font-style: italic; }
+        @font-face { font-family: 'Times New Roman'; src: url('fonts/Tinos-Regular.ttf'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'Times New Roman'; src: url('fonts/Tinos-Bold.ttf'); font-weight: 700; font-style: normal; }
+        @font-face { font-family: 'Times New Roman'; src: url('fonts/Tinos-Italic.ttf'); font-weight: 400; font-style: italic; }
+        @font-face { font-family: 'Times New Roman'; src: url('fonts/Tinos-BoldItalic.ttf'); font-weight: 700; font-style: italic; }
+
         * { box-sizing: border-box; }
         html, body {
             margin: 0;
@@ -160,6 +172,36 @@
             color: #d93025;
             font-size: 14px;
         }
+
+        /* ═══════════════════════════════════════════════
+           PRINT OUTPUT (used by WebView print-to-PDF conversion).
+           Screen rendering is untouched: these rules only apply
+           while printing, mapping one rendered page card to one
+           PDF page with no viewer chrome.
+           ═══════════════════════════════════════════════ */
+        @media print {
+            @page { margin: 0; }
+            html, body { background: #ffffff !important; }
+            body.print-layout #container {
+                padding: 0 !important;
+                display: block !important;
+            }
+            body.print-layout .docx-wrapper {
+                display: block !important;
+            }
+            body.print-layout .docx-wrapper > section.docx {
+                box-shadow: none !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                break-after: page;
+                page-break-after: always;
+            }
+            body.print-layout .docx-wrapper > section.docx:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+            #loading, #error { display: none !important; }
+        }
     </style>
 </head>
 <body class="print-layout">
@@ -213,12 +255,36 @@
             }
         }
 
+        function ensurePrintFonts() {
+            try {
+                var loads = [];
+                ['Calibri', 'Times New Roman'].forEach(function(fam) {
+                    loads.push(document.fonts.load('400 12px "' + fam + '"'));
+                    loads.push(document.fonts.load('700 12px "' + fam + '"'));
+                    loads.push(document.fonts.load('italic 400 12px "' + fam + '"'));
+                    loads.push(document.fonts.load('italic 700 12px "' + fam + '"'));
+                });
+                return Promise.all(loads);
+            } catch (e) {
+                return Promise.resolve();
+            }
+        }
+
         /**
-         * Render a DOCX from Base64-encoded bytes.
-         * @param {string} base64Data - Base64-encoded DOCX file bytes
-         * @param {boolean} breakPages - true for Print Layout, false for Reflow
-         */
+          * Render a DOCX from Base64-encoded bytes.
+          * @param {string} base64Data - Base64-encoded DOCX file bytes
+          * @param {boolean} breakPages - true for Print Layout, false for Reflow
+          */
         function renderDocxBase64(base64Data, breakPages) {
+            var run = function() { renderDocxBase64Inner(base64Data, breakPages); };
+            try {
+                ensurePrintFonts().then(run, run);
+            } catch (e) {
+                run();
+            }
+        }
+
+        function renderDocxBase64Inner(base64Data, breakPages) {
             try {
                 __lastBreakPages = !!breakPages;
                 if (__renderTimer) { clearTimeout(__renderTimer); }
@@ -331,11 +397,27 @@
             maybe();
         }
 
+        var __fallbackPage = { w: 794, h: 1123, pad: 36 };
+
         /**
-         * Fallback pagination when docx-preview emits ONE section holding all
-         * blocks (single article). Splits top-level nodes into fixed A4 cards.
-         * Skips when the lib already paged (0 or 2+ sections).
-         */
+          * Override the fallback pagination card size with the document's own
+          * page size (CSS px). Called by the native converter before render;
+          * when never called, the previous A4 default applies.
+          */
+        function setFallbackPageSize(wPx, hPx, padPx) {
+            if (wPx > 0 && hPx > 0) {
+                __fallbackPage.w = wPx;
+                __fallbackPage.h = hPx;
+                if (padPx >= 0) __fallbackPage.pad = padPx;
+            }
+        }
+
+        /**
+          * Fallback pagination when docx-preview emits ONE section holding all
+          * blocks (single article). Splits top-level nodes into page cards
+          * sized from the document (see setFallbackPageSize).
+          * Skips when the lib already paged (0 or 2+ sections).
+          */
         function paginatePrintLayoutIfNeeded(breakPages) {
             if (!breakPages) return;
             var wrapper = document.querySelector('.docx-wrapper');
@@ -354,11 +436,12 @@
                 return false;
             });
             if (nodes.length < 2) return;
-            if (single.scrollHeight < 1250 && single.offsetHeight < 1250) return;
-            var container = document.getElementById('container');
-            container.style.visibility = 'hidden';
-            var PAGE_W = 794, PAGE_H = 1123, PAD = 36;
+            var PAGE_W = __fallbackPage.w, PAGE_H = __fallbackPage.h, PAD = __fallbackPage.pad;
             var LIMIT = PAGE_H - PAD * 2;
+            if (single.scrollHeight <= PAGE_H && single.offsetHeight <= PAGE_H) return;
+            var container = document.getElementById('container');
+            try {
+            container.style.visibility = 'hidden';
             function newPage() {
                 var s = document.createElement('section');
                 s.className = 'docx';
@@ -372,23 +455,74 @@
                 wrapper.appendChild(s);
                 return s;
             }
+            function isHeading(n) {
+                return n.nodeType === 1 && /^H[1-6]$/.test(n.tagName);
+            }
+            function overflowed() {
+                return art.scrollHeight > LIMIT || page.scrollHeight > PAGE_H;
+            }
+            function splitTallNode(n) {
+                if (n.parentNode) n.parentNode.removeChild(n);
+                var kids = n.tagName === 'TABLE'
+                    ? Array.prototype.slice.call(n.rows)
+                    : Array.prototype.slice.call(n.childNodes).filter(function(c) {
+                        if (c.nodeType === 3) return c.textContent.trim().length > 0;
+                        return c.nodeType === 1;
+                    });
+                if (kids.length < 2) { art.appendChild(n); return; }
+                var holder = n.cloneNode(false);
+                art.appendChild(holder);
+                for (var k = 0; k < kids.length; k++) {
+                    holder.appendChild(kids[k]);
+                    if (overflowed() && holder.childNodes.length > 1) {
+                        holder.removeChild(kids[k]);
+                        page = newPage();
+                        art = page.firstChild;
+                        holder = n.cloneNode(false);
+                        art.appendChild(holder);
+                        holder.appendChild(kids[k]);
+                    }
+                }
+            }
+            function placeOnFreshPage(items) {
+                page = newPage();
+                art = page.firstChild;
+                for (var q = 0; q < items.length; q++) art.appendChild(items[q]);
+            }
             single.remove();
             var page = newPage();
             var art = page.firstChild;
-            nodes.forEach(function(n) {
-                art.appendChild(n);
-                if (art.scrollHeight > LIMIT || page.scrollHeight > PAGE_H) {
-                    if (art.childNodes.length > 1) {
-                        art.removeChild(n);
-                        page = newPage();
-                        art = page.firstChild;
-                        art.appendChild(n);
-                    } else {
-                        page = newPage();
-                        art = page.firstChild;
-                    }
+            for (var idx = 0; idx < nodes.length; idx++) {
+                var n = nodes[idx];
+                var group = [n];
+                if (isHeading(n) && idx + 1 < nodes.length) { group.push(nodes[idx + 1]); idx++; }
+                for (var g = 0; g < group.length; g++) art.appendChild(group[g]);
+                if (!overflowed()) continue;
+                var isLast = idx >= nodes.length - 1;
+                if (isLast && art.childNodes.length > group.length &&
+                    art.scrollHeight - LIMIT < LIMIT * 0.2) {
+                    continue;
                 }
-            });
+                for (var g = group.length - 1; g >= 0; g--) art.removeChild(group[g]);
+                if (art.childNodes.length > 0) {
+                    placeOnFreshPage(group);
+                    if (overflowed()) {
+                        for (var g = group.length - 1; g >= 0; g--) art.removeChild(group[g]);
+                        for (var g = 0; g < group.length; g++) splitTallNode(group[g]);
+                    }
+                } else {
+                    for (var g = 0; g < group.length; g++) splitTallNode(group[g]);
+                }
+            }
+            var tail = wrapper.querySelectorAll(':scope > section.docx');
+            if (tail.length > 1) {
+                var last = tail[tail.length - 1];
+                var txt = (last.textContent || '').trim();
+                if (txt.length === 0 && !last.querySelector('img, table, svg, canvas')) {
+                    last.remove();
+                }
+            }
+            } catch (e) { /* keep single-section render rather than break the view */ }
             container.style.visibility = '';
         }
 
@@ -400,11 +534,45 @@
         });
 
         /**
-         * Get the number of rendered pages (sections).
-         */
+          * Get the number of rendered pages (sections).
+          */
         function getPageCount() {
             var pages = document.querySelectorAll('.docx-wrapper > section.docx');
             return pages.length || 1;
+        }
+
+        /**
+          * Prepare rendered pages for offscreen PDF capture and report
+          * each page card's geometry. Strips viewer chrome (page shadows,
+          * gaps, gray backdrop) so captures hold pure page content.
+          * Returns a JSON array of {top, width, height} in CSS pixels.
+          */
+        function prepareForCapture() {
+            var loading = document.getElementById('loading');
+            if (loading) loading.style.display = 'none';
+            var err = document.getElementById('error');
+            if (err) err.style.display = 'none';
+            document.body.style.background = '#ffffff';
+            var container = document.getElementById('container');
+            if (container) {
+                container.style.padding = '0';
+                container.style.visibility = '';
+            }
+            var out = [];
+            var sections = document.querySelectorAll('.docx-wrapper > section.docx');
+            for (var i = 0; i < sections.length; i++) {
+                var s = sections[i];
+                s.style.boxShadow = 'none';
+                s.style.margin = '0';
+                s.style.borderRadius = '0';
+                var r = s.getBoundingClientRect();
+                out.push({
+                    top: Math.round(r.top + window.scrollY),
+                    width: s.offsetWidth,
+                    height: s.offsetHeight
+                });
+            }
+            return JSON.stringify(out);
         }
 
         /**

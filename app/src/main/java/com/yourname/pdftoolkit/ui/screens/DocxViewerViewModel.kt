@@ -3,6 +3,7 @@ package com.yourname.pdftoolkit.ui.screens
 import android.content.Context
 import android.net.Uri
 import com.yourname.pdftoolkit.domain.operations.OfficeConverter
+import com.yourname.pdftoolkit.domain.operations.WebViewDocxToPdfConverter
 import com.yourname.pdftoolkit.domain.operations.DocumentSearchEngine
 import com.yourname.pdftoolkit.domain.operations.DocSearchResult
 import androidx.lifecycle.ViewModel
@@ -657,10 +658,15 @@ class DocxViewerViewModel : ViewModel() {
                 onFailure("No active document loaded.")
                 return@launch
             }
+            val appContext = context.applicationContext
+            val tempPdfFile = File(context.cacheDir, "temp_export_${System.currentTimeMillis()}.pdf")
+            val viewerResult = WebViewDocxToPdfConverter()
+                .convertDocxToPdf(File(docxPath), tempPdfFile, appContext)
             withContext(Dispatchers.IO) {
-                val tempPdfFile = File(context.cacheDir, "temp_export_${System.currentTimeMillis()}.pdf")
                 try {
-                    officeConverter.convertDocxToPdf(File(docxPath), tempPdfFile, context)
+                    if (viewerResult.isFailure) {
+                        officeConverter.convertDocxToPdf(File(docxPath), tempPdfFile, appContext)
+                    }
                     context.contentResolver.openOutputStream(outputUri)?.use { outputStream ->
                         tempPdfFile.inputStream().use { inputStream ->
                             inputStream.copyTo(outputStream)

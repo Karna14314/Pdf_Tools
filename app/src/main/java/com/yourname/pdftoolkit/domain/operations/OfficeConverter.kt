@@ -263,9 +263,8 @@ class OfficeConverter {
                 if (bodyElement is org.apache.poi.xwpf.usermodel.XWPFParagraph) {
                     val paragraph = bodyElement
                     val isHeading = paragraph.styleID?.lowercase()?.contains("heading") == true ||
-                            // getFontSize() returns whole points
                             (paragraph.runs.firstOrNull()?.fontSize ?: 0) > 14
-                    
+
                     var xCursor = marginLeft
 
                     // Check if paragraph needs a page break before starting if yPosition is too low
@@ -277,9 +276,39 @@ class OfficeConverter {
                         yPosition = pageBounds.height - marginTop
                     }
 
+                    val maxRunSize = paragraph.runs.mapNotNull { run ->
+                        try { run.fontSize } catch (_: Exception) { null }
+                    }.filter { it > 0 }.maxOrNull()?.toFloat()
+                        ?: if (isHeading) fontSizeHeading else fontSizeNormal
+
                     // Check if paragraph has text or images
                     val hasTextOrImage = paragraph.runs.any { (it.getText(0) ?: "").isNotEmpty() || it.embeddedPictures.isNotEmpty() }
                     if (!hasTextOrImage) {
+                        val blankRule = try { paragraph.spacingLineRule?.name } catch (_: Exception) { null }
+                        val blankBetween = try { paragraph.spacingBetween } catch (_: Exception) { -1.0 }
+                        val blankLeading = when {
+                            blankRule == "EXACT" && blankBetween > 0 -> blankBetween.toFloat()
+                            blankRule == "AT_LEAST" && blankBetween > 0 ->
+                                maxOf(maxRunSize * 1.15f, blankBetween.toFloat())
+                            blankBetween > 0 -> (maxRunSize * blankBetween).toFloat()
+                            else -> maxRunSize * 1.15f
+                        }
+                        val blankBefore = try { paragraph.spacingBefore } catch (_: Exception) { -1 }
+                        if (blankBefore > 0 && yPosition < pageBounds.height - marginTop - 0.5f) {
+                            yPosition -= blankBefore / 20f
+                        }
+                        if (yPosition - blankLeading < marginBottom) {
+                            contentStream?.close()
+                            currentPage = PDPage(pageBounds)
+                            pdf.addPage(currentPage)
+                            contentStream = PDPageContentStream(pdf, currentPage)
+                            yPosition = pageBounds.height - marginTop
+                        } else {
+                            yPosition -= blankLeading
+                        }
+                        val blankAfter = try { paragraph.spacingAfter } catch (_: Exception) { -1 }
+                        if (blankAfter > 0) yPosition -= blankAfter / 20f
+                        xCursor = marginLeft
                         continue
                     }
 
@@ -295,20 +324,16 @@ class OfficeConverter {
                     val firstLineExtraPts = (try { paragraph.indentationFirstLine } catch (_: Exception) { 0 }) / 20f
                     val rightIndentPts = (try { paragraph.indentationRight } catch (_: Exception) { 0 }) / 20f
                     val rightEdge = pageBounds.width - marginRight - rightIndentPts
-                    // Line spacing honors the paragraph's own rule (Word stores
-                    // AUTO as 240ths of a line, EXACT as twips), so converter
-                    // pagination matches the viewer instead of assuming 1.2x.
-                    val baseSize = if (isHeading) fontSizeHeading else fontSizeNormal
                     val spacingRule = try { paragraph.spacingLineRule?.name } catch (_: Exception) { null }
                     val spacingLineVal = try { paragraph.spacingBetween } catch (_: Exception) { -1.0 }
                     val paraLeading = when {
                         spacingRule == "EXACT" && spacingLineVal > 0 ->
-                            (spacingLineVal / 20f).toFloat()
+                            spacingLineVal.toFloat()
                         spacingRule == "AT_LEAST" && spacingLineVal > 0 ->
-                            maxOf(baseSize * 1.15f, (spacingLineVal / 20f).toFloat())
+                            maxOf(maxRunSize * 1.15f, spacingLineVal.toFloat())
                         spacingLineVal > 0 ->
-                            (baseSize * (spacingLineVal / 240f)).toFloat()
-                        else -> baseSize * 1.15f
+                            (maxRunSize * spacingLineVal).toFloat()
+                        else -> maxRunSize * 1.15f
                     }
                     // Gap after the paragraph honors spacing-after (twips);
                     // headings keep a readable minimum.
@@ -318,7 +343,10 @@ class OfficeConverter {
                         isHeading -> 8f
                         else -> 2f
                     }
-
+                    val beforePts = try { paragraph.spacingBefore } catch (_: Exception) { -1 }
+                    if (beforePts > 0 && yPosition < pageBounds.height - marginTop - 0.5f) {
+                        yPosition -= beforePts / 20f
+                    }
                     // List bullet / number label (hanging indent keeps wrapped
                     // lines aligned with the first line's text)
                     var bulletLabel: String? = null

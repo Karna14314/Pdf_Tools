@@ -224,15 +224,23 @@ fun DocxViewerScreen(
 
     fun printDocument() {
         val file = cachedFile ?: return
-        if (file.name.endsWith(".doc", ignoreCase = true)) {
+        if (file.name.endsWith(".doc", ignoreCase = true) &&
+            !file.name.endsWith(".docx", ignoreCase = true)
+        ) {
             scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.doc_print_unsupported)) }
             return
         }
         isPrinting = true
-        scope.launch(Dispatchers.IO) {
+        scope.launch {
             try {
                 val tmpPdf = File(context.cacheDir, "print_doc_${System.currentTimeMillis()}.pdf")
-                officeConverter.convertDocxToPdf(file, tmpPdf, context)
+                val viewerResult = com.yourname.pdftoolkit.domain.operations.WebViewDocxToPdfConverter()
+                    .convertDocxToPdf(file, tmpPdf, context)
+                if (viewerResult.isFailure) {
+                    withContext(Dispatchers.IO) {
+                        officeConverter.convertDocxToPdf(file, tmpPdf, context)
+                    }
+                }
                 withContext(Dispatchers.Main) {
                     isPrinting = false
                     try {
