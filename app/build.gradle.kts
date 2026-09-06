@@ -27,6 +27,10 @@ android {
         
         // Play Store requirements
         multiDexEnabled = true
+
+        // Keep resources only for supported locales (strips untranslated
+        // resources bundled by libraries like AppCompat/Play Services)
+        resConfigs("en", "ar", "de", "es", "fr", "hi", "id", "ja", "ko", "pt-rBR", "ru", "tk", "tr", "uz", "zh")
     }
 
     signingConfigs {
@@ -188,6 +192,10 @@ android {
             excludes += "META-INF/*.SF"
             excludes += "META-INF/*.DSA"
             excludes += "META-INF/*.RSA"
+            // BouncyCastle post-quantum tables (pulled via pdfbox-android):
+            // ~8MB of lattice parameter files for PQC algorithms the app
+            // never uses (PDF encryption/signatures use AES/RSA only)
+            excludes += "org/bouncycastle/pqc/**"
         }
         // 16 KB page alignment: store native libs uncompressed & page-aligned
         jniLibs {
