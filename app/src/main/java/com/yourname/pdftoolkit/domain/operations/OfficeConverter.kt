@@ -16,6 +16,7 @@ import kotlinx.coroutines.withContext
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.xwpf.usermodel.XWPFDocument
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTOnOff
 import org.apache.poi.xslf.usermodel.XMLSlideShow
 import org.apache.poi.xslf.usermodel.XSLFSlide
 import org.apache.poi.xslf.usermodel.XSLFShape
@@ -276,6 +277,20 @@ class OfficeConverter {
                         yPosition = pageBounds.height - marginTop
                     }
 
+                    // Explicit Word page break before this paragraph (w:pPr/w:pageBreakBefore):
+                    // half-filled pages intentionally continued on the next page must not
+                    // flow on from the half page.
+                    val pageBreakBefore = try {
+                        isOnOff(paragraph.ctp?.pPr?.pageBreakBefore)
+                    } catch (_: Exception) { false }
+                    if (pageBreakBefore && yPosition < pageBounds.height - marginTop - 0.5f) {
+                        contentStream?.close()
+                        currentPage = PDPage(pageBounds)
+                        pdf.addPage(currentPage)
+                        contentStream = PDPageContentStream(pdf, currentPage)
+                        yPosition = pageBounds.height - marginTop
+                    }
+
                     val maxRunSize = paragraph.runs.mapNotNull { run ->
                         try { run.fontSize } catch (_: Exception) { null }
                     }.filter { it > 0 }.maxOrNull()?.toFloat()
@@ -286,11 +301,13 @@ class OfficeConverter {
                     if (!hasTextOrImage) {
                         val blankRule = try { paragraph.spacingLineRule?.name } catch (_: Exception) { null }
                         val blankBetween = try { paragraph.spacingBetween } catch (_: Exception) { -1.0 }
+                        // OOXML units: EXACT/AT_LEAST w:line is twips (1/20pt),
+                        // AUTO w:line is 240ths of a line (240 = single).
                         val blankLeading = when {
-                            blankRule == "EXACT" && blankBetween > 0 -> blankBetween.toFloat()
+                            blankRule == "EXACT" && blankBetween > 0 -> (blankBetween / 20f).toFloat()
                             blankRule == "AT_LEAST" && blankBetween > 0 ->
-                                maxOf(maxRunSize * 1.15f, blankBetween.toFloat())
-                            blankBetween > 0 -> (maxRunSize * blankBetween).toFloat()
+                                maxOf(maxRunSize * 1.15f, (blankBetween / 20f).toFloat())
+                            blankBetween > 0 -> (maxRunSize * (blankBetween / 240f)).toFloat()
                             else -> maxRunSize * 1.15f
                         }
                         val blankBefore = try { paragraph.spacingBefore } catch (_: Exception) { -1 }
@@ -326,13 +343,15 @@ class OfficeConverter {
                     val rightEdge = pageBounds.width - marginRight - rightIndentPts
                     val spacingRule = try { paragraph.spacingLineRule?.name } catch (_: Exception) { null }
                     val spacingLineVal = try { paragraph.spacingBetween } catch (_: Exception) { -1.0 }
+                    // OOXML units: EXACT/AT_LEAST w:line is twips (1/20pt),
+                    // AUTO w:line is 240ths of a line (240 = single).
                     val paraLeading = when {
                         spacingRule == "EXACT" && spacingLineVal > 0 ->
-                            spacingLineVal.toFloat()
+                            (spacingLineVal / 20f).toFloat()
                         spacingRule == "AT_LEAST" && spacingLineVal > 0 ->
-                            maxOf(maxRunSize * 1.15f, spacingLineVal.toFloat())
+                            maxOf(maxRunSize * 1.15f, (spacingLineVal / 20f).toFloat())
                         spacingLineVal > 0 ->
-                            (maxRunSize * spacingLineVal).toFloat()
+                            (maxRunSize * (spacingLineVal / 240f)).toFloat()
                         else -> maxRunSize * 1.15f
                     }
                     // Gap after the paragraph honors spacing-after (twips);
@@ -458,6 +477,19 @@ class OfficeConverter {
                     }
 
                     for (run in paragraph.runs) {
+                        // Explicit Word page break inside a run (<w:br w:type="page"/>):
+                        // flush the current line and continue on a fresh page.
+                        val runHasPageBreak = try {
+                            run.ctr?.brList?.any {
+                                it.type?.toString()?.equals("page", ignoreCase = true) == true
+                            } == true
+                        } catch (_: Exception) { false }
+                        if (runHasPageBreak) {
+                            if (lineBuf.isNotEmpty()) {
+                                emitLine(false)
+                            }
+                            newPage()
+                        }
                         // Check for images
                         val pictures = run.embeddedPictures
                         if (pictures.isNotEmpty()) {
@@ -511,7 +543,7 @@ class OfficeConverter {
                         }
 
                         // Check for text
-                        val runText = run.getText(0) ?: ""
+                        val runText = mapBulletChars(run.getText(0) ?: "")
                         if (runText.isNotEmpty()) {
                             val fontSizeHalfPoints = run.fontSize
                             // getFontSize() already returns whole points
@@ -1841,6 +1873,44 @@ class OfficeConverter {
             lines.add(currentLine.toString())
         }
         return lines
+    }
+
+    /**
+     * Reads a Word on/off flag (w:pageBreakBefore, w:keepNext, ...).
+     * Absent w:val means ON per OOXML; 0/false/off/none mean OFF.
+     */
+    private fun isOnOff(onOff: CTOnOff?): Boolean {
+        if (onOff == null) return false
+        return try {
+            if (!onOff.isSetVal()) return true
+            val v = onOff.`val`?.toString()?.lowercase() ?: return true
+            v != "0" && v != "false" && v != "off" && v != "none"
+        } catch (_: Exception) {
+            true
+        }
+    }
+
+    /**
+     * Maps Wingdings/Symbol/private-use bullet glyphs to WinAnsi-safe
+     * markers so list symbols survive PDFBox sanitization instead of
+     * being blanked to spaces.
+     */
+    private fun mapBulletChars(input: String): String {
+        if (input.isEmpty()) return input
+        val sb = StringBuilder(input.length)
+        for (ch in input) {
+            val code = ch.code
+            val mapped = when {
+                code in 0xF000..0xF0FF -> "•"
+                code in 0x2022..0x2024 -> "•"
+                code == 0x25AA || code == 0x25AB -> "·"
+                code == 0x25BA || code == 0x25B6 -> ">"
+                code == 0x25CA || code == 0x25C6 -> "•"
+                else -> ch.toString()
+            }
+            sb.append(mapped)
+        }
+        return sb.toString()
     }
 
     /**

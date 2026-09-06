@@ -851,6 +851,32 @@ fun DocxParagraphItem(
             .background(backgroundColor)
             .padding(top = spacingTop)
     ) {
+        // Explicit Word page break (w:br w:type="page" or w:pageBreakBefore):
+        // show a divider so content after a half-filled page visibly
+        // continues on a new page instead of flowing on.
+        if (paragraph.isPageBreakBefore || paragraph.runs.any { it.isPageBreak }) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Divider(
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+                Text(
+                    text = "Page Break",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Divider(
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
+        }
         if (hasTabs && tabRunIndex != -1) {
             // Split into left and right tab portions
             val leftRuns = mutableListOf<DocxRun>()
@@ -900,33 +926,86 @@ fun DocxParagraphItem(
             val annotatedString = remember(paragraph, searchQuery, isPrintLayout) {
                 buildAnnotatedStringForRuns(paragraph.runs, searchQuery, isPrintLayout)
             }
+            // Blank lines must keep their line height instead of collapsing
+            val isEmptyPara = annotatedString.isEmpty() &&
+                paragraph.runs.none { it.imageUrl != null }
+            val displayString = if (isEmptyPara) AnnotatedString(" ") else annotatedString
+            // List paragraphs (w:numPr) render a bullet symbol with hanging
+            // indent so wrapped lines align with the first line's text
+            val hasBullet = paragraph.bulletType != null
+            val bulletSymbol = when (paragraph.bulletType) {
+                "bullet" -> "•"
+                "number" -> "•"
+                else -> null
+            }
+            val baseIndent = paragraph.indentStartPt.coerceAtLeast(0f).dp
 
             SelectionContainer {
                 var layoutResult by remember { mutableStateOf<androidx.compose.ui.text.TextLayoutResult?>(null) }
-                Text(
-                    text = annotatedString,
-                    style = baseStyle,
-                    onTextLayout = { layoutResult = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = paragraph.indentStartPt.dp,
-                            end = 0.dp,
-                            bottom = verticalPadding
+                if (hasBullet && bulletSymbol != null && !isEmptyPara) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = baseIndent,
+                                end = 0.dp,
+                                bottom = verticalPadding
+                            )
+                    ) {
+                        Text(
+                            text = bulletSymbol,
+                            style = baseStyle.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.padding(end = 8.dp)
                         )
-                        .pointerInput(annotatedString) {
-                            detectTapGestures { offset ->
-                                layoutResult?.let { layout ->
-                                    val position = layout.getOffsetForPosition(offset)
-                                    annotatedString.getStringAnnotations("URL", position, position)
-                                        .firstOrNull()?.let { annotation ->
-                                            try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))) }
-                                            catch (e: Exception) { }
+                        Text(
+                            text = displayString,
+                            style = baseStyle,
+                            onTextLayout = { layoutResult = it },
+                            modifier = Modifier
+                                .weight(1f)
+                                .pointerInput(displayString) {
+                                    detectTapGestures { offset ->
+                                        layoutResult?.let { layout ->
+                                            val position = layout.getOffsetForPosition(offset)
+                                            displayString.getStringAnnotations("URL", position, position)
+                                                .firstOrNull()?.let { annotation ->
+                                                    try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))) }
+                                                    catch (e: Exception) { }
+                                                }
                                         }
+                                    }
+                                }
+                        )
+                    }
+                } else {
+                    Text(
+                        text = displayString,
+                        style = baseStyle,
+                        onTextLayout = { layoutResult = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = (paragraph.indentStartPt + paragraph.firstLineIndentPt.coerceAtLeast(0f)).coerceAtLeast(0f).dp,
+                                end = 0.dp,
+                                bottom = verticalPadding
+                            )
+                            .pointerInput(displayString) {
+                                detectTapGestures { offset ->
+                                    layoutResult?.let { layout ->
+                                        val position = layout.getOffsetForPosition(offset)
+                                        displayString.getStringAnnotations("URL", position, position)
+                                            .firstOrNull()?.let { annotation ->
+                                                try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))) }
+                                                catch (e: Exception) { }
+                                            }
+                                    }
                                 }
                             }
-                        }
-                )
+                    )
+                }
             }
         }
 

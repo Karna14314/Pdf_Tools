@@ -87,7 +87,8 @@ data class DocxParagraph(
     val tabStops: List<DocxTabStop> = emptyList(),
     val isKeepNext: Boolean = false,
     val isKeepLines: Boolean = false,
-    val isPageBreakBefore: Boolean = false
+    val isPageBreakBefore: Boolean = false,
+    val bulletType: String? = null // null, "bullet", "number"
 ) {
     // Backward compatibility helpers for UI dp calculations
     val indentStartDp: Int get() = (indentStartPt * (160f / 72f)).toInt()
@@ -277,6 +278,45 @@ class DocxViewerViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Maps Wingdings/Symbol/private-use bullet glyphs to readable markers
+     * so list symbols render instead of tofu/blank boxes.
+     */
+    private fun sanitizeBulletText(input: String): String {
+        if (input.isEmpty()) return input
+        val sb = StringBuilder(input.length)
+        for (i in input.indices) {
+            val ch = input[i]
+            val code = ch.code
+            val mapped = when {
+                code in 0xF000..0xF0FF -> {
+                    when (code) {
+                        0xF0B7 -> "•"
+                        0xF0A7 -> "▪"
+                        0xF0D8 -> "➢"
+                        0xF0FC -> "✓"
+                        0xF0E0 -> "✉"
+                        0xF071 -> "◆"
+                        0xF076 -> "❖"
+                        0xF0A8 -> "◻"
+                        0xF0A4 -> "★"
+                        0xF06E -> "■"
+                        0xF075 -> "✦"
+                        else -> "•"
+                    }
+                }
+                code in 0x2022..0x2024 -> "•"
+                code == 0x25AA || code == 0x25AB -> "▪"
+                code == 0x25BA || code == 0x25B6 -> "▶"
+                code == 0x25CA || code == 0x25C6 -> "◆"
+                ch == '•' -> "•"
+                else -> ch.toString()
+            }
+            sb.append(mapped)
+        }
+        return sb.toString()
+    }
+
     private fun parseLegacyDocument(doc: org.apache.poi.hwpf.HWPFDocument): DocxDocument {
         val elements = mutableListOf<DocxBodyElement>()
         val range = doc.range
@@ -287,7 +327,10 @@ class DocxViewerViewModel : ViewModel() {
             val numCharacterRuns = paragraph.numCharacterRuns()
             for (j in 0 until numCharacterRuns) {
                 val run = paragraph.getCharacterRun(j)
-                val text = run.text() ?: ""
+                val rawText = run.text() ?: ""
+                // Legacy .doc page breaks surface as form-feed chars in run text
+                val runHasPageBreak = rawText.contains('\u000C')
+                val text = sanitizeBulletText(rawText.replace("\u000C", ""))
                 runs.add(
                     DocxRun(
                         text = text,
@@ -296,7 +339,8 @@ class DocxViewerViewModel : ViewModel() {
                         isUnderline = run.getUnderlineCode() != 0,
                         isStrike = run.isStrikeThrough,
                         fontFamily = run.fontName,
-                        fontSizePt = if (run.fontSize > 0) run.fontSize / 2f else null
+                        fontSizePt = if (run.fontSize > 0) run.fontSize / 2f else null,
+                        isPageBreak = runHasPageBreak
                     )
                 )
             }
@@ -306,6 +350,10 @@ class DocxViewerViewModel : ViewModel() {
                 3 -> "JUSTIFY"
                 else -> "LEFT"
             }
+            // Legacy .doc list detection via paragraph list info
+            val legacyBulletType = try {
+                if (paragraph.isInList()) "bullet" else null
+            } catch (_: Exception) { null }
             elements.add(
                 DocxBodyElement.Para(
                     DocxParagraph(
@@ -313,7 +361,8 @@ class DocxViewerViewModel : ViewModel() {
                         alignment = alignment,
                         headingLevel = 0,
                         isHeading = false,
-                        comment = null
+                        comment = null,
+                        bulletType = legacyBulletType
                     )
                 )
             )
@@ -474,6 +523,7 @@ class DocxViewerViewModel : ViewModel() {
             }
 
             var text = run.text() ?: run.getText(0) ?: ""
+            text = sanitizeBulletText(text)
             if (hasTab && !text.contains("\t")) {
                 text = "\t$text"
             }
@@ -559,6 +609,9 @@ class DocxViewerViewModel : ViewModel() {
         var isKeepLines = false
         var isPageBreakBefore = false
         val tabStops = mutableListOf<DocxTabStop>()
+        var parsedBulletType: String? = null
+        var rawIndentLeftTwips = 0L
+        var rawFirstLineTwips = 0L
 
         try {
             val ctp = paragraph.ctp
@@ -603,6 +656,41 @@ class DocxViewerViewModel : ViewModel() {
                         tabStops.add(DocxTabStop(pos, align))
                     }
                 }
+
+                // Check w:numPr for bullet / numbering lists
+                try {
+                    val numPr = pPr.numPr
+                    if (numPr != null) {
+                        val numId = extractNumber(numPr.numId?.`val`)
+                        if (numId != null && numId > 0) {
+                            val fmt = try { paragraph.numFmt } catch (_: Throwable) { null }
+                            parsedBulletType = if (fmt != null && fmt.lowercase().contains("bullet")) {
+                                "bullet"
+                            } else if (fmt != null) {
+                                "number"
+                            } else {
+                                "bullet"
+                            }
+                        }
+                    }
+                } catch (_: Throwable) { }
+
+                // Indentation from XML pPr.ind (hanging indents come through
+                // as negative first-line offsets so wrapped lines align)
+                try {
+                    val ind = pPr.ind
+                    if (ind != null) {
+                        val left = extractNumber(ind.left) ?: extractNumber(ind.start)
+                        if (left != null) rawIndentLeftTwips = left
+                        val firstLine = extractNumber(ind.firstLine)
+                        val hanging = extractNumber(ind.hanging)
+                        if (firstLine != null) {
+                            rawFirstLineTwips = firstLine
+                        } else if (hanging != null) {
+                            rawFirstLineTwips = -hanging
+                        }
+                    }
+                } catch (_: Exception) { }
             }
         } catch (e: Exception) {
             // Ignore XML inspection errors
@@ -616,10 +704,36 @@ class DocxViewerViewModel : ViewModel() {
             spacingAfterPt = paragraph.spacingAfter / 20f
         }
 
-        val rawIndentLeft = paragraph.indentationLeft.coerceAtLeast(0)
-        val rawFirstLine = paragraph.indentationFirstLine.coerceAtLeast(0)
-        val indentStartPt = rawIndentLeft / 20f
-        val firstLineIndentPt = rawFirstLine / 20f
+        // Check high-level POI numbering if XML didn't catch it
+        if (parsedBulletType == null) {
+            try {
+                if (paragraph.numID != null) {
+                    val fmt = paragraph.numFmt
+                    parsedBulletType = if (fmt != null && fmt.lowercase().contains("bullet")) "bullet" else "number"
+                }
+            } catch (_: Throwable) {
+                // Ignore POI numbering errors
+            }
+        }
+
+        // If paragraph text begins with a bullet character, mark bulletType
+        val fullRunText = runs.joinToString("") { it.text }.trimStart()
+        if (parsedBulletType == null) {
+            if (fullRunText.startsWith("•") || fullRunText.startsWith("▪") ||
+                fullRunText.startsWith("➢") || fullRunText.startsWith("◆")
+            ) {
+                parsedBulletType = "bullet"
+            }
+        }
+
+        if (rawIndentLeftTwips == 0L && paragraph.indentationLeft > 0) {
+            rawIndentLeftTwips = paragraph.indentationLeft.toLong()
+        }
+        if (rawFirstLineTwips == 0L && paragraph.indentationFirstLine != 0) {
+            rawFirstLineTwips = paragraph.indentationFirstLine.toLong()
+        }
+        val indentStartPt = (rawIndentLeftTwips / 20f).coerceAtLeast(0f)
+        val firstLineIndentPt = rawFirstLineTwips / 20f
 
         return DocxParagraph(
             runs = runs,
@@ -636,7 +750,8 @@ class DocxViewerViewModel : ViewModel() {
             tabStops = tabStops,
             isKeepNext = isKeepNext,
             isKeepLines = isKeepLines,
-            isPageBreakBefore = isPageBreakBefore
+            isPageBreakBefore = isPageBreakBefore,
+            bulletType = parsedBulletType
         )
     }
     /**

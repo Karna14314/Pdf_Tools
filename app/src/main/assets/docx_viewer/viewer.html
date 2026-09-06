@@ -317,6 +317,7 @@
                 docx.renderAsync(bytes.buffer, container, null, {
                     className: "docx",
                     inWrapper: true,
+                    hideWrapperOnPrint: true,
                     ignoreWidth: !breakPages,
                     ignoreHeight: !breakPages,
                     breakPages: breakPages,
@@ -326,10 +327,10 @@
                     renderEndnotes: true,
                     renderChanges: false,
                     renderComments: false,
-                    ignoreLastRenderedPageBreak: true,
+                    ignoreLastRenderedPageBreak: !breakPages,
                     trimXmlDeclaration: true,
                     useBase64URL: true,
-                    experimental: true,
+                    experimental: false,
                     debug: false
                 }).then(function() {
                     if (__renderTimer) { clearTimeout(__renderTimer); __renderTimer = null; }
