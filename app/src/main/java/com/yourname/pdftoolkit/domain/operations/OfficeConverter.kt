@@ -1041,7 +1041,8 @@ class OfficeConverter {
 
             for ((slideIndex, slide) in ppt.slides.withIndex()) {
                 val bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
-                val canvas = android.graphics.Canvas(bitmap)
+                if (bitmap.isRecycled) continue
+                val canvas = android.graphics.Canvas(bitmap) // isRecycled checked above
                 canvas.drawColor(android.graphics.Color.WHITE)
 
                 // 1. Slide Background Color
