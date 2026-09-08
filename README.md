@@ -9,6 +9,9 @@
 </p>
 
 <p align="center">
+  <a href="https://f-droid.org/en/packages/com.yourname.pdftoolkit/">
+    <img src="https://img.shields.io/badge/F--Droid-Download-blue?logo=f-droid" alt="F-Droid">
+  </a>
   <a href="https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit">
     <img src="https://img.shields.io/badge/Play%20Store-Download-green?logo=googleplay" alt="Play Store">
   </a>
@@ -39,10 +42,24 @@
 ## 📱 Get it on Android
 
 <p align="center">
+  <a href="https://f-droid.org/en/packages/com.yourname.pdftoolkit/">
+    <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="80" alt="Get it on F-Droid">
+  </a>
   <a href="https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit">
     <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="80" alt="Get it on Google Play">
   </a>
 </p>
+
+### 📥 F-Droid Installation & Benefits
+PDF Toolkit is published on **F-Droid**, the repository of free and open-source Android software:
+- **100% Free & Open Source**: Built using the `fdroid` build flavor with 0 proprietary dependencies or trackers.
+- **Offline Tesseract OCR Engine**: Performs Optical Character Recognition completely on-device without Google Play Services or network connections.
+- **Reproducible & Verified**: Standard F-Droid automated builds compiled from source.
+
+**To Install via F-Droid:**
+1. Download the [F-Droid Client App](https://f-droid.org/).
+2. Search for `PDF Toolkit` or open [com.yourname.pdftoolkit on F-Droid](https://f-droid.org/en/packages/com.yourname.pdftoolkit/).
+3. Tap **Install** for automatic updates and verified security.
 
 > Offline · Privacy-first · No account required
 
@@ -96,7 +113,7 @@
 | Flavor | OCR Engine | Ads | Firebase | Distribution |
 |--------|-----------|-----|----------|--------------|
 | `playstore` | ML Kit | No | No | Google Play |
-| `fdroid` | Tesseract | No | No | F-Droid (pending) |
+| `fdroid` | Tesseract | No | No | F-Droid |
 | `opensource` | Tesseract | No | No | GitHub Releases |
 
 All flavors are **privacy-first** with no ads, no analytics, and no proprietary dependencies except ML Kit in the Play Store flavor.
@@ -153,9 +170,9 @@ cd Pdf_Tools
 
 | Platform | Link | Notes |
 |----------|------|-------|
-| Google Play | [Install](https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit) | Stable, auto-updates |
+| F-Droid | [Get on F-Droid](https://f-droid.org/en/packages/com.yourname.pdftoolkit/) | 100% FOSS, auto-updates |
+| Google Play | [Install](https://play.google.com/store/apps/details?id=com.yourname.pdftoolkit) | Play Store variant, auto-updates |
 | GitHub Releases | [Download APK](https://github.com/Karna14314/Pdf_Tools/releases) | Opensource flavor, manual install |
-| F-Droid | Coming soon | Under review |
 
 ---
 

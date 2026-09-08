@@ -177,8 +177,6 @@ jobs:
           ls -lh app/build/outputs/apk/opensource/release/*.apk || echo "Open Source APK not found"
           echo "=== F-Droid APK ==="
           ls -lh app/build/outputs/apk/fdroid/release/*.apk || echo "F-Droid APK not found"
-          echo "=== Mapping File ==="
-          ls -lh app/build/outputs/mapping/playstoreRelease/mapping.txt || echo "No mapping file found"
           echo "=== Version ==="
           echo "versionCode: ${{ env.APP_VERSION_CODE }}"
           echo "versionName: ${{ env.APP_VERSION_NAME }}"
@@ -220,8 +218,6 @@ jobs:
           releaseFiles: app/build/outputs/bundle/playstoreRelease/*.aab
           tracks: internal
           status: completed
-          mappingFile: app/build/outputs/mapping/playstoreRelease/mapping.txt
-          debugSymbols: app/build/intermediates/merged_native_libs/playstoreRelease/mergePlaystoreReleaseNativeLibs/out/lib
           whatsNewDirectory: distribution/whatsnew
 
       # ════════════════════════════════════════════════════════════════════════════════
@@ -363,7 +359,6 @@ jobs:
             app/build/outputs/bundle/playstoreRelease/*.aab
             app/build/outputs/apk/playstore/release/*.apk
             app/build/outputs/apk/opensource/release/*.apk
-            app/build/outputs/mapping/playstoreRelease/mapping.txt
           draft: false
           prerelease: false
         env:
