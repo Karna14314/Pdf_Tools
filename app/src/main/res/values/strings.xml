@@ -193,6 +193,7 @@
     <string name="merge_add_pdfs">Add PDFs</string>
     <string name="merge_add_images">Add Images</string>
     <string name="merge_add_files">Add Files</string>
+    <string name="merge_n_pdfs">Merge %d PDFs</string>
     <string name="merge_n_files">Merge %d Files</string>
     <string name="merge_progress">Merging Files...</string>
     <string name="merge_complete">Merge Complete</string>
