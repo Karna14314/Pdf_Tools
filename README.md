@@ -67,7 +67,7 @@ PDF Toolkit is published on **F-Droid**, the repository of free and open-source 
 ## ✨ Features
 
 ### 📄 PDF Management
-- **Merge PDFs** — Combine multiple PDF files into a single document
+- **Merge PDF & Images** — Combine multiple PDF files and images (JPG, PNG, WebP) into a single document with File & Page preview modes
 - **Split PDF** — Split into multiple files or specific page ranges
 - **Compress PDF** — Reduce file size while maintaining quality
 - **Reorder Pages** — Visual drag-and-drop page reordering

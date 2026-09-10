@@ -186,18 +186,24 @@
     <string name="tool_view_pdf">View PDF</string>
 
     <!-- Merge Screen -->
-    <string name="merge_title">Merge PDFs</string>
-    <string name="merge_empty_title">No PDFs Selected</string>
-    <string name="merge_empty_subtitle">Add 2 or more PDF files to merge them into a single document</string>
+    <string name="merge_title">Merge PDF &amp; Images</string>
+    <string name="merge_empty_title">No Files Selected</string>
+    <string name="merge_empty_subtitle">Add PDF files or images (JPG, PNG, WEBP) to merge into a single PDF document</string>
     <string name="merge_selected_files">Selected Files (%d)</string>
     <string name="merge_add_pdfs">Add PDFs</string>
+    <string name="merge_add_images">Add Images</string>
+    <string name="merge_add_files">Add Files</string>
     <string name="merge_n_pdfs">Merge %d PDFs</string>
-    <string name="merge_progress">Merging PDFs...</string>
+    <string name="merge_n_files">Merge %d Files</string>
+    <string name="merge_progress">Merging Files...</string>
     <string name="merge_complete">Merge Complete</string>
     <string name="merge_failed">Merge Failed</string>
-    <string name="merge_success_message">Successfully merged %1$d PDFs\n\nSaved to: %2$s/%3$s</string>
+    <string name="merge_success_message">Successfully merged %1$d files\n\nSaved to: %2$s/%3$s</string>
     <string name="merge_custom_location">Choose custom save location</string>
     <string name="merge_default_path">Default: %s</string>
+    <string name="merge_file_view">File View</string>
+    <string name="merge_page_view">Page View</string>
+    <string name="merge_page_indicator">Page %1$d</string>
 
     <!-- Compress Screen -->
     <string name="compress_title">Compress PDF</string>

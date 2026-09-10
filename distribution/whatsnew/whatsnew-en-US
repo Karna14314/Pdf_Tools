@@ -1,4 +1,4 @@
-• New Notes tool in PDF viewer: tap any page to add a sticky note, edit or delete anytime — notes save as standard PDF comments visible in any PDF app
-• Fixed file sizes showing as 0B in the file list
-• More reliable PDF compression engine
-• Stability and performance improvements
+• Enhanced Merge PDF tool: Combine PDF files and image files (JPG, PNG, WEBP) together into a single PDF output
+• Added Page Preview Mode: View and inspect final page order across all documents before merging
+• Improved PDF and Image rendering performance and memory management
+• Bug fixes and stability improvements
