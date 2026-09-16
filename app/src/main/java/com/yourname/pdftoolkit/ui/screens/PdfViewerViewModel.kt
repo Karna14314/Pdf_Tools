@@ -104,6 +104,7 @@ sealed class PdfTool {
 sealed class PdfViewerUiState {
     object Idle : PdfViewerUiState()
     object Loading : PdfViewerUiState()
+    data class PasswordRequired(val isIncorrect: Boolean) : PdfViewerUiState()
     data class Error(val message: String) : PdfViewerUiState()
     data class Loaded(val totalPages: Int) : PdfViewerUiState()
 }
@@ -280,13 +281,39 @@ open class PdfViewerViewModel : ViewModel() {
                         }
 
                         // Document open with timeout for large PDFs
+                        var wasPasswordAttempted = password.isNotEmpty()
                         val doc = withTimeoutOrNull(30000) {
-                            if (password.isNotEmpty()) {
-                                PDDocument.load(fileToLoad, password, MemoryUsageSetting.setupTempFileOnly())
-                            } else {
-                                PDDocument.load(fileToLoad, MemoryUsageSetting.setupTempFileOnly())
+                            try {
+                                if (password.isNotEmpty()) {
+                                    PDDocument.load(fileToLoad, password, MemoryUsageSetting.setupTempFileOnly())
+                                } else {
+                                    PDDocument.load(fileToLoad, MemoryUsageSetting.setupTempFileOnly())
+                                }
+                            } catch (e: Exception) {
+                                val msg = e.message?.lowercase() ?: ""
+                                if (msg.contains("password") || msg.contains("encrypted") || msg.contains("decrypt")) {
+                                    if (wasPasswordAttempted) {
+                                        Log.w("PdfViewerVM", "Password validation failed for file ${fileToLoad.name}")
+                                        _uiState.value = PdfViewerUiState.PasswordRequired(isIncorrect = true)
+                                    } else {
+                                        Log.i("PdfViewerVM", "Password required for encrypted file ${fileToLoad.name}")
+                                        _uiState.value = PdfViewerUiState.PasswordRequired(isIncorrect = false)
+                                    }
+                                    return@withTimeoutOrNull null
+                                } else {
+                                    throw e
+                                }
                             }
-                        } ?: throw Exception("PDF too large to open - timed out after 30 seconds")
+                        }
+
+                        if (doc == null) {
+                            // If doc is null and uiState was set to PasswordRequired, we return early cleanly
+                            if (_uiState.value is PdfViewerUiState.PasswordRequired) {
+                                return@withContext
+                            } else {
+                                throw Exception("PDF too large to open - timed out after 30 seconds")
+                            }
+                        }
 
                         val pageCount = doc.numberOfPages
                         Log.d("PdfViewerVM", "Loaded PDF with $pageCount pages")
@@ -295,11 +322,15 @@ open class PdfViewerViewModel : ViewModel() {
                             document = doc
                             pdfRenderer = PDFRenderer(doc)
                             tempFile = createdTempFile // Transfer ownership to instance
-                            try {
-                                androidPdfPfd = ParcelFileDescriptor.open(fileToLoad, ParcelFileDescriptor.MODE_READ_ONLY)
-                                androidPdfRenderer = AndroidPdfRenderer(androidPdfPfd!!)
-                            } catch (e: Exception) {
-                                Log.e("PdfViewerVM", "Error initializing AndroidPdfRenderer", e)
+                            if (!doc.isEncrypted) {
+                                try {
+                                    androidPdfPfd = ParcelFileDescriptor.open(fileToLoad, ParcelFileDescriptor.MODE_READ_ONLY)
+                                    androidPdfRenderer = AndroidPdfRenderer(androidPdfPfd!!)
+                                } catch (e: Exception) {
+                                    Log.e("PdfViewerVM", "Error initializing AndroidPdfRenderer", e)
+                                }
+                            } else {
+                                Log.i("PdfViewerVM", "Document is encrypted. Using PDFBox PDFRenderer for proper font/stream decryption.")
                             }
                         }
 

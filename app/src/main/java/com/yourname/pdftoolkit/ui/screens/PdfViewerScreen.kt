@@ -267,27 +267,34 @@ fun PdfViewerScreen(
                         pdfUri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
+                    Log.d("PdfViewerScreen", "Persistable URI permission acquired for $pdfUri")
                 } catch (e: Exception) {
                     Log.w("PdfViewerScreen", "Failed to take persistable permission: ${e.message}")
                 }
             }
             
-             viewModel.loadPdf(context.applicationContext, pdfUri, "")
+            Log.d("PdfViewerScreen", "Triggering loadPdf for URI: $pdfUri")
+            viewModel.loadPdf(context.applicationContext, pdfUri, "")
         }
     }
     
     // Handle UI State
-    val errorMessage = (uiState as? PdfViewerUiState.Error)?.message
     val totalPages = (uiState as? PdfViewerUiState.Loaded)?.totalPages ?: 0
 
-    LaunchedEffect(errorMessage) {
-        if (errorMessage != null) {
-             val isPasswordIssue = errorMessage.contains("password", ignoreCase = true) ||
-                                     errorMessage.contains("encrypted", ignoreCase = true)
-             if (isPasswordIssue) {
-                 showPasswordDialog = true
-                 isPasswordError = true // Assume error if we are here
-             }
+    LaunchedEffect(uiState) {
+        when (val state = uiState) {
+            is PdfViewerUiState.PasswordRequired -> {
+                showPasswordDialog = true
+                isPasswordError = state.isIncorrect
+            }
+            is PdfViewerUiState.Error -> {
+                val msg = state.message.lowercase()
+                if (msg.contains("password") || msg.contains("encrypted")) {
+                    showPasswordDialog = true
+                    isPasswordError = true
+                }
+            }
+            else -> {}
         }
     }
     
@@ -634,6 +641,10 @@ fun PdfViewerScreen(
                     LoadingState()
                 }
                 
+                is PdfViewerUiState.PasswordRequired -> {
+                    LoadingState()
+                }
+
                 is PdfViewerUiState.Error -> {
                     // Handled by side effect, but show basic error here if not password
                     if (isPasswordError) {
