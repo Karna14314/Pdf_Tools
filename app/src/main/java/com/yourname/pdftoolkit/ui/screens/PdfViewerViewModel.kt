@@ -1178,6 +1178,7 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
         }
     }
 
+    @OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
     override fun onCleared() {
         super.onCleared()
         val exceptionHandler = kotlinx.coroutines.CoroutineExceptionHandler { _, e ->
@@ -1187,7 +1188,7 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
                 }
             } else throw e
         }
-        viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
+        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO + kotlinx.coroutines.NonCancellable + exceptionHandler) {
             synchronized(activeBitmaps) {
                 uiBitmapRefs.values.forEach { if (!it.isRecycled) it.recycle() }
                 uiBitmapRefs.clear()
