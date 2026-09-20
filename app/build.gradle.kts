@@ -147,7 +147,11 @@ android {
             isDebuggable = false
             isJniDebuggable = false
             
-            // Bundle debug symbols in the AAB for Play Console crash reports
+            // Bundle debug symbols in the AAB for Play Console crash reports.
+            // NOTE: Play shows "missing debug symbols" if an APK (or a non-CI
+            // local build) is uploaded instead of the CI-built AAB. Always ship
+            // the bundle from deploy.yml; the matching native-debug-symbols.zip
+            // is published as a workflow artifact for manual upload if needed.
             ndk {
                 debugSymbolLevel = "FULL"
             }

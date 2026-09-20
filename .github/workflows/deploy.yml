@@ -191,6 +191,14 @@ jobs:
           path: app/build/outputs/bundle/playstoreRelease/app-playstore-release.aab
           retention-days: 30
 
+      - name: Upload native debug symbols artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdftoolkit-native-symbols-v${{ env.APP_VERSION_NAME }}
+          path: app/build/outputs/native-debug-symbols/playstoreRelease/native-debug-symbols.zip
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Upload PlayStore APK artifact
         uses: actions/upload-artifact@v4
         with:
