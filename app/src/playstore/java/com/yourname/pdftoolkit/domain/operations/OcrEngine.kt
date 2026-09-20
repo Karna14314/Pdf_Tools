@@ -44,7 +44,8 @@ class OcrEngine(private val context: Context) {
                     }
                     continuation.resume(words)
                 }
-                .addOnFailureListener {
+                .addOnFailureListener { e ->
+                    android.util.Log.w("OcrEngine", "ML Kit recognition failed: ${e.message}", e)
                     continuation.resume(emptyList())
                 }
         }

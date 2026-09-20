@@ -93,15 +93,27 @@ class OcrViewModel : ViewModel() {
             ocrProcessor = PdfOcrProcessor(context)
 
             if (isImage) {
-                val text = ocrProcessor?.extractTextFromImage(sourceUri) ?: ""
-                _state.value = _state.value.copy(
-                    isProcessing = false,
-                    isComplete = text.isNotBlank(),
-                    error = if (text.isBlank()) "No text recognized in this image" else null,
-                    extractedText = text,
-                    markdownText = text,
-                    pagesProcessed = 1
-                )
+                try {
+                    val outcome = ocrProcessor?.extractTextFromImage(sourceUri)
+                    val text = outcome?.text ?: ""
+                    _state.value = _state.value.copy(
+                        isProcessing = false,
+                        isComplete = text.isNotBlank(),
+                        error = if (text.isBlank()) {
+                            "No text recognized in this image" +
+                                (outcome?.debug?.let { "\n$it" } ?: "")
+                        } else null,
+                        extractedText = text,
+                        markdownText = text,
+                        pagesProcessed = 1
+                    )
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    _state.value = _state.value.copy(
+                        isProcessing = false,
+                        error = "Image OCR failed: ${e.message}"
+                    )
+                }
                 return@launch
             }
 
@@ -378,8 +390,26 @@ fun OcrScreen(
                                 modifier = Modifier.weight(1f),
                                 style = MaterialTheme.typography.bodyMedium
                             )
-                            IconButton(onClick = { pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context) }) {
-                                Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.action_change))
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = { pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context) },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.PictureAsPdf, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("PDF")
+                            }
+                            OutlinedButton(
+                                onClick = { imagePickerLauncher.safeLaunch(arrayOf("image/*"), context) },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Image")
                             }
                         }
                     } else {

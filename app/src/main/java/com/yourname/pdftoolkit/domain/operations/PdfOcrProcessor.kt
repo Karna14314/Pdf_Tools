@@ -101,6 +101,15 @@ data class SearchablePdfResult(
 )
 
 /**
+ * Outcome of single-image OCR: recognized text plus a debug trail
+ * (dimensions, path results) shown when nothing is recognized.
+ */
+data class ImageOcrOutcome(
+    val text: String,
+    val debug: String = ""
+)
+
+/**
  * OCR Processor - Performs Optical Character Recognition on PDF pages.
  * Uses flavor-specific OCR engine (ML Kit for Play Store, Tesseract for F-Droid).
  * Can extract text and make scanned PDFs searchable.
@@ -366,6 +375,62 @@ class PdfOcrProcessor(private val context: Context) {
     }
     
     /**
+     * Wrap a single image in a 1-page PDF (200 DPI sizing) so images can flow
+     * through the exact same extractor/renderer pipeline as PDFs.
+     * Returns the temp PDF file, or null on failure (caller deletes it).
+     */
+    private suspend fun wrapImageAsPdf(imageUri: Uri): File? = withContext(Dispatchers.IO) {
+        try {
+            ensureActive()
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            context.contentResolver.openInputStream(imageUri)?.use { input ->
+                BitmapFactory.decodeStream(input, null, options)
+            } ?: return@withContext null
+            if (options.outWidth <= 0 || options.outHeight <= 0) {
+                android.util.Log.w(
+                    "PdfOcrProcessor",
+                    "wrapImageAsPdf: undecodable image mime=${options.outMimeType}"
+                )
+                return@withContext null
+            }
+            val sampleSize = calculateInSampleSize(options.outWidth, options.outHeight, MAX_OCR_PIXELS)
+            val decodeOptions = BitmapFactory.Options().apply {
+                inSampleSize = sampleSize
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+            }
+            val bitmap = context.contentResolver.openInputStream(imageUri)?.use {
+                BitmapFactory.decodeStream(it, null, decodeOptions)
+            } ?: return@withContext null
+            val oriented = applyExifOrientation(imageUri, bitmap)
+
+            val cacheDir = File(context.cacheDir, "ocr_cache")
+            if (!cacheDir.exists()) cacheDir.mkdirs()
+            val out = File(cacheDir, "img_wrap_${System.currentTimeMillis()}.pdf")
+            try {
+                PDDocument().use { doc ->
+                    val wPt = (oriented.width * 72f / 200f).coerceIn(72f, 3000f)
+                    val hPt = (oriented.height * 72f / 200f).coerceIn(72f, 3000f)
+                    val page = PDPage(PDRectangle(wPt, hPt))
+                    doc.addPage(page)
+                    val image = LosslessFactory.createFromImage(doc, oriented)
+                    PDPageContentStream(doc, page).use { cs ->
+                        cs.drawImage(image, 0f, 0f, wPt, hPt)
+                    }
+                    FileOutputStream(out).use { fos -> doc.save(fos); fos.flush() }
+                }
+            } finally {
+                oriented.recycle()
+            }
+            out
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            android.util.Log.e("PdfOcrProcessor", "wrapImageAsPdf failed: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Make a searchable PDF from a single image: wrap the image in a 1-page
      * PDF, then run the standard searchable pipeline on it (#135).
      */
@@ -374,44 +439,13 @@ class PdfOcrProcessor(private val context: Context) {
         outputUri: Uri,
         progressCallback: (Int) -> Unit = {}
     ): SearchablePdfResult = withContext(Dispatchers.IO) {
-        val cacheDir = File(context.cacheDir, "ocr_cache")
-        if (!cacheDir.exists()) cacheDir.mkdirs()
-        val wrapped = File(cacheDir, "img_wrap_${System.currentTimeMillis()}.pdf")
+        val wrapped = wrapImageAsPdf(imageUri)
+            ?: return@withContext SearchablePdfResult(
+                success = false, pagesProcessed = 0, errorMessage = "Cannot decode this image. Try JPG or PNG."
+            )
         try {
-            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            context.contentResolver.openInputStream(imageUri)?.use { input ->
-                BitmapFactory.decodeStream(input, null, options)
-            } ?: return@withContext SearchablePdfResult(
-                success = false, pagesProcessed = 0, errorMessage = "Cannot open image"
-            )
-            val sampleSize = calculateInSampleSize(options.outWidth, options.outHeight, MAX_OCR_PIXELS)
-            val decodeOptions = BitmapFactory.Options().apply {
-                inSampleSize = sampleSize
-                inPreferredConfig = Bitmap.Config.RGB_565
-            }
-            val bitmap = context.contentResolver.openInputStream(imageUri)?.use {
-                BitmapFactory.decodeStream(it, null, decodeOptions)
-            } ?: return@withContext SearchablePdfResult(
-                success = false, pagesProcessed = 0, errorMessage = "Cannot decode image"
-            )
-            try {
-                PDDocument().use { doc ->
-                    val wPt = (bitmap.width * 72f / 200f).coerceIn(72f, 3000f)
-                    val hPt = (bitmap.height * 72f / 200f).coerceIn(72f, 3000f)
-                    val page = PDPage(PDRectangle(wPt, hPt))
-                    doc.addPage(page)
-                    val image = LosslessFactory.createFromImage(doc, bitmap)
-                    PDPageContentStream(doc, page).use { cs ->
-                        cs.drawImage(image, 0f, 0f, wPt, hPt)
-                    }
-                    FileOutputStream(wrapped).use { out -> doc.save(out); out.flush() }
-                }
-            } finally {
-                bitmap.recycle()
-            }
             progressCallback(10)
-            val wrappedUri = Uri.fromFile(wrapped)
-            makeSearchable(wrappedUri, outputUri) { p ->
+            makeSearchable(Uri.fromFile(wrapped), outputUri) { p ->
                 progressCallback(10 + (p * 90 / 100))
             }
         } finally {
@@ -421,37 +455,132 @@ class PdfOcrProcessor(private val context: Context) {
 
     /**
      * Extract text from an image using OCR.
+     * Tries the PDF pipeline first (wrap -> render -> recognize), then falls
+     * back to direct bitmap recognition; keeps whichever yields text.
+     * Returns text plus a stage-by-stage debug trail for the UI.
      */
     suspend fun extractTextFromImage(
         imageUri: Uri
-    ): String = withContext(Dispatchers.IO) {
+    ): ImageOcrOutcome = withContext(Dispatchers.IO) {
+        val trail = StringBuilder()
         try {
             ensureActive()
             val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             context.contentResolver.openInputStream(imageUri)?.use { input ->
                 BitmapFactory.decodeStream(input, null, options)
-            } ?: return@withContext ""
-
-            val sampleSize = calculateInSampleSize(options.outWidth, options.outHeight, MAX_OCR_PIXELS)
-            val decodeOptions = BitmapFactory.Options().apply {
-                inSampleSize = sampleSize
-                inPreferredConfig = Bitmap.Config.RGB_565
+            }
+            trail.append("bounds=${options.outWidth}x${options.outHeight} ")
+            if (options.outWidth <= 0 || options.outHeight <= 0) {
+                return@withContext ImageOcrOutcome(
+                    text = "",
+                    debug = "${trail}decode=FAIL(unsupported format ${options.outMimeType})"
+                )
             }
 
-            val bitmap = context.contentResolver.openInputStream(imageUri)?.use {
-                BitmapFactory.decodeStream(it, null, decodeOptions)
-            } ?: return@withContext ""
-            
-            ensureActive()
-            val words = performOcrOnBitmap(bitmap)
-            bitmap.recycle()
-            
-            words.joinToString(" ") { it.text }
+            // Path 1: wrapped-PDF pipeline (same renderer path as PDF OCR).
+            var text = ""
+            try {
+                val wrapped = wrapImageAsPdf(imageUri)
+                if (wrapped != null) {
+                    try {
+                        trail.append("wrap=OK(${wrapped.length() / 1024}KB) ")
+                        val result = extractTextWithOcr(pdfUri = Uri.fromFile(wrapped))
+                        text = if (result.success) result.fullText else ""
+                        trail.append("rendered-words=${text.split("\\s+".toRegex()).count { it.isNotBlank() }} ")
+                    } finally {
+                        wrapped.delete()
+                    }
+                } else {
+                    trail.append("wrap=FAIL ")
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                trail.append("wrap-EX:${e.message} ")
+                android.util.Log.e("PdfOcrProcessor", "image OCR wrapped path failed", e)
+            }
+
+            // Path 2 (fallback): direct bitmap recognition.
+            if (text.isBlank()) {
+                try {
+                    text = recognizeImageBitmapDirect(imageUri, options, trail)
+                    trail.append("direct-chars=${text.length} ")
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    trail.append("direct-EX:${e.message} ")
+                    android.util.Log.e("PdfOcrProcessor", "image OCR direct path failed", e)
+                }
+            }
+
+            ImageOcrOutcome(text = text, debug = trail.toString().trim())
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            ""
+            android.util.Log.e("PdfOcrProcessor", "extractTextFromImage failed: ${e.message}", e)
+            ImageOcrOutcome(text = "", debug = "${trail}EX:${e.message}".trim())
+        }
+    }
+
+    /**
+     * Direct bitmap recognition: decode (ARGB_8888, EXIF-oriented) and
+     * recognize without the PDF round-trip.
+     */
+    private suspend fun recognizeImageBitmapDirect(
+        imageUri: Uri,
+        bounds: BitmapFactory.Options,
+        trail: StringBuilder
+    ): String = withContext(Dispatchers.IO) {
+        val sampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, MAX_OCR_PIXELS)
+        trail.append("sample=$sampleSize ")
+        val decodeOptions = BitmapFactory.Options().apply {
+            inSampleSize = sampleSize
+            inPreferredConfig = Bitmap.Config.ARGB_8888
+        }
+        val bitmap = context.contentResolver.openInputStream(imageUri)?.use {
+            BitmapFactory.decodeStream(it, null, decodeOptions)
+        } ?: return@withContext ""
+        val oriented = applyExifOrientation(imageUri, bitmap)
+        trail.append("bitmap=${oriented.width}x${oriented.height} ")
+        try {
+            ensureActive()
+            val words = performOcrOnBitmap(oriented)
+            trail.append("direct-words=${words.size} ")
+            words.joinToString(" ") { it.text }
+        } finally {
+            oriented.recycle()
         }
     }
     
+    /**
+     * Rotate a bitmap per its EXIF orientation flag (camera photos).
+     * Returns the original bitmap when no rotation is needed.
+     */
+    private fun applyExifOrientation(imageUri: Uri, bitmap: Bitmap): Bitmap {
+        return try {
+            context.contentResolver.openInputStream(imageUri)?.use { input ->
+                val exif = androidx.exifinterface.media.ExifInterface(input)
+                val orientation = exif.getAttributeInt(
+                    androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION,
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
+                )
+                val matrix = android.graphics.Matrix()
+                when (orientation) {
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                    androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                    else -> return bitmap
+                }
+                val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                if (rotated != bitmap) bitmap.recycle()
+                rotated
+            } ?: bitmap
+        } catch (e: Exception) {
+            android.util.Log.w("PdfOcrProcessor", "EXIF rotation skipped: ${e.message}")
+            bitmap
+        }
+    }
+
     /**
      * Perform OCR on a bitmap using the flavor-specific OCR engine.
      */
