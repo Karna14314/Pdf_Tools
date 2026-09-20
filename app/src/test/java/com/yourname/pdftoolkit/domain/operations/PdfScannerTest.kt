@@ -32,13 +32,16 @@ class PdfScannerTest {
         // Expected result using legacy logic (trusted reference)
         val expected = legacyConversion(source)
 
-        // Actual result using reflection on PdfScanner
+        // Actual result using reflection on PdfScanner (explicit fixed threshold
+        // to match the legacy 128 reference; default is now auto-Otsu).
         val context = RuntimeEnvironment.getApplication()
         val scanner = PdfScanner(context)
 
-        val method: Method = PdfScanner::class.java.getDeclaredMethod("convertToBlackAndWhite", Bitmap::class.java)
+        val method: Method = PdfScanner::class.java.getDeclaredMethod(
+            "convertToBlackAndWhite", Bitmap::class.java, Integer::class.java
+        )
         method.isAccessible = true
-        val actual = method.invoke(scanner, source) as Bitmap
+        val actual = method.invoke(scanner, source, 128) as Bitmap
 
         // Verify
         for (y in 0 until height) {
@@ -46,6 +49,20 @@ class PdfScannerTest {
                 assertEquals("Pixel at $x, $y", expected.getPixel(x, y), actual.getPixel(x, y))
             }
         }
+    }
+
+    @Test
+    fun otsuThreshold_separatesBimodalHistogram() {
+        val context = RuntimeEnvironment.getApplication()
+        val scanner = PdfScanner(context)
+
+        // Half dark (value 40), half bright (value 200): Otsu must land between.
+        val pixels = IntArray(2000) { i ->
+            val v = if (i < 1000) 40 else 200
+            android.graphics.Color.rgb(v, v, v)
+        }
+        val threshold = scanner.calculateOtsuThreshold(pixels)
+        assertEquals(true, threshold in 40..200)
     }
 
     /**

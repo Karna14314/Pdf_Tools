@@ -57,6 +57,18 @@ enum class CardMode(val displayName: String) {
     DUPLEX("Duplex (Front & Back Alignment)")
 }
 
+/**
+ * N-Up grid page ordering.
+ * STANDARD fills cells in Z-order. CUT_STACK_* permutes pages (2x2 grids)
+ * so that cutting the sheet into quarters and stacking keeps pages
+ * sequential — for pocket booklet imposition (#144).
+ */
+enum class NUpLayoutMode(val displayName: String, val description: String) {
+    STANDARD("Standard Grid (Z-Order)", "Pages in reading order across sheets"),
+    CUT_STACK_LTR("Cut & Stack Booklet (LTR)", "Pocket booklet for left-to-right languages"),
+    CUT_STACK_RTL("Cut & Stack Booklet (RTL)", "Pocket booklet for Arabic, Hebrew, Persian")
+}
+
 enum class BleedMethod(val displayName: String) {
     EXTEND_EDGE("Extend Edge Pixels"),
     MIRROR_EDGE("Mirror Edge Boundaries"),
@@ -137,6 +149,7 @@ data class ImpositionConfig(
     // N-Up & Grid settings
     val gridRows: Int = 2,
     val gridCols: Int = 2,
+    val nUpLayoutMode: NUpLayoutMode = NUpLayoutMode.STANDARD,
     val marginTopMm: Float = 10f,
     val marginBottomMm: Float = 10f,
     val marginLeftMm: Float = 10f,

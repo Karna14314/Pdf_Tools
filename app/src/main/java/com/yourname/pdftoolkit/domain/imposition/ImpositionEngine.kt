@@ -63,14 +63,30 @@ object ImpositionEngine {
         val totalSheets = ceil(pageCount.toDouble() / pagesPerSheet).toInt()
         val sheetLayouts = mutableListOf<SheetLayout>()
 
-        var currentPageIndex = 0
+        // Page fill order. Cut & Stack modes permute 8-page groups (front/back
+        // sheet pair) so quarter-cut + stack stays sequential; -1 = blank pad.
+        val orderedPages: List<Int> = if (
+            config.nUpLayoutMode != NUpLayoutMode.STANDARD &&
+            gridCols == 2 && gridRows == 2
+        ) {
+            buildCutStackOrder(pageCount, config.nUpLayoutMode)
+        } else {
+            (0 until pageCount).toList()
+        }
+        // Cut-stack pads to full groups, so sheet count must cover the order.
+        val effectiveSheets = if (orderedPages.size > totalSheets * pagesPerSheet) {
+            ceil(orderedPages.size.toDouble() / pagesPerSheet).toInt()
+        } else {
+            totalSheets
+        }
+        var orderIndex = 0
 
-        for (sheetIdx in 0 until totalSheets) {
+        for (sheetIdx in 0 until effectiveSheets) {
             val placements = mutableListOf<PagePlacement>()
 
             for (row in 0 until gridRows) {
                 for (col in 0 until gridCols) {
-                    if (currentPageIndex >= pageCount) break
+                    if (orderIndex >= orderedPages.size) break
 
                     val cellX = marginLeftPt + col * (cellWidth + gutterXPt)
                     val cellY = marginTopPt + row * (cellHeight + gutterYPt)
@@ -88,7 +104,7 @@ object ImpositionEngine {
 
                     placements.add(
                         PagePlacement(
-                            sourcePageIndex = currentPageIndex,
+                            sourcePageIndex = orderedPages[orderIndex],
                             xPt = pageX,
                             yPt = pageY,
                             widthPt = transform.renderWidth,
@@ -98,7 +114,7 @@ object ImpositionEngine {
                         )
                     )
 
-                    currentPageIndex++
+                    orderIndex++
                 }
             }
 
@@ -541,6 +557,41 @@ object ImpositionEngine {
         }
 
         return sheetLayouts
+    }
+
+    // -------------------------------------------------------------------------
+    // 1b. CUT & STACK ORDER (pocket booklet, 2x2 grid, duplex long-edge)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Reorders 0-based page indices into 8-page groups (front sheet + back
+     * sheet) so cutting a 2x2 sheet into quarters and stacking yields
+     * sequential pages. Short final groups are padded with -1 (blank).
+     *
+     * Cell order within a sheet is TL, TR, BL, BR (Z-order fill).
+     * LTR front [1,3,5,7] back [4,2,8,6]; RTL front [3,1,7,5] back [2,4,6,8]
+     * (1-based page numbers from issue #144).
+     */
+    internal fun buildCutStackOrder(pageCount: Int, mode: NUpLayoutMode): List<Int> {
+        if (mode == NUpLayoutMode.STANDARD || pageCount <= 0) {
+            return (0 until pageCount).toList()
+        }
+        // 0-based slot patterns per 8-page group: front sheet slots then back.
+        val pattern = if (mode == NUpLayoutMode.CUT_STACK_RTL) {
+            intArrayOf(2, 0, 6, 4, 1, 3, 5, 7)
+        } else {
+            intArrayOf(0, 2, 4, 6, 3, 1, 7, 5)
+        }
+        val ordered = mutableListOf<Int>()
+        var base = 0
+        while (base < pageCount) {
+            for (slot in pattern) {
+                val page = base + slot
+                ordered.add(if (page < pageCount) page else -1)
+            }
+            base += 8
+        }
+        return ordered
     }
 
     // -------------------------------------------------------------------------

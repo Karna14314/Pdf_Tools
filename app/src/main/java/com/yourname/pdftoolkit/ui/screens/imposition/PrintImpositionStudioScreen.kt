@@ -477,6 +477,39 @@ fun PrintImpositionStudioScreen(
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                            if (uiState.config.mode == ImpositionToolMode.N_UP) {
+                                Text("Layout Mode", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                                NUpLayoutMode.entries.forEach { layoutMode ->
+                                    val isSelected = uiState.config.nUpLayoutMode == layoutMode
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .clickable { viewModel.updateConfig { it.copy(nUpLayoutMode = layoutMode) } }
+                                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        RadioButton(
+                                            selected = isSelected,
+                                            onClick = { viewModel.updateConfig { it.copy(nUpLayoutMode = layoutMode) } }
+                                        )
+                                        Spacer(Modifier.width(6.dp))
+                                        Column {
+                                            Text(layoutMode.displayName, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                                            Text(layoutMode.description, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                    }
+                                }
+                                if (uiState.config.nUpLayoutMode != NUpLayoutMode.STANDARD &&
+                                    (uiState.config.gridCols != 2 || uiState.config.gridRows != 2)
+                                ) {
+                                    Text(
+                                        "Cut & Stack needs a 2x2 grid (quarter-cut booklet). Using standard order for this grid size.",
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
                         }
 
                         ImpositionToolMode.CROP_RESIZE -> {

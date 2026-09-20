@@ -1348,7 +1348,11 @@ private fun PdfPagesContent(
                                         .coerceIn(-maxOffsetX, maxOffsetX)
                                     currentOnOffsetChange(newOffsetX, 0f)
                                     if (panChange.y != 0f) {
-                                        listState.dispatchRawDelta(-panChange.y)
+                                        // The LazyColumn lives inside the scaled graphicsLayer,
+                                        // so raw scroll deltas are magnified by the zoom factor
+                                        // while horizontal translationX is not. Compensate so
+                                        // H/V pan sensitivity matches at any zoom (#141).
+                                        listState.dispatchRawDelta(-panChange.y / newScale)
                                     }
                                 } else {
                                     currentOnOffsetChange(0f, 0f)

@@ -107,9 +107,75 @@ class ScanToPdfViewModel : ViewModel() {
     fun toggleEnhanceContrast() {
         _state.value = _state.value.copy(enhanceContrast = !_state.value.enhanceContrast)
     }
+
+    fun setContrastStrength(strength: Float) {
+        _state.value = _state.value.copy(contrastStrength = strength.coerceIn(1.0f, 2.0f))
+    }
+
+    fun setBwAutoThreshold(auto: Boolean) {
+        _state.value = _state.value.copy(bwAutoThreshold = auto)
+    }
+
+    fun setBwThreshold(threshold: Int) {
+        _state.value = _state.value.copy(bwThreshold = threshold.coerceIn(0, 255))
+    }
     
     fun setShowCamera(show: Boolean) {
         _state.value = _state.value.copy(showCamera = show)
+    }
+
+    /**
+     * Restore last-used tool settings (#122). Marks settingsRestored so the
+     * UI save-effect doesn't overwrite stored values with defaults first.
+     */
+    fun restoreSettings(context: android.content.Context) {
+        viewModelScope.launch {
+            val store = com.yourname.pdftoolkit.util.ToolSettingsStore
+            val pageSize = store.loadString(context, "scan", "pageSize")
+                ?.let { runCatching { ScanPageSize.valueOf(it) }.getOrNull() }
+                ?: _state.value.pageSize
+            val colorMode = store.loadString(context, "scan", "colorMode")
+                ?.let { runCatching { ScanColorMode.valueOf(it) }.getOrNull() }
+                ?: _state.value.colorMode
+            val quality = store.loadString(context, "scan", "quality")
+                ?.let { runCatching { ScanQuality.valueOf(it) }.getOrNull() }
+                ?: _state.value.quality
+            val enhanceContrast = store.loadBoolean(context, "scan", "enhanceContrast")
+                ?: _state.value.enhanceContrast
+            val contrastStrength = store.loadString(context, "scan", "contrastStrength")
+                ?.toFloatOrNull()?.coerceIn(1.0f, 2.0f)
+                ?: _state.value.contrastStrength
+            val bwAutoThreshold = store.loadBoolean(context, "scan", "bwAutoThreshold")
+                ?: _state.value.bwAutoThreshold
+            val bwThreshold = store.loadString(context, "scan", "bwThreshold")
+                ?.toIntOrNull()?.coerceIn(0, 255)
+                ?: _state.value.bwThreshold
+            _state.value = _state.value.copy(
+                pageSize = pageSize,
+                colorMode = colorMode,
+                quality = quality,
+                enhanceContrast = enhanceContrast,
+                contrastStrength = contrastStrength,
+                bwAutoThreshold = bwAutoThreshold,
+                bwThreshold = bwThreshold,
+                settingsRestored = true
+            )
+        }
+    }
+
+    fun persistSettings(context: android.content.Context) {
+        val s = _state.value
+        if (!s.settingsRestored) return
+        viewModelScope.launch {
+            val store = com.yourname.pdftoolkit.util.ToolSettingsStore
+            store.saveString(context, "scan", "pageSize", s.pageSize.name)
+            store.saveString(context, "scan", "colorMode", s.colorMode.name)
+            store.saveString(context, "scan", "quality", s.quality.name)
+            store.saveBoolean(context, "scan", "enhanceContrast", s.enhanceContrast)
+            store.saveString(context, "scan", "contrastStrength", s.contrastStrength.toString())
+            store.saveBoolean(context, "scan", "bwAutoThreshold", s.bwAutoThreshold)
+            store.saveString(context, "scan", "bwThreshold", s.bwThreshold.toString())
+        }
     }
     
     fun replaceImage(index: Int, newUri: Uri) {
@@ -135,7 +201,9 @@ class ScanToPdfViewModel : ViewModel() {
                 pageSize = _state.value.pageSize,
                 colorMode = _state.value.colorMode,
                 quality = _state.value.quality,
-                enhanceContrast = _state.value.enhanceContrast
+                enhanceContrast = _state.value.enhanceContrast,
+                contrastStrength = _state.value.contrastStrength,
+                bwThreshold = if (_state.value.bwAutoThreshold) null else _state.value.bwThreshold
             )
             
             val result = scanner.imagesToPdf(
@@ -220,6 +288,10 @@ data class ScanToPdfUiState(
     val colorMode: ScanColorMode = ScanColorMode.COLOR,
     val quality: ScanQuality = ScanQuality.MEDIUM,
     val enhanceContrast: Boolean = true,
+    val contrastStrength: Float = 1.2f,
+    val bwAutoThreshold: Boolean = true,
+    val bwThreshold: Int = 128,
+    val settingsRestored: Boolean = false,
     val isProcessing: Boolean = false,
     val progress: Int = 0,
     val isComplete: Boolean = false,
@@ -267,6 +339,18 @@ fun ScanToPdfScreen(
         contract = ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
         uri?.let { viewModel.createPdf(context, it) }
+    }
+
+    // Remember last-used settings across app restarts (#122).
+    LaunchedEffect(Unit) {
+        viewModel.restoreSettings(context)
+    }
+    LaunchedEffect(
+        state.pageSize, state.colorMode, state.quality,
+        state.enhanceContrast, state.contrastStrength,
+        state.bwAutoThreshold, state.bwThreshold
+    ) {
+        viewModel.persistSettings(context)
     }
 
     // ---- ML Kit smart document scan (Play Store flavor only) ----
@@ -708,6 +792,45 @@ fun ScanToPdfScreen(
                                 checked = state.enhanceContrast,
                                 onCheckedChange = { viewModel.toggleEnhanceContrast() }
                             )
+                        }
+
+                        if (state.enhanceContrast) {
+                            Text(
+                                "Contrast strength: ${"%.1f".format(state.contrastStrength)}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Slider(
+                                value = state.contrastStrength,
+                                onValueChange = { viewModel.setContrastStrength(it) },
+                                valueRange = 1.0f..2.0f,
+                                steps = 9,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        if (state.colorMode == ScanColorMode.BLACK_AND_WHITE) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Auto threshold (Otsu)", modifier = Modifier.weight(1f))
+                                Switch(
+                                    checked = state.bwAutoThreshold,
+                                    onCheckedChange = { viewModel.setBwAutoThreshold(it) }
+                                )
+                            }
+                            if (!state.bwAutoThreshold) {
+                                Text(
+                                    "Threshold: ${state.bwThreshold}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Slider(
+                                    value = state.bwThreshold.toFloat(),
+                                    onValueChange = { viewModel.setBwThreshold(it.toInt()) },
+                                    valueRange = 0f..255f,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }

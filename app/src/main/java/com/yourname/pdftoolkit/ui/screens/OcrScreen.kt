@@ -46,11 +46,36 @@ class OcrViewModel : ViewModel() {
     private var ocrProcessor: PdfOcrProcessor? = null
     
     fun setSourcePdf(uri: Uri, name: String) {
-        _state.value = _state.value.copy(sourceUri = uri, sourceName = name)
+        _state.value = _state.value.copy(sourceUri = uri, sourceName = name, sourceIsImage = false)
+    }
+
+    fun setSourceImage(uri: Uri, name: String) {
+        _state.value = _state.value.copy(sourceUri = uri, sourceName = name, sourceIsImage = true)
     }
     
     fun setMode(mode: OcrMode) {
         _state.value = _state.value.copy(mode = mode)
+    }
+
+    fun restoreSettings(context: android.content.Context) {
+        viewModelScope.launch {
+            val saved = com.yourname.pdftoolkit.util.ToolSettingsStore
+                .loadString(context, "ocr", "mode")
+                ?.let { runCatching { OcrMode.valueOf(it) }.getOrNull() }
+            _state.value = _state.value.copy(
+                mode = saved ?: _state.value.mode,
+                settingsRestored = true
+            )
+        }
+    }
+
+    fun persistSettings(context: android.content.Context) {
+        if (!_state.value.settingsRestored) return
+        viewModelScope.launch {
+            com.yourname.pdftoolkit.util.ToolSettingsStore.saveString(
+                context, "ocr", "mode", _state.value.mode.name
+            )
+        }
     }
 
     fun setViewFormat(format: OcrViewFormat) {
@@ -60,12 +85,26 @@ class OcrViewModel : ViewModel() {
     fun extractText(context: android.content.Context) {
         if (_state.value.isProcessing) return
         val sourceUri = _state.value.sourceUri ?: return
-        
+        val isImage = _state.value.sourceIsImage
+
         viewModelScope.launch {
             _state.value = _state.value.copy(isProcessing = true, progress = 0, error = null)
-            
+
             ocrProcessor = PdfOcrProcessor(context)
-            
+
+            if (isImage) {
+                val text = ocrProcessor?.extractTextFromImage(sourceUri) ?: ""
+                _state.value = _state.value.copy(
+                    isProcessing = false,
+                    isComplete = text.isNotBlank(),
+                    error = if (text.isBlank()) "No text recognized in this image" else null,
+                    extractedText = text,
+                    markdownText = text,
+                    pagesProcessed = 1
+                )
+                return@launch
+            }
+
             val result = ocrProcessor?.extractTextWithOcr(
                 pdfUri = sourceUri,
                 progressCallback = { progress ->
@@ -90,19 +129,30 @@ class OcrViewModel : ViewModel() {
     ) {
         if (_state.value.isProcessing) return
         val sourceUri = _state.value.sourceUri ?: return
-        
+        val isImage = _state.value.sourceIsImage
+
         viewModelScope.launch {
             _state.value = _state.value.copy(isProcessing = true, progress = 0, error = null)
-            
+
             ocrProcessor = PdfOcrProcessor(context)
-            
-            val result = ocrProcessor?.makeSearchable(
+
+            val result = if (isImage) {
+                ocrProcessor?.makeImageSearchable(
+                    imageUri = sourceUri,
+                    outputUri = outputUri,
+                    progressCallback = { progress ->
+                        _state.value = _state.value.copy(progress = progress)
+                    }
+                )
+            } else {
+                ocrProcessor?.makeSearchable(
                 inputUri = sourceUri,
                 outputUri = outputUri,
                 progressCallback = { progress ->
                     _state.value = _state.value.copy(progress = progress)
                 }
             )
+            }
             
             if (result?.success == true) {
                 com.yourname.pdftoolkit.data.SafUriManager.addRecentFile(context, outputUri)
@@ -161,6 +211,8 @@ enum class OcrViewFormat {
 data class OcrUiState(
     val sourceUri: Uri? = null,
     val sourceName: String = "",
+    val sourceIsImage: Boolean = false,
+    val settingsRestored: Boolean = false,
     val mode: OcrMode = OcrMode.EXTRACT_TEXT,
     val viewFormat: OcrViewFormat = OcrViewFormat.MARKDOWN,
     val isProcessing: Boolean = false,
@@ -187,6 +239,14 @@ fun OcrScreen(
     val state by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
     var showFullScreenReader by remember { mutableStateOf(false) }
+
+    // Remember last-used OCR mode across app restarts (#122).
+    LaunchedEffect(Unit) {
+        viewModel.restoreSettings(context)
+    }
+    LaunchedEffect(state.mode) {
+        viewModel.persistSettings(context)
+    }
     
     val pdfPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -201,6 +261,19 @@ fun OcrScreen(
         }
     }
     
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            val name = context.contentResolver.query(it, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                cursor.moveToFirst()
+                cursor.getString(nameIndex)
+            } ?: "Selected image"
+            viewModel.setSourceImage(it, name)
+        }
+    }
+
     val saveDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/pdf")
     ) { uri ->
@@ -284,18 +357,18 @@ fun OcrScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "Source PDF",
+                        text = "Source file (PDF or image)",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
-                    
+
                     if (state.sourceUri != null) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                Icons.Default.PictureAsPdf,
+                                if (state.sourceIsImage) Icons.Default.Image else Icons.Default.PictureAsPdf,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -310,13 +383,23 @@ fun OcrScreen(
                             }
                         }
                     } else {
-                        OutlinedButton(
-                            onClick = { pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(Icons.Default.FileOpen, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(stringResource(R.string.action_select_pdf))
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(
+                                onClick = { pdfPickerLauncher.safeLaunch(arrayOf("application/pdf"), context) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.FileOpen, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(stringResource(R.string.action_select_pdf))
+                            }
+                            OutlinedButton(
+                                onClick = { imagePickerLauncher.safeLaunch(arrayOf("image/*"), context) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Default.Image, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Select image (JPG, PNG)")
+                            }
                         }
                     }
                 }

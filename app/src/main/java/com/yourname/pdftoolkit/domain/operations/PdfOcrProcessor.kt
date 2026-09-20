@@ -11,6 +11,7 @@ import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
 import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
 import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
 import com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState
+import com.tom_roush.pdfbox.pdmodel.graphics.image.LosslessFactory
 import com.tom_roush.pdfbox.rendering.PDFRenderer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -364,6 +365,60 @@ class PdfOcrProcessor(private val context: Context) {
         }
     }
     
+    /**
+     * Make a searchable PDF from a single image: wrap the image in a 1-page
+     * PDF, then run the standard searchable pipeline on it (#135).
+     */
+    suspend fun makeImageSearchable(
+        imageUri: Uri,
+        outputUri: Uri,
+        progressCallback: (Int) -> Unit = {}
+    ): SearchablePdfResult = withContext(Dispatchers.IO) {
+        val cacheDir = File(context.cacheDir, "ocr_cache")
+        if (!cacheDir.exists()) cacheDir.mkdirs()
+        val wrapped = File(cacheDir, "img_wrap_${System.currentTimeMillis()}.pdf")
+        try {
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            context.contentResolver.openInputStream(imageUri)?.use { input ->
+                BitmapFactory.decodeStream(input, null, options)
+            } ?: return@withContext SearchablePdfResult(
+                success = false, pagesProcessed = 0, errorMessage = "Cannot open image"
+            )
+            val sampleSize = calculateInSampleSize(options.outWidth, options.outHeight, MAX_OCR_PIXELS)
+            val decodeOptions = BitmapFactory.Options().apply {
+                inSampleSize = sampleSize
+                inPreferredConfig = Bitmap.Config.RGB_565
+            }
+            val bitmap = context.contentResolver.openInputStream(imageUri)?.use {
+                BitmapFactory.decodeStream(it, null, decodeOptions)
+            } ?: return@withContext SearchablePdfResult(
+                success = false, pagesProcessed = 0, errorMessage = "Cannot decode image"
+            )
+            try {
+                PDDocument().use { doc ->
+                    val wPt = (bitmap.width * 72f / 200f).coerceIn(72f, 3000f)
+                    val hPt = (bitmap.height * 72f / 200f).coerceIn(72f, 3000f)
+                    val page = PDPage(PDRectangle(wPt, hPt))
+                    doc.addPage(page)
+                    val image = LosslessFactory.createFromImage(doc, bitmap)
+                    PDPageContentStream(doc, page).use { cs ->
+                        cs.drawImage(image, 0f, 0f, wPt, hPt)
+                    }
+                    FileOutputStream(wrapped).use { out -> doc.save(out); out.flush() }
+                }
+            } finally {
+                bitmap.recycle()
+            }
+            progressCallback(10)
+            val wrappedUri = Uri.fromFile(wrapped)
+            makeSearchable(wrappedUri, outputUri) { p ->
+                progressCallback(10 + (p * 90 / 100))
+            }
+        } finally {
+            wrapped.delete()
+        }
+    }
+
     /**
      * Extract text from an image using OCR.
      */

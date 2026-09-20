@@ -73,7 +73,11 @@ data class ScanConfig(
     val quality: ScanQuality = ScanQuality.MEDIUM,
     val autoCrop: Boolean = true,
     val autoRotate: Boolean = true,
-    val enhanceContrast: Boolean = true
+    val enhanceContrast: Boolean = true,
+    val contrastStrength: Float = 1.2f,
+    // B/W threshold 0-255, or null = automatic (Otsu) — avoids the
+    // pure-black shadow artifacting from a fixed 128 cutoff (#121).
+    val bwThreshold: Int? = null
 )
 
 /**
@@ -233,11 +237,11 @@ class PdfScanner(private val context: Context) {
         var bitmap = loadBitmap(uri) ?: return null
         
         // Apply color mode
-        bitmap = applyColorMode(bitmap, config.colorMode)
+        bitmap = applyColorMode(bitmap, config.colorMode, config.bwThreshold)
         
         // Enhance contrast if enabled
         if (config.enhanceContrast) {
-            bitmap = enhanceContrast(bitmap)
+            bitmap = enhanceContrast(bitmap, config.contrastStrength)
         }
         
         return bitmap
@@ -379,11 +383,11 @@ class PdfScanner(private val context: Context) {
     /**
      * Apply color mode to bitmap.
      */
-    private fun applyColorMode(bitmap: Bitmap, mode: ScanColorMode): Bitmap {
+    private fun applyColorMode(bitmap: Bitmap, mode: ScanColorMode, bwThreshold: Int? = null): Bitmap {
         return when (mode) {
             ScanColorMode.COLOR -> bitmap
             ScanColorMode.GRAYSCALE -> convertToGrayscale(bitmap)
-            ScanColorMode.BLACK_AND_WHITE -> convertToBlackAndWhite(bitmap)
+            ScanColorMode.BLACK_AND_WHITE -> convertToBlackAndWhite(bitmap, bwThreshold)
         }
     }
     
@@ -417,9 +421,11 @@ class PdfScanner(private val context: Context) {
     }
     
     /**
-     * Convert bitmap to black and white (threshold).
+     * Convert bitmap to black and white.
+     * Uses Otsu's automatic threshold by default so shadowed scans don't
+     * collapse into pure-black blobs the way a fixed 128 cutoff does (#121).
      */
-    private fun convertToBlackAndWhite(source: Bitmap): Bitmap {
+    private fun convertToBlackAndWhite(source: Bitmap, manualThreshold: Int? = null): Bitmap {
         val grayscale = convertToGrayscale(source)
         val width = grayscale.width
         val height = grayscale.height
@@ -428,7 +434,8 @@ class PdfScanner(private val context: Context) {
         val pixels = IntArray(width * height)
         grayscale.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        val threshold = 128
+        val threshold = manualThreshold?.coerceIn(0, 255)
+            ?: calculateOtsuThreshold(pixels)
 
         for (i in pixels.indices) {
             val pixel = pixels[i]
@@ -451,11 +458,46 @@ class PdfScanner(private val context: Context) {
 
         return result
     }
+
+    /**
+     * Otsu's method: finds the threshold that minimizes intra-class variance
+     * of the grayscale histogram. Adapts to lighting instead of assuming 128.
+     */
+    internal fun calculateOtsuThreshold(pixels: IntArray): Int {
+        val histogram = IntArray(256)
+        for (pixel in pixels) {
+            histogram[(pixel shr 16) and 0xFF]++
+        }
+        val total = pixels.size.toDouble()
+        var sumAll = 0.0
+        for (t in 0..255) sumAll += t * histogram[t]
+
+        var sumBg = 0.0
+        var weightBg = 0
+        var maxVariance = 0.0
+        var threshold = 128
+
+        for (t in 0..255) {
+            weightBg += histogram[t]
+            if (weightBg == 0) continue
+            val weightFg = total - weightBg
+            if (weightFg == 0.0) break
+            sumBg += t * histogram[t]
+            val meanBg = sumBg / weightBg
+            val meanFg = (sumAll - sumBg) / weightFg
+            val variance = weightBg * weightFg * (meanBg - meanFg) * (meanBg - meanFg)
+            if (variance > maxVariance) {
+                maxVariance = variance
+                threshold = t
+            }
+        }
+        return threshold
+    }
     
     /**
-     * Enhance contrast of bitmap.
+     * Enhance contrast of bitmap. Strength 1.0 = no change.
      */
-    private fun enhanceContrast(source: Bitmap): Bitmap {
+    private fun enhanceContrast(source: Bitmap, contrast: Float = 1.2f): Bitmap {
         if (!isBitmapValid(source)) {
             Log.w("PdfScanner", "Invalid source bitmap for contrast enhancement")
             return source
@@ -465,13 +507,13 @@ class PdfScanner(private val context: Context) {
         val canvas = Canvas(result)
         
         // Increase contrast by adjusting color matrix
-        val contrast = 1.2f
-        val translate = (-.5f * contrast + .5f) * 255f
-        
+        val safeContrast = contrast.coerceIn(1.0f, 2.0f)
+        val translate = (-.5f * safeContrast + .5f) * 255f
+
         val colorMatrix = ColorMatrix(floatArrayOf(
-            contrast, 0f, 0f, 0f, translate,
-            0f, contrast, 0f, 0f, translate,
-            0f, 0f, contrast, 0f, translate,
+            safeContrast, 0f, 0f, 0f, translate,
+            0f, safeContrast, 0f, 0f, translate,
+            0f, 0f, safeContrast, 0f, translate,
             0f, 0f, 0f, 1f, 0f
         ))
         
