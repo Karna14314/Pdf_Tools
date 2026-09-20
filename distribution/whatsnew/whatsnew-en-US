@@ -1,4 +1,6 @@
-• Enhanced Merge PDF tool: Combine PDF files and image files (JPG, PNG, WEBP) together into a single PDF output
-• Added Page Preview Mode: View and inspect final page order across all documents before merging
-• Improved PDF and Image rendering performance and memory management
-• Bug fixes and stability improvements
+• OCR now reads JPG/PNG images, not just PDFs
+• Sign once, reuse saved signatures
+• Scan to PDF: auto black-and-white threshold and contrast controls
+• N-Up imposition: Cut & Stack booklets (LTR/RTL), auto-rotate fill, page numbers
+• Tools remember your last settings
+• Stability fixes: fewer out-of-memory crashes in merge, unlock, compress and print
