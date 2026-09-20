@@ -134,7 +134,8 @@ data class SheetLayout(
     val bleedPt: Float = 0f,
     val showCropMarks: Boolean = false,
     val showRegistrationTargets: Boolean = false,
-    val showSafeZone: Boolean = false
+    val showSafeZone: Boolean = false,
+    val showPageNumbers: Boolean = false
 )
 
 /**
@@ -150,6 +151,10 @@ data class ImpositionConfig(
     val gridRows: Int = 2,
     val gridCols: Int = 2,
     val nUpLayoutMode: NUpLayoutMode = NUpLayoutMode.STANDARD,
+    // Auto-rotate landscape pages into portrait cells (and vice versa) when
+    // it improves FIT fill. Without this, wide pages shrink to cell width
+    // and leave most of the sheet white.
+    val autoRotateToFit: Boolean = true,
     val marginTopMm: Float = 10f,
     val marginBottomMm: Float = 10f,
     val marginLeftMm: Float = 10f,
@@ -175,6 +180,8 @@ data class ImpositionConfig(
     val showCropMarks: Boolean = true,
     val showRegistrationTargets: Boolean = false,
     val showSafeZones: Boolean = false,
+    // Page number label at each cell's bottom-right (verify booklet order).
+    val showPageNumbers: Boolean = false,
 
     // Zine settings
     val zineType: ZineType = ZineType.ONE_SHEET_8PAGE

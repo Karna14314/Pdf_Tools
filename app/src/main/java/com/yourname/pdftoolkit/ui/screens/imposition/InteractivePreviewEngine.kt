@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -62,7 +63,8 @@ fun InteractivePreviewEngine(
         return
     }
 
-    var currentSheetIndex by remember { mutableIntStateOf(0) }
+    var currentSheetIndex by remember(fileUri, sheetLayouts.size) { mutableIntStateOf(0) }
+    if (currentSheetIndex >= sheetLayouts.size) currentSheetIndex = 0
     val currentSheet = sheetLayouts.getOrNull(currentSheetIndex) ?: sheetLayouts.first()
 
     // Interactive Pan & Zoom states
@@ -72,24 +74,38 @@ fun InteractivePreviewEngine(
 
     val context = LocalContext.current
 
-    // Cache of page bitmaps rendered asynchronously via PdfRenderer
+    // Cache of page bitmaps rendered asynchronously via PdfRenderer.
+    // Covers the pages referenced by the current sheets (not just the first
+    // N), so later sheets never show empty placeholders.
     val pageBitmapCache = remember { mutableStateMapOf<Int, Bitmap>() }
+    var lastCachedUri by remember { mutableStateOf<Uri?>(null) }
 
-    LaunchedEffect(fileUri) {
+    LaunchedEffect(fileUri, currentSheetIndex, sheetLayouts) {
         if (fileUri != null) {
             withContext(Dispatchers.IO) {
                 try {
+                    if (lastCachedUri != fileUri) {
+                        pageBitmapCache.values.forEach { if (!it.isRecycled) it.recycle() }
+                        pageBitmapCache.clear()
+                        lastCachedUri = fileUri
+                    }
+                    val needed = sheetLayouts.flatMap { it.placements }
+                        .map { it.sourcePageIndex }
+                        .filter { it >= 0 }
+                        .toSet()
                     val pfd = context.contentResolver.openFileDescriptor(fileUri, "r")
                     pfd?.use { descriptor ->
                         val pdfRenderer = PdfRenderer(descriptor)
                         val pageCount = pdfRenderer.pageCount
-                        val sampleCount = minOf(pageCount, 16) // Cache up to 16 pages for fast preview
+                        val eager = (0 until minOf(pageCount, 12)).toSet()
+                        val targets = (needed.filter { it < pageCount }.toSet() + eager)
+                            .filter { !pageBitmapCache.containsKey(it) }
+                            .take(20)
 
-                        for (i in 0 until sampleCount) {
+                        for (i in targets) {
                             val page = pdfRenderer.openPage(i)
-                            val w = page.width / 2
-                            val h = page.height / 2
-                            val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+                            // Full point resolution (was half) to avoid blurry upscaling.
+                            val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
                             page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                             page.close()
                             pageBitmapCache[i] = bitmap
@@ -283,11 +299,24 @@ fun InteractivePreviewEngine(
                             val destOffset = androidx.compose.ui.unit.IntOffset(pageX.toInt(), pageY.toInt())
                             val destSize = androidx.compose.ui.unit.IntSize(pageW.toInt(), pageH.toInt())
 
-                            drawImage(
-                                image = imageBitmap,
-                                dstOffset = destOffset,
-                                dstSize = destSize
-                            )
+                            if (placement.rotationDegrees != 0f) {
+                                rotate(
+                                    placement.rotationDegrees,
+                                    pivot = Offset(pageX + pageW / 2f, pageY + pageH / 2f)
+                                ) {
+                                    drawImage(
+                                        image = imageBitmap,
+                                        dstOffset = destOffset,
+                                        dstSize = destSize
+                                    )
+                                }
+                            } else {
+                                drawImage(
+                                    image = imageBitmap,
+                                    dstOffset = destOffset,
+                                    dstSize = destSize
+                                )
+                            }
                         } else {
                             // Page representation box
                             drawRoundRect(
@@ -305,6 +334,36 @@ fun InteractivePreviewEngine(
                             size = Size(pageW, pageH),
                             style = Stroke(width = 1.5f)
                         )
+
+                        // Page number pill at the cell's bottom-right (order check).
+                        if (currentSheet.showPageNumbers) {
+                            val numberText = (placement.sourcePageIndex + 1).toString()
+                            val textPx = (pageH * 0.055f).coerceIn(22f, 44f)
+                            val padPx = textPx * 0.45f
+                            val native = drawContext.canvas.nativeCanvas
+                            val textPaint = android.graphics.Paint().apply {
+                                color = android.graphics.Color.BLACK
+                                textSize = textPx
+                                textAlign = android.graphics.Paint.Align.RIGHT
+                                isAntiAlias = true
+                            }
+                            val pillPaint = android.graphics.Paint().apply {
+                                color = android.graphics.Color.WHITE
+                                alpha = 230
+                                isAntiAlias = true
+                            }
+                            val right = pageX + pageW - padPx
+                            val bottom = pageY + pageH - padPx
+                            val tw = textPaint.measureText(numberText)
+                            native.drawRoundRect(
+                                right - tw - padPx * 1.5f,
+                                bottom - textPx - padPx * 1.5f,
+                                right + padPx * 0.5f,
+                                bottom + padPx * 0.5f,
+                                padPx, padPx, pillPaint
+                            )
+                            native.drawText(numberText, right, bottom, textPaint)
+                        }
                     }
                 }
 

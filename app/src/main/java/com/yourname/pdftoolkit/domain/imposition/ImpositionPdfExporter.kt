@@ -109,6 +109,11 @@ object ImpositionPdfExporter {
                     } finally {
                         sourcePage.close()
                     }
+
+                    // Page number pill at the cell's bottom-right (order check).
+                    if (sheet.showPageNumbers) {
+                        drawPageNumber(canvas, placement, dpiScale)
+                    }
                 }
 
                 // Draw Crop Marks, Registration Targets, and Safe Zones
@@ -133,6 +138,36 @@ object ImpositionPdfExporter {
         }
 
         outputFile
+    }
+
+    private fun drawPageNumber(canvas: Canvas, placement: PagePlacement, dpiScale: Float) {
+        val numberText = (placement.sourcePageIndex + 1).toString()
+        val textSize = 11f * dpiScale
+        val pad = 5f * dpiScale
+
+        val textPaint = Paint().apply {
+            color = android.graphics.Color.BLACK
+            this.textSize = textSize
+            textAlign = Paint.Align.RIGHT
+            isAntiAlias = true
+        }
+        val textWidth = textPaint.measureText(numberText)
+        val right = (placement.xPt + placement.widthPt) * dpiScale - pad
+        val bottom = (placement.yPt + placement.heightPt) * dpiScale - pad
+
+        val pillPaint = Paint().apply {
+            color = android.graphics.Color.WHITE
+            alpha = 230
+            isAntiAlias = true
+        }
+        val pill = RectF(
+            right - textWidth - pad * 1.5f,
+            bottom - textSize - pad * 1.5f,
+            right + pad * 0.5f,
+            bottom + pad * 0.5f
+        )
+        canvas.drawRoundRect(pill, pad, pad, pillPaint)
+        canvas.drawText(numberText, right, bottom, textPaint)
     }
 
     private fun drawPrintMarks(canvas: Canvas, sheet: SheetLayout, dpiScale: Float) {

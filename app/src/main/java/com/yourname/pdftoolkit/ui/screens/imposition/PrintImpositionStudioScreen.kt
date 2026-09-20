@@ -509,6 +509,55 @@ fun PrintImpositionStudioScreen(
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 }
+                                Text("Page Fit", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                                FitMode.entries.forEach { fit ->
+                                    val isSelected = uiState.config.fitMode == fit
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .clickable { viewModel.updateConfig { it.copy(fitMode = fit) } }
+                                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        RadioButton(
+                                            selected = isSelected,
+                                            onClick = { viewModel.updateConfig { it.copy(fitMode = fit) } }
+                                        )
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(fit.displayName, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
+                                    }
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Checkbox(
+                                        checked = uiState.config.autoRotateToFit,
+                                        onCheckedChange = { auto -> viewModel.updateConfig { it.copy(autoRotateToFit = auto) } }
+                                    )
+                                    Text("Auto-rotate pages to fill cells", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Checkbox(
+                                        checked = uiState.config.showCropMarks,
+                                        onCheckedChange = { show -> viewModel.updateConfig { it.copy(showCropMarks = show) } }
+                                    )
+                                    Text("Show printer crop marks", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Checkbox(
+                                        checked = uiState.config.showPageNumbers,
+                                        onCheckedChange = { show -> viewModel.updateConfig { it.copy(showPageNumbers = show) } }
+                                    )
+                                    Text("Show page numbers (bottom-right)", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                                }
                             }
                         }
 

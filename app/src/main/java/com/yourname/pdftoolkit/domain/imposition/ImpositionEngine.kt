@@ -60,6 +60,18 @@ object ImpositionEngine {
         val cellWidth = maxOf(1f, availableWidth / gridCols)
         val cellHeight = maxOf(1f, availableHeight / gridRows)
 
+        // Auto-rotate: a landscape page in a portrait cell (or vice versa)
+        // wastes most of the cell under FIT. Rotate 90° when it fills better.
+        // Only applies to FIT (FILL/STRETCH already maximize coverage).
+        val fitNormal = minOf(cellWidth / sourceWidthPt, cellHeight / sourceHeightPt)
+        val fitRotated = minOf(cellWidth / sourceHeightPt, cellHeight / sourceWidthPt)
+        val rotateToFit = config.autoRotateToFit &&
+            config.fitMode == FitMode.FIT &&
+            sourceWidthPt > 0f && sourceHeightPt > 0f &&
+            fitRotated > fitNormal * 1.05f
+        val effSrcW = if (rotateToFit) sourceHeightPt else sourceWidthPt
+        val effSrcH = if (rotateToFit) sourceWidthPt else sourceHeightPt
+
         val totalSheets = ceil(pageCount.toDouble() / pagesPerSheet).toInt()
         val sheetLayouts = mutableListOf<SheetLayout>()
 
@@ -92,8 +104,8 @@ object ImpositionEngine {
                     val cellY = marginTopPt + row * (cellHeight + gutterYPt)
 
                     val transform = calculatePlacementTransform(
-                        sourceWidth = sourceWidthPt,
-                        sourceHeight = sourceHeightPt,
+                        sourceWidth = effSrcW,
+                        sourceHeight = effSrcH,
                         cellWidth = cellWidth,
                         cellHeight = cellHeight,
                         fitMode = config.fitMode
@@ -109,6 +121,7 @@ object ImpositionEngine {
                             yPt = pageY,
                             widthPt = transform.renderWidth,
                             heightPt = transform.renderHeight,
+                            rotationDegrees = if (rotateToFit) 90f else 0f,
                             scaleX = transform.scaleX,
                             scaleY = transform.scaleY
                         )
@@ -133,7 +146,8 @@ object ImpositionEngine {
                     bleedPt = bleedPt,
                     showCropMarks = config.showCropMarks,
                     showRegistrationTargets = config.showRegistrationTargets,
-                    showSafeZone = config.showSafeZones
+                    showSafeZone = config.showSafeZones,
+                    showPageNumbers = config.showPageNumbers
                 )
             )
         }
@@ -882,11 +896,14 @@ object ImpositionEngine {
             }
 
             FitMode.CENTER -> {
+                // Original size, but never overflow the cell (huge source
+                // pages would otherwise spill over neighbor cells).
+                val scale = minOf(1f, scaleXFit, scaleYFit)
                 PlacementTransform(
-                    renderWidth = sourceWidth,
-                    renderHeight = sourceHeight,
-                    scaleX = 1f,
-                    scaleY = 1f
+                    renderWidth = sourceWidth * scale,
+                    renderHeight = sourceHeight * scale,
+                    scaleX = scale,
+                    scaleY = scale
                 )
             }
         }
