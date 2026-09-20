@@ -1365,9 +1365,15 @@ private fun PdfPagesContent(
     ) {
         val density = LocalDensity.current
         val extraBottomPaddingDp = remember(scale, containerSize.height) {
-            if (scale > 1f && containerSize.height > 0) {
+            // Guard: non-finite/huge padding overflows Constraints measurement.
+            if (scale.isFinite() && scale > 1f && containerSize.height > 0) {
                 with(density) {
-                    (containerSize.height.toFloat() * ((scale - 1f) / scale)).toDp()
+                    val px = containerSize.height.toFloat() * ((scale - 1f) / scale)
+                    if (px.isFinite() && px >= 0f) {
+                        px.toDp().coerceAtMost(4000.dp)
+                    } else {
+                        0.dp
+                    }
                 }
             } else {
                 0.dp
@@ -1510,6 +1516,10 @@ private fun PdfPageWithAnnotations(
         value = loadPage(pageIndex)
     }
 
+    // Snapshot: cache eviction can recycle the bitmap between the null check
+    // and draw; zero dims would also poison scale math (Inf -> Constraints crash).
+    val safeBitmap = bitmap?.takeIf { !it.isRecycled && it.width > 0 && it.height > 0 }
+
     DisposableEffect(pageIndex) {
         onDispose {
             onRelease(pageIndex)
@@ -1553,8 +1563,8 @@ private fun PdfPageWithAnnotations(
                 }
                 .heightIn(min = 200.dp)
                 .then(
-                    if ((!isEditMode || selectedTool == AnnotationTool.NONE) && bitmap != null) {
-                        Modifier.pointerInput(pageIndex, bitmap, size) {
+                    if ((!isEditMode || selectedTool == AnnotationTool.NONE) && safeBitmap != null) {
+                        Modifier.pointerInput(pageIndex, safeBitmap, size) {
                             detectTapGestures(
                                 onTap = {
                                     if (selectPageIndex != -1) {
@@ -1565,11 +1575,12 @@ private fun PdfPageWithAnnotations(
                                     if (listState.isScrollInProgress) return@detectTapGestures
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     scope.launch {
+                                        val bmp = safeBitmap ?: return@launch
                                         val textData = viewModel.getPageText(pageIndex)
                                         if (textData != null && textData.positions.isNotEmpty()) {
                                             pageTextData = textData
-                                            val scaleX = size.width.toFloat() / bitmap!!.width.toFloat()
-                                            val scaleY = size.height.toFloat() / bitmap!!.height.toFloat()
+                                            val scaleX = size.width.toFloat() / bmp.width.toFloat()
+                                            val scaleY = size.height.toFloat() / bmp.height.toFloat()
                                             val closest = findClosestCharIndex(touchOffset.x, touchOffset.y, textData.positions, scaleX, scaleY)
                                             if (closest != -1) {
                                                 val bounds = findWordBounds(closest, textData.text, textData.positions)
@@ -1584,10 +1595,10 @@ private fun PdfPageWithAnnotations(
                 )
         ) {
             when {
-                bitmap != null -> {
+                safeBitmap != null -> {
                     // PDF page image
                     Image(
-                        bitmap = bitmap!!.asImageBitmap(),
+                        bitmap = safeBitmap.asImageBitmap(),
                         contentDescription = stringResource(R.string.cd_page_number, pageIndex + 1),
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -1651,7 +1662,8 @@ private fun PdfPageWithAnnotations(
             }
             
             // Search Highlights Overlay
-            if (pageMatches.isNotEmpty() && bitmap != null) {
+            val highlightBitmap = safeBitmap
+            if (pageMatches.isNotEmpty() && highlightBitmap != null) {
                 Canvas(modifier = Modifier.matchParentSize()) {
                     pageMatches.forEachIndexed { index, match ->
                         val color = if (index == currentMatchIndexOnPage) {
@@ -1661,8 +1673,8 @@ private fun PdfPageWithAnnotations(
                         }
                         
                         match.rects.forEach { rect ->
-                            val scaleX = size.width.toFloat() / bitmap!!.width.toFloat()
-                            val scaleY = size.height.toFloat() / bitmap!!.height.toFloat()
+                            val scaleX = size.width.toFloat() / highlightBitmap.width.toFloat()
+                            val scaleY = size.height.toFloat() / highlightBitmap.height.toFloat()
                             
                             drawRect(
                                 color = color,
@@ -1683,10 +1695,10 @@ private fun PdfPageWithAnnotations(
             val currentPositions = pageTextData?.positions
             if (selectPageIndex == pageIndex && selectStartCharIndex >= 0 && currentPositions != null && 
                 selectStartCharIndex < currentPositions.size && selectEndCharIndex > selectStartCharIndex && 
-                selectEndCharIndex <= currentPositions.size && bitmap != null) {
+                selectEndCharIndex <= currentPositions.size && safeBitmap != null) {
                 
-                val scaleX = size.width.toFloat() / bitmap!!.width.toFloat()
-                val scaleY = size.height.toFloat() / bitmap!!.height.toFloat()
+                val scaleX = size.width.toFloat() / safeBitmap.width.toFloat()
+                val scaleY = size.height.toFloat() / safeBitmap.height.toFloat()
                 
                 val selectedPositions = currentPositions.subList(selectStartCharIndex, selectEndCharIndex)
                 val lines = mutableListOf<MutableList<TextPosition>>()

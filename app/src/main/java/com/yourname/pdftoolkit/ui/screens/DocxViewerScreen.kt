@@ -1077,14 +1077,21 @@ private class DocxPrintDocumentAdapter(private val context: Context, private val
         callback: LayoutResultCallback?,
         extras: Bundle?
     ) {
-        if (cancellationSignal?.isCanceled == true) {
-            callback?.onLayoutCancelled()
-            return
+        try {
+            if (cancellationSignal?.isCanceled == true) {
+                callback?.onLayoutCancelled()
+                return
+            }
+            val info = PrintDocumentInfo.Builder("print_output.pdf")
+                .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                .build()
+            callback?.onLayoutFinished(info, true)
+        } catch (e: Exception) {
+            try {
+                callback?.onLayoutFailed(e.message ?: "Print layout failed")
+            } catch (_: Exception) {
+            }
         }
-        val info = PrintDocumentInfo.Builder("print_output.pdf")
-            .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-            .build()
-        callback?.onLayoutFinished(info, true)
     }
 
     override fun onWrite(
@@ -1093,22 +1100,45 @@ private class DocxPrintDocumentAdapter(private val context: Context, private val
         cancellationSignal: CancellationSignal?,
         callback: WriteResultCallback?
     ) {
+        if (cancellationSignal?.isCanceled == true) {
+            callback?.onWriteCancelled()
+            return
+        }
+        val fd = destination?.fileDescriptor
+        if (fd == null || !fd.valid()) {
+            try {
+                callback?.onWriteFailed("No print destination")
+            } catch (_: Exception) {
+            }
+            return
+        }
         var input: java.io.InputStream? = null
-        var output: java.io.OutputStream? = null
         try {
             input = java.io.FileInputStream(file)
-            output = java.io.FileOutputStream(destination?.fileDescriptor)
-            val buffer = ByteArray(1024)
+            // Flush only: the destination fd belongs to the print framework.
+            val output = java.io.FileOutputStream(fd)
+            val buffer = ByteArray(32 * 1024)
             var bytesRead: Int
-            while (input.read(buffer).also { bytesRead = it } >= 0) {
+            while (input.read(buffer).also { bytesRead = it } > 0) {
+                if (cancellationSignal?.isCanceled == true) {
+                    callback?.onWriteCancelled()
+                    return
+                }
                 output.write(buffer, 0, bytesRead)
+            }
+            output.flush()
+            if (cancellationSignal?.isCanceled == true) {
+                callback?.onWriteCancelled()
+                return
             }
             callback?.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
         } catch (e: Exception) {
-            callback?.onWriteFailed(e.localizedMessage)
+            try {
+                callback?.onWriteFailed(e.message ?: "Print failed")
+            } catch (_: Exception) {
+            }
         } finally {
             try { input?.close() } catch(e: Exception) {}
-            try { output?.close() } catch(e: Exception) {}
         }
     }
 }

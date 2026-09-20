@@ -33,9 +33,6 @@ object PrintUtils {
             val printManager = context.getSystemService(Context.PRINT_SERVICE) as? PrintManager
                 ?: return false
 
-            val fileDescriptor = context.contentResolver.openFileDescriptor(uri, "r")
-                ?: return false
-
             val printAdapter = object : PrintDocumentAdapter() {
                 override fun onLayout(
                     oldAttributes: PrintAttributes?,
@@ -44,16 +41,23 @@ object PrintUtils {
                     callback: LayoutResultCallback,
                     extras: Bundle?
                 ) {
-                    if (cancellationSignal?.isCanceled == true) {
-                        callback.onLayoutCancelled()
-                        return
+                    try {
+                        if (cancellationSignal?.isCanceled == true) {
+                            callback.onLayoutCancelled()
+                            return
+                        }
+
+                        val info = PrintDocumentInfo.Builder(documentName)
+                            .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                            .build()
+
+                        callback.onLayoutFinished(info, true)
+                    } catch (e: Exception) {
+                        try {
+                            callback.onLayoutFailed(e.message ?: "Print layout failed")
+                        } catch (_: Exception) {
+                        }
                     }
-
-                    val info = PrintDocumentInfo.Builder(documentName)
-                        .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                        .build()
-
-                    callback.onLayoutFinished(info, true)
                 }
 
                 override fun onWrite(
@@ -68,22 +72,36 @@ object PrintUtils {
                     }
 
                     try {
-                        context.contentResolver.openInputStream(uri)?.use { input ->
-                            FileOutputStream(destination.fileDescriptor).use { output ->
-                                input.copyTo(output)
+                        val input = context.contentResolver.openInputStream(uri)
+                            ?: run {
+                                callback.onWriteFailed("Cannot open document for printing")
+                                return
                             }
+                        input.use {
+                            // Flush only: destination fd is owned by the print framework.
+                            val output = FileOutputStream(destination.fileDescriptor)
+                            val buffer = ByteArray(32 * 1024)
+                            while (true) {
+                                if (cancellationSignal?.isCanceled == true) {
+                                    callback.onWriteCancelled()
+                                    return
+                                }
+                                val read = input.read(buffer)
+                                if (read <= 0) break
+                                output.write(buffer, 0, read)
+                            }
+                            output.flush()
+                        }
+                        if (cancellationSignal?.isCanceled == true) {
+                            callback.onWriteCancelled()
+                            return
                         }
                         callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
                     } catch (e: Exception) {
-                        callback.onWriteFailed(e.message)
-                    }
-                }
-
-                override fun onFinish() {
-                    try {
-                        fileDescriptor.close()
-                    } catch (e: Exception) {
-                        // Ignore close errors
+                        try {
+                            callback.onWriteFailed(e.message ?: "Print failed")
+                        } catch (_: Exception) {
+                        }
                     }
                 }
             }

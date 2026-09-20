@@ -97,18 +97,29 @@ fun InteractivePreviewEngine(
                     pfd?.use { descriptor ->
                         val pdfRenderer = PdfRenderer(descriptor)
                         val pageCount = pdfRenderer.pageCount
-                        val eager = (0 until minOf(pageCount, 12)).toSet()
+                        val eager = (0 until minOf(pageCount, 8)).toSet()
                         val targets = (needed.filter { it < pageCount }.toSet() + eager)
                             .filter { !pageBitmapCache.containsKey(it) }
-                            .take(20)
+                            .take(12)
 
                         for (i in targets) {
                             val page = pdfRenderer.openPage(i)
-                            // Full point resolution (was half) to avoid blurry upscaling.
-                            val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                            // Full point resolution (was half) to avoid blurry upscaling,
+                            // capped per side to bound memory on large-format pages.
+                            val w = page.width.coerceIn(1, 2048)
+                            val h = (page.height.toFloat() * (w.toFloat() / page.width.toFloat()))
+                                .toInt().coerceIn(1, 2048)
+                            val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
                             page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                             page.close()
                             pageBitmapCache[i] = bitmap
+                        }
+                        // Evict pages outside the visible sheet + eager set to cap memory.
+                        val visible = currentSheet.placements
+                            .map { it.sourcePageIndex }.filter { it >= 0 }.toSet()
+                        val keep = (visible + eager).toSet()
+                        pageBitmapCache.keys.filter { it !in keep }.forEach { stale ->
+                            pageBitmapCache.remove(stale)?.let { if (!it.isRecycled) it.recycle() }
                         }
                         pdfRenderer.close()
                     }

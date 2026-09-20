@@ -38,6 +38,8 @@ Constraints (AGENTS.md): keep `fdroid`/`opensource` FOSS (no Play Services in sh
 | B3 | #121 | `PdfScanner.kt` (Otsu + strength), `ScanToPdfScreen.kt` (sliders) | done | fixed `PdfScannerTest` reflection |
 | C1 | #144 | `ImpositionModel.kt`, `ImpositionEngine.kt`, `PrintImpositionStudioScreen.kt`, `ImpositionEngineCutStackTest.kt` | done | 2x2 only, -1 blanks, exporter-safe |
 | build | all | `app-playstore-debug.apk` (~80MB) | done | `compilePlaystoreDebugKotlin` + `assemblePlaystoreDebug` OK; local unit-test runner broken (JDK space path), skipped per user |
+| stab | OOM/NPE/print | `PdfUnlocker`, `PdfMerger`, `CompressScreen`, `PrintUtils`, `PdfTools`, `DocxViewerScreen`, viewer/sign/scan/doc previews, thumbnails, imposition preview cap | done | temp-file buffering, !! snapshots, callback hygiene, finite guards, cache caps; device checklist S1-S5 |
+| rel | — | `gradle.properties` 225/1.3.225, metadata CurrentVersion 1.3.225/225, whatsnew (364 chars) | done | tag v1.3.225 |
 
 ## Manual-test checklist (for user, after all code done — device needed)
 

@@ -185,8 +185,15 @@ fun DocToPdfScreen(
                         PdfRenderer(pfd).use { renderer ->
                             if (renderer.pageCount > 0) {
                                 renderer.openPage(0).use { page ->
-                                    val bmp = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                                    // Cap preview size: full-res page renders waste heap here.
+                                    val w = page.width.coerceIn(1, 1600)
+                                    val h = (page.height.toFloat() * (w.toFloat() / page.width.coerceAtLeast(1).toFloat()))
+                                        .toInt().coerceIn(1, 1600)
+                                    val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
                                     page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                                    previewBitmap?.let { old ->
+                                        if (!old.isRecycled) old.recycle()
+                                    }
                                     previewBitmap = bmp
                                 }
                             }
@@ -343,7 +350,7 @@ fun DocToPdfScreen(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        previewBitmap?.let { bmp ->
+                        previewBitmap?.takeIf { !it.isRecycled }?.let { bmp ->
                             Image(
                                 bitmap = bmp.asImageBitmap(),
                                 contentDescription = null,

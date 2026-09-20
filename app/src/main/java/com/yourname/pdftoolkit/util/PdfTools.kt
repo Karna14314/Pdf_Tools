@@ -118,23 +118,26 @@ object PdfTools {
             callback: LayoutResultCallback?,
             extras: Bundle?
         ) {
-            if (cancellationSignal?.isCanceled == true) {
-                callback?.onLayoutCancelled()
-                return
-            }
-            
             try {
+                if (cancellationSignal?.isCanceled == true) {
+                    callback?.onLayoutCancelled()
+                    return
+                }
+
                 // Estimate page count (simplified - actual implementation would parse PDF)
                 totalPages = 1 // Default to 1 page
-                
+
                 val info = PrintDocumentInfo.Builder("flattened.pdf")
                     .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
                     .setPageCount(totalPages)
                     .build()
-                
+
                 callback?.onLayoutFinished(info, true)
             } catch (e: Exception) {
-                callback?.onLayoutFailed(e.message)
+                try {
+                    callback?.onLayoutFailed(e.message ?: "Print layout failed")
+                } catch (_: Exception) {
+                }
             }
         }
         
@@ -148,18 +151,44 @@ object PdfTools {
                 callback?.onWriteCancelled()
                 return
             }
+
+            val fd = destination?.fileDescriptor
+            if (fd == null || !fd.valid()) {
+                try {
+                    callback?.onWriteFailed("No print destination")
+                } catch (_: Exception) {
+                }
+                return
+            }
             
             try {
                 // Copy source PDF to destination
                 FileInputStream(sourceFile).use { input ->
-                    FileOutputStream(destination?.fileDescriptor).use { output ->
-                        input.copyTo(output)
+                    // Flush only: the destination fd belongs to the print framework.
+                    val output = FileOutputStream(fd)
+                    val buffer = ByteArray(32 * 1024)
+                    while (true) {
+                        if (cancellationSignal?.isCanceled == true) {
+                            callback?.onWriteCancelled()
+                            return
+                        }
+                        val read = input.read(buffer)
+                        if (read <= 0) break
+                        output.write(buffer, 0, read)
                     }
+                    output.flush()
                 }
-                
+
+                if (cancellationSignal?.isCanceled == true) {
+                    callback?.onWriteCancelled()
+                    return
+                }
                 callback?.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
             } catch (e: Exception) {
-                callback?.onWriteFailed(e.message)
+                try {
+                    callback?.onWriteFailed(e.message ?: "Print failed")
+                } catch (_: Exception) {
+                }
             }
         }
         
@@ -220,17 +249,24 @@ object PdfTools {
             callback: LayoutResultCallback?,
             extras: Bundle?
         ) {
-            if (cancellationSignal?.isCanceled == true) {
-                callback?.onLayoutCancelled()
-                return
+            try {
+                if (cancellationSignal?.isCanceled == true) {
+                    callback?.onLayoutCancelled()
+                    return
+                }
+
+                val info = PrintDocumentInfo.Builder(fileName)
+                    .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
+                    .setPageCount(PrintDocumentInfo.PAGE_COUNT_UNKNOWN)
+                    .build()
+
+                callback?.onLayoutFinished(info, newAttributes != oldAttributes)
+            } catch (e: Exception) {
+                try {
+                    callback?.onLayoutFailed(e.message ?: "Print layout failed")
+                } catch (_: Exception) {
+                }
             }
-
-            val info = PrintDocumentInfo.Builder(fileName)
-                .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                .setPageCount(PrintDocumentInfo.PAGE_COUNT_UNKNOWN)
-                .build()
-
-            callback?.onLayoutFinished(info, newAttributes != oldAttributes)
         }
 
         override fun onWrite(
@@ -244,15 +280,49 @@ object PdfTools {
                 return
             }
 
+            val fd = destination?.fileDescriptor
+            if (fd == null || !fd.valid()) {
+                try {
+                    callback?.onWriteFailed("No print destination")
+                } catch (_: Exception) {
+                }
+                return
+            }
+
             try {
-                context.contentResolver.openInputStream(pdfUri)?.use { input ->
-                    FileOutputStream(destination?.fileDescriptor).use { output ->
-                        input.copyTo(output)
+                val input = context.contentResolver.openInputStream(pdfUri)
+                if (input == null) {
+                    try {
+                        callback?.onWriteFailed("Cannot open document for printing")
+                    } catch (_: Exception) {
                     }
+                    return
+                }
+                input.use {
+                    // Flush only: the destination fd belongs to the print framework.
+                    val output = FileOutputStream(fd)
+                    val buffer = ByteArray(32 * 1024)
+                    while (true) {
+                        if (cancellationSignal?.isCanceled == true) {
+                            callback?.onWriteCancelled()
+                            return
+                        }
+                        val read = input.read(buffer)
+                        if (read <= 0) break
+                        output.write(buffer, 0, read)
+                    }
+                    output.flush()
+                }
+                if (cancellationSignal?.isCanceled == true) {
+                    callback?.onWriteCancelled()
+                    return
                 }
                 callback?.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
             } catch (e: Exception) {
-                callback?.onWriteFailed(e.message)
+                try {
+                    callback?.onWriteFailed(e.message ?: "Print failed")
+                } catch (_: Exception) {
+                }
             }
         }
     }

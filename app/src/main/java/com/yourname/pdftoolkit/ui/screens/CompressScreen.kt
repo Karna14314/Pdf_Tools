@@ -212,7 +212,12 @@ fun CompressScreen(
         scope.launch {
             isProcessing = true
             progress = 0f
-            val originalFile = selectedFile!!
+            // Snapshot: the selection can be cleared mid-compress, never !! across suspensions.
+            val originalFile = selectedFile
+            if (originalFile == null) {
+                isProcessing = false
+                return@launch
+            }
             val isTargetMode = compressionMode == CompressionMode.TARGET_SIZE
             val resolvedTargetBytes = if (isTargetMode) targetSizeBytes else null
             
@@ -299,15 +304,16 @@ fun CompressScreen(
             resultUri = result.third
             
             // Record in history
-            if (resultSuccess && result.third != null) {
+            val successUri = result.third
+            if (resultSuccess && successUri != null) {
                 // Add to recent files
-                SafUriManager.addRecentFile(context, result.third!!)
+                SafUriManager.addRecentFile(context, successUri)
 
                 HistoryManager.recordSuccess(
                     context = context,
                     operationType = OperationType.COMPRESS,
                     inputFileName = originalFile.name,
-                    outputFileUri = result.third,
+                    outputFileUri = successUri,
                     outputFileName = "compressed_${originalFile.name}",
                     details = if (isTargetMode) {
                         "Compressed from ${originalFile.formattedSize} (target size)"
@@ -359,6 +365,10 @@ fun CompressScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
+                    // Snapshot: LazyColumn items recompose independently; the
+                    // remove button can null the selection mid-compose.
+                    val file = selectedFile
+                    if (file != null) {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
@@ -388,13 +398,13 @@ fun CompressScreen(
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = selectedFile!!.name,
+                                            text = file.name,
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.Medium,
                                             color = MaterialTheme.colorScheme.onPrimaryContainer
                                         )
                                         Text(
-                                            text = "Original size: ${selectedFile!!.formattedSize}",
+                                            text = "Original size: ${file.formattedSize}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                                         )
@@ -618,9 +628,10 @@ fun CompressScreen(
                                     }
                                 }
                             }
+                            }
+                        }
                         }
                     }
-                }
                 
                 // Progress overlay
                 if (isProcessing) {

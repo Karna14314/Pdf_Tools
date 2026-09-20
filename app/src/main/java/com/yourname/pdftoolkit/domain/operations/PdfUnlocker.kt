@@ -3,6 +3,7 @@ package com.yourname.pdftoolkit.domain.operations
 import android.content.Context
 import android.net.Uri
 import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.io.MemoryUsageSetting
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
@@ -83,9 +84,12 @@ class PdfUnlocker {
             
             onProgress(0.2f)
             
-            // Try to load with the provided password
+            // Try to load with the provided password.
+            // Temp-file buffering keeps large decrypted documents out of the heap (OOM fix).
             val loadedDoc = try {
-                PDDocument.load(inputStream, password)
+                inputStream.use { stream ->
+                    PDDocument.load(stream, password, MemoryUsageSetting.setupTempFileOnly())
+                }
             } catch (e: Exception) {
                 val message = e.message?.lowercase() ?: ""
                 when {

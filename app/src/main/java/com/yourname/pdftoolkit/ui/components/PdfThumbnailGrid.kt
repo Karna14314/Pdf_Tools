@@ -217,9 +217,11 @@ fun PdfThumbnailCard(
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            if (thumbnail != null && thumbnail?.isRecycled == false) {
+            // Snapshot: cache eviction can recycle between check and draw.
+            val safeThumbnail = thumbnail?.takeIf { !it.isRecycled }
+            if (safeThumbnail != null) {
                 Image(
-                    bitmap = thumbnail!!.asImageBitmap(),
+                    bitmap = safeThumbnail.asImageBitmap(),
                     contentDescription = "Page $pageNumber",
                     modifier = Modifier.fillMaxSize().graphicsLayer {
                         rotationZ = rotationDegrees

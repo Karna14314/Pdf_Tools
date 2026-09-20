@@ -449,10 +449,17 @@ fun ScanToPdfScreen(
                         PdfRenderer(pfd).use { renderer ->
                             if (renderer.pageCount > 0) {
                                 renderer.openPage(0).use { page ->
+                                    // Cap preview size: full-res page renders waste heap here.
+                                    val w = page.width.coerceIn(1, 1600)
+                                    val h = (page.height.toFloat() * (w.toFloat() / page.width.coerceAtLeast(1).toFloat()))
+                                        .toInt().coerceIn(1, 1600)
                                     val bmp = Bitmap.createBitmap(
-                                        page.width, page.height, Bitmap.Config.ARGB_8888
+                                        w, h, Bitmap.Config.ARGB_8888
                                     )
                                     page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                                    resultPreview?.let { old ->
+                                        if (!old.isRecycled) old.recycle()
+                                    }
                                     resultPreview = bmp
                                 }
                             }
@@ -893,7 +900,7 @@ fun ScanToPdfScreen(
                 
                 // Result preview + actions (shown after success)
                 if (state.isComplete && state.resultUri != null) {
-                    resultPreview?.let { bmp ->
+                    resultPreview?.takeIf { !it.isRecycled }?.let { bmp ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)

@@ -599,9 +599,11 @@ private fun MergePageThumbnailCard(
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            if (thumbnail != null && !thumbnail!!.isRecycled) {
+            // Snapshot: cache eviction can recycle between check and draw.
+            val safeThumbnail = thumbnail?.takeIf { !it.isRecycled }
+            if (safeThumbnail != null) {
                 Image(
-                    bitmap = thumbnail!!.asImageBitmap(),
+                    bitmap = safeThumbnail.asImageBitmap(),
                     contentDescription = pageItem.sourceLabel,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

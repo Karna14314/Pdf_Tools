@@ -307,10 +307,12 @@ private suspend fun renderSignaturePagePreview(
 
         val pageWidth = page.width.toFloat()
         val pageHeight = page.height.toFloat()
+        // Guard: zero-size pages produce Inf scale -> Int.MAX bitmap -> OOM/crash.
+        if (pageWidth <= 0f || pageHeight <= 0f) return@withContext null
         val maxPreviewWidth = 1600
         val scale = minOf(2f, maxPreviewWidth / pageWidth).coerceAtLeast(1f)
-        val bitmapWidth = (page.width * scale).toInt().coerceAtLeast(1)
-        val bitmapHeight = (page.height * scale).toInt().coerceAtLeast(1)
+        val bitmapWidth = (page.width * scale).toInt().coerceIn(1, 2048)
+        val bitmapHeight = (page.height * scale).toInt().coerceIn(1, 2048)
         val bitmap = Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
         bitmap.eraseColor(Color.WHITE)
 
@@ -813,7 +815,10 @@ fun SignPdfScreen(
                                         RoundedCornerShape(8.dp)
                                     )
                             ) {
-                                val aspectRatio = preview.bitmap.width.toFloat() / preview.bitmap.height.toFloat()
+                                // Guard: corrupt/empty renders give height 0 -> Inf aspect
+                                // crashes Constraints measurement.
+                                val aspectRatio = (preview.bitmap.width.toFloat() / preview.bitmap.height.toFloat())
+                                    .takeIf { it.isFinite() && it > 0f } ?: 1f
 
                                 Box(
                                     modifier = Modifier

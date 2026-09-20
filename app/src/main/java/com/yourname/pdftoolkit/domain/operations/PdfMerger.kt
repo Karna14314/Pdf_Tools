@@ -115,11 +115,14 @@ class PdfMerger {
 
         try {
             ensureActive()
-            destinationDocument = PDDocument()
+            // Temp-file backing so large merges don't accumulate fully in the heap (OOM fix).
+            destinationDocument = PDDocument(MemoryUsageSetting.setupTempFileOnly())
             val destination = destinationDocument
 
             items.forEachIndexed { index, item ->
                 ensureActive()
+                // Fail fast with a clean error instead of crashing mid-merge on low RAM.
+                MemoryGuard.checkMemory("mergeItems[${index + 1}/${items.size}]")
 
                 when (item.type) {
                     MergeItemType.PDF -> {
