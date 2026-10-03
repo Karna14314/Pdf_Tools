@@ -33,6 +33,23 @@ object PrintUtils {
             val printManager = context.getSystemService(Context.PRINT_SERVICE) as? PrintManager
                 ?: return false
 
+            if (uri == Uri.EMPTY || uri.toString().isBlank()) return false
+
+            try {
+                if (uri.scheme == "content") {
+                    val cursor = context.contentResolver.query(uri, null, null, null, null)
+                    if (cursor == null || !cursor.moveToFirst()) {
+                        cursor?.close()
+                        return false
+                    }
+                    cursor.close()
+                } else {
+                    context.contentResolver.openInputStream(uri)?.close() ?: return false
+                }
+            } catch (e: Exception) {
+                return false
+            }
+
             val printAdapter = object : PrintDocumentAdapter() {
                 override fun onLayout(
                     oldAttributes: PrintAttributes?,
