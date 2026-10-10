@@ -29,6 +29,35 @@ object PrintUtils {
      * @return true if print job was started successfully, false otherwise
      */
     fun printPdf(context: Context, uri: Uri, documentName: String = "PDF Document"): Boolean {
+        if (uri == Uri.EMPTY) return false
+
+        try {
+            val scheme = uri.scheme
+            if (scheme != "content" && scheme != "file") {
+                return false
+            }
+
+            if (scheme == "content") {
+                // For content:// URIs we must ensure the provider actually exists
+                // because Robolectric/Android framework can throw IllegalArgumentException on openInputStream
+                val provider = context.contentResolver.acquireContentProviderClient(uri)
+                if (provider == null) {
+                    return false
+                }
+                // Suppress deprecation warning for release()
+                @Suppress("DEPRECATION")
+                provider.release()
+            }
+
+            val stream = context.contentResolver.openInputStream(uri)
+            if (stream == null) {
+                return false
+            }
+            stream.close()
+        } catch (e: Exception) {
+            return false
+        }
+
         return try {
             val printManager = context.getSystemService(Context.PRINT_SERVICE) as? PrintManager
                 ?: return false
