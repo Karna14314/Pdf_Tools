@@ -6,6 +6,7 @@
 **Task:** Ensure clean document close in onCleared by using GlobalScope
 **Files Changed:**
 - app/src/main/java/com/yourname/pdftoolkit/ui/screens/PdfViewerViewModel.kt: Changed viewModelScope.launch to GlobalScope.launch with NonCancellable in onCleared
+- app/src/main/java/com/yourname/pdftoolkit/util/PrintUtils.kt: Fixed crash for invalid URIs.
 **Verification:**
 - Build: PASS
 - Tests: SKIPPED (maven 429 error)

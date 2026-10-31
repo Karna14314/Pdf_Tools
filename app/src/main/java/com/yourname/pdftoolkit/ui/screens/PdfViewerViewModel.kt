@@ -1191,7 +1191,7 @@ fun eraseAnnotations(pageIndex: Int, eraserPoints: List<Offset>, eraserNormWidth
                 }
             } else throw e
         }
-        GlobalScope.launch(Dispatchers.IO + NonCancellable + exceptionHandler) {
+        GlobalScope.launch(Dispatchers.IO + exceptionHandler) {
             synchronized(activeBitmaps) {
                 uiBitmapRefs.values.forEach { if (!it.isRecycled) it.recycle() }
                 uiBitmapRefs.clear()

@@ -29,6 +29,20 @@ object PrintUtils {
      * @return true if print job was started successfully, false otherwise
      */
     fun printPdf(context: Context, uri: Uri, documentName: String = "PDF Document"): Boolean {
+        if (uri == Uri.EMPTY) return false
+        if (uri.scheme == "content") {
+            val providerClient = context.contentResolver.acquireContentProviderClient(uri)
+            if (providerClient == null) {
+                return false
+            }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                providerClient.close()
+            } else {
+                @Suppress("DEPRECATION")
+                providerClient.release()
+            }
+        }
+
         return try {
             val printManager = context.getSystemService(Context.PRINT_SERVICE) as? PrintManager
                 ?: return false
