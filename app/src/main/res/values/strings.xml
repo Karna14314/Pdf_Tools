@@ -691,9 +691,6 @@ Saved to: %1$s</string>
     <string name="crop_page_indicator">Page %1$d of %2$d</string>
     <string name="crop_copy_to_following">Copy to next pages</string>
     <string name="crop_reset">Reset</string>
-    <string name="crop_shrink_page_size">Also shrink page size</string>
-    <string name="crop_shrink_page_size_desc">For printers and apps that ignore the crop area</string>
-    <string name="crop_privacy_note">Cropped content is hidden, not deleted.</string>
     <string name="crop_draw_first">Draw a crop area first</string>
     <string name="crop_save_pages">Save PDF (%1$d pages cropped)</string>
     <string name="crop_save_split">Save PDF (%1$d → %2$d pages)</string>

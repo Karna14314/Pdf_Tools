@@ -623,9 +623,6 @@ Gespeichert unter: %1$s</string>
     <string name="crop_page_indicator">Seite %1$d von %2$d</string>
     <string name="crop_copy_to_following">Auf folgende Seiten kopieren</string>
     <string name="crop_reset">Zurücksetzen</string>
-    <string name="crop_shrink_page_size">Auch Seitengröße verkleinern</string>
-    <string name="crop_shrink_page_size_desc">Für Drucker und Apps, die den Zuschnittbereich ignorieren</string>
-    <string name="crop_privacy_note">Zugeschnittenes wird ausgeblendet, nicht gelöscht.</string>
     <string name="crop_draw_first">Zeichnen Sie zuerst einen Zuschnittbereich</string>
     <string name="crop_save_pages">PDF speichern (%1$d Seiten zugeschnitten)</string>
     <string name="crop_save_split">PDF speichern (%1$d → %2$d Seiten)</string>

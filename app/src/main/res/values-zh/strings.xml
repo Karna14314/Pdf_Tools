@@ -623,9 +623,6 @@
     <string name="crop_page_indicator">第 %1$d 页，共 %2$d 页</string>
     <string name="crop_copy_to_following">复制到后续页面</string>
     <string name="crop_reset">重置</string>
-    <string name="crop_shrink_page_size">同时缩小页面尺寸</string>
-    <string name="crop_shrink_page_size_desc">适用于忽略裁剪区域的打印机和应用</string>
-    <string name="crop_privacy_note">裁剪掉的内容仅被隐藏，未被删除。</string>
     <string name="crop_draw_first">请先绘制裁剪区域</string>
     <string name="crop_save_pages">保存 PDF（已裁剪 %1$d 页）</string>
     <string name="crop_save_split">保存 PDF（%1$d → %2$d 页）</string>

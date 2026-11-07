@@ -627,9 +627,6 @@
     <string name="crop_page_indicator">%1$d / %2$d ページ</string>
     <string name="crop_copy_to_following">以降のページにコピー</string>
     <string name="crop_reset">リセット</string>
-    <string name="crop_shrink_page_size">ページサイズも縮小</string>
-    <string name="crop_shrink_page_size_desc">トリミング範囲を無視するプリンターやアプリ向け</string>
-    <string name="crop_privacy_note">トリミング部分は非表示になるだけで削除されません。</string>
     <string name="crop_draw_first">まずトリミング範囲を描画してください</string>
     <string name="crop_save_pages">PDFを保存 (%1$d ページをトリミング)</string>
     <string name="crop_save_split">PDFを保存 (%1$d → %2$d ページ)</string>

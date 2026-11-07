@@ -627,9 +627,6 @@ Enregistré dans : %1$s</string>
     <string name="crop_page_indicator">Page %1$d sur %2$d</string>
     <string name="crop_copy_to_following">Copier aux pages suivantes</string>
     <string name="crop_reset">Réinitialiser</string>
-    <string name="crop_shrink_page_size">Réduire aussi la taille de page</string>
-    <string name="crop_shrink_page_size_desc">Pour les imprimantes et applis qui ignorent la zone de rognage</string>
-    <string name="crop_privacy_note">Le contenu rogné est masqué, pas supprimé.</string>
     <string name="crop_draw_first">Dessinez d\'abord une zone de rognage</string>
     <string name="crop_save_pages">Enregistrer le PDF (%1$d pages rognées)</string>
     <string name="crop_save_split">Enregistrer le PDF (%1$d → %2$d pages)</string>

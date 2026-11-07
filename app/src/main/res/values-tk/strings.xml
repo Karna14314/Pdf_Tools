@@ -627,9 +627,6 @@
     <string name="crop_page_indicator">Sahypa %1$d / %2$d</string>
     <string name="crop_copy_to_following">Indiki sahypalara göçür</string>
     <string name="crop_reset">Täzeden düz</string>
-    <string name="crop_shrink_page_size">Sahypanyň ölçegini hem kiçelt</string>
-    <string name="crop_shrink_page_size_desc">Kesiş meýdanyny äsgermeýän printerler we programmalar üçin</string>
-    <string name="crop_privacy_note">Kesilen mazmun gizlenýär, pozulmaýar.</string>
     <string name="crop_draw_first">Ilki kesiş meýdanyny çyzyň</string>
     <string name="crop_save_pages">PDF ýatda sakla (%1$d sahypa kesildi)</string>
     <string name="crop_save_split">PDF ýatda sakla (%1$d → %2$d sahypa)</string>

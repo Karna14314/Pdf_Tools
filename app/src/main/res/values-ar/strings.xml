@@ -627,9 +627,6 @@
     <string name="crop_page_indicator">الصفحة %1$d من %2$d</string>
     <string name="crop_copy_to_following">نسخ إلى الصفحات التالية</string>
     <string name="crop_reset">إعادة تعيين</string>
-    <string name="crop_shrink_page_size">تصغير حجم الصفحة أيضًا</string>
-    <string name="crop_shrink_page_size_desc">للطابعات والتطبيقات التي تتجاهل منطقة القص</string>
-    <string name="crop_privacy_note">المحتوى المقصوص مخفي وليس محذوفًا.</string>
     <string name="crop_draw_first">ارسم منطقة القص أولاً</string>
     <string name="crop_save_pages">حفظ PDF (تم قص %1$d صفحة)</string>
     <string name="crop_save_split">حفظ PDF (%1$d ← %2$d صفحة)</string>

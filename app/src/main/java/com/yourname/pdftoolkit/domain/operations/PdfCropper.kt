@@ -85,14 +85,20 @@ sealed class CropPlan {
     data class PerPage(val rects: Map<Int, NormalizedRect>) : CropPlan()
 
     /**
-     * Turn every page into two pages, one cropped to [first] and one to [second].
-     * With [reverseOrder] the second area is placed first (right-to-left documents).
+     * Turn every page into two pages. Odd pages (1, 3, 5…) use [odd], even pages use [even]
+     * (the same areas by default). With [reverseOrder] the second area is placed first
+     * (right-to-left documents).
      */
     data class Split(
-        val first: NormalizedRect,
-        val second: NormalizedRect,
+        val odd: SplitAreas,
+        val even: SplitAreas = odd,
         val reverseOrder: Boolean = false
     ) : CropPlan()
+}
+
+/** The two areas a page is split into, in reading order. */
+data class SplitAreas(val first: NormalizedRect, val second: NormalizedRect) {
+    fun isUsable(): Boolean = first.isUsable() && second.isUsable()
 }
 
 /** Outcome of a crop operation. */
@@ -105,7 +111,7 @@ data class CropResult(
 /**
  * Lossless PDF cropping.
  *
- * Cropping sets the page CropBox (and optionally the MediaBox): page content is not
+ * Cropping sets the page CropBox: page content is not
  * rasterized and text stays selectable. Content outside the crop area is hidden,
  * not removed from the file.
  */
@@ -113,15 +119,12 @@ class PdfCropper {
 
     /**
      * Apply [plan] to the PDF at [inputUri] and write the result to [outputStream].
-     *
-     * @param shrinkMediaBox also set the MediaBox to the crop area, for tools that ignore the CropBox
      */
     suspend fun crop(
         context: Context,
         inputUri: Uri,
         outputStream: OutputStream,
         plan: CropPlan,
-        shrinkMediaBox: Boolean = false,
         onProgress: (Float) -> Unit = {}
     ): Result<CropResult> = withContext(Dispatchers.IO) {
         var document: PDDocument? = null
@@ -138,8 +141,8 @@ class PdfCropper {
             }
 
             val result = when (plan) {
-                is CropPlan.Split -> splitPages(document, plan, shrinkMediaBox, onProgress)
-                else -> cropPages(document, plan, shrinkMediaBox, onProgress)
+                is CropPlan.Split -> splitPages(document, plan, onProgress)
+                else -> cropPages(document, plan, onProgress)
             }
 
             ensureActive()
@@ -158,7 +161,6 @@ class PdfCropper {
     private suspend fun cropPages(
         document: PDDocument,
         plan: CropPlan,
-        shrinkMediaBox: Boolean,
         onProgress: (Float) -> Unit
     ): CropResult {
         val totalPages = document.numberOfPages
@@ -168,7 +170,7 @@ class PdfCropper {
             val rect = rectForPage(plan, index)
             if (rect != null && !rect.isFullPage()) {
                 require(rect.isUsable()) { "Crop area on page ${index + 1} is too small" }
-                applyCrop(document.getPage(index), rect, shrinkMediaBox)
+                applyCrop(document.getPage(index), rect)
                 cropped++
             }
             onProgress((index + 1).toFloat() / totalPages)
@@ -179,27 +181,26 @@ class PdfCropper {
     private suspend fun splitPages(
         document: PDDocument,
         plan: CropPlan.Split,
-        shrinkMediaBox: Boolean,
         onProgress: (Float) -> Unit
     ): CropResult {
-        require(plan.first.isUsable() && plan.second.isUsable()) { "Split areas are too small" }
-
-        val (firstRect, secondRect) = if (plan.reverseOrder) {
-            plan.second to plan.first
-        } else {
-            plan.first to plan.second
-        }
+        require(plan.odd.isUsable() && plan.even.isUsable()) { "Split areas are too small" }
 
         val originals = document.pages.toList()
         val totalPages = originals.size
         originals.forEachIndexed { index, page ->
             kotlin.coroutines.coroutineContext.ensureActive()
+            val areas = if (index % 2 == 0) plan.odd else plan.even
+            val (firstRect, secondRect) = if (plan.reverseOrder) {
+                areas.second to areas.first
+            } else {
+                areas.first to areas.second
+            }
             val copy = duplicatePage(page)
             document.pages.insertAfter(copy, page)
 
             // Map both rectangles against the original geometry before changing anything.
-            applyCrop(page, firstRect, shrinkMediaBox)
-            applyCrop(copy, secondRect, shrinkMediaBox)
+            applyCrop(page, firstRect)
+            applyCrop(copy, secondRect)
 
             onProgress((index + 1).toFloat() / totalPages)
         }
@@ -229,12 +230,8 @@ class PdfCropper {
         return copy
     }
 
-    private fun applyCrop(page: PDPage, rect: NormalizedRect, shrinkMediaBox: Boolean) {
-        val target = toPdfRectangle(rect, page.cropBox, page.rotation)
-        page.cropBox = target
-        if (shrinkMediaBox) {
-            page.mediaBox = target
-        }
+    private fun applyCrop(page: PDPage, rect: NormalizedRect) {
+        page.cropBox = toPdfRectangle(rect, page.cropBox, page.rotation)
     }
 
     companion object {
@@ -250,13 +247,13 @@ class PdfCropper {
          * Split the displayed page at [position] (0..1) and return the two areas
          * (left/right for [SplitOrientation.VERTICAL], top/bottom for [SplitOrientation.HORIZONTAL]).
          */
-        fun splitAt(orientation: SplitOrientation, position: Float): Pair<NormalizedRect, NormalizedRect> {
+        fun splitAt(orientation: SplitOrientation, position: Float): SplitAreas {
             val p = position.coerceIn(NormalizedRect.MIN_SIZE, 1f - NormalizedRect.MIN_SIZE)
             return when (orientation) {
                 SplitOrientation.VERTICAL ->
-                    NormalizedRect(0f, 0f, p, 1f) to NormalizedRect(p, 0f, 1f, 1f)
+                    SplitAreas(NormalizedRect(0f, 0f, p, 1f), NormalizedRect(p, 0f, 1f, 1f))
                 SplitOrientation.HORIZONTAL ->
-                    NormalizedRect(0f, 0f, 1f, p) to NormalizedRect(0f, p, 1f, 1f)
+                    SplitAreas(NormalizedRect(0f, 0f, 1f, p), NormalizedRect(0f, p, 1f, 1f))
             }
         }
 

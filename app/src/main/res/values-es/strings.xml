@@ -627,9 +627,6 @@ Guardado en: %1$s</string>
     <string name="crop_page_indicator">Página %1$d de %2$d</string>
     <string name="crop_copy_to_following">Copiar a las siguientes</string>
     <string name="crop_reset">Restablecer</string>
-    <string name="crop_shrink_page_size">Reducir también el tamaño de página</string>
-    <string name="crop_shrink_page_size_desc">Para impresoras y apps que ignoran el área de recorte</string>
-    <string name="crop_privacy_note">Lo recortado se oculta, no se elimina.</string>
     <string name="crop_draw_first">Dibuje primero un área de recorte</string>
     <string name="crop_save_pages">Guardar PDF (%1$d páginas recortadas)</string>
     <string name="crop_save_split">Guardar PDF (%1$d → %2$d páginas)</string>

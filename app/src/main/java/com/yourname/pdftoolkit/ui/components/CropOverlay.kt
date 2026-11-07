@@ -1,22 +1,27 @@
 package com.yourname.pdftoolkit.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
@@ -37,6 +42,11 @@ private enum class DragTarget {
 }
 
 private val DimColor = Color.Black.copy(alpha = 0.45f)
+
+/** Remembers where the current gesture went down (drag callbacks only report positions after touch slop). */
+private class DownAnchor {
+    var position: Offset = Offset.Unspecified
+}
 
 /**
  * Interactive crop rectangles drawn over a rendered page.
@@ -68,9 +78,16 @@ fun CropRectOverlay(
     val currentActive by rememberUpdatedState(activeIndex)
     val onChange by rememberUpdatedState(onRectChange)
     val onActive by rememberUpdatedState(onActiveIndexChange)
+    val anchor = remember { DownAnchor() }
 
     Canvas(
-        modifier = modifier.pointerInput(Unit) {
+        modifier = modifier
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    anchor.position = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial).position
+                }
+            }
+            .pointerInput(Unit) {
             var target = DragTarget.NONE
             var editIndex = 0
             var initial: NormalizedRect? = null
@@ -89,14 +106,15 @@ fun CropRectOverlay(
                 onDragStart = { pos ->
                     val w = size.width.toFloat()
                     val h = size.height.toFloat()
-                    start = pos
+                    // Anchor the gesture where the finger touched down, not where the slop was crossed.
+                    start = if (anchor.position.isSpecified) anchor.position else pos
                     current = pos
 
                     val order = listOf(currentActive) + currentRects.indices.filter { it != currentActive }
                     var hit: Pair<Int, DragTarget>? = null
                     for (i in order) {
                         val r = currentRects.getOrNull(i) ?: continue
-                        val t = hitTest(r, pos, w, h, touchSlopPx, withHandles = i == currentActive)
+                        val t = hitTest(r, start, w, h, touchSlopPx, withHandles = i == currentActive)
                         if (t != DragTarget.NONE) {
                             hit = i to t
                             break
@@ -205,8 +223,14 @@ fun SplitLineOverlay(
         drawCircle(Color.White, radius = 14.dp.toPx(), center = handleCenter)
         drawCircle(primary, radius = 11.dp.toPx(), center = handleCenter)
 
-        drawBadge(textMeasurer, firstLabel, firstArea.center, primary)
-        drawBadge(textMeasurer, secondLabel, secondArea.center, tertiary)
+        // Badges sit near the page edge so they never cover the line handle.
+        fun badgeAt(area: Rect) = if (vertical) {
+            Offset(area.center.x, size.height * 0.12f)
+        } else {
+            Offset(size.width * 0.12f, area.center.y)
+        }
+        drawBadge(textMeasurer, firstLabel, badgeAt(firstArea), primary)
+        drawBadge(textMeasurer, secondLabel, badgeAt(secondArea), tertiary)
     }
 }
 

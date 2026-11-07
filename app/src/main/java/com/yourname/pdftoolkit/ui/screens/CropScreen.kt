@@ -15,6 +15,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -23,6 +29,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -115,9 +125,8 @@ fun CropScreen(
 
             // Bottom action area
             Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding(),
+                // Scaffold padding already includes the navigation bar inset.
+                modifier = Modifier.fillMaxWidth(),
                 tonalElevation = 3.dp
             ) {
                 Column(
@@ -132,8 +141,6 @@ fun CropScreen(
                             icon = Icons.Default.FolderOpen
                         )
                     } else {
-                        CropBottomOptions(state = state, onToggleShrink = viewModel::toggleShrinkMediaBox)
-                        Spacer(modifier = Modifier.height(12.dp))
                         val buttonText = when {
                             !state.canSave && !state.isProcessing -> stringResource(R.string.crop_draw_first)
                             state.mode == CropMode.SPLIT ->
@@ -235,7 +242,9 @@ private fun CropEditor(
 
         // Mode selector
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             ModeTile(Icons.Default.Crop, stringResource(R.string.crop_mode_all), state.mode == CropMode.ALL_PAGES,
@@ -321,7 +330,6 @@ private fun CropEditor(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ModeOptions(state: CropUiState, viewModel: CropViewModel) {
     if (state.mode == CropMode.ALL_PAGES) return
@@ -331,48 +339,67 @@ private fun ModeOptions(state: CropUiState, viewModel: CropViewModel) {
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
             .padding(top = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val oddEven = stringResource(R.string.crop_variant_odd_even)
         when (state.mode) {
-            CropMode.PER_PAGE -> {
-                OptionChip(stringResource(R.string.crop_variant_each_page), state.perPageVariant == PerPageVariant.EACH_PAGE) {
-                    viewModel.setPerPageVariant(PerPageVariant.EACH_PAGE)
-                }
-                OptionChip(stringResource(R.string.crop_variant_odd_even), state.perPageVariant == PerPageVariant.ODD_EVEN) {
-                    viewModel.setPerPageVariant(PerPageVariant.ODD_EVEN)
-                }
-            }
+            CropMode.PER_PAGE -> SegmentedSelector(
+                segments = listOf(Segment(stringResource(R.string.crop_variant_each_page)), Segment(oddEven)),
+                selectedIndex = state.perPageVariant.ordinal,
+                onSelect = { viewModel.setPerPageVariant(PerPageVariant.entries[it]) }
+            )
+
             CropMode.SPLIT -> {
-                OptionChip(stringResource(R.string.crop_variant_split_line), state.splitVariant == SplitVariant.LINE) {
-                    viewModel.setSplitVariant(SplitVariant.LINE)
-                }
-                OptionChip(stringResource(R.string.crop_variant_two_areas), state.splitVariant == SplitVariant.TWO_AREAS) {
-                    viewModel.setSplitVariant(SplitVariant.TWO_AREAS)
-                }
-                VerticalDivider()
-                if (state.splitVariant == SplitVariant.LINE) {
-                    OptionChip(
-                        stringResource(R.string.crop_orientation_vertical),
-                        state.splitOrientation == SplitOrientation.VERTICAL
-                    ) { viewModel.setSplitOrientation(SplitOrientation.VERTICAL) }
-                    OptionChip(
-                        stringResource(R.string.crop_orientation_horizontal),
-                        state.splitOrientation == SplitOrientation.HORIZONTAL
-                    ) { viewModel.setSplitOrientation(SplitOrientation.HORIZONTAL) }
+                val split = state.editedSplit
+                // Which pages the split setup applies to.
+                SegmentedSelector(
+                    segments = listOf(Segment(stringResource(R.string.crop_mode_all)), Segment(oddEven)),
+                    selectedIndex = state.splitScope.ordinal,
+                    onSelect = { viewModel.setSplitScope(SplitScope.entries[it]) }
+                )
+                // How the page is split.
+                SegmentedSelector(
+                    segments = listOf(
+                        Segment(stringResource(R.string.crop_variant_split_line)),
+                        Segment(stringResource(R.string.crop_variant_two_areas))
+                    ),
+                    selectedIndex = split.variant.ordinal,
+                    onSelect = { viewModel.setSplitVariant(SplitVariant.entries[it]) }
+                )
+                if (split.variant == SplitVariant.LINE) {
+                    SegmentedSelector(
+                        segments = listOf(
+                            Segment(
+                                icon = Icons.Default.VerticalSplit,
+                                description = stringResource(R.string.crop_orientation_vertical)
+                            ),
+                            Segment(
+                                icon = Icons.Default.HorizontalSplit,
+                                description = stringResource(R.string.crop_orientation_horizontal)
+                            )
+                        ),
+                        selectedIndex = split.orientation.ordinal,
+                        onSelect = { viewModel.setSplitOrientation(SplitOrientation.entries[it]) }
+                    )
                 } else {
-                    OptionChip(stringResource(R.string.crop_area_number, 1), state.activeSplitArea == 0) {
-                        viewModel.setActiveSplitArea(0)
-                    }
-                    OptionChip(stringResource(R.string.crop_area_number, 2), state.activeSplitArea == 1) {
-                        viewModel.setActiveSplitArea(1)
-                    }
+                    SegmentedSelector(
+                        segments = (1..2).map {
+                            Segment("$it", description = stringResource(R.string.crop_area_number, it))
+                        },
+                        selectedIndex = split.activeArea,
+                        onSelect = viewModel::setActiveSplitArea
+                    )
                 }
-                VerticalDivider()
-                OptionChip(stringResource(R.string.crop_reverse_order), state.reverseOrder, Icons.Default.SwapHoriz) {
-                    viewModel.toggleReverseOrder()
+                // On/off option: a toggle, not a choice between alternatives.
+                OutlinedIconToggleButton(
+                    checked = state.reverseOrder,
+                    onCheckedChange = { viewModel.toggleReverseOrder() }
+                ) {
+                    Icon(Icons.Default.SwapHoriz, contentDescription = stringResource(R.string.crop_reverse_order))
                 }
             }
+
             CropMode.ALL_PAGES -> Unit
         }
     }
@@ -402,7 +429,8 @@ private fun PagePreview(
             Box(
                 modifier = Modifier
                     .size(w, h)
-                    .shadow(4.dp, RoundedCornerShape(2.dp))
+                    // No clipping, so handles on the page edges stay fully visible.
+                    .shadow(4.dp, RoundedCornerShape(2.dp), clip = false)
                     .background(MaterialTheme.colorScheme.surface)
             ) {
                 Image(
@@ -412,11 +440,12 @@ private fun PagePreview(
                     modifier = Modifier.fillMaxSize()
                 )
 
+                val split = state.editedSplit
                 when {
-                    state.mode == CropMode.SPLIT && state.splitVariant == SplitVariant.LINE -> {
+                    state.mode == CropMode.SPLIT && split.variant == SplitVariant.LINE -> {
                         SplitLineOverlay(
-                            orientation = state.splitOrientation,
-                            position = state.splitPosition,
+                            orientation = split.orientation,
+                            position = split.position,
                             onPositionChange = viewModel::setSplitPosition,
                             firstLabel = if (state.reverseOrder) "2" else "1",
                             secondLabel = if (state.reverseOrder) "1" else "2",
@@ -425,8 +454,8 @@ private fun PagePreview(
                     }
                     state.mode == CropMode.SPLIT -> {
                         CropRectOverlay(
-                            rects = state.splitAreas,
-                            activeIndex = state.activeSplitArea,
+                            rects = split.areas,
+                            activeIndex = split.activeArea,
                             onRectChange = viewModel::setSplitArea,
                             onActiveIndexChange = viewModel::setActiveSplitArea,
                             showLabels = true,
@@ -453,43 +482,6 @@ private fun PagePreview(
 }
 
 @Composable
-private fun CropBottomOptions(state: CropUiState, onToggleShrink: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.crop_shrink_page_size),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
-            Text(
-                text = stringResource(R.string.crop_shrink_page_size_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Switch(checked = state.shrinkMediaBox, onCheckedChange = { onToggleShrink() })
-    }
-    Spacer(modifier = Modifier.height(8.dp))
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            imageVector = Icons.Default.Info,
-            contentDescription = null,
-            modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(
-            text = stringResource(R.string.crop_privacy_note),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
 private fun hintFor(state: CropUiState): String = when (state.mode) {
     CropMode.ALL_PAGES ->
         stringResource(if (state.uniformRect == null) R.string.crop_hint_draw else R.string.crop_hint_adjust)
@@ -500,7 +492,12 @@ private fun hintFor(state: CropUiState): String = when (state.mode) {
             stringResource(if (state.isOddPage) R.string.crop_hint_odd else R.string.crop_hint_even)
     }
     CropMode.SPLIT -> stringResource(
-        if (state.splitVariant == SplitVariant.LINE) R.string.crop_hint_split_line else R.string.crop_hint_two_areas
+        when {
+            state.splitScope == SplitScope.ODD_EVEN ->
+                if (state.isOddPage) R.string.crop_hint_odd else R.string.crop_hint_even
+            state.split.variant == SplitVariant.LINE -> R.string.crop_hint_split_line
+            else -> R.string.crop_hint_two_areas
+        }
     )
 }
 
@@ -514,7 +511,10 @@ private fun ModeTile(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics {
+            this.selected = selected
+            role = Role.RadioButton
+        },
         shape = RoundedCornerShape(12.dp),
         color = if (selected) MaterialTheme.colorScheme.primaryContainer
         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -544,32 +544,73 @@ private fun ModeTile(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun OptionChip(
-    label: String,
-    selected: Boolean,
-    icon: ImageVector? = null,
-    onClick: () -> Unit
-) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label) },
-        leadingIcon = when {
-            selected -> { { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) } }
-            icon != null -> { { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) } }
-            else -> null
-        }
-    )
-}
+/** One option of a [SegmentedSelector]: a text label and/or an icon. */
+private data class Segment(
+    val label: String? = null,
+    val icon: ImageVector? = null,
+    val description: String? = null
+)
 
+/**
+ * Single-choice segmented button (Material 3 selection pattern for mutually exclusive options).
+ * Each segment is exposed to accessibility services as a radio button inside a selectable group.
+ */
 @Composable
-private fun VerticalDivider() {
-    Box(
+private fun SegmentedSelector(
+    segments: List<Segment>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit
+) {
+    val shape = RoundedCornerShape(50)
+    val outline = MaterialTheme.colorScheme.outline
+    Row(
         modifier = Modifier
-            .height(24.dp)
-            .width(1.dp)
-            .background(MaterialTheme.colorScheme.outlineVariant)
-    )
+            .height(40.dp)
+            .clip(shape)
+            .border(1.dp, outline, shape)
+            .selectableGroup(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        segments.forEachIndexed { index, segment ->
+            if (index > 0) {
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .fillMaxHeight()
+                        .background(outline)
+                )
+            }
+            val selected = index == selectedIndex
+            val contentColor = if (selected) {
+                MaterialTheme.colorScheme.onSecondaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .background(if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent)
+                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(index) })
+                    .semantics { segment.description?.let { contentDescription = it } }
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                // Text segments show a check when selected; icon-only segments keep their icon.
+                val icon = if (selected && segment.label != null) Icons.Default.Check else segment.icon
+                if (icon != null) {
+                    Icon(icon, contentDescription = null, tint = contentColor, modifier = Modifier.size(18.dp))
+                }
+                if (icon != null && segment.label != null) Spacer(modifier = Modifier.width(8.dp))
+                if (segment.label != null) {
+                    Text(
+                        text = segment.label,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = contentColor,
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
 }

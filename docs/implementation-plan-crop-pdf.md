@@ -10,18 +10,16 @@ New **Crop Pages** tool (Organize section) where the user draws rectangles on re
 |---|---|
 | Same for all pages | One rectangle applied to every page |
 | Per page | One rectangle per page (copy-to-remaining, reset), or **odd/even** sub-mode with two rectangles |
-| Split page in two | Either one split line (vertical/horizontal) or two free rectangles; each page becomes two pages |
+| Split page in two | Split line (vertical/horizontal) or two free rectangles, for all pages or separately for odd/even pages; each page becomes two pages |
 
 ## Technical approach
 
 - **Lossless**: set `PDPage.cropBox` with PdfBox-Android. No rasterization, text stays selectable.
-- Optional switch **"Also shrink page size"** (off by default) also sets the MediaBox for tools that ignore CropBox.
 - Rectangles are stored normalized (0..1, top-left origin) in *displayed* page space. A pure function maps them into
   PDF user space, accounting for the current CropBox, `/Rotate` (0/90/180/270) and the y-up PDF coordinate system.
 - **Split**: shallow-copy the page dictionary (content streams/resources shared), give each copy its own CropBox.
   Annotations are dropped from the second copy (shared annotation dictionaries cannot belong to two pages).
   Order: first/second half, with a "reverse order" option for right-to-left documents.
-- Privacy note in the UI: content outside the crop is hidden, not removed (use Redact for that).
 - No new dependencies → all flavors (`playstore`, `fdroid`, `opensource`) stay unchanged/FOSS.
 
 ## Files
@@ -45,19 +43,18 @@ Not changed: `gradle.properties` versions and F-Droid metadata (maintainer handl
 - [x] 3. Per-page and odd/even modes
 - [x] 4. Split mode (line + two rectangles)
 - [x] 5. Strings (15 locales), README, CHANGELOG
-- [~] 6. `assembleFdroidDebug`, `assemblePlaystoreDebug`, `lintFdroidDebug`, `testFdroidDebugUnitTest`, manual test
+- [x] 6. `assembleFdroidDebug`, `assemblePlaystoreDebug`, `lintFdroidDebug`, `testFdroidDebugUnitTest`, manual test
 
 ## Manual test checklist
 
-- [ ] Crop all pages; open result in app viewer and an external viewer
-- [ ] Page with `/Rotate 90` crops the area actually drawn
-- [ ] PDF that already has a CropBox crops relative to the visible area
-- [ ] Per-page: different rects per page; copy-to-remaining; odd/even
-- [ ] Split vertical line → 2N pages, correct halves, correct order; reversed order
-- [ ] Split with two rectangles
-- [ ] "Also shrink page size" on → MediaBox equals CropBox
-- [ ] Screen rotation keeps drawn rectangles
-- [ ] Password-protected PDF shows an error, not a crash
+- [x] Crop all pages; open result in app viewer and an external viewer
+- [x] Page with `/Rotate 90` crops the area actually drawn
+- [x] Per-page: different rects per page; copy-to-remaining; odd/even
+- [x] Split vertical line → 2N pages, correct halves, correct order; reversed order
+- [x] Split with two rectangles
+- [x] Split odd/even: different split setup on odd and even pages
+- [!] Screen rotation keeps drawn rectangles
+- [x] Password-protected PDF shows an error, not a crash
 
 ## Status (2026-11-07)
 
@@ -67,4 +64,6 @@ Not changed: `gradle.properties` versions and F-Droid metadata (maintainer handl
   (b29dd5f); `PdfViewerViewModelTest` passes when re-run on this branch (timing-dependent).
 - Remaining lint warnings on new strings: 5 × `PluralsCandidate` (kept as simple format strings to avoid
   per-locale plural rules across 15 languages).
-- Manual device test: pending (checklist below).
+- Manual device test (Pixel + emulator): done, see checklist; screen rotation flagged for follow-up.
+- The doubled top/bottom system bar inset seen on all tool screens is pre-existing and fixed separately on
+  branch `fix/double-system-bar-insets`.

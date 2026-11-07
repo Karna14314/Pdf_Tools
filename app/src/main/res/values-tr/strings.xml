@@ -627,9 +627,6 @@ Kaydedildi: %1$s</string>
     <string name="crop_page_indicator">Sayfa %1$d / %2$d</string>
     <string name="crop_copy_to_following">Sonraki sayfalara kopyala</string>
     <string name="crop_reset">Sıfırla</string>
-    <string name="crop_shrink_page_size">Sayfa boyutunu da küçült</string>
-    <string name="crop_shrink_page_size_desc">Kırpma alanını yok sayan yazıcılar ve uygulamalar için</string>
-    <string name="crop_privacy_note">Kırpılan içerik gizlenir, silinmez.</string>
     <string name="crop_draw_first">Önce bir kırpma alanı çizin</string>
     <string name="crop_save_pages">PDF Kaydet (%1$d sayfa kırpıldı)</string>
     <string name="crop_save_split">PDF Kaydet (%1$d → %2$d sayfa)</string>

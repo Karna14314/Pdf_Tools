@@ -623,9 +623,6 @@
     <string name="crop_page_indicator">पेज %1$d / %2$d</string>
     <string name="crop_copy_to_following">अगले पेजों पर कॉपी करें</string>
     <string name="crop_reset">रीसेट करें</string>
-    <string name="crop_shrink_page_size">पेज का आकार भी छोटा करें</string>
-    <string name="crop_shrink_page_size_desc">उन प्रिंटर और ऐप्स के लिए जो क्रॉप क्षेत्र को अनदेखा करते हैं</string>
-    <string name="crop_privacy_note">क्रॉप की गई सामग्री छिपी है, हटाई नहीं गई।</string>
     <string name="crop_draw_first">पहले क्रॉप क्षेत्र बनाएं</string>
     <string name="crop_save_pages">PDF सहेजें (%1$d पेज क्रॉप)</string>
     <string name="crop_save_split">PDF सहेजें (%1$d → %2$d पेज)</string>

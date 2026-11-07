@@ -627,9 +627,6 @@
     <string name="crop_page_indicator">%1$d / %2$d 페이지</string>
     <string name="crop_copy_to_following">다음 페이지에 복사</string>
     <string name="crop_reset">초기화</string>
-    <string name="crop_shrink_page_size">페이지 크기도 줄이기</string>
-    <string name="crop_shrink_page_size_desc">자르기 영역을 무시하는 프린터 및 앱용</string>
-    <string name="crop_privacy_note">잘린 내용은 숨겨질 뿐 삭제되지 않습니다.</string>
     <string name="crop_draw_first">먼저 자르기 영역을 그리세요</string>
     <string name="crop_save_pages">PDF 저장 (%1$d페이지 자르기)</string>
     <string name="crop_save_split">PDF 저장 (%1$d → %2$d페이지)</string>

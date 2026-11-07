@@ -13,6 +13,7 @@ import com.yourname.pdftoolkit.domain.operations.CropPlan
 import com.yourname.pdftoolkit.domain.operations.NormalizedRect
 import com.yourname.pdftoolkit.domain.operations.PdfCropper
 import com.yourname.pdftoolkit.domain.operations.PdfOrganizer
+import com.yourname.pdftoolkit.domain.operations.SplitAreas
 import com.yourname.pdftoolkit.domain.operations.SplitOrientation
 import com.yourname.pdftoolkit.util.OutputFolderManager
 import kotlinx.coroutines.Job
@@ -24,9 +25,31 @@ import kotlinx.coroutines.launch
 
 enum class CropMode { ALL_PAGES, PER_PAGE, SPLIT }
 
+/** Which pages a per-page crop targets. */
 enum class PerPageVariant { EACH_PAGE, ODD_EVEN }
 
+/** Which pages a split setup applies to. */
+enum class SplitScope { ALL_PAGES, ODD_EVEN }
+
 enum class SplitVariant { LINE, TWO_AREAS }
+
+/** How a page is split: a line, or two free areas. */
+data class SplitConfig(
+    val variant: SplitVariant = SplitVariant.LINE,
+    val orientation: SplitOrientation = SplitOrientation.VERTICAL,
+    val position: Float = 0.5f,
+    val areas: List<NormalizedRect?> = listOf(null, null),
+    val activeArea: Int = 0
+) {
+    fun toSplitAreas(): SplitAreas? = when (variant) {
+        SplitVariant.LINE -> PdfCropper.splitAt(orientation, position)
+        SplitVariant.TWO_AREAS -> {
+            val first = areas[0]
+            val second = areas[1]
+            if (first != null && second != null) SplitAreas(first, second) else null
+        }
+    }
+}
 
 data class CropUiState(
     val sourceUri: Uri? = null,
@@ -38,20 +61,18 @@ data class CropUiState(
 
     val mode: CropMode = CropMode.ALL_PAGES,
     val perPageVariant: PerPageVariant = PerPageVariant.EACH_PAGE,
-    val splitVariant: SplitVariant = SplitVariant.LINE,
 
     val uniformRect: NormalizedRect? = null,
     val pageRects: Map<Int, NormalizedRect> = emptyMap(),
     val oddRect: NormalizedRect? = null,
     val evenRect: NormalizedRect? = null,
 
-    val splitOrientation: SplitOrientation = SplitOrientation.VERTICAL,
-    val splitPosition: Float = 0.5f,
-    val splitAreas: List<NormalizedRect?> = listOf(null, null),
-    val activeSplitArea: Int = 0,
+    val splitScope: SplitScope = SplitScope.ALL_PAGES,
+    /** Split used for all pages, or for odd pages when [splitScope] is ODD_EVEN. */
+    val split: SplitConfig = SplitConfig(),
+    /** Split used for even pages when [splitScope] is ODD_EVEN. */
+    val splitEven: SplitConfig = SplitConfig(),
     val reverseOrder: Boolean = false,
-
-    val shrinkMediaBox: Boolean = false,
 
     val isProcessing: Boolean = false,
     val progress: Float = 0f,
@@ -64,7 +85,12 @@ data class CropUiState(
     /** True when the current page is an odd page (1, 3, 5…). */
     val isOddPage: Boolean get() = currentPage % 2 == 0
 
-    /** Rectangle edited on the current page in the rectangle-based modes. */
+    /** True when the current page is edited as part of an odd/even pair. */
+    val isEditingParity: Boolean
+        get() = (mode == CropMode.PER_PAGE && perPageVariant == PerPageVariant.ODD_EVEN) ||
+            (mode == CropMode.SPLIT && splitScope == SplitScope.ODD_EVEN)
+
+    /** Rectangle edited on the current page in the crop modes. */
     val editedRect: NormalizedRect?
         get() = when (mode) {
             CropMode.ALL_PAGES -> uniformRect
@@ -74,6 +100,10 @@ data class CropUiState(
             }
             CropMode.SPLIT -> null
         }
+
+    /** Split setup edited on the current page. */
+    val editedSplit: SplitConfig
+        get() = if (splitScope == SplitScope.ODD_EVEN && !isOddPage) splitEven else split
 
     /** Number of pages that will be cropped (before splitting). */
     val markedPages: Int
@@ -99,11 +129,9 @@ data class CropUiState(
                 if (oddRect == null && evenRect == null) null else CropPlan.OddEven(oddRect, evenRect)
         }
         CropMode.SPLIT -> {
-            val (first, second) = when (splitVariant) {
-                SplitVariant.LINE -> PdfCropper.splitAt(splitOrientation, splitPosition)
-                SplitVariant.TWO_AREAS -> splitAreas[0] to splitAreas[1]
-            }
-            if (first != null && second != null) CropPlan.Split(first, second, reverseOrder) else null
+            val odd = split.toSplitAreas()
+            val even = if (splitScope == SplitScope.ODD_EVEN) splitEven.toSplitAreas() else odd
+            if (odd != null && even != null) CropPlan.Split(odd, even, reverseOrder) else null
         }
     }
 }
@@ -175,32 +203,44 @@ class CropViewModel : ViewModel() {
 
     fun setPerPageVariant(variant: PerPageVariant) = _state.update { it.copy(perPageVariant = variant) }
 
-    fun setSplitVariant(variant: SplitVariant) = _state.update { s ->
-        // Start the two free areas from the current split line, so the user has something to adjust.
-        val areas = if (variant == SplitVariant.TWO_AREAS && s.splitAreas.all { it == null }) {
-            PdfCropper.splitAt(s.splitOrientation, s.splitPosition).toList()
-        } else {
-            s.splitAreas
-        }
-        s.copy(splitVariant = variant, splitAreas = areas)
+    fun setSplitScope(scope: SplitScope) = _state.update { s ->
+        // First switch to odd/even: even pages start from the current setup.
+        val even = if (scope == SplitScope.ODD_EVEN && s.splitEven == SplitConfig()) s.split else s.splitEven
+        s.copy(splitScope = scope, splitEven = even)
     }
 
-    fun setSplitOrientation(orientation: SplitOrientation) =
-        _state.update { it.copy(splitOrientation = orientation) }
+    /** Applies [transform] to the split setup edited on the current page. */
+    private fun updateEditedSplit(transform: (SplitConfig) -> SplitConfig) = _state.update { s ->
+        if (s.splitScope == SplitScope.ODD_EVEN && !s.isOddPage) {
+            s.copy(splitEven = transform(s.splitEven))
+        } else {
+            s.copy(split = transform(s.split))
+        }
+    }
 
-    fun setSplitPosition(position: Float) = _state.update { it.copy(splitPosition = position) }
+    fun setSplitVariant(variant: SplitVariant) = updateEditedSplit { c ->
+        // Start the two free areas from the current split line, so the user has something to adjust.
+        val areas = if (variant == SplitVariant.TWO_AREAS && c.areas.all { it == null }) {
+            PdfCropper.splitAt(c.orientation, c.position).let { listOf(it.first, it.second) }
+        } else {
+            c.areas
+        }
+        c.copy(variant = variant, areas = areas)
+    }
 
-    fun setActiveSplitArea(index: Int) = _state.update { it.copy(activeSplitArea = index.coerceIn(0, 1)) }
+    fun setSplitOrientation(orientation: SplitOrientation) = updateEditedSplit { it.copy(orientation = orientation) }
 
-    fun setSplitArea(index: Int, rect: NormalizedRect?) = _state.update { s ->
-        s.copy(splitAreas = s.splitAreas.toMutableList().also { it[index] = rect })
+    fun setSplitPosition(position: Float) = updateEditedSplit { it.copy(position = position) }
+
+    fun setActiveSplitArea(index: Int) = updateEditedSplit { it.copy(activeArea = index.coerceIn(0, 1)) }
+
+    fun setSplitArea(index: Int, rect: NormalizedRect?) = updateEditedSplit { c ->
+        c.copy(areas = c.areas.toMutableList().also { it[index] = rect })
     }
 
     fun toggleReverseOrder() = _state.update { it.copy(reverseOrder = !it.reverseOrder) }
 
-    fun toggleShrinkMediaBox() = _state.update { it.copy(shrinkMediaBox = !it.shrinkMediaBox) }
-
-    /** Updates the rectangle edited on the current page (rectangle-based modes). */
+    /** Updates the rectangle edited on the current page (crop modes). */
     fun setEditedRect(rect: NormalizedRect?) = _state.update { s ->
         when (s.mode) {
             CropMode.ALL_PAGES -> s.copy(uniformRect = rect)
@@ -220,12 +260,9 @@ class CropViewModel : ViewModel() {
             setEditedRect(null)
             return
         }
-        _state.update { s ->
-            s.copy(
-                splitPosition = 0.5f,
-                splitAreas = PdfCropper.splitAt(s.splitOrientation, 0.5f).toList(),
-                activeSplitArea = 0
-            )
+        updateEditedSplit { c ->
+            val halves = PdfCropper.splitAt(c.orientation, 0.5f)
+            c.copy(position = 0.5f, areas = listOf(halves.first, halves.second), activeArea = 0)
         }
     }
 
@@ -269,7 +306,6 @@ class CropViewModel : ViewModel() {
                         inputUri = uri,
                         outputStream = stream,
                         plan = plan,
-                        shrinkMediaBox = s.shrinkMediaBox,
                         onProgress = { p -> _state.update { it.copy(progress = p) } }
                     )
                 }

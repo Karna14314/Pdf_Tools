@@ -145,11 +145,11 @@ class PdfCropperTest {
         return Uri.fromFile(file)
     }
 
-    private fun runCrop(input: Uri, outName: String, plan: CropPlan, shrink: Boolean = false): Pair<CropResult, File> {
+    private fun runCrop(input: Uri, outName: String, plan: CropPlan): Pair<CropResult, File> {
         val out = File(context.cacheDir, outName)
         val result = runBlocking {
             FileOutputStream(out).use { stream ->
-                cropper.crop(context, input, stream, plan, shrinkMediaBox = shrink)
+                cropper.crop(context, input, stream, plan)
             }
         }
         assertTrue("crop failed: ${result.exceptionOrNull()}", result.isSuccess)
@@ -172,21 +172,6 @@ class PdfCropperTest {
     }
 
     @Test
-    fun shrinkMediaBox_setsMediaBoxToo() {
-        val input = createTestPdf("crop_shrink.pdf", 1)
-        val (_, out) = runCrop(
-            input, "crop_shrink_out.pdf",
-            CropPlan.Uniform(NormalizedRect(0.5f, 0.5f, 1f, 1f)),
-            shrink = true
-        )
-        PDDocument.load(out).use { doc ->
-            val p = doc.getPage(0)
-            assertRect(PDRectangle(300f, 0f, 300f, 400f), p.mediaBox)
-            assertRect(PDRectangle(300f, 0f, 300f, 400f), p.cropBox)
-        }
-    }
-
-    @Test
     fun perPage_leavesUnlistedPagesUntouched() {
         val input = createTestPdf("crop_perpage.pdf", 3)
         val rect = NormalizedRect(0f, 0f, 1f, 0.5f)
@@ -203,8 +188,10 @@ class PdfCropperTest {
     @Test
     fun split_doublesPages_inLeftRightOrder_andDropsAnnotationsOnCopy() {
         val input = createTestPdf("crop_split.pdf", 2, withAnnotation = true)
-        val (left, right) = PdfCropper.splitAt(SplitOrientation.VERTICAL, 0.5f)
-        val (result, out) = runCrop(input, "crop_split_out.pdf", CropPlan.Split(left, right))
+        val (result, out) = runCrop(
+            input, "crop_split_out.pdf",
+            CropPlan.Split(PdfCropper.splitAt(SplitOrientation.VERTICAL, 0.5f))
+        )
 
         assertEquals(4, result.outputPages)
         PDDocument.load(out).use { doc ->
@@ -221,8 +208,10 @@ class PdfCropperTest {
     @Test
     fun split_reverseOrder_putsSecondAreaFirst() {
         val input = createTestPdf("crop_split_rev.pdf", 1)
-        val (left, right) = PdfCropper.splitAt(SplitOrientation.VERTICAL, 0.5f)
-        val (_, out) = runCrop(input, "crop_split_rev_out.pdf", CropPlan.Split(left, right, reverseOrder = true))
+        val (_, out) = runCrop(
+            input, "crop_split_rev_out.pdf",
+            CropPlan.Split(PdfCropper.splitAt(SplitOrientation.VERTICAL, 0.5f), reverseOrder = true)
+        )
 
         PDDocument.load(out).use { doc ->
             assertRect(PDRectangle(300f, 0f, 300f, 800f), doc.getPage(0).cropBox)
@@ -233,8 +222,10 @@ class PdfCropperTest {
     @Test
     fun split_onRotatedPage_keepsRotationOnBothCopies() {
         val input = createTestPdf("crop_split_rot.pdf", 1, rotation = 90)
-        val (top, bottom) = PdfCropper.splitAt(SplitOrientation.HORIZONTAL, 0.5f)
-        val (_, out) = runCrop(input, "crop_split_rot_out.pdf", CropPlan.Split(top, bottom))
+        val (_, out) = runCrop(
+            input, "crop_split_rot_out.pdf",
+            CropPlan.Split(PdfCropper.splitAt(SplitOrientation.HORIZONTAL, 0.5f))
+        )
 
         PDDocument.load(out).use { doc ->
             assertEquals(2, doc.numberOfPages)
@@ -243,6 +234,24 @@ class PdfCropperTest {
             // Displayed top half of a 90° page = unrotated left half.
             assertRect(PDRectangle(0f, 0f, 300f, 800f), doc.getPage(0).cropBox)
             assertRect(PDRectangle(300f, 0f, 300f, 800f), doc.getPage(1).cropBox)
+        }
+    }
+
+    @Test
+    fun split_oddEven_usesDifferentAreasPerParity() {
+        val input = createTestPdf("crop_split_oe.pdf", 2)
+        val odd = PdfCropper.splitAt(SplitOrientation.VERTICAL, 0.5f)
+        val even = PdfCropper.splitAt(SplitOrientation.HORIZONTAL, 0.5f)
+        val (result, out) = runCrop(input, "crop_split_oe_out.pdf", CropPlan.Split(odd, even))
+
+        assertEquals(4, result.outputPages)
+        PDDocument.load(out).use { doc ->
+            // Page 1 (odd): left / right halves.
+            assertRect(PDRectangle(0f, 0f, 300f, 800f), doc.getPage(0).cropBox)
+            assertRect(PDRectangle(300f, 0f, 300f, 800f), doc.getPage(1).cropBox)
+            // Page 2 (even): top / bottom halves.
+            assertRect(PDRectangle(0f, 400f, 600f, 400f), doc.getPage(2).cropBox)
+            assertRect(PDRectangle(0f, 0f, 600f, 400f), doc.getPage(3).cropBox)
         }
     }
 }

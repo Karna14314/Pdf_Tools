@@ -627,9 +627,6 @@ Saqlandi: %1$s</string>
     <string name="crop_page_indicator">Sahifa %1$d / %2$d</string>
     <string name="crop_copy_to_following">Keyingi sahifalarga nusxalash</string>
     <string name="crop_reset">Tiklash</string>
-    <string name="crop_shrink_page_size">Sahifa o\'lchamini ham kichraytirish</string>
-    <string name="crop_shrink_page_size_desc">Kesish hududini e\'tiborsiz qoldiradigan printerlar va ilovalar uchun</string>
-    <string name="crop_privacy_note">Kesilgan qism yashiriladi, o\'chirilmaydi.</string>
     <string name="crop_draw_first">Avval kesish hududini chizing</string>
     <string name="crop_save_pages">PDFni saqlash (%1$d sahifa kesildi)</string>
     <string name="crop_save_split">PDFni saqlash (%1$d → %2$d sahifa)</string>

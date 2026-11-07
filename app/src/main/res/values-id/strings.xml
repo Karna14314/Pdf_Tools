@@ -627,9 +627,6 @@ Disimpan ke: %1$s</string>
     <string name="crop_page_indicator">Halaman %1$d dari %2$d</string>
     <string name="crop_copy_to_following">Salin ke halaman berikutnya</string>
     <string name="crop_reset">Atur ulang</string>
-    <string name="crop_shrink_page_size">Perkecil juga ukuran halaman</string>
-    <string name="crop_shrink_page_size_desc">Untuk printer dan aplikasi yang mengabaikan area pangkas</string>
-    <string name="crop_privacy_note">Konten terpangkas disembunyikan, tidak dihapus.</string>
     <string name="crop_draw_first">Gambar area pangkas terlebih dahulu</string>
     <string name="crop_save_pages">Simpan PDF (%1$d halaman dipangkas)</string>
     <string name="crop_save_split">Simpan PDF (%1$d → %2$d halaman)</string>
