@@ -600,4 +600,45 @@
     <string name="fill_form_filled">フォームに入力しました！</string>
     <string name="fill_fields_updated">%1$d個のフィールドを更新しました</string>
     <string name="fill_no_editable_fields">このフォームには編集可能なフィールドがありません</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">ページをトリミング</string>
+    <string name="desc_crop_pages">余白をトリミング、またはページを2つに分割</string>
+    <string name="crop_no_pdf_subtitle">トリミングまたは分割するPDFファイルを選択してください</string>
+    <string name="crop_page_count">ページ数: %1$d</string>
+    <string name="crop_mode_all">全ページ</string>
+    <string name="crop_mode_per_page">ページごと</string>
+    <string name="crop_mode_split">分割</string>
+    <string name="crop_variant_each_page">各ページ</string>
+    <string name="crop_variant_odd_even">奇数 / 偶数</string>
+    <string name="crop_variant_split_line">分割線</string>
+    <string name="crop_variant_two_areas">2つの領域</string>
+    <string name="crop_orientation_vertical">縦</string>
+    <string name="crop_orientation_horizontal">横</string>
+    <string name="crop_area_number">領域 %1$d</string>
+    <string name="crop_reverse_order">順序を反転</string>
+    <string name="crop_hint_draw">ページ上をドラッグしてトリミング範囲を描画</string>
+    <string name="crop_hint_adjust">ハンドルをドラッグして調整、または外側をドラッグして再描画</string>
+    <string name="crop_hint_pages_marked">%2$d ページ中 %1$d ページにトリミング範囲を設定済み</string>
+    <string name="crop_hint_odd">奇数ページを編集中 (1, 3, 5…)</string>
+    <string name="crop_hint_even">偶数ページを編集中 (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">タップまたはドラッグして分割線を移動</string>
+    <string name="crop_hint_two_areas">各領域が別々のページになります</string>
+    <string name="crop_page_indicator">%1$d / %2$d ページ</string>
+    <string name="crop_copy_to_following">以降のページにコピー</string>
+    <string name="crop_reset">リセット</string>
+    <string name="crop_shrink_page_size">ページサイズも縮小</string>
+    <string name="crop_shrink_page_size_desc">トリミング範囲を無視するプリンターやアプリ向け</string>
+    <string name="crop_privacy_note">トリミング部分は非表示になるだけで削除されません。</string>
+    <string name="crop_draw_first">まずトリミング範囲を描画してください</string>
+    <string name="crop_save_pages">PDFを保存 (%1$d ページをトリミング)</string>
+    <string name="crop_save_split">PDFを保存 (%1$d → %2$d ページ)</string>
+    <string name="crop_progress">ページをトリミング中…</string>
+    <string name="crop_complete_title">トリミング完了</string>
+    <string name="crop_failed_title">トリミング失敗</string>
+    <string name="crop_success">%1$d ページをトリミングしました</string>
+    <string name="crop_split_success">%1$d ページを %2$d ページに分割しました</string>
+    <string name="crop_saved_to">保存先: %1$s</string>
+    <string name="crop_error_open">このPDFを開けませんでした。パスワードで保護されているか、破損している可能性があります。</string>
+    <string name="crop_error_output">出力ファイルを作成できません</string>
 </resources>

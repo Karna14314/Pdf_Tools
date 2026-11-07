@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- **Crop Pages** tool (Organize section): draw crop areas directly on the rendered page.
+  - *All pages*: one area applied to every page.
+  - *Per page*: a different area for each page (with copy-to-next-pages), or one area for odd and one for even pages.
+  - *Split*: turn each page into two pages using a draggable split line (vertical/horizontal) or two free areas, with optional reverse order for right-to-left documents.
+  - Lossless: sets the page CropBox with PdfBox (no rasterization); optional *Also shrink page size* also sets the MediaBox.
+  - Handles rotated pages and existing crop boxes; translated in all 15 languages.
+
+---
+
 ## [1.3.210] - 2026-08-08
 
 ### Added

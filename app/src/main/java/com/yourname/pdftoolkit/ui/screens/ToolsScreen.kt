@@ -621,6 +621,14 @@ fun getAllTools(): List<ToolItem> = listOf(
         screen = Screen.Rotate
     ),
     ToolItem(
+        id = "crop",
+        titleResId = R.string.tool_crop_pages,
+        descResId = R.string.desc_crop_pages,
+        icon = Icons.Default.Crop,
+        section = ToolSection.ORGANIZE,
+        screen = Screen.Crop
+    ),
+    ToolItem(
         id = "delete_pages",
         titleResId = R.string.tool_delete_pages,
         descResId = R.string.desc_delete_pages,

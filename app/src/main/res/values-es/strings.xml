@@ -600,4 +600,45 @@ Guardado en: %1$s</string>
     <string name="fill_form_filled">¡Formulario rellenado!</string>
     <string name="fill_fields_updated">%1$d campos actualizados</string>
     <string name="fill_no_editable_fields">Este formulario no tiene campos editables</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Recortar Páginas</string>
+    <string name="desc_crop_pages">Recorta márgenes o divide páginas en dos</string>
+    <string name="crop_no_pdf_subtitle">Seleccione un archivo PDF para recortar o dividir sus páginas</string>
+    <string name="crop_page_count">Páginas: %1$d</string>
+    <string name="crop_mode_all">Todas</string>
+    <string name="crop_mode_per_page">Por página</string>
+    <string name="crop_mode_split">Dividir</string>
+    <string name="crop_variant_each_page">Cada página</string>
+    <string name="crop_variant_odd_even">Impares / pares</string>
+    <string name="crop_variant_split_line">Línea de corte</string>
+    <string name="crop_variant_two_areas">Dos áreas</string>
+    <string name="crop_orientation_vertical">Vertical</string>
+    <string name="crop_orientation_horizontal">Horizontal</string>
+    <string name="crop_area_number">Área %1$d</string>
+    <string name="crop_reverse_order">Orden inverso</string>
+    <string name="crop_hint_draw">Arrastre sobre la página para dibujar el área de recorte</string>
+    <string name="crop_hint_adjust">Arrastre los controles para ajustar, o fuera para dibujar de nuevo</string>
+    <string name="crop_hint_pages_marked">Área de recorte definida en %1$d de %2$d páginas</string>
+    <string name="crop_hint_odd">Editando páginas impares (1, 3, 5…)</string>
+    <string name="crop_hint_even">Editando páginas pares (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Toque o arrastre para mover la línea de corte</string>
+    <string name="crop_hint_two_areas">Cada área se convierte en una página separada</string>
+    <string name="crop_page_indicator">Página %1$d de %2$d</string>
+    <string name="crop_copy_to_following">Copiar a las siguientes</string>
+    <string name="crop_reset">Restablecer</string>
+    <string name="crop_shrink_page_size">Reducir también el tamaño de página</string>
+    <string name="crop_shrink_page_size_desc">Para impresoras y apps que ignoran el área de recorte</string>
+    <string name="crop_privacy_note">Lo recortado se oculta, no se elimina.</string>
+    <string name="crop_draw_first">Dibuje primero un área de recorte</string>
+    <string name="crop_save_pages">Guardar PDF (%1$d páginas recortadas)</string>
+    <string name="crop_save_split">Guardar PDF (%1$d → %2$d páginas)</string>
+    <string name="crop_progress">Recortando páginas…</string>
+    <string name="crop_complete_title">Recorte completado</string>
+    <string name="crop_failed_title">Error al recortar</string>
+    <string name="crop_success">%1$d páginas recortadas</string>
+    <string name="crop_split_success">%1$d páginas divididas en %2$d páginas</string>
+    <string name="crop_saved_to">Guardado en: %1$s</string>
+    <string name="crop_error_open">No se pudo abrir este PDF. Puede estar protegido con contraseña o dañado.</string>
+    <string name="crop_error_output">No se puede crear el archivo de salida</string>
 </resources>

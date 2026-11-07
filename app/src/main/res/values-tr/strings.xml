@@ -600,4 +600,45 @@ Kaydedildi: %1$s</string>
     <string name="fill_form_filled">Form Dolduruldu!</string>
     <string name="fill_fields_updated">%1$d alan güncellendi</string>
     <string name="fill_no_editable_fields">Bu formda düzenlenebilir alan yok</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Sayfaları Kırp</string>
+    <string name="desc_crop_pages">Kenar boşluklarını kırpın veya sayfaları ikiye bölün</string>
+    <string name="crop_no_pdf_subtitle">Sayfalarını kırpmak veya bölmek için bir PDF dosyası seçin</string>
+    <string name="crop_page_count">Sayfa: %1$d</string>
+    <string name="crop_mode_all">Tüm sayfalar</string>
+    <string name="crop_mode_per_page">Sayfa başına</string>
+    <string name="crop_mode_split">Böl</string>
+    <string name="crop_variant_each_page">Her sayfa</string>
+    <string name="crop_variant_odd_even">Tek / çift</string>
+    <string name="crop_variant_split_line">Bölme çizgisi</string>
+    <string name="crop_variant_two_areas">İki alan</string>
+    <string name="crop_orientation_vertical">Dikey</string>
+    <string name="crop_orientation_horizontal">Yatay</string>
+    <string name="crop_area_number">Alan %1$d</string>
+    <string name="crop_reverse_order">Ters sıra</string>
+    <string name="crop_hint_draw">Kırpma alanını çizmek için sayfada sürükleyin</string>
+    <string name="crop_hint_adjust">Ayarlamak için tutamaçları sürükleyin veya yeniden çizmek için dışarıda sürükleyin</string>
+    <string name="crop_hint_pages_marked">Kırpma alanı %2$d sayfanın %1$d tanesinde ayarlandı</string>
+    <string name="crop_hint_odd">Tek sayfalar düzenleniyor (1, 3, 5…)</string>
+    <string name="crop_hint_even">Çift sayfalar düzenleniyor (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Bölme çizgisini taşımak için dokunun veya sürükleyin</string>
+    <string name="crop_hint_two_areas">Her alan ayrı bir sayfa olur</string>
+    <string name="crop_page_indicator">Sayfa %1$d / %2$d</string>
+    <string name="crop_copy_to_following">Sonraki sayfalara kopyala</string>
+    <string name="crop_reset">Sıfırla</string>
+    <string name="crop_shrink_page_size">Sayfa boyutunu da küçült</string>
+    <string name="crop_shrink_page_size_desc">Kırpma alanını yok sayan yazıcılar ve uygulamalar için</string>
+    <string name="crop_privacy_note">Kırpılan içerik gizlenir, silinmez.</string>
+    <string name="crop_draw_first">Önce bir kırpma alanı çizin</string>
+    <string name="crop_save_pages">PDF Kaydet (%1$d sayfa kırpıldı)</string>
+    <string name="crop_save_split">PDF Kaydet (%1$d → %2$d sayfa)</string>
+    <string name="crop_progress">Sayfalar kırpılıyor…</string>
+    <string name="crop_complete_title">Kırpma Tamamlandı</string>
+    <string name="crop_failed_title">Kırpma Başarısız</string>
+    <string name="crop_success">%1$d sayfa kırpıldı</string>
+    <string name="crop_split_success">%1$d sayfa %2$d sayfaya bölündü</string>
+    <string name="crop_saved_to">Kaydedildi: %1$s</string>
+    <string name="crop_error_open">Bu PDF açılamadı. Parola korumalı veya hasarlı olabilir.</string>
+    <string name="crop_error_output">Çıktı dosyası oluşturulamıyor</string>
 </resources>

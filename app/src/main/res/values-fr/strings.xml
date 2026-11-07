@@ -600,4 +600,45 @@ Enregistré dans : %1$s</string>
     <string name="fill_form_filled">Formulaire rempli !</string>
     <string name="fill_fields_updated">%1$d champs mis à jour</string>
     <string name="fill_no_editable_fields">Ce formulaire n\'a pas de champs modifiables</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Rogner les pages</string>
+    <string name="desc_crop_pages">Rogner les marges ou diviser les pages en deux</string>
+    <string name="crop_no_pdf_subtitle">Sélectionnez un fichier PDF pour rogner ou diviser ses pages</string>
+    <string name="crop_page_count">Pages : %1$d</string>
+    <string name="crop_mode_all">Toutes</string>
+    <string name="crop_mode_per_page">Par page</string>
+    <string name="crop_mode_split">Diviser</string>
+    <string name="crop_variant_each_page">Chaque page</string>
+    <string name="crop_variant_odd_even">Impaires / paires</string>
+    <string name="crop_variant_split_line">Ligne de coupe</string>
+    <string name="crop_variant_two_areas">Deux zones</string>
+    <string name="crop_orientation_vertical">Verticale</string>
+    <string name="crop_orientation_horizontal">Horizontale</string>
+    <string name="crop_area_number">Zone %1$d</string>
+    <string name="crop_reverse_order">Ordre inversé</string>
+    <string name="crop_hint_draw">Faites glisser sur la page pour dessiner la zone de rognage</string>
+    <string name="crop_hint_adjust">Faites glisser les poignées pour ajuster, ou à l\'extérieur pour redessiner</string>
+    <string name="crop_hint_pages_marked">Zone de rognage définie sur %1$d pages sur %2$d</string>
+    <string name="crop_hint_odd">Modification des pages impaires (1, 3, 5…)</string>
+    <string name="crop_hint_even">Modification des pages paires (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Touchez ou faites glisser pour déplacer la ligne de coupe</string>
+    <string name="crop_hint_two_areas">Chaque zone devient une page distincte</string>
+    <string name="crop_page_indicator">Page %1$d sur %2$d</string>
+    <string name="crop_copy_to_following">Copier aux pages suivantes</string>
+    <string name="crop_reset">Réinitialiser</string>
+    <string name="crop_shrink_page_size">Réduire aussi la taille de page</string>
+    <string name="crop_shrink_page_size_desc">Pour les imprimantes et applis qui ignorent la zone de rognage</string>
+    <string name="crop_privacy_note">Le contenu rogné est masqué, pas supprimé.</string>
+    <string name="crop_draw_first">Dessinez d\'abord une zone de rognage</string>
+    <string name="crop_save_pages">Enregistrer le PDF (%1$d pages rognées)</string>
+    <string name="crop_save_split">Enregistrer le PDF (%1$d → %2$d pages)</string>
+    <string name="crop_progress">Rognage des pages…</string>
+    <string name="crop_complete_title">Rognage terminé</string>
+    <string name="crop_failed_title">Échec du rognage</string>
+    <string name="crop_success">%1$d pages rognées</string>
+    <string name="crop_split_success">%1$d pages divisées en %2$d pages</string>
+    <string name="crop_saved_to">Enregistré dans : %1$s</string>
+    <string name="crop_error_open">Impossible d\'ouvrir ce PDF. Il est peut-être protégé par mot de passe ou endommagé.</string>
+    <string name="crop_error_output">Impossible de créer le fichier de sortie</string>
 </resources>

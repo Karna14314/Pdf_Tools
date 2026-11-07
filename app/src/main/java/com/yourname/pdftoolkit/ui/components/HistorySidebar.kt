@@ -51,6 +51,7 @@ fun getOperationIcon(operationType: OperationType): ImageVector {
         OperationType.PDF_TO_IMAGE -> Icons.Default.Image
         OperationType.EXTRACT -> Icons.Default.ContentCut
         OperationType.ROTATE -> Icons.Default.RotateRight
+        OperationType.CROP -> Icons.Default.Crop
         OperationType.ADD_PASSWORD -> Icons.Default.Lock
         OperationType.REMOVE_PASSWORD -> Icons.Default.LockOpen
         OperationType.METADATA -> Icons.Default.Info

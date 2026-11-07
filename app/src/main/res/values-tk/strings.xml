@@ -600,4 +600,45 @@
     <string name="fill_form_filled">Forma dolduryldy!</string>
     <string name="fill_fields_updated">%1$d meýdan täzelendi</string>
     <string name="fill_no_editable_fields">Bu formada üýtgedip bolýan meýdan ýok</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Sahypalary kes</string>
+    <string name="desc_crop_pages">Gyralary kesiň ýa-da sahypalary ikä bölüň</string>
+    <string name="crop_no_pdf_subtitle">Sahypalaryny kesmek ýa-da bölmek üçin PDF faýly saýlaň</string>
+    <string name="crop_page_count">Sahypalar: %1$d</string>
+    <string name="crop_mode_all">Ähli sahypalar</string>
+    <string name="crop_mode_per_page">Her sahypa</string>
+    <string name="crop_mode_split">Böl</string>
+    <string name="crop_variant_each_page">Her sahypa aýratyn</string>
+    <string name="crop_variant_odd_even">Täk / jübüt</string>
+    <string name="crop_variant_split_line">Bölüji çyzyk</string>
+    <string name="crop_variant_two_areas">Iki meýdan</string>
+    <string name="crop_orientation_vertical">Dik</string>
+    <string name="crop_orientation_horizontal">Keseligine</string>
+    <string name="crop_area_number">Meýdan %1$d</string>
+    <string name="crop_reverse_order">Ters tertip</string>
+    <string name="crop_hint_draw">Kesiş meýdanyny çyzmak üçin sahypada süýşüriň</string>
+    <string name="crop_hint_adjust">Sazlamak üçin tutawaçlary süýşüriň ýa-da täzeden çyzmak üçin daşynda süýşüriň</string>
+    <string name="crop_hint_pages_marked">Kesiş meýdany %2$d sahypanyň %1$d-sinde bellendi</string>
+    <string name="crop_hint_odd">Täk sahypalar düzedilýär (1, 3, 5…)</string>
+    <string name="crop_hint_even">Jübüt sahypalar düzedilýär (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Bölüji çyzygy süýşürmek üçin basyň ýa-da süýşüriň</string>
+    <string name="crop_hint_two_areas">Her meýdan aýratyn sahypa bolýar</string>
+    <string name="crop_page_indicator">Sahypa %1$d / %2$d</string>
+    <string name="crop_copy_to_following">Indiki sahypalara göçür</string>
+    <string name="crop_reset">Täzeden düz</string>
+    <string name="crop_shrink_page_size">Sahypanyň ölçegini hem kiçelt</string>
+    <string name="crop_shrink_page_size_desc">Kesiş meýdanyny äsgermeýän printerler we programmalar üçin</string>
+    <string name="crop_privacy_note">Kesilen mazmun gizlenýär, pozulmaýar.</string>
+    <string name="crop_draw_first">Ilki kesiş meýdanyny çyzyň</string>
+    <string name="crop_save_pages">PDF ýatda sakla (%1$d sahypa kesildi)</string>
+    <string name="crop_save_split">PDF ýatda sakla (%1$d → %2$d sahypa)</string>
+    <string name="crop_progress">Sahypalar kesilýär…</string>
+    <string name="crop_complete_title">Kesmek tamamlandy</string>
+    <string name="crop_failed_title">Kesmek şowsuz</string>
+    <string name="crop_success">%1$d sahypa kesildi</string>
+    <string name="crop_split_success">%1$d sahypa %2$d sahypa bölündi</string>
+    <string name="crop_saved_to">Ýatda saklandy: %1$s</string>
+    <string name="crop_error_open">Bu PDF açyp bolmady. Ol parol bilen goralan ýa-da zaýalanan bolup biler.</string>
+    <string name="crop_error_output">Çykyş faýlyny döredip bolmaýar</string>
 </resources>
