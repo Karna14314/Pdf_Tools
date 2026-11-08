@@ -66,11 +66,14 @@ class PdfViewerViewModelTest {
 
     @Test
     fun `clearSearch resets state`() {
-        viewModel.search("test")
-        viewModel.clearSearch()
+        runBlocking {
+            viewModel.search("test")
+            kotlinx.coroutines.delay(100)
+            viewModel.clearSearch()
 
-        assertEquals("", viewModel.searchState.value.query)
-        assertTrue(viewModel.searchState.value.matches.isEmpty())
+            assertEquals("", viewModel.searchState.value.query)
+            assertTrue(viewModel.searchState.value.matches.isEmpty())
+        }
     }
 
     @Test
