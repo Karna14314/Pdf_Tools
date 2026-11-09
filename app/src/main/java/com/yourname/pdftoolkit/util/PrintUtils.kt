@@ -49,6 +49,9 @@ object PrintUtils {
             val printManager = context.getSystemService(Context.PRINT_SERVICE) as? PrintManager
                 ?: return false
 
+            // Fail fast on unreadable URIs; close the probe fd immediately to avoid leaks.
+            context.contentResolver.openFileDescriptor(uri, "r")?.use { } ?: return false
+
             val printAdapter = object : PrintDocumentAdapter() {
                 override fun onLayout(
                     oldAttributes: PrintAttributes?,

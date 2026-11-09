@@ -520,9 +520,8 @@ fun RotateScreen(
 
             // Bottom action area
             Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding(),
+                // Scaffold padding already includes the navigation bar inset.
+                modifier = Modifier.fillMaxWidth(),
                 tonalElevation = 3.dp
             ) {
                 Column(
