@@ -49,6 +49,7 @@ sealed class Screen(val route: String) {
     object PdfToImage : Screen("pdf_to_image")
     object Extract : Screen("extract")
     object Rotate : Screen("rotate")
+    object Crop : Screen("crop")
     object Security : Screen("security")
     object Metadata : Screen("metadata")
     object PageNumber : Screen("page_number")
@@ -96,6 +97,7 @@ sealed class Screen(val route: String) {
                 "reorder" -> Reorder
                 "delete_pages" -> Organize
                 "rotate" -> Rotate
+                "crop" -> Crop
                 "extract" -> Extract
                 "html_to_pdf" -> HtmlToPdf
                 "scan_to_pdf" -> ScanToPdf
@@ -149,6 +151,7 @@ sealed class Screen(val route: String) {
                 "PDF to Images" -> PdfToImage
                 "Extract Pages" -> Extract
                 "Rotate Pages" -> Rotate
+                "Crop Pages" -> Crop
                 "Add Security" -> Security
                 "View Metadata" -> Metadata
                 "Page Numbers" -> PageNumber

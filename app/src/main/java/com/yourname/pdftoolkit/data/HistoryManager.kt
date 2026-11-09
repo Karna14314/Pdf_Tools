@@ -74,6 +74,7 @@ enum class OperationType(val displayName: String, val icon: String) {
     PDF_TO_IMAGE("PDF to Images", "image"),
     EXTRACT("Extract Pages", "content_cut"),
     ROTATE("Rotate PDF", "rotate_right"),
+    CROP("Crop PDF", "crop"),
     ADD_PASSWORD("Add Password", "lock"),
     REMOVE_PASSWORD("Remove Password", "lock_open"),
     METADATA("Edit Metadata", "info"),

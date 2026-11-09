@@ -596,4 +596,42 @@
     <string name="fill_form_filled">फ़ॉर्म भर गया!</string>
     <string name="fill_fields_updated">%1$d फ़ील्ड अपडेट किए गए</string>
     <string name="fill_no_editable_fields">इस फ़ॉर्म में कोई संपादन योग्य फ़ील्ड नहीं है</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">पेज क्रॉप करें</string>
+    <string name="desc_crop_pages">मार्जिन ट्रिम करें या पेजों को दो भागों में बांटें</string>
+    <string name="crop_no_pdf_subtitle">पेजों को क्रॉप या विभाजित करने के लिए एक PDF फ़ाइल चुनें</string>
+    <string name="crop_page_count">पेज: %1$d</string>
+    <string name="crop_mode_all">सभी पेज</string>
+    <string name="crop_mode_per_page">प्रति पेज</string>
+    <string name="crop_mode_split">विभाजित करें</string>
+    <string name="crop_variant_each_page">हर पेज</string>
+    <string name="crop_variant_odd_even">विषम / सम</string>
+    <string name="crop_variant_split_line">विभाजन रेखा</string>
+    <string name="crop_variant_two_areas">दो क्षेत्र</string>
+    <string name="crop_orientation_vertical">लंबवत</string>
+    <string name="crop_orientation_horizontal">क्षैतिज</string>
+    <string name="crop_area_number">क्षेत्र %1$d</string>
+    <string name="crop_reverse_order">उल्टा क्रम</string>
+    <string name="crop_hint_draw">क्रॉप क्षेत्र बनाने के लिए पेज पर खींचें</string>
+    <string name="crop_hint_adjust">समायोजित करने के लिए हैंडल खींचें, या दोबारा बनाने के लिए बाहर खींचें</string>
+    <string name="crop_hint_pages_marked">%2$d में से %1$d पेजों पर क्रॉप क्षेत्र सेट है</string>
+    <string name="crop_hint_odd">विषम पेज संपादित हो रहे हैं (1, 3, 5…)</string>
+    <string name="crop_hint_even">सम पेज संपादित हो रहे हैं (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">विभाजन रेखा हिलाने के लिए टैप करें या खींचें</string>
+    <string name="crop_hint_two_areas">हर क्षेत्र एक अलग पेज बन जाता है</string>
+    <string name="crop_page_indicator">पेज %1$d / %2$d</string>
+    <string name="crop_copy_to_following">अगले पेजों पर कॉपी करें</string>
+    <string name="crop_reset">रीसेट करें</string>
+    <string name="crop_draw_first">पहले क्रॉप क्षेत्र बनाएं</string>
+    <string name="crop_save_pages">PDF सहेजें (%1$d पेज क्रॉप)</string>
+    <string name="crop_save_split">PDF सहेजें (%1$d → %2$d पेज)</string>
+    <string name="crop_progress">पेज क्रॉप हो रहे हैं…</string>
+    <string name="crop_complete_title">क्रॉप पूरा हुआ</string>
+    <string name="crop_failed_title">क्रॉप विफल</string>
+    <string name="crop_success">%1$d पेज क्रॉप किए गए</string>
+    <string name="crop_split_success">%1$d पेजों को %2$d पेजों में विभाजित किया गया</string>
+    <string name="crop_saved_to">यहां सहेजा गया: %1$s</string>
+    <string name="crop_error_open">यह PDF नहीं खुल सका। यह पासवर्ड से सुरक्षित या क्षतिग्रस्त हो सकता है।</string>
+    <string name="crop_error_output">आउटपुट फ़ाइल नहीं बनाई जा सकती</string>
 </resources>

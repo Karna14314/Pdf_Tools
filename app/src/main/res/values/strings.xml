@@ -664,4 +664,42 @@ Saved to: %1$s</string>
     <!-- Print & Imposition Studio -->
     <string name="tool_print_studio">Print Studio</string>
     <string name="desc_print_studio">Booklets, N-up grids, cards, bleeds and crop marks</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Crop Pages</string>
+    <string name="desc_crop_pages">Trim margins or split pages in two</string>
+    <string name="crop_no_pdf_subtitle">Select a PDF file to crop or split its pages</string>
+    <string name="crop_page_count">Pages: %1$d</string>
+    <string name="crop_mode_all">All pages</string>
+    <string name="crop_mode_per_page">Per page</string>
+    <string name="crop_mode_split">Split</string>
+    <string name="crop_variant_each_page">Each page</string>
+    <string name="crop_variant_odd_even">Odd / even</string>
+    <string name="crop_variant_split_line">Split line</string>
+    <string name="crop_variant_two_areas">Two areas</string>
+    <string name="crop_orientation_vertical">Vertical</string>
+    <string name="crop_orientation_horizontal">Horizontal</string>
+    <string name="crop_area_number">Area %1$d</string>
+    <string name="crop_reverse_order">Reverse order</string>
+    <string name="crop_hint_draw">Drag on the page to draw the crop area</string>
+    <string name="crop_hint_adjust">Drag the handles to adjust, or drag outside to draw again</string>
+    <string name="crop_hint_pages_marked">Crop area set on %1$d of %2$d pages</string>
+    <string name="crop_hint_odd">Editing odd pages (1, 3, 5…)</string>
+    <string name="crop_hint_even">Editing even pages (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Tap or drag to move the split line</string>
+    <string name="crop_hint_two_areas">Each area becomes a separate page</string>
+    <string name="crop_page_indicator">Page %1$d of %2$d</string>
+    <string name="crop_copy_to_following">Copy to next pages</string>
+    <string name="crop_reset">Reset</string>
+    <string name="crop_draw_first">Draw a crop area first</string>
+    <string name="crop_save_pages">Save PDF (%1$d pages cropped)</string>
+    <string name="crop_save_split">Save PDF (%1$d → %2$d pages)</string>
+    <string name="crop_progress">Cropping pages…</string>
+    <string name="crop_complete_title">Crop Complete</string>
+    <string name="crop_failed_title">Crop Failed</string>
+    <string name="crop_success">Cropped %1$d pages</string>
+    <string name="crop_split_success">Split %1$d pages into %2$d pages</string>
+    <string name="crop_saved_to">Saved to: %1$s</string>
+    <string name="crop_error_open">Could not open this PDF. It may be password-protected or damaged.</string>
+    <string name="crop_error_output">Cannot create output file</string>
 </resources>

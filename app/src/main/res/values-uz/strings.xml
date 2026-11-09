@@ -600,4 +600,42 @@ Saqlandi: %1$s</string>
     <string name="fill_form_filled">Shakl to\'ldirildi!</string>
     <string name="fill_fields_updated">%1$d maydon yangilandi</string>
     <string name="fill_no_editable_fields">Ushbu shaklda tahrirlanadigan maydonlar yo\'q</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Sahifalarni kesish</string>
+    <string name="desc_crop_pages">Chetlarni kesing yoki sahifalarni ikkiga bo\'ling</string>
+    <string name="crop_no_pdf_subtitle">Sahifalarini kesish yoki bo\'lish uchun PDF faylni tanlang</string>
+    <string name="crop_page_count">Sahifalar: %1$d</string>
+    <string name="crop_mode_all">Barcha sahifalar</string>
+    <string name="crop_mode_per_page">Har sahifa</string>
+    <string name="crop_mode_split">Bo\'lish</string>
+    <string name="crop_variant_each_page">Har bir sahifa</string>
+    <string name="crop_variant_odd_even">Toq / juft</string>
+    <string name="crop_variant_split_line">Bo\'lish chizig\'i</string>
+    <string name="crop_variant_two_areas">Ikki hudud</string>
+    <string name="crop_orientation_vertical">Vertikal</string>
+    <string name="crop_orientation_horizontal">Gorizontal</string>
+    <string name="crop_area_number">Hudud %1$d</string>
+    <string name="crop_reverse_order">Teskari tartib</string>
+    <string name="crop_hint_draw">Kesish hududini chizish uchun sahifada suring</string>
+    <string name="crop_hint_adjust">Sozlash uchun tutqichlarni suring yoki qayta chizish uchun tashqarida suring</string>
+    <string name="crop_hint_pages_marked">Kesish hududi %2$d sahifadan %1$d tasida o\'rnatilgan</string>
+    <string name="crop_hint_odd">Toq sahifalar tahrirlanmoqda (1, 3, 5…)</string>
+    <string name="crop_hint_even">Juft sahifalar tahrirlanmoqda (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Bo\'lish chizig\'ini siljitish uchun bosing yoki suring</string>
+    <string name="crop_hint_two_areas">Har bir hudud alohida sahifaga aylanadi</string>
+    <string name="crop_page_indicator">Sahifa %1$d / %2$d</string>
+    <string name="crop_copy_to_following">Keyingi sahifalarga nusxalash</string>
+    <string name="crop_reset">Tiklash</string>
+    <string name="crop_draw_first">Avval kesish hududini chizing</string>
+    <string name="crop_save_pages">PDFni saqlash (%1$d sahifa kesildi)</string>
+    <string name="crop_save_split">PDFni saqlash (%1$d → %2$d sahifa)</string>
+    <string name="crop_progress">Sahifalar kesilmoqda…</string>
+    <string name="crop_complete_title">Kesish yakunlandi</string>
+    <string name="crop_failed_title">Kesish muvaffaqiyatsiz</string>
+    <string name="crop_success">%1$d sahifa kesildi</string>
+    <string name="crop_split_success">%1$d sahifa %2$d sahifaga bo\'lindi</string>
+    <string name="crop_saved_to">Saqlandi: %1$s</string>
+    <string name="crop_error_open">Bu PDFni ochib bo\'lmadi. U parol bilan himoyalangan yoki shikastlangan bo\'lishi mumkin.</string>
+    <string name="crop_error_output">Chiqish faylini yaratib bo\'lmaydi</string>
 </resources>

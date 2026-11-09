@@ -600,4 +600,42 @@
     <string name="fill_form_filled">양식 입력 완료!</string>
     <string name="fill_fields_updated">%1$d개의 필드 업데이트됨</string>
     <string name="fill_no_editable_fields">이 양식에는 편집 가능한 필드가 없습니다</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">페이지 자르기</string>
+    <string name="desc_crop_pages">여백을 자르거나 페이지를 둘로 나누기</string>
+    <string name="crop_no_pdf_subtitle">페이지를 자르거나 나눌 PDF 파일을 선택하세요</string>
+    <string name="crop_page_count">페이지: %1$d</string>
+    <string name="crop_mode_all">모든 페이지</string>
+    <string name="crop_mode_per_page">페이지별</string>
+    <string name="crop_mode_split">나누기</string>
+    <string name="crop_variant_each_page">각 페이지</string>
+    <string name="crop_variant_odd_even">홀수 / 짝수</string>
+    <string name="crop_variant_split_line">분할선</string>
+    <string name="crop_variant_two_areas">두 영역</string>
+    <string name="crop_orientation_vertical">세로</string>
+    <string name="crop_orientation_horizontal">가로</string>
+    <string name="crop_area_number">영역 %1$d</string>
+    <string name="crop_reverse_order">순서 반전</string>
+    <string name="crop_hint_draw">페이지를 드래그하여 자르기 영역을 그리세요</string>
+    <string name="crop_hint_adjust">핸들을 드래그하여 조정하거나 바깥을 드래그하여 다시 그리세요</string>
+    <string name="crop_hint_pages_marked">%2$d페이지 중 %1$d페이지에 자르기 영역 설정됨</string>
+    <string name="crop_hint_odd">홀수 페이지 편집 중 (1, 3, 5…)</string>
+    <string name="crop_hint_even">짝수 페이지 편집 중 (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">탭하거나 드래그하여 분할선을 이동하세요</string>
+    <string name="crop_hint_two_areas">각 영역이 별도의 페이지가 됩니다</string>
+    <string name="crop_page_indicator">%1$d / %2$d 페이지</string>
+    <string name="crop_copy_to_following">다음 페이지에 복사</string>
+    <string name="crop_reset">초기화</string>
+    <string name="crop_draw_first">먼저 자르기 영역을 그리세요</string>
+    <string name="crop_save_pages">PDF 저장 (%1$d페이지 자르기)</string>
+    <string name="crop_save_split">PDF 저장 (%1$d → %2$d페이지)</string>
+    <string name="crop_progress">페이지 자르는 중…</string>
+    <string name="crop_complete_title">자르기 완료</string>
+    <string name="crop_failed_title">자르기 실패</string>
+    <string name="crop_success">%1$d페이지를 잘랐습니다</string>
+    <string name="crop_split_success">%1$d페이지를 %2$d페이지로 나눴습니다</string>
+    <string name="crop_saved_to">저장 위치: %1$s</string>
+    <string name="crop_error_open">이 PDF를 열 수 없습니다. 비밀번호로 보호되어 있거나 손상되었을 수 있습니다.</string>
+    <string name="crop_error_output">출력 파일을 만들 수 없습니다</string>
 </resources>

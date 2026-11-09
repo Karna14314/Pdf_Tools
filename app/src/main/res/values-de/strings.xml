@@ -596,4 +596,42 @@ Gespeichert unter: %1$s</string>
     <string name="fill_form_filled">Formular ausgefüllt!</string>
     <string name="fill_fields_updated">%1$d Felder aktualisiert</string>
     <string name="fill_no_editable_fields">Dieses Formular hat keine bearbeitbaren Felder</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Seiten zuschneiden</string>
+    <string name="desc_crop_pages">Ränder entfernen oder Seiten teilen</string>
+    <string name="crop_no_pdf_subtitle">Wählen Sie eine PDF-Datei aus, um ihre Seiten zuzuschneiden oder zu teilen</string>
+    <string name="crop_page_count">Seiten: %1$d</string>
+    <string name="crop_mode_all">Alle Seiten</string>
+    <string name="crop_mode_per_page">Pro Seite</string>
+    <string name="crop_mode_split">Teilen</string>
+    <string name="crop_variant_each_page">Jede Seite</string>
+    <string name="crop_variant_odd_even">Ungerade / gerade</string>
+    <string name="crop_variant_split_line">Trennlinie</string>
+    <string name="crop_variant_two_areas">Zwei Bereiche</string>
+    <string name="crop_orientation_vertical">Vertikal</string>
+    <string name="crop_orientation_horizontal">Horizontal</string>
+    <string name="crop_area_number">Bereich %1$d</string>
+    <string name="crop_reverse_order">Umgekehrte Reihenfolge</string>
+    <string name="crop_hint_draw">Ziehen Sie auf der Seite, um den Zuschnittbereich zu zeichnen</string>
+    <string name="crop_hint_adjust">Ziehen Sie die Griffe zum Anpassen oder außerhalb, um neu zu zeichnen</string>
+    <string name="crop_hint_pages_marked">Zuschnittbereich auf %1$d von %2$d Seiten festgelegt</string>
+    <string name="crop_hint_odd">Ungerade Seiten bearbeiten (1, 3, 5…)</string>
+    <string name="crop_hint_even">Gerade Seiten bearbeiten (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Tippen oder ziehen Sie, um die Trennlinie zu verschieben</string>
+    <string name="crop_hint_two_areas">Jeder Bereich wird zu einer eigenen Seite</string>
+    <string name="crop_page_indicator">Seite %1$d von %2$d</string>
+    <string name="crop_copy_to_following">Auf folgende Seiten kopieren</string>
+    <string name="crop_reset">Zurücksetzen</string>
+    <string name="crop_draw_first">Zeichnen Sie zuerst einen Zuschnittbereich</string>
+    <string name="crop_save_pages">PDF speichern (%1$d Seiten zugeschnitten)</string>
+    <string name="crop_save_split">PDF speichern (%1$d → %2$d Seiten)</string>
+    <string name="crop_progress">Seiten werden zugeschnitten…</string>
+    <string name="crop_complete_title">Zuschnitt abgeschlossen</string>
+    <string name="crop_failed_title">Zuschnitt fehlgeschlagen</string>
+    <string name="crop_success">%1$d Seiten zugeschnitten</string>
+    <string name="crop_split_success">%1$d Seiten in %2$d Seiten geteilt</string>
+    <string name="crop_saved_to">Gespeichert unter: %1$s</string>
+    <string name="crop_error_open">Diese PDF konnte nicht geöffnet werden. Sie ist möglicherweise passwortgeschützt oder beschädigt.</string>
+    <string name="crop_error_output">Ausgabedatei kann nicht erstellt werden</string>
 </resources>

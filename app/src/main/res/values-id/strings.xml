@@ -600,4 +600,42 @@ Disimpan ke: %1$s</string>
     <string name="fill_form_filled">Formulir Terisi!</string>
     <string name="fill_fields_updated">%1$d kolom diperbarui</string>
     <string name="fill_no_editable_fields">Formulir ini tidak memiliki kolom yang dapat diedit</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Pangkas Halaman</string>
+    <string name="desc_crop_pages">Pangkas margin atau bagi halaman menjadi dua</string>
+    <string name="crop_no_pdf_subtitle">Pilih file PDF untuk memangkas atau membagi halamannya</string>
+    <string name="crop_page_count">Halaman: %1$d</string>
+    <string name="crop_mode_all">Semua</string>
+    <string name="crop_mode_per_page">Per halaman</string>
+    <string name="crop_mode_split">Bagi</string>
+    <string name="crop_variant_each_page">Setiap halaman</string>
+    <string name="crop_variant_odd_even">Ganjil / genap</string>
+    <string name="crop_variant_split_line">Garis pembagi</string>
+    <string name="crop_variant_two_areas">Dua area</string>
+    <string name="crop_orientation_vertical">Vertikal</string>
+    <string name="crop_orientation_horizontal">Horizontal</string>
+    <string name="crop_area_number">Area %1$d</string>
+    <string name="crop_reverse_order">Urutan terbalik</string>
+    <string name="crop_hint_draw">Seret di halaman untuk menggambar area pangkas</string>
+    <string name="crop_hint_adjust">Seret pegangan untuk menyesuaikan, atau seret di luar untuk menggambar ulang</string>
+    <string name="crop_hint_pages_marked">Area pangkas diatur pada %1$d dari %2$d halaman</string>
+    <string name="crop_hint_odd">Mengedit halaman ganjil (1, 3, 5…)</string>
+    <string name="crop_hint_even">Mengedit halaman genap (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Ketuk atau seret untuk memindahkan garis pembagi</string>
+    <string name="crop_hint_two_areas">Setiap area menjadi halaman terpisah</string>
+    <string name="crop_page_indicator">Halaman %1$d dari %2$d</string>
+    <string name="crop_copy_to_following">Salin ke halaman berikutnya</string>
+    <string name="crop_reset">Atur ulang</string>
+    <string name="crop_draw_first">Gambar area pangkas terlebih dahulu</string>
+    <string name="crop_save_pages">Simpan PDF (%1$d halaman dipangkas)</string>
+    <string name="crop_save_split">Simpan PDF (%1$d → %2$d halaman)</string>
+    <string name="crop_progress">Memangkas halaman…</string>
+    <string name="crop_complete_title">Pemangkasan Selesai</string>
+    <string name="crop_failed_title">Pemangkasan Gagal</string>
+    <string name="crop_success">%1$d halaman dipangkas</string>
+    <string name="crop_split_success">%1$d halaman dibagi menjadi %2$d halaman</string>
+    <string name="crop_saved_to">Disimpan ke: %1$s</string>
+    <string name="crop_error_open">Tidak dapat membuka PDF ini. Mungkin dilindungi kata sandi atau rusak.</string>
+    <string name="crop_error_output">Tidak dapat membuat file keluaran</string>
 </resources>

@@ -685,6 +685,10 @@ fun AppNavigation(
             composable(Screen.Rotate.route) {
                 RotateScreen(onNavigateBack = { navController.popBackStack() })
             }
+
+            composable(Screen.Crop.route) {
+                CropScreen(onNavigateBack = { navController.popBackStack() })
+            }
             
             composable(Screen.Security.route) {
                 SecurityScreen(onNavigateBack = { navController.popBackStack() })

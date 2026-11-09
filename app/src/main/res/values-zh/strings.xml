@@ -596,4 +596,42 @@
     <string name="fill_form_filled">表单已填写！</string>
     <string name="fill_fields_updated">更新了 %1$d 个字段</string>
     <string name="fill_no_editable_fields">此表单没有可编辑的字段</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">裁剪页面</string>
+    <string name="desc_crop_pages">裁剪页边距或将页面一分为二</string>
+    <string name="crop_no_pdf_subtitle">选择一个 PDF 文件以裁剪或拆分其页面</string>
+    <string name="crop_page_count">页数：%1$d</string>
+    <string name="crop_mode_all">所有页面</string>
+    <string name="crop_mode_per_page">逐页</string>
+    <string name="crop_mode_split">拆分</string>
+    <string name="crop_variant_each_page">每一页</string>
+    <string name="crop_variant_odd_even">奇数 / 偶数</string>
+    <string name="crop_variant_split_line">分割线</string>
+    <string name="crop_variant_two_areas">两个区域</string>
+    <string name="crop_orientation_vertical">垂直</string>
+    <string name="crop_orientation_horizontal">水平</string>
+    <string name="crop_area_number">区域 %1$d</string>
+    <string name="crop_reverse_order">反转顺序</string>
+    <string name="crop_hint_draw">在页面上拖动以绘制裁剪区域</string>
+    <string name="crop_hint_adjust">拖动控制点进行调整，或在外部拖动以重新绘制</string>
+    <string name="crop_hint_pages_marked">已在 %2$d 页中的 %1$d 页设置裁剪区域</string>
+    <string name="crop_hint_odd">正在编辑奇数页 (1, 3, 5…)</string>
+    <string name="crop_hint_even">正在编辑偶数页 (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">点按或拖动以移动分割线</string>
+    <string name="crop_hint_two_areas">每个区域将成为单独的页面</string>
+    <string name="crop_page_indicator">第 %1$d 页，共 %2$d 页</string>
+    <string name="crop_copy_to_following">复制到后续页面</string>
+    <string name="crop_reset">重置</string>
+    <string name="crop_draw_first">请先绘制裁剪区域</string>
+    <string name="crop_save_pages">保存 PDF（已裁剪 %1$d 页）</string>
+    <string name="crop_save_split">保存 PDF（%1$d → %2$d 页）</string>
+    <string name="crop_progress">正在裁剪页面…</string>
+    <string name="crop_complete_title">裁剪完成</string>
+    <string name="crop_failed_title">裁剪失败</string>
+    <string name="crop_success">已裁剪 %1$d 页</string>
+    <string name="crop_split_success">已将 %1$d 页拆分为 %2$d 页</string>
+    <string name="crop_saved_to">已保存到：%1$s</string>
+    <string name="crop_error_open">无法打开此 PDF。它可能受密码保护或已损坏。</string>
+    <string name="crop_error_output">无法创建输出文件</string>
 </resources>

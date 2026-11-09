@@ -600,4 +600,42 @@
     <string name="fill_form_filled">Форма заполнена!</string>
     <string name="fill_fields_updated">Обновлено %1$d полей</string>
     <string name="fill_no_editable_fields">В этой форме нет редактируемых полей</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">Обрезка страниц</string>
+    <string name="desc_crop_pages">Обрезка полей или разделение страниц надвое</string>
+    <string name="crop_no_pdf_subtitle">Выберите PDF-файл для обрезки или разделения страниц</string>
+    <string name="crop_page_count">Страниц: %1$d</string>
+    <string name="crop_mode_all">Все</string>
+    <string name="crop_mode_per_page">По страницам</string>
+    <string name="crop_mode_split">Разделить</string>
+    <string name="crop_variant_each_page">Каждая страница</string>
+    <string name="crop_variant_odd_even">Нечётные / чётные</string>
+    <string name="crop_variant_split_line">Линия разреза</string>
+    <string name="crop_variant_two_areas">Две области</string>
+    <string name="crop_orientation_vertical">Вертикально</string>
+    <string name="crop_orientation_horizontal">Горизонтально</string>
+    <string name="crop_area_number">Область %1$d</string>
+    <string name="crop_reverse_order">Обратный порядок</string>
+    <string name="crop_hint_draw">Проведите по странице, чтобы нарисовать область обрезки</string>
+    <string name="crop_hint_adjust">Перетащите маркеры для настройки или проведите снаружи, чтобы нарисовать заново</string>
+    <string name="crop_hint_pages_marked">Область обрезки задана на %1$d из %2$d страниц</string>
+    <string name="crop_hint_odd">Редактирование нечётных страниц (1, 3, 5…)</string>
+    <string name="crop_hint_even">Редактирование чётных страниц (2, 4, 6…)</string>
+    <string name="crop_hint_split_line">Нажмите или перетащите, чтобы переместить линию разреза</string>
+    <string name="crop_hint_two_areas">Каждая область станет отдельной страницей</string>
+    <string name="crop_page_indicator">Страница %1$d из %2$d</string>
+    <string name="crop_copy_to_following">Копировать на следующие</string>
+    <string name="crop_reset">Сбросить</string>
+    <string name="crop_draw_first">Сначала нарисуйте область обрезки</string>
+    <string name="crop_save_pages">Сохранить PDF (обрезано страниц: %1$d)</string>
+    <string name="crop_save_split">Сохранить PDF (%1$d → %2$d стр.)</string>
+    <string name="crop_progress">Обрезка страниц…</string>
+    <string name="crop_complete_title">Обрезка завершена</string>
+    <string name="crop_failed_title">Ошибка обрезки</string>
+    <string name="crop_success">Обрезано страниц: %1$d</string>
+    <string name="crop_split_success">Страниц: %1$d → %2$d после разделения</string>
+    <string name="crop_saved_to">Сохранено в: %1$s</string>
+    <string name="crop_error_open">Не удалось открыть этот PDF. Возможно, он защищён паролем или повреждён.</string>
+    <string name="crop_error_output">Не удаётся создать выходной файл</string>
 </resources>

@@ -72,6 +72,7 @@ PDF Toolkit is published on **F-Droid**, the repository of free and open-source 
 - **Compress PDF** — Reduce file size while maintaining quality
 - **Reorder Pages** — Visual drag-and-drop page reordering
 - **Rotate Pages** — Rotate specific pages or entire documents
+- **Crop Pages** — Draw a crop area for all pages, per page (or odd/even), or split each page in two — lossless, text stays selectable
 - **Extract Pages** — Extract specific pages to create new PDFs
 - **Delete Pages** — Remove unwanted pages
 

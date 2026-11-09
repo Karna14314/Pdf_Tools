@@ -600,4 +600,42 @@
     <string name="fill_form_filled">تم تعبئة النموذج!</string>
     <string name="fill_fields_updated">تم تحديث %1$d حقول</string>
     <string name="fill_no_editable_fields">لا يحتوي هذا النموذج على حقول قابلة للتحرير</string>
+
+    <!-- Crop Pages -->
+    <string name="tool_crop_pages">قص الصفحات</string>
+    <string name="desc_crop_pages">قص الهوامش أو تقسيم الصفحات إلى قسمين</string>
+    <string name="crop_no_pdf_subtitle">حدد ملف PDF لقص صفحاته أو تقسيمها</string>
+    <string name="crop_page_count">عدد الصفحات: %1$d</string>
+    <string name="crop_mode_all">كل الصفحات</string>
+    <string name="crop_mode_per_page">لكل صفحة</string>
+    <string name="crop_mode_split">تقسيم</string>
+    <string name="crop_variant_each_page">كل صفحة</string>
+    <string name="crop_variant_odd_even">فردية / زوجية</string>
+    <string name="crop_variant_split_line">خط التقسيم</string>
+    <string name="crop_variant_two_areas">منطقتان</string>
+    <string name="crop_orientation_vertical">عمودي</string>
+    <string name="crop_orientation_horizontal">أفقي</string>
+    <string name="crop_area_number">المنطقة %1$d</string>
+    <string name="crop_reverse_order">عكس الترتيب</string>
+    <string name="crop_hint_draw">اسحب على الصفحة لرسم منطقة القص</string>
+    <string name="crop_hint_adjust">اسحب المقابض للضبط، أو اسحب خارجها لإعادة الرسم</string>
+    <string name="crop_hint_pages_marked">تم تحديد منطقة القص في %1$d من %2$d صفحة</string>
+    <string name="crop_hint_odd">تعديل الصفحات الفردية (1، 3، 5…)</string>
+    <string name="crop_hint_even">تعديل الصفحات الزوجية (2، 4، 6…)</string>
+    <string name="crop_hint_split_line">انقر أو اسحب لتحريك خط التقسيم</string>
+    <string name="crop_hint_two_areas">تصبح كل منطقة صفحة منفصلة</string>
+    <string name="crop_page_indicator">الصفحة %1$d من %2$d</string>
+    <string name="crop_copy_to_following">نسخ إلى الصفحات التالية</string>
+    <string name="crop_reset">إعادة تعيين</string>
+    <string name="crop_draw_first">ارسم منطقة القص أولاً</string>
+    <string name="crop_save_pages">حفظ PDF (تم قص %1$d صفحة)</string>
+    <string name="crop_save_split">حفظ PDF (%1$d ← %2$d صفحة)</string>
+    <string name="crop_progress">جارٍ قص الصفحات…</string>
+    <string name="crop_complete_title">اكتمل القص</string>
+    <string name="crop_failed_title">فشل القص</string>
+    <string name="crop_success">تم قص %1$d صفحة</string>
+    <string name="crop_split_success">تم تقسيم %1$d صفحة إلى %2$d صفحة</string>
+    <string name="crop_saved_to">تم الحفظ في: %1$s</string>
+    <string name="crop_error_open">تعذر فتح ملف PDF هذا. قد يكون محميًا بكلمة مرور أو تالفًا.</string>
+    <string name="crop_error_output">لا يمكن إنشاء ملف الإخراج</string>
 </resources>
